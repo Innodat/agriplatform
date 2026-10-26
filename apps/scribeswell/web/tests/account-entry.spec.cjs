@@ -144,3 +144,17 @@ test('review: invalid supplied reader never blends legacy fields into account re
   });
   expect(results).toEqual(Array(5).fill('http://127.0.0.1:5182/'));
 });
+
+test('P10 callback projection is pure and preserves unrelated raw query when only the fragment needs filtering',async({page})=>{
+ await setup(page);await page.goto('/');
+ const result=await page.evaluate(async()=>{
+  const {projectAccountCallback}=await import('/src/lib/account-entry.ts');
+  const raw='?reader=%7b%7d&foreign=a%20b&foreign=%2f&flag&empty=&other=%7e';
+  const callbacks=new URLSearchParams({error:'synthetic-error',error_code:'synthetic-code',error_description:'synthetic-description',code:'synthetic-auth-code',access_token:'synthetic-access',refresh_token:'synthetic-refresh',expires_in:'3600',expires_at:'123456',token_type:'bearer',type:'signup',provider_token:'synthetic-provider',provider_refresh_token:'synthetic-provider-refresh',fragmentForeign:'kept'});
+  const input=new URL(location.origin+'/'+raw+'#'+callbacks),original=input.href,native=location.href,state=JSON.stringify(history.state);
+  const projected=projectAccountCallback(input);
+  const queryInput=new URL(location.origin+'/?'+callbacks),queryProjected=projectAccountCallback(queryInput);
+  return {search:projected.search,fragmentKeys:[...new URLSearchParams(projected.hash.slice(1)).keys()],queryKeys:[...queryProjected.searchParams.keys()],inputUnchanged:input.href===original,cloned:input!==projected,nativeUnchanged:location.href===native,stateUnchanged:JSON.stringify(history.state)===state};
+ });
+ expect(result).toEqual({search:'?reader=%7b%7d&foreign=a%20b&foreign=%2f&flag&empty=&other=%7e',fragmentKeys:['fragmentForeign'],queryKeys:['fragmentForeign'],inputUnchanged:true,cloned:true,nativeUnchanged:true,stateUnchanged:true});
+});

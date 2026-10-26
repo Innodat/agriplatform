@@ -39,10 +39,21 @@ export function hasAccountCallback() {
   const url = new URL(location.href), fragment = new URLSearchParams(url.hash.slice(1));
   return callbackKeys.some(key => url.searchParams.has(key) || fragment.has(key));
 }
+/** Project a copy without consuming SDK-owned callback data or changing the native entry. */
+export function projectAccountCallback(input: URL) {
+  const url = new URL(input.href), fragment = new URLSearchParams(url.hash.slice(1));
+  let fragmentChanged = false;
+  for (const key of callbackKeys) {
+    // URLSearchParams mutations normalize the query even when the key is absent.
+    // Leave ordinary malformed provenance byte-for-byte intact.
+    if (url.searchParams.has(key)) url.searchParams.delete(key);
+    if (fragment.has(key)) {fragment.delete(key); fragmentChanged = true;}
+  }
+  if (fragmentChanged) url.hash = fragment.toString();
+  return url;
+}
 export function scrubAccountCallback() {
-  const url = new URL(location.href), fragment = new URLSearchParams(url.hash.slice(1));
-  for (const key of callbackKeys) {url.searchParams.delete(key); fragment.delete(key);}
-  url.hash = fragment.toString();
+  const url = projectAccountCallback(new URL(location.href));
   history.replaceState(history.state, '', url.pathname + url.search + url.hash);
 }
 /** Reject explicit errors and incomplete implicit callbacks before SDK initialization. */

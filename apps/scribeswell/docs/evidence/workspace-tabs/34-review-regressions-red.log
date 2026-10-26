@@ -1,0 +1,411 @@
+[WebServer] (node:1116744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:1116782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus (6.0s)
+(node:1117021) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 preview Open in new tab uses supplied verse without picker and retains source layout (741ms)
+  ✓   3 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 occurrence Open in new tab uses supplied verse without picker and retains source layout (703ms)
+  ✘   4 [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin (5.8s)
+(node:1117289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (6.3s)
+(node:1117448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (6.3s)
+(node:1117696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (6.3s)
+(node:1117907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover (6.3s)
+(node:1118067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover (6.4s)
+(node:1118337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable (6.9s)
+(node:1118571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (6.7s)
+(node:1118753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host (1.2s)
+(node:1118901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards failed background input while the active retained note is saved (1.9s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards composing background input while the active retained note is saved (1.2s)
+  ✘  15 [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays (8.3s)
+(node:1119227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration (6.1s)
+(node:1119399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft (6.1s)
+(node:1119599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (5.8s)
+(node:1119809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [desktop] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (2.0s)
+
+
+  1) [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        14 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="tab-311cad07-f6bd-40b1-85cd-3c6f02f34768" data-workspace-tab="311cad07-f6bd-40b1-85cd-3c6f02f34768">Genesis 1</button>
+           - unexpected value "inactive"
+
+
+      475 |
+      476 | test('review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus',async({page})=>{
+    > 477 |  await setup(page);let pending=false,release;await page.route('**/api/bible/lexicon/**',async r=>{const id=new URL(r.request().url()).pathname.split('/').pop();if(pending&&id==='1')await new Promise(resolve=>release=resolve);return r.fulfill({json:{status:'available',lexical_id:id,lemma:id,root:{id:'root',text:'אב',lexical_id:id==='4428'?'1':'6'}}});});await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Open dictionary entry 1',exact:true}).click();await expect(page.getByRole('heading',{name:'1',exact:true})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();pending=true;const tab=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first();await tab.click();await expect.poll(()=>!!release).toBe(true);await expect(tab).toBeFocused();const reply=page.waitForResponse('**/api/bible/lexicon/1');release();await reply;await expect(page.getByRole('heading',{name:'1',exact:true})).toBeVisible();await expect(tab).toBeFocused();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+      478 | });
+      479 | for(const source of ['preview','occurrence'])test(`review tabs V2 ${source} Open in new tab uses supplied verse without picker and retains source layout`,async({page})=>{
+      480 |  await setup(page);await page.locator('.word-token').first().click();const original=await page.locator('[data-reader-pane]').getAttribute('data-pane-key');if(source==='preview'){await page.getByRole('button',{name:'Ex 1:20',exact:true}).click();await page.getByRole('region',{name:'Scripture preview'}).getByRole('button',{name:'Open in new tab',exact:true}).click();}else{await page.getByRole('tab',{name:'Occurrences',exact:true}).click();await page.getByRole('button',{name:'Open in new tab',exact:true}).first().click();}await expect(page.getByRole('dialog')).toHaveCount(0);const wire=await page.evaluate(()=>JSON.parse(new URL(location.href).searchParams.get('reader')));expect(wire.panes[0].ref.book_id).toBe('Exod');expect(wire.panes[0].ref.target).toEqual({kind:'verse_range',start:{chapter:1,verse:20},end:{chapter:1,verse:20}});const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await expect(tabs).toHaveCount(2);await expect(tabs.nth(1)).toHaveAttribute('aria-selected','true');await tabs.first().click();expect(await page.locator('[data-reader-pane]').getAttribute('data-pane-key')).toBe(original);await expect(page.getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:477:941
+
+    Error Context: test-results/lexicon-review-tabs-B2-ret-2be1f-xplicit-workspace-tab-focus-desktop/error-context.md
+
+  2) [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('tab', { name: 'Occurrences', exact: true })
+    Expected: "true"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('tab', { name: 'Occurrences', exact: true }) with timeout 5000ms
+      - waiting for getByRole('tab', { name: 'Occurrences', exact: true })
+
+
+      481 | });
+      482 | test('review tabs E2 live POP retains unchanged word filters while changed references invalidate origin',async({page})=>{
+    > 483 |  await setup(page);await page.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences',exact:true}).click();await page.getByLabel('Filter occurrences by book').selectOption('Gen');await page.getByRole('button',{name:'Next results',exact:true}).click();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.goBack();await expect(page.getByRole('tab',{name:'Occurrences',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.getByLabel('Filter occurrences by book')).toHaveValue('Gen');await expect(page.getByRole('button',{name:'Previous results',exact:true})).toBeEnabled();await page.goForward();await page.goBack();await expect(page.getByLabel('Filter occurrences by book')).toHaveValue('Gen');await page.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page.getByLabel('Word analysis panel')).toHaveCount(0);await page.goBack();await expect(page.getByLabel('Word analysis panel')).toHaveCount(0);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
+      484 | });
+      485 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:483:568
+
+    Error Context: test-results/lexicon-review-tabs-E2-liv-eefe3-eferences-invalidate-origin-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('newer inactive secret', { exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByText('newer inactive secret', { exact: true }) with timeout 5000ms
+      - waiting for getByText('newer inactive secret', { exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      1419 | async function reviewTwoNotes(page){await reviewLibrary(page);await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();await reviewTabAdd(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();}
+      1420 | test('review tabs B1 delayed denial clears labels renamed on newer inactive live tab records',async({page})=>{
+    > 1421 |  let release;const options={beforeRename:()=>new Promise(resolve=>release=resolve),failRename:403};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('denied');await page.getByRole('button',{name:'Save',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await reviewTabRename(page,2,'newer inactive secret');const reply=page.waitForResponse('**/title');release();await reply;await expect(page.getByRole('alert').first()).toContainText('access is unavailable');options.failRename=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByText('newer inactive secret',{exact:true})).toHaveCount(0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      1422 | });
+      1423 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+      1424 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1421:929
+
+    Error Context: test-results/personal-notes-review-tabs-766f2-r-inactive-live-tab-records-desktop/error-context.md
+
+  4) [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Retry account access', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Retry account access', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Retry account access', exact: true })
+
+
+      1422 | });
+      1423 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+    > 1424 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1425 | });
+      1426 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+      1427 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1424:1166
+
+    Error Context: test-results/personal-notes-review-tabs-829c5-hout-tool-or-focus-takeover-desktop/error-context.md
+
+  5) [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Retry account access', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Retry account access', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Retry account access', exact: true })
+
+
+      1422 | });
+      1423 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+    > 1424 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1425 | });
+      1426 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+      1427 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1424:1166
+
+    Error Context: test-results/personal-notes-review-tabs-c09ed-hout-tool-or-focus-takeover-desktop/error-context.md
+
+  6) [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Retry account access', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Retry account access', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Retry account access', exact: true })
+
+
+      1422 | });
+      1423 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+    > 1424 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1425 | });
+      1426 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+      1427 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1424:1166
+
+    Error Context: test-results/personal-notes-review-tabs-07c6e-hout-tool-or-focus-takeover-desktop/error-context.md
+
+  7) [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Retry account access', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Retry account access', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Retry account access', exact: true })
+
+
+      1422 | });
+      1423 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+    > 1424 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1425 | });
+      1426 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+      1427 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1424:1166
+
+    Error Context: test-results/personal-notes-review-tabs-3ea2d-hout-tool-or-focus-takeover-desktop/error-context.md
+
+  8) [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByRole('button', { name: 'Rename tab 1', exact: true })
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('button', { name: 'Rename tab 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Rename tab 1', exact: true })
+        14 × locator resolved to <button class="p-2" aria-label="Rename tab 1">Rename</button>
+           - unexpected value "enabled"
+
+
+      1425 | });
+      1426 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+    > 1427 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+           |                                                                                                                                                                                                                                                                                                                                                                     ^
+      1428 | });
+      1429 | test('review tabs E1 sole conflicted note reopens latest only after guarded consent',async({page})=>{
+      1430 |  const options={failPut:409};const {advanceNote}=await setup(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('my conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'latest server value',marks:[]}]}]},connections:[],highlights:[]});await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('latest server value');
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1427:357
+
+    Error Context: test-results/personal-notes-review-tabs-78100-orized-Rename-remain-usable-desktop/error-context.md
+
+  9) [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+
+      1428 | });
+      1429 | test('review tabs E1 sole conflicted note reopens latest only after guarded consent',async({page})=>{
+    > 1430 |  const options={failPut:409};const {advanceNote}=await setup(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('my conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'latest server value',marks:[]}]}]},connections:[],highlights:[]});await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('latest server value');
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      1431 | });
+      1432 | test('review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host',async({page})=>{
+      1433 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.evaluate(el=>{el.focus();const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});await page.getByRole('button',{name:'Read note',exact:true}).click();await page.evaluate(()=>{window.modeRestore=[];window.originalTimeout=window.setTimeout;window.setTimeout=(callback,delay,...args)=>{if(delay===0){window.modeRestore.push(()=>callback(...args));return 987654;}return window.originalTimeout(callback,delay,...args);};});await page.getByRole('button',{name:'Edit note',exact:true}).click();await tabs.nth(1).click();await editor.focus();await editor.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);getSelection().removeAllRanges();getSelection().addRange(r);window.selectedOther=r.endContainer;window.selectedOffset=r.endOffset;});await page.evaluate(()=>{window.setTimeout=window.originalTimeout;window.modeRestore.splice(0).forEach(fn=>fn());});expect(await editor.evaluate(el=>{const r=getSelection().getRangeAt(0);return el.contains(r.startContainer)&&r.endContainer===window.selectedOther&&r.endOffset===window.selectedOffset;})).toBe(true);await expect(editor).toBeFocused();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1430:688
+
+    Error Context: test-results/personal-notes-review-tabs-9ea39--only-after-guarded-consent-desktop/error-context.md
+
+  10) [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      1431 | });
+      1432 | test('review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host',async({page})=>{
+    > 1433 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.evaluate(el=>{el.focus();const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});await page.getByRole('button',{name:'Read note',exact:true}).click();await page.evaluate(()=>{window.modeRestore=[];window.originalTimeout=window.setTimeout;window.setTimeout=(callback,delay,...args)=>{if(delay===0){window.modeRestore.push(()=>callback(...args));return 987654;}return window.originalTimeout(callback,delay,...args);};});await page.getByRole('button',{name:'Edit note',exact:true}).click();await tabs.nth(1).click();await editor.focus();await editor.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);getSelection().removeAllRanges();getSelection().addRange(r);window.selectedOther=r.endContainer;window.selectedOffset=r.endOffset;});await page.evaluate(()=>{window.setTimeout=window.originalTimeout;window.modeRestore.splice(0).forEach(fn=>fn());});expect(await editor.evaluate(el=>{const r=getSelection().getRangeAt(0);return el.contains(r.startContainer)&&r.endContainer===window.selectedOther&&r.endOffset===window.selectedOffset;})).toBe(true);await expect(editor).toBeFocused();
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      1434 | });
+      1435 | for(const state of ['failed','composing'])test(`review tabs V1 sign-out guards ${state} background input while the active retained note is saved`,async({page})=>{
+      1436 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});if(state==='failed')await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());else await editor.dispatchEvent('compositionstart');await editor.fill('background private '+state);if(state==='failed')await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await tabs.nth(1).click();await expect(editor).toHaveText('A second');await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await tabs.first().click();await expect(editor).toHaveText('background private '+state);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1433:1351
+
+    Error Context: test-results/personal-notes-review-tabs-0ad19-n-another-exposed-note-host-desktop/error-context.md
+
+  11) [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "lane A unresolved"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1437 | });
+      1438 | test('review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays',async({page})=>{
+    > 1439 |  await reviewTwoNotes(page);await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab'),editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('lane B unresolved');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await tabs.first().click();await editor.fill('lane A unresolved');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toHaveText('lane A unresolved');await tabs.nth(1).click();await expect(editor).toHaveText('lane B unresolved');await tabs.first().click();await page.getByRole('button',{name:'Sign out',exact:true}).click();await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(page.getByRole('button',{name:'Sign out',exact:true})).toHaveCount(0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1440 | });
+      1441 |
+      1442 | test('review tabs B3 word scroll survives hidden Notes scrolling without focus restoration',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1439:942
+
+    Error Context: test-results/personal-notes-review-tabs-26889-econd-unresolved-lane-stays-desktop/error-context.md
+
+  12) [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 3
+    Received:   230
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      1441 |
+      1442 | test('review tabs B3 word scroll survives hidden Notes scrolling without focus restoration',async({page})=>{
+    > 1443 |  await setup(page,{noteValue:{document:{version:1,blocks:Array.from({length:100},(_,i)=>({type:'paragraph',direction:'auto',content:[{type:'text',text:'Long note '+i+' content',marks:[]}]}))},connections:[],highlights:[]}});await page.route('**/api/bible/words/**',r=>r.fulfill({json:{id:1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:'4428',lexical_id:'4428',morph_code:null,morphemes:[]}}));await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'king',bdb:[{kind:'text',text:'Long definition '.repeat(300)}]}}));await firstNote(page);if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await page.getByRole('button',{name:'Show more',exact:true}).click();const surface=page.getByRole('complementary',{name:'Study tools',exact:true});const position=await surface.evaluate(el=>{el.scrollTop=230;return el.scrollTop;});expect(position).toBeGreaterThan(100);await page.waitForTimeout(80);await page.getByRole('tab',{name:'Notes',exact:true}).click();await surface.evaluate(el=>el.scrollTop=600);await page.waitForTimeout(80);const word=page.getByRole('tab',{name:'Word',exact:true});await word.click();await expect(word).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-position)).toBeLessThan(3);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+      1444 | });
+      1445 | test('review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft',async({page})=>{
+      1446 |  await reviewLibrary(page,{read:(parent,id,view)=>({...view(parent,id,'long note'),value:{document:{version:1,blocks:Array.from({length:120},(_,i)=>({type:'paragraph',direction:'auto',content:[{type:'text',text:id+' paragraph '+i,marks:[]}]}))},connections:[],highlights:[]}})});await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();const surface=page.getByRole('complementary',{name:'Study tools',exact:true});const a=await surface.evaluate(el=>{el.scrollTop=220;return el.scrollTop;});await page.waitForTimeout(80);await reviewTabAdd(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();const b=await surface.evaluate(el=>{el.scrollTop=650;return el.scrollTop;});await page.waitForTimeout(80);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();await expect(tabs.first()).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-a)).toBeLessThan(3);await tabs.nth(1).click();await expect(tabs.nth(1)).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-b)).toBeLessThan(3);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1443:1426
+
+    Error Context: test-results/personal-notes-review-tabs-31107-g-without-focus-restoration-desktop/error-context.md
+
+  13) [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 3
+    Received:   220
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      1444 | });
+      1445 | test('review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft',async({page})=>{
+    > 1446 |  await reviewLibrary(page,{read:(parent,id,view)=>({...view(parent,id,'long note'),value:{document:{version:1,blocks:Array.from({length:120},(_,i)=>({type:'paragraph',direction:'auto',content:[{type:'text',text:id+' paragraph '+i,marks:[]}]}))},connections:[],highlights:[]}})});await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();const surface=page.getByRole('complementary',{name:'Study tools',exact:true});const a=await surface.evaluate(el=>{el.scrollTop=220;return el.scrollTop;});await page.waitForTimeout(80);await reviewTabAdd(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();const b=await surface.evaluate(el=>{el.scrollTop=650;return el.scrollTop;});await page.waitForTimeout(80);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();await expect(tabs.first()).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-a)).toBeLessThan(3);await tabs.nth(1).click();await expect(tabs.nth(1)).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-b)).toBeLessThan(3);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      1447 | });
+      1448 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1446:1091
+
+    Error Context: test-results/personal-notes-review-tabs-ece38--scroll-without-focus-theft-desktop/error-context.md
+
+  14) [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('tabpanel', { name: 'Genesis 1', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('tabpanel', { name: 'Genesis 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('tabpanel', { name: 'Genesis 1', exact: true })
+
+
+      33 |
+      34 | test('valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe',async({page})=>{
+    > 35 |  await setup(page);await add(page);const key='עברית "quoted" [pane] #1';await page.evaluate(key=>{const state=history.state;history.replaceState({...state,usr:{...state.usr,scribeswellReader:{...state.usr.scribeswellReader,tabKey:key}}},'');},key);await page.reload();await expect(tabs(page)).toHaveCount(1);expect(await tabs(page).first().getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis 1',exact:true})).toBeVisible();await add(page);await tabs(page).first().click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);await expect(tabs(page).first()).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      36 | });
+      37 |
+      38 | test('POP checkpoints the outgoing live tab anchor for a later explicit tab activation',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:35:458
+
+    Error Context: test-results/workspace-tabs-valid-Unico-4b574-ble-and-close-focus-is-safe-desktop/error-context.md
+
+  14 failed
+    [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus 
+    [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin 
+    [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records 
+    [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover 
+    [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover 
+    [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover 
+    [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover 
+    [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable 
+    [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent 
+    [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host 
+    [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays 
+    [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration 
+    [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft 
+    [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+  5 passed (1.6m)

@@ -1,0 +1,20 @@
+[
+  {
+    "location": "apps/scribeswell/web/src/context/StudiesContext.tsx:259",
+    "trigger_condition": "The sole conflicted note is reopened from Studies while its current association remains selected.",
+    "guard_snippet": "if(id===current&&lanes.current.get(id)?.status!=='conflict'){setTool('analysis');setAnalysisTab('Notes');return;}",
+    "potential_consequence": "Reopening never offers conflict departure or reloads the latest saved note."
+  },
+  {
+    "location": "apps/scribeswell/web/src/hooks/useReaderWorkspace.ts:202-208",
+    "trigger_condition": "Browser Back activates a live tab containing an unchanged selected-word pane.",
+    "guard_snippet": "Preserve live pane generations when pane identity and reference match the incoming snapshot.",
+    "potential_consequence": "Fresh generations invalidate retained selections, clearing word analysis and its saved filters."
+  },
+  {
+    "location": "apps/scribeswell/web/src/components/studies/NoteEditor.tsx:78-80",
+    "trigger_condition": "Two tabs display different long notes and users switch after scrolling each.",
+    "guard_snippet": "Capture and restore the inspector scroll position by tab and note identity.",
+    "potential_consequence": "Retained note hosts reuse the other tab's inspector position, losing the original reading position."
+  }
+]

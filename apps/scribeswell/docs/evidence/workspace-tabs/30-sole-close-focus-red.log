@@ -1,0 +1,38 @@
+[WebServer] (node:1091333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1091350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (5.8s)
+
+
+  1) [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        14 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="tab-ebb9f179-308f-4f58-a307-4a5530708647" data-workspace-tab="ebb9f179-308f-4f58-a307-4a5530708647">Genesis 1</button>
+           - unexpected value "inactive"
+
+
+      42 |
+      43 | test('closing the sole pane delegates to tab closure and preserves the final reader without reset',async({page})=>{
+    > 44 |  await setup(page);const first=await tabs(page).first().getAttribute('data-workspace-tab');await add(page);const index=await page.evaluate(()=>history.state.idx),reference=await page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref);await page.getByRole('button',{name:'Close passage 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);expect(await tabs(page).first().getAttribute('data-workspace-tab')).toBe(first);await expect(tabs(page).first()).toHaveAttribute('aria-selected','true');await expect(tabs(page).first()).toBeFocused();expect(await page.evaluate(()=>history.state.idx)).toBe(index+1);expect(await page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref)).toEqual(reference);await expect(page.getByRole('button',{name:'Close passage 1',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:/Close tab/})).toHaveCount(0);await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      45 | });
+      46 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:44:548
+
+    Error Context: test-results/workspace-tabs-closing-the-0cf0a--final-reader-without-reset-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset 

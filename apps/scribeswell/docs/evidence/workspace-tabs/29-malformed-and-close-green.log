@@ -1,0 +1,29 @@
+[WebServer] (node:1089858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:1089920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1148:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (1.5s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1148:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (1.4s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1238:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (1.4s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1340:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (4.7s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1370:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (2.2s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly (1.0s)
+  ✓   7 [desktop] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (827ms)
+  ✓   8 [desktop] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (2.7s)
+  ✓   9 [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (910ms)
+(node:1090358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1148:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (2.9s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1148:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (2.4s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1238:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (2.6s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:1340:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (5.2s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:1370:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (2.3s)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly (1.3s)
+  ✓  16 [mobile] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (1.1s)
+  ✓  17 [mobile] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (2.9s)
+  ✓  18 [mobile] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (1.2s)
+
+  18 passed (41.0s)

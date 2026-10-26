@@ -1,0 +1,29 @@
+[WebServer] (node:1170379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:1170415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/four-passage.spec.cjs:883:1 › review: wrapping controls and navigation errors requalify unchanged grid height (1.5s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:313:1 › rename patch: opening a note during initial read releases loading without reopening title (848ms)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:490:1 › note links: Read Edit restores caret and keeps ordinary notes in format1 (1.6s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:618:1 › library search account replacement clears candidates pages and rejects late denial (766ms)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:630:1 › library search preserves unacknowledged note input and reader position in its independent lane (1.4s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1318:1 › workspace tabs guard only the last live note context and reject changed-input consent (2.3s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1370:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (2.2s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (1.8s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1452:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.0s)
+(node:1170905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/four-passage.spec.cjs:883:1 › review: wrapping controls and navigation errors requalify unchanged grid height (1.7s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:313:1 › rename patch: opening a note during initial read releases loading without reopening title (1.3s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:490:1 › note links: Read Edit restores caret and keeps ordinary notes in format1 (2.1s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:618:1 › library search account replacement clears candidates pages and rejects late denial (886ms)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:630:1 › library search preserves unacknowledged note input and reader position in its independent lane (1.6s)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1318:1 › workspace tabs guard only the last live note context and reject changed-input consent (2.7s)
+  ✓  16 [mobile] › tests/personal-notes.spec.cjs:1370:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (2.4s)
+  ✓  17 [mobile] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (1.9s)
+  ✓  18 [mobile] › tests/personal-notes.spec.cjs:1452:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.0s)
+
+  18 passed (33.1s)

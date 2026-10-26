@@ -1,0 +1,36 @@
+[WebServer] (node:1075953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1075998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1402:1 › workspace tabs delayed creation retains known recovery when new last-context input prevents attachment (6.7s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1402:1 › workspace tabs delayed creation retains known recovery when new last-context input prevents attachment 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Open created note', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Open created note', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open created note', exact: true })
+
+
+      1404 |  await page.route('**/api/studies/*/notes',async r=>{if(r.request().method()!=='POST')return r.fallback();posts++;await new Promise(resolve=>release=resolve);const body=r.request().postDataJSON();return r.fulfill({json:{operation_id:body.operation_id,command:'note.create',study_id:study,note_id:other,revision:'1'}});});
+      1405 |  await page.route('**/notes/'+other,r=>r.fulfill({json:{...attribution,id:other,study_id:study,visibility:'study',revision:'1',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}}}));await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+    > 1406 |  await page.locator('[aria-label="Note text"]').evaluate(el=>{el.textContent='late composition input';el.dispatchEvent(new InputEvent('input',{bubbles:true}));});await page.waitForTimeout(700);release();const consent=page.getByRole('dialog',{name:'Changes not saved'});await expect(consent).toBeVisible();await consent.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('late composition input');expect(posts).toBe(1);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+      1407 | });
+      1408 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1406:450
+
+    Error Context: test-results/personal-notes-workspace-t-3a730-t-input-prevents-attachment-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1402:1 › workspace tabs delayed creation retains known recovery when new last-context input prevents attachment 

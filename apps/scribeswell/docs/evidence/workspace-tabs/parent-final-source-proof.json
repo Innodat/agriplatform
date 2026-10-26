@@ -1,0 +1,18 @@
+{
+  "owning_files": 163,
+  "source_sha256": "d692edb61d6f60565ce2437e92cde05d1de0338875bfd1f4b938c2c2c2544525",
+  "changed_during_final_full_and_build": [],
+  "full": {
+    "registered": 784,
+    "passed": 782,
+    "failed": 0,
+    "skipped": 2,
+    "duration": "13.3m",
+    "command": "SCRIBESWELL_TEST_PYTHON=/tmp/scribeswell-manual-python/bin/python npm run test:browser --workspace=apps/scribeswell/web -- --workers=4 --fully-parallel"
+  },
+  "build": {
+    "exit_code": 0,
+    "log": "parent-callback-final-build.log"
+  },
+  "native_owner_session_integration": "not run; user deferred"
+}

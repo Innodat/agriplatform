@@ -1,0 +1,52 @@
+[WebServer] (node:1243723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1243740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-tabs.spec.cjs:53:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials (1.0s)
+(node:1243867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-tabs.spec.cjs:86:1 › P10 ordinary malformed tab retains raw search bytes when no callback fields exist (943ms)
+
+
+  1) [desktop] › tests/workspace-tabs.spec.cjs:53:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 8
+
+      Object {
+        "foreign": "kept value",
+        "keys": Array [
+    +     "access_token",
+    +     "code",
+    +     "expires_in",
+          "foreign",
+    +     "provider_refresh_token",
+    +     "provider_token",
+          "reader",
+    +     "refresh_token",
+    +     "token_type",
+    +     "type",
+        ],
+        "native": "retained",
+        "user": "retained",
+      }
+
+      72 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();
+      73 |  await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toBeVisible();
+    > 74 |  expect(await cleanQuery()).toEqual(expected);
+         |                             ^
+      75 |  expect(new URL(page.url()).searchParams.get('reader')).toBe('{}');
+      76 |  await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Chapter 1 of Genesis',exact:true}).click();
+      77 |  await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:74:29
+
+    Error Context: test-results/workspace-tabs-P10-malform-0a1ea--callback-query-credentials-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-tabs.spec.cjs:53:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials 
+  1 passed (3.5s)

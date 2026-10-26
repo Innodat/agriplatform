@@ -157,3 +157,6 @@ export function snapshotState(usr: unknown, snapshot: Snapshot): unknown {
     scribeswellReader: snapshot
   };
 }
+
+/** Stable DOM identity; wire keys may contain whitespace and arbitrary Unicode. */
+export const workspaceTabId=(key:string)=>`workspace-tab-${key.split('').map(char=>char.charCodeAt(0).toString(16).padStart(4,'0')).join('')}`;

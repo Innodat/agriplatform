@@ -1,0 +1,32 @@
+[WebServer] (node:1033655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1033693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/lexicon.spec.cjs:465:1 › workspace tabs retain occurrence page filters and expansion without hidden analysis requests (30.0s)
+
+
+  1) [desktop] › tests/lexicon.spec.cjs:465:1 › workspace tabs retain occurrence page filters and expansion without hidden analysis requests 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Next', exact: true })
+
+
+      465 | test('workspace tabs retain occurrence page filters and expansion without hidden analysis requests',async({page})=>{
+      466 |  await setup(page);await page.getByRole('button',{name:/Word: מֶלֶךְ/}).first().click();
+    > 467 |  await page.getByRole('tab',{name:'Occurrences',exact:true}).click();await page.getByRole('button',{name:'Next',exact:true}).click();
+          |                                                                                                                              ^
+      468 |  await expect(page.getByText('26–50')).toBeVisible();
+      469 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();
+      470 |  await expect(page.getByLabel('Word analysis panel')).toHaveCount(0);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:467:126
+
+    Error Context: test-results/lexicon-workspace-tabs-ret-749ce-ut-hidden-analysis-requests-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/lexicon.spec.cjs:465:1 › workspace tabs retain occurrence page filters and expansion without hidden analysis requests 

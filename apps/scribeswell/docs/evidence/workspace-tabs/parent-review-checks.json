@@ -1,0 +1,80 @@
+{
+  "reviewed_diff_sha256": "3303a77a9f03c0538bd55f3cd0c260ebdcdf4fbe6965806f25f363f3944c5205",
+  "repair_delta_bytes": 81801,
+  "repair_delta_sha256": "a058918ce20fa16615cdf2d7249f3f1bad0df4aaae994b3f44f3020899ae9630",
+  "owning_focused_files": 53,
+  "indexed_stdout_verified": 38,
+  "current_matches_focused_pair": true,
+  "build": {
+    "command": "npm run build --workspace=apps/scribeswell/web",
+    "exit_code": 0,
+    "warning": "Existing minified chunks larger than 500kB",
+    "executed_by": "parent after review repairs"
+  },
+  "full_browser": {
+    "registered": 784,
+    "passed": 782,
+    "failed": 0,
+    "skipped": 2,
+    "duration": "13.3m",
+    "owning_files": 163,
+    "sha256": "d692edb61d6f60565ce2437e92cde05d1de0338875bfd1f4b938c2c2c2544525",
+    "frozen": true,
+    "command": "--workers=4 --fully-parallel"
+  },
+  "live_integration": "not run; deferred by user",
+  "post_full_focused": {
+    "result": "18 passed (33.1s)",
+    "owning_files": 163,
+    "frozen": true
+  },
+  "first_full_browser": {
+    "registered": 778,
+    "passed": 768,
+    "failed": 8,
+    "skipped": 2,
+    "duration": "16.5m",
+    "owning_files": 163,
+    "sha256": "c71eab337793559f6311f37e54c00d1d5beab611039df49242711624b50c07f1",
+    "frozen": true,
+    "causes": [
+      "P4 measured viewport fixture",
+      "P5 navigation freshness",
+      "P6 explicit tool reopening fixture",
+      "P7 another live note context fixture"
+    ]
+  },
+  "final_build": {
+    "command": "npm run build --workspace=apps/scribeswell/web",
+    "exit_code": 0,
+    "log": "parent-callback-final-build.log",
+    "warning": "Existing minified chunks larger than500kB"
+  },
+  "second_full_browser": {
+    "registered": 778,
+    "passed": 775,
+    "failed": 1,
+    "skipped": 2,
+    "duration": "16.3m",
+    "owning_files": 163,
+    "sha256": "fa4ab1a42a8c454e88f45ac1f719ed4d92a023577e30f42db30d080793ed25b6",
+    "frozen": true
+  },
+  "third_full_browser": {
+    "registered": 778,
+    "passed": 774,
+    "failed": 2,
+    "skipped": 2,
+    "duration": "13.7m",
+    "owning_files": 163,
+    "sha256": "2eea2464fb3b28140989a8df0ffe8dab19bfb97ae1547ab32e5cb2a1a243bc70",
+    "frozen": true
+  },
+  "p9_p10_focused": {
+    "passed": 98,
+    "duration": "1.9m",
+    "frozen163": true,
+    "registered_red": "42-p10-registered-red.log"
+  },
+  "stable_stdout_verified": 49
+}

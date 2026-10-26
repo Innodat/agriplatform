@@ -1,0 +1,11 @@
+{
+  "owning_files": 163,
+  "changed_during_final_focused_run": [],
+  "changed_since_parent_second_full": [
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs"
+  ],
+  "trace_log": "39-p8-scroll-trace.log",
+  "deterministic_red_log": "40-p8-deterministic-red.log",
+  "final_log": "41-p8-focused-green.log",
+  "final_result": "10 passed (16.2s)"
+}

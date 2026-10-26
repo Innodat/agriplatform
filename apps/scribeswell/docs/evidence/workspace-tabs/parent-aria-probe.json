@@ -1,0 +1,8 @@
+{
+  "kind": "synthetic Chromium DOM accessibility probe; not an application acceptance run",
+  "syntheticKey": "עברית \"quoted\" [pane] #1",
+  "rawId": "tab-עברית \"quoted\" [pane] #1",
+  "panels": 1,
+  "namedPanels": 0,
+  "explanation": "The accepted key contains whitespace. aria-labelledby tokenizes that raw DOM ID as multiple IDREFs. The implementation uses the same raw key interpolation; worker will qualify the actual app boundary."
+}

@@ -393,3 +393,23 @@ through public add/close/replay; public layout changes create no note mutations.
 Tabs, per-tab private associations, durable same-device restoration, final owner/native
 integration, physical-device acceptance and production activation retain their gates.
 No private wire, migration, Access/Identity path, scaffold/shared UI or ADR is changed.
+
+
+## In-memory workspace tabs — component delivery, final integration pending
+
+[The adopted tab contract](WORKSPACE_TABS_V1.md) and
+[component evidence](WORKSPACE_TABS_EVIDENCE.md) cover independent public
+layouts and authorized tab-owned study/note/tool contexts above the existing single
+account/resource operation owners. Notes reuse one lane and retained resource-bound
+editor host; tab closure is not record deletion. Origin-safe creation recovery,
+all-view deletion/denial clearing, fresh last-context departure and public-only
+closed-history replay retain the existing command/authorization boundaries.
+Decision357's held-entry marker prevents cancelled capacity restoration from
+overwriting public history or collecting a mismatched displayed reference.
+
+No note/title/collection API, migration, Access/Identity path, provider configuration,
+production activation, shared scaffold/UI or accepted ADR changed. The existing
+app-owned callback filter now also protects retained malformed-tab provenance.
+Independent review and final782-pass/2-expected-skip component browser regression
+and build are complete; native/actual-owner/session/device/release gates and durable
+same-device restoration remain separate work.

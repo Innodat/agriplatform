@@ -1,0 +1,73 @@
+[WebServer] (node:1035342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:1035418) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1330:1 › workspace tabs retain a closed-origin creation recovery item without hijacking the active tab (5.8s)
+(node:1035592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (802ms)
+  ✘  3 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (5.8s)
+(node:1035818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [desktop] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (2.1s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1330:1 › workspace tabs retain a closed-origin creation recovery item without hijacking the active tab 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Open created study', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: 'Open created study', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open created study', exact: true })
+
+
+      1332 |  await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+      1333 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();release();
+    > 1334 |  await expect(page.getByRole('button',{name:'Open created study',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');expect(requests.filter(r=>r.path==='/api/studies'&&r.method==='POST')).toHaveLength(1);
+           |                                                                                ^
+      1335 |  await page.getByRole('button',{name:'Open created study',exact:true}).click();await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();expect(requests.filter(r=>r.path==='/api/studies'&&r.method==='POST')).toHaveLength(1);
+      1336 | });
+      1337 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1334:80
+
+    Error Context: test-results/personal-notes-workspace-t-9a154-ut-hijacking-the-active-tab-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        14 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="tab-dd5d5799-2db9-447c-9009-7d746d7a9e2e" data-workspace-tab="dd5d5799-2db9-447c-9009-7d746d7a9e2e">עברית study</button>
+           - unexpected value "inactive"
+
+
+      22 |  await expect(tabs(page).nth(1)).toHaveText('עברית study');expect(await page.evaluate(()=>JSON.stringify(history.state)+location.href)).not.toContain('study');
+      23 |  await tabs(page).nth(1).focus();await page.keyboard.press('Home');await expect(tabs(page).first()).toBeFocused();await expect(tabs(page).nth(1)).toHaveAttribute('aria-selected','true');await page.keyboard.press('Enter');await expect(tabs(page).first()).toHaveAttribute('aria-selected','true');
+    > 24 |  await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);await expect(tabs(page).first()).toBeFocused();await expect(page.getByRole('button',{name:/Close tab/})).toHaveCount(0);
+         |                                                                                                                                                  ^
+      25 | });
+      26 | test('twelve tab cap never evicts and closed history requires explicit public-only victim choice',async({page})=>{
+      27 |  await setup(page);await add(page);const closed=await page.evaluate(()=>history.state.usr.scribeswellReader.tabKey);await page.getByRole('button',{name:'Close tab 2',exact:true}).click();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:24:146
+
+    Error Context: test-results/workspace-tabs-tab-labels--1f329-ng-keys-preserve-activation-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1330:1 › workspace tabs retain a closed-origin creation recovery item without hijacking the active tab 
+    [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation 
+  2 passed (16.9s)

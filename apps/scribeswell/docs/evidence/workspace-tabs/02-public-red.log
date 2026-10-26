@@ -1,0 +1,61 @@
+2026-10-26T02:00:38.994Z pw:webserver HTTP GET: http://127.0.0.1:5182/
+2026-10-26T02:00:38.999Z pw:webserver Error while checking if http://127.0.0.1:5182/ is available: connect ECONNREFUSED 127.0.0.1:5182
+2026-10-26T02:00:38.999Z pw:webserver Starting WebServer process npm run dev -- --host 127.0.0.1 --port 5182...
+2026-10-26T02:00:39.006Z pw:webserver Process started
+2026-10-26T02:00:39.006Z pw:webserver Waiting for availability...
+2026-10-26T02:00:39.006Z pw:webserver HTTP GET: http://127.0.0.1:5182/
+2026-10-26T02:00:39.017Z pw:webserver Error while checking if http://127.0.0.1:5182/ is available: connect ECONNREFUSED 127.0.0.1:5182
+2026-10-26T02:00:39.017Z pw:webserver Waiting 100ms
+[WebServer] 
+[WebServer] > scribeswell-web@0.1.0 dev
+[WebServer] > vite --port 5174 --host 127.0.0.1 --port 5182
+[WebServer] 
+2026-10-26T02:00:39.117Z pw:webserver HTTP GET: http://127.0.0.1:5182/
+2026-10-26T02:00:39.118Z pw:webserver Error while checking if http://127.0.0.1:5182/ is available: connect ECONNREFUSED 127.0.0.1:5182
+2026-10-26T02:00:39.118Z pw:webserver Waiting 250ms
+[WebServer] (node:1024784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 
+[WebServer]   VITE v7.3.6  ready in 137 ms
+[WebServer] 
+[WebServer]   ➜  Local:   http://127.0.0.1:5182/
+2026-10-26T02:00:39.368Z pw:webserver HTTP GET: http://127.0.0.1:5182/
+2026-10-26T02:00:39.387Z pw:webserver HTTP Status: 200
+2026-10-26T02:00:39.389Z pw:webserver WebServer available
+
+Running 1 test using 1 worker
+
+(node:1024828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/reader.spec.cjs:349:1 › workspace tabs retain independent layouts and Cancel retains a newly added tab (5.4s)
+2026-10-26T02:00:45.483Z pw:webserver Terminating the WebServer
+2026-10-26T02:00:45.494Z pw:webserver Terminated the WebServer
+
+
+  1) [desktop] › tests/reader.spec.cjs:349:1 › workspace tabs retain independent layouts and Cancel retains a newly added tab 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('tablist', { name: 'Workspace tabs' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('tablist', { name: 'Workspace tabs' }) with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' })
+
+
+      349 | test('workspace tabs retain independent layouts and Cancel retains a newly added tab',async({page})=>{
+      350 |  await setup(page);await page.goto('/');
+    > 351 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toBeVisible();
+          |                                                                  ^
+      352 |  const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');
+      353 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();
+      354 |  await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/reader.spec.cjs:351:66
+
+    Error Context: test-results/reader-workspace-tabs-reta-cfd00-l-retains-a-newly-added-tab-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/reader.spec.cjs:349:1 › workspace tabs retain independent layouts and Cancel retains a newly added tab 

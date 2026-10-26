@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {ReaderWorkspaceProvider} from "@/context/ReaderWorkspaceContext";
 import { StudiesProvider } from "@/context/StudiesContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { AppShell } from "@/components/layout/AppShell";
@@ -8,11 +9,11 @@ export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
-        <StudiesProvider><AppShell>
+        <ReaderWorkspaceProvider><StudiesProvider><AppShell>
           <Routes>
             <Route path="/" element={<ReaderPage />} />
           </Routes>
-        </AppShell></StudiesProvider>
+        </AppShell></StudiesProvider></ReaderWorkspaceProvider>
       </AuthProvider>
     </BrowserRouter>
   );

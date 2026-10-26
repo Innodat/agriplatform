@@ -1,11 +1,12 @@
-import {useLayoutEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useRef} from 'react';
+import {useWorkspace,useTabState} from '@/context/ReaderWorkspaceContext';
 import {MorphologyPanel} from './MorphologyPanel';
 import {useAsync, useVerses} from '@/hooks/useBible';
 import {getLexicon, getOccurrences} from '@/lib/api-client';
 import type {BookResponse, LexiconNode, WordWithMorphologyResponse} from '@/schemas/bible.schema';
 
 type Reference = {book:string; chapter:number; verse:number};
-type Props = {controlledTab?:'Word'|'Occurrences';hideTabs?:boolean; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(target:"here"|"beside",book:string,chapter:number,verse:number)=>void};
+type Props = {exposed?:boolean;memoryKey:string;controlledTab?:'Word'|'Occurrences';hideTabs?:boolean; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(target:"here"|"beside"|"tab",book:string,chapter:number,verse:number)=>void};
 type View = {identity:string|null; linked:boolean; tab:'Word'|'Occurrences'; book:string; offset:number; requested:boolean; reference:Reference|null; strong:boolean; bdb:boolean; scroll:number; focusId?:string};
 function initialView(identity:string|null,linked=false):View {return {identity,linked,tab:'Word',book:'',offset:0,requested:false,reference:null,strong:false,bdb:false,scroll:0};}
 // Stop at a contiguous prefix; bound both text and nested block layout. Links
@@ -39,60 +40,71 @@ function previewNodes(items:LexiconNode[]) {
   return {nodes:take(items),truncated};
 }
 export function WordStudy(props:Props) {
-  const {word}=props;
+  const {word,memoryKey}=props;
+  const owner=useWorkspace();
   const legacyIds=word.lemma_strong?.split('/').map(s=>s.trim().replace(/^H/,'')).filter(s=>/^[1-9][0-9]*(?: [a-z])?$/.test(s))??[];
   const identity=word.lexical_id!==undefined?word.lexical_id:legacyIds.length===1?legacyIds[0]:null;
-  const [view,setView]=useState(()=>initialView(identity));
-  const [history,setHistory]=useState<View[]>([]);
-  const [revision,setRevision]=useState(0);
+  const [view,setView]=useTabState(`word:${memoryKey}:view`,()=>initialView(identity));
+  const [history,setHistory]=useTabState<View[]>(`word:${memoryKey}:history`,[]);
+  const [revision,setRevision]=useTabState(`word:${memoryKey}:revision`,0);
+  useLayoutEffect(()=>{
+    const fields=owner.views.get(owner.workspace.tabKey);if(!fields)return;
+    const prefix=`word:${memoryKey}:`;
+    for(const name of fields.keys())if(name.startsWith(prefix)&&/^\d+:/.test(name.slice(prefix.length))&&!name.startsWith(`${prefix}${revision}:`))fields.delete(name);
+  },[revision]);
+  const focusRevision=useRef<number|null>(null);
   function follow(next:string,snapshot:View){
     if(next===view.identity)return;
-    setHistory(old=>[...old,snapshot]);setView(initialView(next,true));setRevision(n=>n+1);
+    focusRevision.current=revision+1;setHistory(old=>[...old,snapshot]);setView(initialView(next,true));setRevision(n=>n+1);
   }
-  function back(){const previous=history[history.length-1];if(!previous)return;setHistory(old=>old.slice(0,-1));setView(previous);setRevision(n=>n+1);}
-  return <StudyEntry key={revision} {...props} initial={view} canBack={history.length>0} onBack={back} onFollow={follow}/>;
+  function back(){focusRevision.current=revision+1;const previous=history[history.length-1];if(!previous)return;setHistory(old=>old.slice(0,-1));setView(previous);setRevision(n=>n+1);}
+  return <StudyEntry focusNavigation={focusRevision.current===revision} key={revision} {...props} memoryKey={`${memoryKey}:${revision}`} initial={view} canBack={history.length>0} onBack={back} onFollow={follow}/>;
 }
-function StudyEntry({word,context,books,onClose,onOpen,initial,canBack,onBack,onFollow,controlledTab,hideTabs}:Props&{initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
-  const [localTab,setTab]=useState(initial.tab);
+function StudyEntry({memoryKey,word,context,books,onClose,onOpen,initial,canBack,onBack,onFollow,controlledTab,hideTabs,exposed=true,focusNavigation}:Props&{focusNavigation:boolean;initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
+  const [localTab,setTab]=useTabState(`word:${memoryKey}:tab`,initial.tab);
   const tab=controlledTab??localTab;
-  const [book,setBook]=useState(initial.book);
-  const [offset,setOffset]=useState(initial.offset);
-  const [requested,setRequested]=useState(initial.requested);
-  const [reference,setReference]=useState(initial.reference);
-  const [strong,setStrong]=useState(initial.strong);
+  const [book,setBook]=useTabState(`word:${memoryKey}:book`,initial.book);
+  const [offset,setOffset]=useTabState(`word:${memoryKey}:offset`,initial.offset);
+  const [requested,setRequested]=useTabState(`word:${memoryKey}:requested`,initial.requested);
+  const [reference,setReference]=useTabState(`word:${memoryKey}:reference`,initial.reference);
+  const [strong,setStrong]=useTabState(`word:${memoryKey}:strong`,initial.strong);
   const strongDisclosure=useRef<HTMLDetailsElement>(null);
-  const [bdb,setBdb]=useState(initial.bdb);
+  const [bdb,setBdb]=useTabState(`word:${memoryKey}:bdb`,initial.bdb);
   const element=useRef<HTMLDivElement>(null);
-  const restored=useRef(false);
+  const restored=useRef(false),focusStarted=useRef(false),focusOwned=useRef(focusNavigation);
+  const [savedScroll,setSavedScroll]=useTabState(`word:${memoryKey}:scroll`,initial.scroll);
   const identity=initial.identity;
   const lexical = useAsync(()=>identity?getLexicon(identity):Promise.resolve(null),[identity]);
   const occurrences = useAsync(()=>identity&&(requested||controlledTab==='Occurrences')?getOccurrences(identity,book,offset):Promise.resolve(null),[identity,requested,book,offset,controlledTab]);
   const preview = useVerses(reference?.book??null,reference?.chapter??null);
   const previewVerse = preview.data?.data.find(v=>v.verse_num===reference?.verse);
   const inspector=()=>element.current?.closest<HTMLElement>('[data-inspector-scroll]');
-  // Give navigation an immediate focus destination, including failed lookups.
+  const visible=()=>exposed&&!!element.current?.isConnected&&!element.current.closest('[hidden],[inert]')&&!!element.current.getClientRects().length;
+  const exposedNow=useRef(visible);exposedNow.current=visible;
   useLayoutEffect(()=>{
-    if(initial.linked||initial.focusId)element.current?.focus({preventScroll:true});
-    const scroll=inspector();
-    if(scroll)scroll.scrollTop=0;
-    const cancel=()=>{restored.current=true;};
-    const onScroll=()=>{if(scroll&&scroll.scrollTop>0)cancel();};
-    scroll?.addEventListener('wheel',cancel,{passive:true});
-    scroll?.addEventListener('touchmove',cancel,{passive:true});
-    scroll?.addEventListener('scroll',onScroll,{passive:true});
-    return ()=>{scroll?.removeEventListener('wheel',cancel);scroll?.removeEventListener('touchmove',cancel);scroll?.removeEventListener('scroll',onScroll);};
+    const scroll=inspector();if(!scroll)return;
+    const remember=()=>{if(restored.current&&exposedNow.current())setSavedScroll(scroll.scrollTop);};
+    scroll.addEventListener('scroll',remember);return()=>scroll.removeEventListener('scroll',remember);
   },[]);
   useLayoutEffect(()=>{
-    if(restored.current||lexical.loading||lexical.error||lexical.data?.status==='unavailable'||(tab==='Occurrences'&&(occurrences.loading||occurrences.error))||(reference&&(preview.loading||preview.error)))return;
+    const track=(event:FocusEvent)=>{if(!element.current?.contains(event.target as Node))focusOwned.current=false;};
+    document.addEventListener('focusin',track);return()=>document.removeEventListener('focusin',track);
+  },[]);
+  useLayoutEffect(()=>{
+    restored.current=false;
+    if(!visible())return;
+    if(focusNavigation&&!focusStarted.current){focusStarted.current=true;element.current?.focus({preventScroll:true});}
+  },[exposed]);
+  useLayoutEffect(()=>{
+    if(!visible()||restored.current||lexical.loading||lexical.error||lexical.data?.status==='unavailable'||(tab==='Occurrences'&&(occurrences.loading||occurrences.error))||(reference&&(preview.loading||preview.error)))return;
     restored.current=true;
-    const scroll=inspector();
-    if(scroll)scroll.scrollTop=initial.scroll;
-    if(initial.linked||initial.focusId){
+    const scroll=inspector();if(scroll)scroll.scrollTop=savedScroll;
+    if(focusNavigation&&focusOwned.current&&(document.activeElement===document.body||document.activeElement===element.current||element.current?.contains(document.activeElement))){
       const origin=Array.from(element.current?.querySelectorAll<HTMLElement>('[data-dictionary-link]')??[]).find(el=>el.dataset.dictionaryLink===initial.focusId);
       const target=origin??(tab==='Word'?element.current?.querySelector<HTMLElement>('[data-entry-heading]'):null);
       (target&&!target.closest('[hidden]')?target:element.current)?.focus({preventScroll:true});
     }
-  },[lexical.loading,lexical.error,lexical.data,occurrences.loading,occurrences.error,preview.loading,preview.error,tab,reference,initial]);
+  },[exposed,lexical.loading,lexical.error,lexical.data,occurrences.loading,occurrences.error,preview.loading,preview.error,tab,reference,initial]);
   function changeTab(next:'Word'|'Occurrences'){restored.current=true;setTab(next);}
   function follow(next:string,origin:HTMLElement){onFollow(next,{...initial,tab,book,offset,requested,reference,strong:strongDisclosure.current?.open??strong,bdb,focusId:origin.dataset.dictionaryLink,scroll:inspector()?.scrollTop??0});}
   const outline=previewNodes(lexical.data?.bdb??[]);
@@ -145,7 +157,7 @@ function StudyEntry({word,context,books,onClose,onOpen,initial,canBack,onBack,on
           {preview.loading&&<p role="status">Loading verse…</p>}
           {preview.error&&<p>Verse unavailable. <button className="underline" onClick={preview.refetch}>Retry preview</button></p>}
           {preview.data&&<p dir="rtl" lang="he" className="font-hebrew text-lg">{preview.data.data.find(v=>v.verse_num===reference.verse)?.words.map(w=>w.display_he??w.surface_he).join(' ')||'Verse not present in this collection.'}</p>}
-          <button className="underline mr-3 disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("here",reference.book,reference.chapter,reference.verse);}}>Open here</button><button className="underline disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("beside",reference.book,reference.chapter,reference.verse);}}>Open beside</button>
+          <button className="underline mr-3 disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("here",reference.book,reference.chapter,reference.verse);}}>Open here</button><button className="underline disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("beside",reference.book,reference.chapter,reference.verse);}}>Open beside</button><button className="underline ml-2 disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("tab",reference.book,reference.chapter,reference.verse);}}>Open in new tab</button>
           <button className="block underline" onClick={()=>setReference(null)}>Close preview</button>
         </section>}
       </div>
@@ -157,7 +169,7 @@ function StudyEntry({word,context,books,onClose,onOpen,initial,canBack,onBack,on
       {occurrences.loading&&requested&&<p role="status">Loading occurrences…</p>}
       {occurrences.error&&<p>Could not load occurrences. <button className="underline" onClick={occurrences.refetch}>Retry occurrences</button></p>}
       {occurrences.data&&<><p>{occurrences.data.total} word occurrences in {occurrences.data.verse_total} verses</p>{!occurrences.data.total&&<p>No matching occurrences.</p>}
-        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen("here",row.book,row.chapter,row.verse)}>Open here</button><button className="underline" onClick={()=>onOpen("beside",row.book,row.chapter,row.verse)}>Open beside</button></li>)}</ol>
+        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen("here",row.book,row.chapter,row.verse)}>Open here</button><button className="underline" onClick={()=>onOpen("beside",row.book,row.chapter,row.verse)}>Open beside</button><button className="underline ml-2" onClick={()=>onOpen("tab",row.book,row.chapter,row.verse)}>Open in new tab</button></li>)}</ol>
         <div className="flex justify-between"><button disabled={offset===0} className="underline disabled:opacity-30" onClick={()=>setOffset(Math.max(0,offset-25))}>Previous results</button><button disabled={offset+25>=occurrences.data.total} className="underline disabled:opacity-30" onClick={()=>setOffset(offset+25)}>Next results</button></div>
       </>}
     </div>

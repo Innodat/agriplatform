@@ -344,3 +344,15 @@ test('passage review reference-only chapter boundaries follow catalogue without 
  await page.goto('/?book=Matt&chapter=1');await expect(page.getByText('Matthew 1 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(readerParams(page.url()).get('book')).toBe('2Chr');expect(readerParams(page.url()).get('chapter')).toBe('36');
  await page.goto('/?book=Rev&chapter=22');await expect(page.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();expect(calls.filter(path=>/\/books\/(?:Matt|Mark|Rev)(?:\/|$)/.test(path))).toEqual([]);
 });
+
+// Workspace tabs acceptance: observed red before controller/runtime changes.
+test('workspace tabs retain independent layouts and Cancel retains a newly added tab',async({page})=>{
+ await setup(page);await page.goto('/');
+ await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toBeVisible();
+ const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');
+ await page.getByRole('button',{name:'New workspace tab',exact:true}).click();
+ await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(tabs).toHaveCount(2);
+ await tabs.first().click();await expect(tabs.first()).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+});

@@ -1,0 +1,36 @@
+[WebServer] (node:1067438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1067538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus (7.1s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "last-context race input"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1393 |
+      1394 | test('workspace tabs recheck last-context departure after a delayed replacement read without background focus',async({page})=>{
+    > 1395 |  let release;await reviewLibrary(page,{read:async(parent,id,view)=>{if(id!==note)await new Promise(resolve=>release=resolve);return view(parent,id,id===note?'A first':'A second');}});await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('last-context race input');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').nth(1).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();const response=page.waitForResponse('**/notes/40000000-0000-4000-8000-000000000002');release();await response;await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('last-context race input');
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      1396 | });
+      1397 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1395:1777
+
+    Error Context: test-results/personal-notes-workspace-t-82e87-ad-without-background-focus-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus 

@@ -1,0 +1,58 @@
+[WebServer] (node:1123887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:1123910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus (1.1s)
+  ✓   2 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 preview Open in new tab uses supplied verse without picker and retains source layout (742ms)
+  ✓   3 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 occurrence Open in new tab uses supplied verse without picker and retains source layout (700ms)
+  ✓   4 [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin (1.0s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (1.2s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (1.5s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (1.5s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover (1.5s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover (1.4s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable (1.7s)
+  ✘  11 [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (6.8s)
+(node:1124561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host (1.1s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards failed background input while the active retained note is saved (1.9s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards composing background input while the active retained note is saved (1.3s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays (3.5s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration (1.1s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft (1.8s)
+  ✓  18 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (1.7s)
+  ✓  19 [desktop] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (3.0s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "latest server value"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1428 | });
+      1429 | test('review tabs E1 sole conflicted note reopens latest only after guarded consent',async({page})=>{
+    > 1430 |  const options={failPut:409};const {advanceNote}=await setup(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('my conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'latest server value',marks:[]}]}]},connections:[],highlights:[]});await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('latest server value');
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+      1431 | });
+      1432 | test('review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host',async({page})=>{
+      1433 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.evaluate(el=>{el.focus();const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});await page.getByRole('button',{name:'Read note',exact:true}).click();await page.evaluate(()=>{window.modeRestore=[];window.originalTimeout=window.setTimeout;window.setTimeout=(callback,delay,...args)=>{if(delay===0){window.modeRestore.push(()=>callback(...args));return 987654;}return window.originalTimeout(callback,delay,...args);};});await page.getByRole('button',{name:'Edit note',exact:true}).click();await tabs.nth(1).click();await editor.focus();await editor.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);getSelection().removeAllRanges();getSelection().addRange(r);window.selectedOther=r.endContainer;window.selectedOffset=r.endOffset;});await page.evaluate(()=>{window.setTimeout=window.originalTimeout;window.modeRestore.splice(0).forEach(fn=>fn());});expect(await editor.evaluate(el=>{const r=getSelection().getRangeAt(0);return el.contains(r.startContainer)&&r.endContainer===window.selectedOther&&r.endOffset===window.selectedOffset;})).toBe(true);await expect(editor).toBeFocused();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1430:1004
+
+    Error Context: test-results/personal-notes-review-tabs-9ea39--only-after-guarded-consent-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent 
+  18 passed (36.4s)

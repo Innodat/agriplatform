@@ -1,0 +1,14 @@
+{
+  "owning_files": 163,
+  "changed_during_registered_red": [],
+  "changed_during_final_focused_run": [],
+  "changed_since_parent_third_full": [
+    "apps/scribeswell/web/src/hooks/useReaderWorkspace.ts",
+    "apps/scribeswell/web/src/lib/account-entry.ts",
+    "apps/scribeswell/web/tests/account-entry.spec.cjs",
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs",
+    "apps/scribeswell/web/tests/workspace-tabs.spec.cjs"
+  ],
+  "red_log": "42-p10-registered-red.log",
+  "green_log": "43-p9-p10-focused-green.log"
+}

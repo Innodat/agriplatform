@@ -1,0 +1,42 @@
+[WebServer] (node:1044882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1044918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (2.0s)
+close-focus <input dir="auto" class="block border rounded p-2 w-full" placeholder="Psalm 110:1–3 / תהילים קי:1" value="Genesis 1">
+  ✘  2 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (5.7s)
+
+
+  1) [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        14 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="tab-8d91cd42-0ed9-49b5-94a6-9f545e97e5c2" data-workspace-tab="8d91cd42-0ed9-49b5-94a6-9f545e97e5c2">עברית study</button>
+           - unexpected value "inactive"
+
+
+      22 |  await expect(tabs(page).nth(1)).toHaveText('עברית study');expect(await page.evaluate(()=>JSON.stringify(history.state)+location.href)).not.toContain('study');
+      23 |  await tabs(page).nth(1).focus();await page.keyboard.press('Home');await expect(tabs(page).first()).toBeFocused();await expect(tabs(page).nth(1)).toHaveAttribute('aria-selected','true');await page.keyboard.press('Enter');await expect(tabs(page).first()).toHaveAttribute('aria-selected','true');
+    > 24 |  await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);console.log('close-focus',await page.evaluate(()=>document.activeElement.outerHTML));await expect(tabs(page).first()).toBeFocused();await expect(page.getByRole('button',{name:/Close tab/})).toHaveCount(0);
+         |                                                                                                                                                                                                                                       ^
+      25 | });
+      26 | test('twelve tab cap never evicts and closed history requires explicit public-only victim choice',async({page})=>{
+      27 |  await setup(page);await add(page);const closed=await page.evaluate(()=>history.state.usr.scribeswellReader.tabKey);await page.getByRole('button',{name:'Close tab 2',exact:true}).click();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:24:231
+
+    Error Context: test-results/workspace-tabs-tab-labels--1f329-ng-keys-preserve-activation-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation 
+  1 passed (9.3s)

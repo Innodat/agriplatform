@@ -1,0 +1,2 @@
+Command: git diff --check -- apps/scribeswell/web apps/scribeswell/docs/WORKSPACE_TABS_V1.md apps/scribeswell/docs/PERSONAL_NOTES_V1.md apps/scribeswell/docs/WORKSPACE_TABS_EVIDENCE.md _bmad-output/implementation-artifacts/spec-scribeswell-workspace-tabs.md
+Exit code: 0

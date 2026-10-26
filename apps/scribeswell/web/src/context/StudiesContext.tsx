@@ -1,36 +1,40 @@
 /** One in-memory account/note save lane, independent of mounted tool/editor views. */
 import {createContext,useContext,useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {useWorkspace,useTabState,useTabRef} from './ReaderWorkspaceContext';
 import {useAuth} from './AuthContext';
 import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyView,type OperationAck,type Attempt,type PassageList} from '@/lib/personal-notes';
 import {referenceKey,referenceLabel,validateReference,type PassageReference} from '@/lib/passage-references';
 type PassageIntent={kind:'add';reference:PassageReference}|{kind:'remove';id:string;reference:PassageReference};
 type CollectionLane={study:string;list?:PassageList;intent?:PassageIntent;attempt?:Attempt;confirmed?:OperationAck;running?:Promise<void>;status:'loading'|'ready'|'saving'|'failed'|'conflict'|'reviewed';message:string;read:number};
-export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean;formatUnsupported?:boolean;deletion?:Deletion};
+export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean;formatUnsupported?:boolean;abandoned?:boolean;deletion?:Deletion};
 type Deletion={lane:Lane;label:string;open:boolean;reviewing?:boolean;status:'preparing'|'ready'|'save-recovery'|'executing'|'unknown'|'conflict';message:string;review?:NoteValue;reviewRevision?:string;attempt?:Attempt};
 type StudyDeletion={preparation?:number;study:StudyView;open:boolean;status:'preparing'|'ready'|'recovery'|'executing'|'unknown'|'conflict';message:string;attempt?:Attempt;review?:StudyView;running?:Promise<void>};
 type TitleEdit={study:string;candidate:string;base:string;open:boolean;status:'editing'|'saving'|'failed'|'conflict';message:string;confirmed?:OperationAck;attempt?:Attempt;running?:Promise<void>};
 type Tool='studies'|'analysis'|null;
 function useStatefulStudies(){
+ const workspace=useWorkspace();
  const {session}=useAuth();const account=session?.user.id,token=session?.access_token;
+ const currentToken=useRef(token);currentToken.current=token;
  const identity=useRef(account);identity.current=account;
  const dataAccount=useRef(account);const [authority,setAuthority]=useState(true);
+ const [accountError,setAccountError]=useState('');
  const epoch=useRef(0);const previous=useRef(account);
- if(previous.current!==account){previous.current=account;epoch.current++;}
- const [analysisTab,setAnalysisTab]=useState<'Word'|'Occurrences'|'Notes'>('Notes');
- const [tool,setTool]=useState<Tool>(null),[studies,setStudies]=useState<StudyView[]>([]),[study,setStudy]=useState<StudyView|null>(null),[notes,setNotes]=useState<NoteView[]>([]),[current,setCurrent]=useState<string|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
- const [studyCursor,setStudyCursor]=useState<string|null>(null),[notesCursor,setNotesCursor]=useState<string|null>(null);
- const [searchCandidate,setSearchCandidate]=useState(''),[libraryBusy,setLibraryBusy]=useState(false),[libraryError,setLibraryError]=useState(''),[libraryInputInvalid,setLibraryInputInvalid]=useState(false),[libraryVerified,setLibraryVerified]=useState(false),[libraryRestore,setLibraryRestore]=useState(0);
+ if(previous.current!==account){previous.current=account;epoch.current++;workspace.views.clear();workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs)tab.label=undefined;}
+ const [analysisTab,setAnalysisTab]=useTabState<'Word'|'Occurrences'|'Notes'>('analysisTab','Notes');
+ const [tool,setTool]=useTabState<Tool>('tool',null),[studies,setStudies]=useTabState<StudyView[]>('studies',[]),[study,setStudy]=useTabState<StudyView|null>('study',null,true),[notes,setNotes]=useTabState<NoteView[]>('notes',[],true),[current,setCurrent]=useTabState<string|null>('current',null,true),[error,setError]=useTabState('error',''),[busy,setBusy]=useTabState('busy',false);
+ const [studyCursor,setStudyCursor]=useTabState<string|null>('studyCursor',null),[notesCursor,setNotesCursor]=useTabState<string|null>('notesCursor',null,true);
+ const [searchCandidate,setSearchCandidate]=useTabState('searchCandidate',''),[libraryBusy,setLibraryBusy]=useTabState('libraryBusy',false),[libraryError,setLibraryError]=useTabState('libraryError',''),[libraryInputInvalid,setLibraryInputInvalid]=useTabState('libraryInputInvalid',false),[libraryVerified,setLibraryVerified]=useTabState('libraryVerified',false),[libraryRestore,setLibraryRestore]=useTabState('libraryRestore',0);
  // Passive scroll events from a collapsed list must not replace its saved return anchor.
- const library=useRef({query:'',generation:0,depth:1,cursor:null as string|null,pending:false,positionLocked:false,position:{scroll:0,focus:''}});
+ const library=useTabRef('library',{query:'',generation:0,depth:1,cursor:null as string|null,pending:false,positionLocked:false,position:{scroll:0,focus:''}});
  const lanes=useRef(new Map<string,Lane>()),[,render]=useState(0);const update=()=>render(x=>x+1);
- const [exitPrompt,setExitPrompt]=useState<{action:()=>void|Promise<void>;switching:boolean;discard?:Lane}|null>(null);
- const collectionNavigation=useRef(0);
- const navigation=useRef(0),selectedStudy=useRef<string|undefined>(undefined),notesPosition=useRef<string|null>(null),pendingPages=useRef(new Set<string>());
+ const [exitPrompt,setExitPrompt]=useState<{action:()=>void|Promise<void>;switching:boolean;discard?:Lane;fresh:()=>boolean;lane?:Lane;key:string}|null>(null);
+ const collectionNavigation=useTabRef('collectionNavigation',0);
+ const navigation=useTabRef('navigation',0),selectedStudy=useTabRef<string|undefined>('selectedStudy',undefined),notesPosition=useTabRef<string|null>('notesPosition',notesCursor),pendingPages=useTabRef('pendingPages',new Set<string>());
  selectedStudy.current=study?.id;
  const titles=useRef(new Map<string,TitleEdit>()),titleReads=useRef(new Map<string,number>());
- const activeTool=useRef(tool);activeTool.current=tool;const lastFocused=useRef<HTMLElement|null>(null);
+ const activeTool=useTabRef('activeTool',tool);activeTool.current=tool;const lastFocused=useRef<HTMLElement|null>(null);
  useEffect(()=>{const remember=(event:FocusEvent)=>{if(event.target instanceof HTMLElement&&event.target!==document.body)lastFocused.current=event.target;};document.addEventListener('focusin',remember);return()=>document.removeEventListener('focusin',remember);},[]);
- const selectedNote=useRef(current);selectedNote.current=current;const deletionSequence=useRef(0);
+ const selectedNote=useTabRef('selectedNote',current);selectedNote.current=current;const deletionSequence=useRef(0);
  const [deletionFocus,setDeletionFocus]=useState<{epoch:number;navigation:number;study:string;source:HTMLElement}|null>(null);
  const deleted=useRef(new Set<string>()),deletions=useRef(new Map<string,Deletion>());const [deleteTarget,setDeleteTarget]=useState<string|null>(null);
  const childDeleteRunning=useRef(new Map<string,Promise<OperationAck>>());
@@ -42,14 +46,18 @@ function useStatefulStudies(){
  const metadataReads=useRef(new Map<string,Set<Promise<StudyView|undefined>>>());
  const studyBlocked=(id:string)=>deletedStudies.current.has(id)||studyDeletions.current.has(id);
  const liveStudy=(id:string)=>!deletedStudies.current.has(id);
+ const creationOrigin=useRef<{key:string;navigation:{current:number};generation:number;tool:Tool;resume:()=>Promise<void>}|undefined>(undefined);
  const creation=useRef<Attempt|undefined>(undefined);const enrollment=useRef<string|undefined>(undefined);
- useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);library.current={query:'',generation:library.current.generation+1,depth:1,cursor:null,pending:false,positionLocked:false,position:{scroll:0,focus:''}};setSearchCandidate('');setLibraryError('');setLibraryInputInvalid(false);setLibraryBusy(false);setLibraryVerified(false);},[account]);
+ useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;creationOrigin.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);setAccountError('');library.current={query:'',generation:library.current.generation+1,depth:1,cursor:null,pending:false,positionLocked:false,position:{scroll:0,focus:''}};setSearchCandidate('');setLibraryError('');setLibraryInputInvalid(false);setLibraryBusy(false);setLibraryVerified(false);},[account]);
+ function authorizedToken(){if(identity.current!==account||!currentToken.current)throw new NotesFailure('authentication_required');return currentToken.current;}
  function valid(captured:number){return epoch.current===captured&&identity.current===account;}
  function fail(failure:unknown){
   const code=failure instanceof NotesFailure?failure.code:'studies_storage_unavailable';
+  if((code==='authentication_required'||code==='studies_access_denied')&&!workspace.latest.current.tabs.some(tab=>tab.tabKey===workspace.workspace.tabKey))setAccountError(code==='authentication_required'?'Sign in to use My studies.':'Studies access is unavailable for this account.');
   if(code==='authentication_required'){setStudyDeleteTarget(null);for(const target of studyDeletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}setDeleteTarget(null);for(const target of deletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}epoch.current++;library.current.pending=false;setLibraryBusy(false);setLibraryVerified(false);setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
   if(code==='studies_access_denied'){
-   epoch.current++;library.current.generation++;library.current.query='';library.current.depth=1;library.current.cursor=null;library.current.position={scroll:0,focus:''};library.current.positionLocked=false;setSearchCandidate('');setLibraryVerified(false);setLibraryBusy(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;enrollment.current=undefined;
+   workspace.views.clear();if(workspace.latest.current.tabs.some(tab=>tab.tabKey===workspace.workspace.tabKey))workspace.views.set(workspace.workspace.tabKey,new Map<string,unknown>([['tool',activeTool.current],['error','Studies access is unavailable for this account.']]));workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs)tab.label=undefined;setAuthority(false);workspace.redraw();
+   epoch.current++;library.current.generation++;library.current.query='';library.current.depth=1;library.current.cursor=null;library.current.position={scroll:0,focus:''};library.current.positionLocked=false;setSearchCandidate('');setLibraryVerified(false);setLibraryBusy(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;creationOrigin.current=undefined;enrollment.current=undefined;
   }
   setBusy(false);setError(code==='studies_access_denied'?'Studies access is unavailable for this account.':code==='authentication_required'?'Sign in to use My studies.':'Studies could not be loaded. Try again.');
  }
@@ -70,12 +78,12 @@ function useStatefulStudies(){
    let cursor=more?state.cursor:undefined,items:StudyView[]=[],pages=0;
    const depth=more?1:state.depth;
    do{
-    const result=await api.search(token,query,cursor??undefined);
+    const result=await api.search(authorizedToken(),query,cursor??undefined);
     if(!currentRead())return;
     items.push(...result.items);cursor=result.next_cursor;pages++;
    }while(cursor&&pages<depth);
    if(!currentRead())return;
-   setAuthority(true);setLibraryVerified(true);setError('');
+   setAuthority(true);setAccountError('');setLibraryVerified(true);setError('');
    setStudies(old=>{const existing=new Map(old.map(item=>[item.id,item])),unique=new Map<string,StudyView>();for(const item of more?[...old,...items]:items){if(!liveStudy(item.id))continue;const known=existing.get(item.id);unique.set(item.id,known&&BigInt(known.revision)>BigInt(item.revision)?known:item);}return [...unique.values()];});
    state.cursor=cursor??null;state.depth=more?state.depth+pages:pages;setStudyCursor(state.cursor);if(!more&&!changed)setLibraryRestore(x=>x+1);
   }catch(failure){
@@ -101,27 +109,50 @@ function useStatefulStudies(){
   if(!lane.attempt){const operation_id=uuid();lane.attempt={operation_id,command:'note.replace',path:`/api/studies/${lane.note.study_id}/notes/${lane.note.id}`,method:'PUT',payload:{operation_id,expected_revision:lane.note.revision,value:structuredClone(lane.value)},study:lane.note.study_id,note:lane.note.id,generation:lane.generation};}
   const attempt=lane.attempt;lane.status='saving';update();
   lane.running=(async()=>{
-   try{const result=await execute(token,attempt);if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane||deleted.current.has(lane.note.id))return;lane.note={...lane.note,revision:result.revision,value:attempt.payload.value as NoteValue};lane.saved=attempt.generation;setNotes(old=>old.map(note=>note.id===lane.note.id?lane.note:note));lane.attempt=undefined;lane.status=lane.saved===lane.generation?'saved':'pending';}
+   try{const result=await execute(authorizedToken(),attempt);if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane||deleted.current.has(lane.note.id))return;lane.note={...lane.note,revision:result.revision,value:attempt.payload.value as NoteValue};lane.saved=attempt.generation;for(const fields of workspace.views.values()){const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.map(note=>note.id===lane.note.id?lane.note:note));}lane.attempt=undefined;lane.status=lane.saved===lane.generation?'saved':'pending';}
    catch(e){if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;const code=e instanceof NotesFailure?e.code:'';lane.status=['note_revision_conflict','note_format_unsupported','operation_payload_mismatch','resource_unavailable'].includes(code)?'conflict':'failed';if(code==='note_format_unsupported')lane.formatUnsupported=true;if(code==='scribeswell_personal_notes_input_invalid')lane.attempt=undefined;if(['authentication_required','studies_access_denied'].includes(code))fail(e);}
    finally{lane.running=undefined;if(valid(captured)&&liveStudy(lane.note.study_id)&&lanes.current.get(lane.note.id)===lane){update();if(lane.status==='pending'&&!lane.deletion)schedule(lane);}}
   })();return lane.running;
  }
- function schedule(lane:Lane){clearTimeout(lane.timer);if(studyBlocked(lane.note.study_id)||lane.deletion||lane.composing||lane.running||lane.status==='failed'||lane.status==='conflict')return;const now=Date.now();lane.first??=now;lane.timer=setTimeout(()=>void flush(lane),Math.min(500,Math.max(0,2000-(now-lane.first))));}
- function change(value:NoteValue){const lane=current?lanes.current.get(current):undefined;if(!lane||lane.deletion?.attempt||studyDeletions.current.get(lane.note.study_id)?.attempt)return;lane.value=value;lane.invalid=false;lane.generation++;if(lane.status!=='failed'&&lane.status!=='conflict')lane.status='pending';update();schedule(lane);}
- function composition(active:boolean){const lane=current?lanes.current.get(current):undefined;if(lane){lane.composing=active;if(active)clearTimeout(lane.timer);else schedule(lane);update();}}
- async function exit(action:()=>void|Promise<void>,switching=false){const captured=epoch.current;const lane=current?lanes.current.get(current):undefined;if(lane&&!lane.deletion&&!studyBlocked(lane.note.study_id)){const end=Date.now()+5000;while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);if(!valid(captured))return;}if(!valid(captured))return;if(lane.composing||lane.invalid||lane.generation!==lane.saved){setExitPrompt({action,switching,discard:switching&&lane.status==='conflict'?lane:undefined});return;}}await action();}
+ function schedule(lane:Lane){clearTimeout(lane.timer);if(lane.abandoned||studyBlocked(lane.note.study_id)||lane.deletion||lane.composing||lane.running||lane.status==='failed'||lane.status==='conflict')return;const now=Date.now();lane.first??=now;lane.timer=setTimeout(()=>void flush(lane),Math.min(500,Math.max(0,2000-(now-lane.first))));}
+ function change(value:NoteValue,bound?:Lane){const lane=bound??(current?lanes.current.get(current):undefined);if(!lane||lanes.current.get(lane.note.id)!==lane||dataAccount.current!==account||!authority||lane.deletion?.attempt||studyDeletions.current.get(lane.note.study_id)?.attempt)return;lane.value=value;lane.invalid=false;lane.generation++;if(lane.status!=='failed'&&lane.status!=='conflict')lane.status='pending';update();schedule(lane);}
+ function composition(active:boolean,bound?:Lane){const lane=bound??(current?lanes.current.get(current):undefined);if(lane&&lanes.current.get(lane.note.id)===lane&&dataAccount.current===account&&authority){lane.composing=active;if(active)clearTimeout(lane.timer);else schedule(lane);update();}}
+ function contexts(lane:Lane,except?:string){return workspace.latest.current.tabs.filter(tab=>tab.tabKey!==except&&workspace.views.get(tab.tabKey)?.get('current')===lane.note.id);}
+ async function exit(action:()=>void|Promise<void>,switching=false,key=workspace.workspace.tabKey,actionFresh=()=>true,forceLane?:Lane,deferBackground=false){
+  const captured=epoch.current,fields=workspace.views.get(key),note=fields?.get('current') as string|undefined;
+  const lane=forceLane??(note?lanes.current.get(note):undefined),nav=(fields?.get('ref:navigation') as {current:number}|undefined)?.current;
+  const fresh=()=>valid(captured)&&workspace.views.get(key)===fields&&workspace.latest.current.tabs.some(tab=>tab.tabKey===key)&&fields?.get('current')===note&&(fields?.get('ref:navigation') as {current:number}|undefined)?.current===nav&&actionFresh();
+  if(lane&&(forceLane||!contexts(lane,key).length)&&!lane.deletion&&!studyBlocked(lane.note.study_id)){
+   const end=Date.now()+5000;
+   while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){
+    await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);
+    if(!fresh())return;
+   }
+   if(!fresh())return;
+   if((forceLane||!contexts(lane,key).length)&&(lane.composing||lane.invalid||lane.generation!==lane.saved)){
+    if(deferBackground&&workspace.latest.current.workspace.tabKey!==key){fields?.set('error','Changes not saved. Return to this note before switching.');workspace.redraw();return;}
+    const input=lane.generation,composing=lane.composing,deletion=lane.deletion;
+    setExitPrompt({action,switching,lane,key,fresh:()=>fresh()&&lane.generation===input&&lane.composing===composing&&lane.deletion===deletion&&lanes.current.get(lane.note.id)===lane&&!deleted.current.has(lane.note.id)&&liveStudy(lane.note.study_id),discard:forceLane?undefined:lane});return;
+   }
+  }
+  if(fresh())await action();
+ }
+ useLayoutEffect(()=>{
+  workspace.departure.current=(key,action,fresh)=>{void exit(action,false,key,fresh);};
+ });
+
  async function openStudy(id:string){
   if(!token||!liveStudy(id))return;const requestLibrary=++library.current.generation;library.current.pending=false;setLibraryBusy(false);const requestNavigation=++navigation.current;
   await exit(async()=>{if(requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;collectionNavigation.current++;const captured=epoch.current;setBusy(true);
-   try{const [selected,page]=await Promise.all([api.study(token,id),api.notes(token,id)]);
-    if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation){library.current.positionLocked=true;selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)creation.current=undefined;setNotes(page.items.filter(note=>!deleted.current.has(note.id)));setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);}
+   try{const [selected,page]=await Promise.all([api.study(authorizedToken(),id),api.notes(authorizedToken(),id)]);
+    if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation){await exit(()=>{if(!valid(captured)||requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;library.current.positionLocked=true;selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)retireCreation(creation.current);setNotes(page.items.filter(note=>!deleted.current.has(note.id)));setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);},true,workspace.workspace.tabKey,()=>requestNavigation===navigation.current&&requestLibrary===library.current.generation,undefined,true);}
    }catch(e){if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation)fail(e);}finally{if(valid(captured)&&requestNavigation===navigation.current)setBusy(false);}
   },true);
  }
  // Collection authority/revisions/recovery are independent of notes and metadata.
  function collectionLane(id:string){let lane=collections.current.get(id);if(!lane){lane={study:id,status:'loading',message:'',read:0};collections.current.set(id,lane);}return lane;}
  async function refreshPassages(lane:CollectionLane,captured:number,currentRead=()=>true){
-  if(!token)return;const read=++lane.read;const latest=await api.passages(token,lane.study);
+  if(!token)return;const read=++lane.read;const latest=await api.passages(authorizedToken(),lane.study);
   if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane||read!==lane.read||!currentRead())return;
   const identifier=(value:unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)&&value!=='00000000-0000-0000-0000-000000000000';
   if(!latest||Object.keys(latest).sort().join(',')!=='items,revision,study_id'||latest.study_id!==lane.study||!Array.isArray(latest.items)||latest.items.length>200||!latest.items.every(item=>item&&Object.keys(item).sort().join(',')==='id,reference'&&identifier(item.id)&&validateReference(item.reference))||new Set(latest.items.map(item=>item.id)).size!==latest.items.length||new Set(latest.items.map(item=>referenceKey(item.reference))).size!==latest.items.length||typeof latest.revision!=='string'||!(/^[1-9][0-9]{0,18}$/).test(latest.revision)||BigInt(latest.revision)>9223372036854775807n)throw new NotesFailure('response_invalid');
@@ -146,7 +177,7 @@ function useStatefulStudies(){
   }
   const captured=epoch.current,requestNavigation=navigation.current,attempt=lane.attempt;lane.read++;lane.status='saving';lane.message=lane.confirmed?'Passages saved. Refreshing current list…':'Saving passages…';update();
   lane.running=(async()=>{
-   try{if(!lane.confirmed){lane.confirmed=await execute(token,attempt);if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane)return;}
+   try{if(!lane.confirmed){lane.confirmed=await execute(authorizedToken(),attempt);if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane)return;}
     await refreshPassages(lane,captured);if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane)return;
     lane.attempt=undefined;lane.confirmed=undefined;lane.intent=undefined;lane.status='ready';lane.message='';
    }catch(e){if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane)return;const code=e instanceof NotesFailure?e.code:'';
@@ -166,9 +197,10 @@ function useStatefulStudies(){
  // Metadata has its own operation lane and never flushes/replaces a note buffer.
  async function readTitle(id:string,captured:number){
   if(!token)return;
-  const latest=await api.study(token,id);
+  const latest=await api.study(authorizedToken(),id);
   if(!valid(captured)||!liveStudy(id))return;
   setStudies(old=>old.map(item=>item.id===id&&BigInt(item.revision)<=BigInt(latest.revision)?latest:item));
+  for(const fields of workspace.views.values()){const shown=fields.get('study') as StudyView|undefined;if(shown?.id===id&&BigInt(shown.revision)<=BigInt(latest.revision))fields.set('study',latest);const list=fields.get('studies') as StudyView[]|undefined;if(list)fields.set('studies',list.map(item=>item.id===id&&BigInt(item.revision)<=BigInt(latest.revision)?latest:item));}
   if(selectedStudy.current===id)setStudy(old=>old?.id!==id||BigInt(old.revision)>BigInt(latest.revision)?old:latest);
   return latest;
  }
@@ -203,7 +235,7 @@ function useStatefulStudies(){
   if(!edit.attempt){const operation_id=uuid();edit.attempt={operation_id,command:'study.rename',path:`/api/studies/${edit.study}/title`,method:'PUT',payload:{operation_id,expected_revision:edit.base,title:edit.candidate},study:edit.study,generation:0};}
   const attempt=edit.attempt;edit.status='saving';edit.message=edit.confirmed?'Title saved. Refreshing current title…':'Saving title…';update();
   edit.running=(async()=>{
-   try{if(!edit.confirmed){const outcome=await execute(token,attempt);if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;edit.confirmed=outcome;}
+   try{if(!edit.confirmed){const outcome=await execute(authorizedToken(),attempt);if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;edit.confirmed=outcome;}
     if(!valid(captured))return;
     // A receipt may describe an older rename; only a current read supplies the heading.
     await refreshTitle(edit.study,captured);if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;
@@ -222,13 +254,13 @@ function useStatefulStudies(){
   const captured=epoch.current,parent=study.id,cursor=notesCursor,requestNavigation=navigation.current,key=JSON.stringify([captured,parent,cursor]);
   if(pendingPages.current.has(key))return;pendingPages.current.add(key);
   const currentPage=()=>valid(captured)&&liveStudy(parent)&&requestNavigation===navigation.current&&selectedStudy.current===parent&&notesPosition.current===cursor;
-  try{const result=await api.notes(token,parent,cursor);if(currentPage()){notesPosition.current=result.next_cursor;setNotes(old=>[...old,...result.items.filter(note=>!deleted.current.has(note.id))]);setNotesCursor(result.next_cursor);}}
+  try{const result=await api.notes(authorizedToken(),parent,cursor);if(currentPage()){notesPosition.current=result.next_cursor;setNotes(old=>[...old,...result.items.filter(note=>!deleted.current.has(note.id))]);setNotesCursor(result.next_cursor);}}
   catch(e){if(currentPage())fail(e);}finally{pendingPages.current.delete(key);}
  }
  async function openNote(id:string){
-  if(!token||!study||!liveStudy(study.id)||deleted.current.has(id))return;const parent=study.id,requestNavigation=++navigation.current;
+  if(!token||!study||!liveStudy(study.id)||deleted.current.has(id))return;if(id===current&&lanes.current.get(id)?.status!=='conflict'){navigation.current++;setTool('analysis');setAnalysisTab('Notes');return;}if(id===current&&contexts(lanes.current.get(id)!,workspace.workspace.tabKey).length){setError('Close the other note contexts before reopening the latest saved note.');return;}const parent=study.id,requestNavigation=++navigation.current;
   await exit(async()=>{if(requestNavigation!==navigation.current||selectedStudy.current!==parent)return;const captured=epoch.current;
-   try{let lane=lanes.current.get(id);if(!lane){const note=await api.note(token,parent,id);if(!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==parent||!liveStudy(parent)||deleted.current.has(id))return;lane={note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false};lanes.current.set(id,lane);}setCurrent(id);setTool('analysis');setAnalysisTab('Notes');setError('');update();}
+   try{let lane=lanes.current.get(id);if(lane?.status==='conflict'&&id===current){if(contexts(lane,workspace.workspace.tabKey).length){setError('Close the other note contexts before reopening the latest saved note.');return;}clearTimeout(lane.timer);lanes.current.delete(id);lane=undefined;}if(!lane){const note=await api.note(authorizedToken(),parent,id);if(!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==parent||!liveStudy(parent)||deleted.current.has(id))return;lane={note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false};lanes.current.set(id,lane);}await exit(()=>{if(!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==parent||deleted.current.has(id))return;lane!.abandoned=false;setCurrent(id);setTool('analysis');setAnalysisTab('Notes');setError('');if(creation.current?.command==='note.create'&&creationConfirmed.current?.note_id===id)retireCreation(creation.current);update();},true,workspace.workspace.tabKey,()=>requestNavigation===navigation.current&&selectedStudy.current===parent,undefined,true);}
    catch(e){if(valid(captured)&&requestNavigation===navigation.current&&selectedStudy.current===parent&&liveStudy(parent))fail(e);}
   },true);
  }
@@ -252,7 +284,7 @@ function useStatefulStudies(){
  async function reviewDelete(){const target=deleteTarget?deletions.current.get(deleteTarget):undefined;if(!token||!target||target.status!=='conflict'||target.reviewing)return;
   const captured=epoch.current,lane=target.lane;target.reviewing=true;update();
   const currentReview=()=>valid(captured)&&lanes.current.get(lane.note.id)===lane&&deletions.current.get(lane.note.id)===target&&lane.deletion===target;
-  try{const latest=await api.note(token,lane.note.study_id,lane.note.id);if(!currentReview())return;
+  try{const latest=await api.note(authorizedToken(),lane.note.study_id,lane.note.id);if(!currentReview())return;
    target.reviewRevision=latest.revision;target.status='ready';target.review=latest.value;target.message='Current note loaded. Review its saved writing below, then confirm again. Your local writing is kept.';update();
   }catch(e){if(currentReview()){target.message='Current note could not be loaded. Your input is kept.';update();if(e instanceof NotesFailure&&['authentication_required','studies_access_denied'].includes(e.code))fail(e);}}
   finally{target.reviewing=false;if(currentReview())update();}
@@ -274,8 +306,9 @@ function useStatefulStudies(){
   if(lane.status==='conflict')lane.attempt=undefined;
   if(!target.attempt){const operation_id=uuid();target.attempt={operation_id,command:'note.delete',path:`/api/studies/${lane.note.study_id}/notes/${lane.note.id}`,method:'DELETE',payload:{operation_id,expected_revision:target.reviewRevision??lane.note.revision},study:lane.note.study_id,note:lane.note.id,generation:lane.generation};}
   target.status='executing';target.message='Deleting note…';update();
-  try{const pending=execute(token,target.attempt);childDeleteRunning.current.set(lane.note.id,pending);await pending;if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;
+  try{const pending=execute(authorizedToken(),target.attempt);childDeleteRunning.current.set(lane.note.id,pending);await pending;if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;
    if(selectedNote.current===lane.note.id&&selectedStudy.current===lane.note.study_id){const source=deletionFocusSource(lane.note.id);setDeletionFocus(source?{epoch:captured,navigation:navigation.current,study:lane.note.study_id,source}:null);}
+   for(const fields of workspace.views.values()){if(fields.get('current')===lane.note.id)fields.set('current',null);const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.filter(note=>note.id!==lane.note.id));}
    deleted.current.add(lane.note.id);clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setNotes(old=>old.filter(note=>note.id!==lane.note.id));setCurrent(old=>old===lane.note.id?null:old);setDeleteTarget(old=>old===lane.note.id?null:old);
   }catch(e){if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;const code=e instanceof NotesFailure?e.code:'';
    if(['note_revision_conflict','resource_unavailable','operation_payload_mismatch','scribeswell_personal_notes_input_invalid'].includes(code)){lane.status='conflict';target.status='conflict';target.attempt=undefined;target.reviewRevision=undefined;target.review=undefined;target.message='Deletion not confirmed. Your input is kept. Review the current note before confirming again.';}
@@ -291,12 +324,12 @@ function useStatefulStudies(){
   try{const result=await Promise.race([action(),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new NotesFailure('request_deadline_exceeded')),Math.max(1,end-Date.now()));})]);if(Date.now()>=end)throw new NotesFailure('request_deadline_exceeded');return result;}
   finally{clearTimeout(timer);}
  }
- function retireCreation(original:Attempt){if(creation.current!==original)return;creation.current=undefined;creationConfirmed.current=undefined;creationRunning.current=undefined;}
- function materializeCreation(note:NoteView,original:Attempt,captured:number,requestNavigation:number){
+ function retireCreation(original:Attempt){if(creation.current!==original)return;creationOrigin.current=undefined;creation.current=undefined;creationConfirmed.current=undefined;creationRunning.current=undefined;}
+ function materializeCreation(note:NoteView,original:Attempt,captured:number,requestNavigation:number,retire=true){
   if(!valid(captured)||creation.current!==original||!original.study||!liveStudy(original.study)||selectedStudy.current!==original.study||navigation.current!==requestNavigation||note.study_id!==original.study)return false;
   const acknowledged=lanes.current.get(note.id)?.note??note;
   setNotes(old=>{const existing=old.find(item=>item.id===note.id);return existing?old.map(item=>item.id===note.id&&BigInt(item.revision)<=BigInt(acknowledged.revision)?acknowledged:item):[acknowledged,...old];});
-  retireCreation(original);return true;
+  if(retire)retireCreation(original);return true;
  }
  async function prepareStudyDelete(target:StudyDeletion,end=Date.now()+5000,preparation?:number){
   const id=target.study.id,captured=epoch.current,requestNavigation=navigation.current,run=preparation??(target.preparation??0)+1;target.preparation=run;
@@ -305,11 +338,11 @@ function useStatefulStudies(){
   try{
    const pending=[...targetLanes(id).map(lane=>lane.running),titles.current.get(id)?.running,collections.current.get(id)?.running,...(metadataReads.current.get(id)??[]),...targetLanes(id).map(lane=>childDeleteRunning.current.get(lane.note.id)),...(creation.current?.study===id?[creationRunning.current]:[])].filter(Boolean) as Promise<unknown>[];
    await withinStudyPreparation(()=>Promise.allSettled(pending),end);if(!current())return;
-   if(creation.current?.study===id&&creationConfirmed.current){const original=creation.current,outcome=creationConfirmed.current;const note=await withinStudyPreparation(()=>api.note(token!,id,outcome.note_id!),end);if(!current())return;if(creation.current===original&&!materializeCreation(note,original,captured,requestNavigation))throw new NotesFailure('operation_unresolved');}
+   if(creation.current?.study===id&&creationConfirmed.current){const original=creation.current,outcome=creationConfirmed.current;const note=await withinStudyPreparation(()=>api.note(authorizedToken(),id,outcome.note_id!),end);if(!current())return;if(creation.current===original&&!materializeCreation(note,original,captured,requestNavigation))throw new NotesFailure('operation_unresolved');}
    const title=titles.current.get(id),collection=collections.current.get(id);
    const unknown=targetLanes(id).some(lane=>lane.running||childDeleteRunning.current.has(lane.note.id)||lane.attempt&&lane.status!=='conflict'||lane.deletion?.attempt)||title?.running||title?.attempt&&!title.confirmed||collection?.running||collection?.attempt&&!collection.confirmed||creation.current?.study===id||(metadataReads.current.get(id)?.size??0)>0;
    if(unknown){target.status='recovery';target.message='A previous operation is not confirmed. Recover that original operation first.';update();return;}
-   const latest=await withinStudyPreparation(()=>api.study(token!,id),end);
+   const latest=await withinStudyPreparation(()=>api.study(authorizedToken(),id),end);
    if(!current())return;target.study=latest;target.status='ready';target.message='';
   }catch(e){if(!current())return;target.status='recovery';target.message='Preparation not confirmed. Your input is kept. Recover before confirming.';if(e instanceof NotesFailure&&['authentication_required','studies_access_denied'].includes(e.code))fail(e);}
   if(current())update();
@@ -333,25 +366,26 @@ function useStatefulStudies(){
    for(const lane of targetLanes(id)){
     if(lane.running)await wait(()=>lane.running!);
     if(lane.attempt&&lane.status!=='conflict'){const attempt=lane.attempt;let outcome:OperationAck;
-     try{outcome=await wait(()=>execute(token,attempt));}
+     try{outcome=await wait(()=>execute(authorizedToken(),attempt));}
      catch(e){if(!current())return;if(known(e,['note_revision_conflict','note_format_unsupported','resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'])){lane.status='conflict';lane.attempt=undefined;continue;}throw e;}
      lane.note={...lane.note,revision:outcome.revision,value:attempt.payload.value as NoteValue};lane.saved=attempt.generation;lane.attempt=undefined;lane.status=lane.saved===lane.generation?'saved':'pending';
-     setNotes(old=>old.map(note=>note.id===lane.note.id?lane.note:note));
+     for(const fields of workspace.views.values()){const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.map(note=>note.id===lane.note.id?lane.note:note));}
     }
     const child=lane.deletion;if(child?.attempt){
-     try{await wait(()=>childDeleteRunning.current.get(lane.note.id)??execute(token,child.attempt!));}
+     try{await wait(()=>childDeleteRunning.current.get(lane.note.id)??execute(authorizedToken(),child.attempt!));}
      catch(e){if(!current())return;if(known(e,['note_revision_conflict','resource_unavailable','operation_payload_mismatch','scribeswell_personal_notes_input_invalid'])){lane.status='conflict';child.status='conflict';child.attempt=undefined;child.review=undefined;child.reviewRevision=undefined;child.message='Deletion not confirmed. Your input is kept. Review the current note before confirming again.';continue;}throw e;}
-     deleted.current.add(lane.note.id);clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setNotes(old=>old.filter(note=>note.id!==lane.note.id));setCurrent(old=>old===lane.note.id?null:old);setDeleteTarget(old=>old===lane.note.id?null:old);
+     for(const fields of workspace.views.values()){if(fields.get('current')===lane.note.id)fields.set('current',null);const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.filter(note=>note.id!==lane.note.id));}
+   deleted.current.add(lane.note.id);clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setNotes(old=>old.filter(note=>note.id!==lane.note.id));setCurrent(old=>old===lane.note.id?null:old);setDeleteTarget(old=>old===lane.note.id?null:old);
     }
    }
    const title=titles.current.get(id);if(title?.running)await wait(()=>title.running!);
-   if(title?.attempt&&!title.confirmed){try{const outcome=await wait(()=>execute(token,title.attempt!));title.confirmed=outcome;}catch(e){if(!current())return;if(known(e,['study_revision_conflict','resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'])){title.attempt=undefined;title.status='conflict';}else throw e;}}
+   if(title?.attempt&&!title.confirmed){try{const outcome=await wait(()=>execute(authorizedToken(),title.attempt!));title.confirmed=outcome;}catch(e){if(!current())return;if(known(e,['study_revision_conflict','resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'])){title.attempt=undefined;title.status='conflict';}else throw e;}}
    const collection=collections.current.get(id);if(collection?.running)await wait(()=>collection.running!);
-   if(collection?.attempt&&!collection.confirmed){try{const outcome=await wait(()=>execute(token,collection.attempt!));collection.confirmed=outcome;}catch(e){if(!current())return;if(known(e,['passage_revision_conflict','resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'])){collection.attempt=undefined;collection.status='conflict';}else throw e;}}
+   if(collection?.attempt&&!collection.confirmed){try{const outcome=await wait(()=>execute(authorizedToken(),collection.attempt!));collection.confirmed=outcome;}catch(e){if(!current())return;if(known(e,['passage_revision_conflict','resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'])){collection.attempt=undefined;collection.status='conflict';}else throw e;}}
    if(creation.current?.study===id){const original=creation.current;
     try{
-     const outcome=creationConfirmed.current??await wait(()=>creationRunning.current??execute(token,original));if(!current()||creation.current!==original)return;creationConfirmed.current=outcome;
-     const note=await wait(()=>api.note(token,id,outcome.note_id!));
+     const outcome=creationConfirmed.current??await wait(()=>creationRunning.current??execute(authorizedToken(),original));if(!current()||creation.current!==original)return;creationConfirmed.current=outcome;
+     const note=await wait(()=>api.note(authorizedToken(),id,outcome.note_id!));
      if(!materializeCreation(note,original,captured,requestNavigation))throw new NotesFailure('operation_unresolved');
     }catch(e){if(!current())return;if(known(e,['resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch']))retireCreation(original);else throw e;}
    }
@@ -360,7 +394,7 @@ function useStatefulStudies(){
  }
  async function reviewStudyDelete(){const target=studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined;if(!target||!token||target.status!=='conflict')return;
   const captured=epoch.current;target.status='preparing';update();
-  try{const latest=await api.study(token,target.study.id);if(!studyTargetLive(target,captured))return;target.review=latest;target.study=latest;target.status='ready';target.message='Review the current saved title, then explicitly confirm again. Your local input is kept.';}
+  try{const latest=await api.study(authorizedToken(),target.study.id);if(!studyTargetLive(target,captured))return;target.review=latest;target.study=latest;target.status='ready';target.message='Review the current saved title, then explicitly confirm again. Your local input is kept.';}
   catch(e){if(!studyTargetLive(target,captured))return;target.status='conflict';target.message='Current study could not be loaded. Your input is kept.';if(e instanceof NotesFailure&&['authentication_required','studies_access_denied'].includes(e.code))fail(e);}
   if(studyTargetLive(target,captured))update();
  }
@@ -368,12 +402,13 @@ function useStatefulStudies(){
   const id=target.study.id,captured=epoch.current;
   if(!target.attempt){const operation_id=uuid();target.attempt={operation_id,command:'study.delete',path:`/api/studies/${id}`,method:'DELETE',payload:{operation_id,expected_revision:target.study.revision},study:id,generation:0};}
   target.status='executing';target.message='Deleting study…';update();
-  try{await execute(token,target.attempt);if(!studyTargetLive(target,captured))return;
+  try{await execute(authorizedToken(),target.attempt);if(!studyTargetLive(target,captured))return;
    const active=document.activeElement,focused=active instanceof HTMLElement&&active!==document.body?active:lastFocused.current,source=focused?.closest<HTMLElement>('[data-deleting-study]')??null;
    const focus=selectedStudy.current===id&&activeTool.current!==null&&!!source;
    if(source instanceof HTMLDialogElement)source.close();
    const restored=document.activeElement,replacement=restored instanceof HTMLElement?restored.closest<HTMLElement>('[aria-label="Note editor"],[aria-label="My studies"]'):null;
    const focusSource=replacement??source;
+   for(const fields of workspace.views.values()){if((fields.get('study') as StudyView|undefined)?.id===id){fields.set('study',null);fields.set('current',null);fields.set('notes',[]);fields.set('tool','studies');}const list=fields.get('studies') as StudyView[]|undefined;if(list)fields.set('studies',list.filter(item=>item.id!==id));}
    deletedStudies.current.add(id);studyDeletions.current.delete(id);setStudyDeleteTarget(old=>old===id?null:old);
    for(const lane of targetLanes(id)){clearTimeout(lane.timer);deleted.current.add(lane.note.id);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);}
    titles.current.delete(id);titleReads.current.delete(id);metadataReads.current.delete(id);collections.current.delete(id);
@@ -387,42 +422,71 @@ function useStatefulStudies(){
    if(['authentication_required','studies_access_denied'].includes(code)){target.open=false;setStudyDeleteTarget(null);fail(e);}
   }finally{if(valid(captured))update();}
  }
- async function start(){if(!token){setError('Sign in to use My studies.');return false;}const captured=epoch.current;setBusy(true);try{enrollment.current??=uuid();await api.enroll(token,enrollment.current);if(!valid(captured))return false;enrollment.current=undefined;setError('');return true;}catch(e){if(valid(captured))fail(e);return false;}finally{if(valid(captured))setBusy(false);}}
+ async function start(){if(!token){setError('Sign in to use My studies.');return false;}const captured=epoch.current;setBusy(true);try{enrollment.current??=uuid();await api.enroll(authorizedToken(),enrollment.current);if(!valid(captured))return false;enrollment.current=undefined;setError('');return true;}catch(e){if(valid(captured))fail(e);return false;}finally{if(valid(captured))setBusy(false);}}
  async function create(title:string|null){
-  if(!token)return;if(creation.current&&creation.current.command!=='study.create'){setError('Retry the original note creation before starting another study.');return;}
-  if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title},generation:0};}
+  if(!token)return;if(creation.current&&creationOrigin.current?.key!==workspace.workspace.tabKey){setError('Recover the original creation before starting another study.');return;}if(creation.current&&creation.current.command!=='study.create'){setError('Retry the original note creation before starting another study.');return;}
+  if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title},generation:0};creationOrigin.current={key:workspace.workspace.tabKey,navigation,generation:navigation.current,tool,resume:()=>create(title)};}
   const original=creation.current,captured=epoch.current;setBusy(true);
-  const running=creationConfirmed.current?Promise.resolve(creationConfirmed.current):creationRunning.current??execute(token,original);creationRunning.current=running;
+  const running=creationConfirmed.current?Promise.resolve(creationConfirmed.current):creationRunning.current??execute(authorizedToken(),original);creationRunning.current=running;
   const live=()=>valid(captured)&&creation.current===original;
-  try{const result=creationConfirmed.current??await running;if(!live()||!liveStudy(result.study_id))return;creationConfirmed.current=result;original.study=result.study_id;await openStudy(result.study_id);if(valid(captured)&&creation.current===undefined)creationConfirmed.current=undefined;}
+  try{const result=creationConfirmed.current??await running;if(!live()||!liveStudy(result.study_id))return;creationConfirmed.current=result;original.study=result.study_id;update();
+   const origin=creationOrigin.current;
+   if(!origin||!workspace.latest.current.tabs.some(tab=>tab.tabKey===origin.key)||origin.navigation.current!==origin.generation||workspace.views.get(origin.key)?.get('tool')!==origin.tool)return;
+   origin.generation=origin.navigation.current+1;await openStudy(result.study_id);if(valid(captured)&&creation.current===undefined)creationConfirmed.current=undefined;}
   catch(e){if(live()){if(e instanceof NotesFailure&&['scribeswell_personal_notes_input_invalid','resource_unavailable'].includes(e.code)){creation.current=undefined;creationConfirmed.current=undefined;}fail(e);}}
-  finally{if(valid(captured)&&creationRunning.current===running){creationRunning.current=undefined;setBusy(false);}}
+  finally{if(valid(captured)&&creationRunning.current===running){creationRunning.current=undefined;setBusy(false);update();}}
  }
  async function addNote(){
   if(!token||!study||studyBlocked(study.id))return;const parent=study.id,requestNavigation=navigation.current;
-  if(creation.current&&(creation.current.command!=='note.create'||creation.current.study!==parent)){setError('Retry the original creation before starting another note.');return;}
+  if(creation.current&&(creationOrigin.current?.key!==workspace.workspace.tabKey||creation.current.command!=='note.create'||creation.current.study!==parent)){setError('Retry the original creation before starting another note.');return;}
   await exit(async()=>{
    if(studyBlocked(parent)||selectedStudy.current!==parent||navigation.current!==requestNavigation)return;
-   if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'note.create',path:`/api/studies/${parent}/notes`,method:'POST',payload:{operation_id,value:{document:{version:1,blocks:[]},connections:[],highlights:[]}},study:parent,generation:0};}
+   if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'note.create',path:`/api/studies/${parent}/notes`,method:'POST',payload:{operation_id,value:{document:{version:1,blocks:[]},connections:[],highlights:[]}},study:parent,generation:0};creationOrigin.current={key:workspace.workspace.tabKey,navigation,generation:navigation.current,tool,resume:addNote};}
    const original=creation.current,captured=epoch.current;setBusy(true);
-   const running=creationConfirmed.current?Promise.resolve(creationConfirmed.current):creationRunning.current??execute(token,original);creationRunning.current=running;
+   const running=creationConfirmed.current?Promise.resolve(creationConfirmed.current):creationRunning.current??execute(authorizedToken(),original);creationRunning.current=running;
    const live=()=>valid(captured)&&liveStudy(parent)&&creation.current===original;
-   try{const result=creationConfirmed.current??await running;if(!live())return;creationConfirmed.current=result;
+   try{const result=creationConfirmed.current??await running;if(!live())return;creationConfirmed.current=result;update();
     // The command is known committed even if this optional follow-up read fails.
-    const note=await api.note(token,parent,result.note_id!);if(!live()||!materializeCreation(note,original,captured,requestNavigation))return;
+    const note=await api.note(authorizedToken(),parent,result.note_id!);const origin=creationOrigin.current;if(!origin||workspace.views.get(origin.key)?.get('tool')!==origin.tool)return;if(!live()||!materializeCreation(note,original,captured,requestNavigation,false))return;
     if(deleted.current.has(note.id)||studyBlocked(parent))return;
-    lanes.current.set(note.id,{note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false});setCurrent(note.id);setTool('analysis');setAnalysisTab('Notes');update();
+    await exit(()=>{if(!valid(captured)||navigation.current!==requestNavigation||selectedStudy.current!==parent)return;if(!lanes.current.has(note.id))lanes.current.set(note.id,{note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false});setCurrent(note.id);setTool('analysis');setAnalysisTab('Notes');retireCreation(original);update();},true,workspace.workspace.tabKey,()=>navigation.current===requestNavigation&&selectedStudy.current===parent,undefined,true);
    }catch(e){if(live()){if(e instanceof NotesFailure&&['resource_unavailable','scribeswell_personal_notes_input_invalid','operation_payload_mismatch'].includes(e.code))retireCreation(original);fail(e);}}
-   finally{if(valid(captured)){if(creationRunning.current===running)creationRunning.current=undefined;if((creation.current===original||!creation.current)&&liveStudy(parent)&&selectedStudy.current===parent)setBusy(false);}}
+   finally{if(valid(captured)){if(creationRunning.current===running)creationRunning.current=undefined;if((creation.current===original||!creation.current)&&liveStudy(parent)&&selectedStudy.current===parent)setBusy(false);update();}}
   },true);
  }
  useEffect(()=>{function unload(e:BeforeUnloadEvent){if([...studyDeletions.current.values()].some(target=>!!target.attempt)||[...lanes.current.values()].some(l=>!!l.deletion?.attempt||l.invalid||l.generation!==l.saved)||[...titles.current.values()].some(edit=>!edit.confirmed&&(edit.attempt||edit.running))||[...collections.current.values()].some(lane=>!lane.confirmed&&(!!lane.attempt||!!lane.running))){e.preventDefault();e.returnValue='';}}window.addEventListener('beforeunload',unload);return()=>window.removeEventListener('beforeunload',unload);},[]);
  const visible=dataAccount.current===account&&authority,libraryGeneration=library.current.generation,libraryEpoch=epoch.current,libraryNavigation=navigation.current;
- const canRestoreLibrary=()=>identity.current===account&&epoch.current===libraryEpoch&&library.current.generation===libraryGeneration&&navigation.current===libraryNavigation&&!selectedStudy.current&&!library.current.pending&&library.current.positionLocked;
+ const canRestoreLibrary=()=>workspace.latest.current.workspace.tabKey===workspace.workspace.tabKey&&identity.current===account&&epoch.current===libraryEpoch&&library.current.generation===libraryGeneration&&navigation.current===libraryNavigation&&!selectedStudy.current&&!library.current.pending&&library.current.positionLocked;
  const titleEdit=study&&visible?titles.current.get(study.id):undefined;
  const collection=study&&visible?collections.current.get(study.id):undefined;
  const lane=current&&visible?lanes.current.get(current):undefined;
- return {studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:()=>{if(lane&&!lane.deletion?.attempt){lane.invalid=true;lane.status='failed';clearTimeout(lane.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:()=>lane&&flush(lane,true),exit,exitPrompt,stay:()=>setExitPrompt(null),proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(prompt){if(prompt.discard&&lanes.current.get(prompt.discard.note.id)===prompt.discard){clearTimeout(prompt.discard.timer);lanes.current.delete(prompt.discard.note.id);setCurrent(null);}await prompt.action();}},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
+ const liveNotes=new Set(workspace.tabs.map(tab=>workspace.views.get(tab.tabKey)?.get('current')));
+ const editorLanes=visible?[...lanes.current.values()].filter(item=>!item.abandoned&&(liveNotes.has(item.note.id)||item.generation!==item.saved||item.composing||item.invalid)):[];
+ async function openCreated(){const original=creation.current,outcome=creationConfirmed.current;if(!original||!outcome)return;
+  if(outcome.note_id&&study?.id===outcome.study_id){await openNote(outcome.note_id);if(workspace.views.get(workspace.workspace.tabKey)?.get('current')===outcome.note_id)retireCreation(original);}
+  else await openStudy(outcome.study_id);
+  update();
+ }
+ function exitAccount(action:()=>void|Promise<void>){
+  const captured=epoch.current,approved=new Map<Lane,{generation:number;composing:boolean;invalid:boolean}>();
+  const next=():Promise<void>=>{
+   if(!valid(captured))return Promise.resolve();
+   const pending=[...lanes.current.values()].find(lane=>{
+    if(lane.abandoned||!lane.composing&&!lane.invalid&&lane.generation===lane.saved)return false;
+    const consent=approved.get(lane);return !consent||consent.generation!==lane.generation||consent.composing!==lane.composing||consent.invalid!==lane.invalid;
+   });
+   if(!pending)return Promise.resolve(action()).then(()=>{});
+   return exit(()=>{approved.set(pending,{generation:pending.generation,composing:pending.composing,invalid:pending.invalid});return next();},false,workspace.workspace.tabKey,()=>true,pending);
+  };
+  return next();
+ }
+ return {pendingSaves:visible?[...lanes.current.values()].filter(item=>item.abandoned&&item.attempt&&item.status!=='conflict'):[],recoverSave:(lane:Lane)=>flush(lane,true),creationRecovery:visible&&!!creation.current,creationKnown:visible&&!!creationConfirmed.current,creationLabel:creationConfirmed.current?.note_id&&study?.id===creationConfirmed.current.study_id?'Open created note':'Open created study',recoverCreation:()=>creationOrigin.current?.resume(),openCreated,editorLanes,studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:(bound?:Lane)=>{const target=bound??lane;if(target&&!target.deletion?.attempt){target.invalid=true;target.status='failed';clearTimeout(target.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,accountError,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:(bound?:Lane)=>(bound??lane)&&flush((bound??lane)!,true),exit:exitAccount,exitPrompt,stay:()=>{setExitPrompt(null);workspace.cancelRestore();},proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(!prompt||!prompt.fresh())return;
+ if(prompt.discard&&!contexts(prompt.discard,prompt.key).length){
+  const lane=prompt.discard;clearTimeout(lane.timer);lane.abandoned=true;lane.composing=false;lane.invalid=false;
+  if(lane.attempt){lane.value=structuredClone(lane.attempt.payload.value as NoteValue);lane.generation=lane.attempt.generation;}
+  else lanes.current.delete(lane.note.id);
+ }
+ await prompt.action();},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
 }
 type Studies=ReturnType<typeof useStatefulStudies>;
 const Context=createContext<Studies|null>(null);
@@ -454,5 +518,5 @@ function StudyDeleteDialog({studies}:{studies:Studies}){
  return <dialog ref={dialog} data-deleting-study={target.study.id} aria-label="Delete this study?" className="rounded-xl p-6 max-w-sm [overflow-wrap:anywhere] backdrop:bg-black/40" onCancel={event=>{event.preventDefault();studies.closeStudyDelete();}}><h2>Delete this study?</h2><p dir="auto">{target.study.title}</p><p>All its notes, highlights and collected passages will be permanently removed. This cannot be undone. Unsent writing and title input in this study will be discarded only if deletion succeeds.</p>{target.review&&<p dir="auto">Current saved title: {target.review.title}</p>}{target.message&&<p role="status">{target.message}</p>}<button autoFocus className="underline m-2" onClick={studies.closeStudyDelete}>{target.attempt?'Close':'Cancel'}</button>{target.status==='conflict'?<button className="underline m-2" onClick={()=>void studies.reviewStudyDelete()}>Review current study</button>:target.status==='recovery'?<button className="underline m-2" onClick={()=>void studies.recoverStudyWrites()}>Recover previous operations</button>:<button className="underline m-2" disabled={!['ready','unknown'].includes(target.status)} onClick={()=>void studies.confirmStudyDelete()}>{target.status==='unknown'?'Retry study deletion':'Delete study'}</button>}</dialog>;
 }
 function StudyDeletedFocus({studies}:{studies:Studies}){const fallback=useRef<HTMLParagraphElement>(null);useLayoutEffect(()=>{if(studies.studyDeletedFocus)fallback.current?.focus();},[studies.studyDeletedFocus]);return studies.studyDeletedFocus?<p ref={fallback} data-study-deleted-focus role="status" tabIndex={-1}>Study deleted.</p>:null;}
-export function StudiesProvider({children}:{children:ReactNode}){const value=useStatefulStudies();return <Context.Provider value={value}>{children}{value.studyDeletedFocus&&<StudyDeletedFocus studies={value}/>} {value.studyDeletion?.open&&<StudyDeleteDialog studies={value}/>} {value.pendingStudyDeletions.map(target=><button key={target.study.id} className="underline m-2" onClick={()=>value.openStudyDeletion(target)}>Recover study deletion: {target.study.title}</button>)}{value.deletionFocus&&<DeletionFocus studies={value}/>} {value.exitPrompt&&<ExitDialog studies={value}/>} {value.deletion?.open&&<DeleteDialog studies={value}/>} {value.pendingDeletions.map(target=><button key={target.lane.note.id} className="underline m-2" onClick={()=>value.openDeletion(target)}>Recover deletion: {target.label}</button>)}</Context.Provider>;}
+export function StudiesProvider({children}:{children:ReactNode}){const value=useStatefulStudies();return <Context.Provider value={value}>{children}{value.pendingSaves.map((lane,index)=><button key={lane.note.id} className="underline m-2" disabled={!!lane.running} onClick={()=>void value.recoverSave(lane)}>Recover note save {index+1}</button>)}{value.creationRecovery&&<button className="underline m-2" onClick={()=>void (value.creationKnown?value.openCreated():value.recoverCreation())}>{value.creationKnown?value.creationLabel:'Recover original creation'}</button>}{value.studyDeletedFocus&&<StudyDeletedFocus studies={value}/>} {value.studyDeletion?.open&&<StudyDeleteDialog studies={value}/>} {value.pendingStudyDeletions.map(target=><button key={target.study.id} className="underline m-2" onClick={()=>value.openStudyDeletion(target)}>Recover study deletion: {target.study.title}</button>)}{value.deletionFocus&&<DeletionFocus studies={value}/>} {value.exitPrompt&&<ExitDialog studies={value}/>} {value.deletion?.open&&<DeleteDialog studies={value}/>} {value.pendingDeletions.map(target=><button key={target.lane.note.id} className="underline m-2" onClick={()=>value.openDeletion(target)}>Recover deletion: {target.label}</button>)}</Context.Provider>;}
 export function useStudies(){const value=useContext(Context);if(!value)throw Error('StudiesProvider required');return value;}

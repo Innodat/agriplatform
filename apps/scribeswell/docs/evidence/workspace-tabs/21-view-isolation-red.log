@@ -1,0 +1,63 @@
+[WebServer] (node:1074647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1074739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (7.3s)
+(node:1074960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/personal-notes.spec.cjs:1398:1 › workspace tabs libraries retain distinct applied queries and scroll when flags match (6.0s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('private label B', { exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByText('private label B', { exact: true }) with timeout 5000ms
+      - waiting for getByText('private label B', { exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      1365 |  await rename(1,'private label A');await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await rename(2,'private label B');await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('auth failure input');await expect(page.getByRole('alert')).toContainText('Sign in');await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+      1366 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});options.failPut=0;await page.getByRole('button',{name:'Retry Studies',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toBeVisible();await expect(page.getByText('private label B',{exact:true})).toBeVisible();
+    > 1367 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signOut({scope:'local'});await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);await expect(page.getByText('auth failure input',{exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Add reader pane',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      1368 | });
+      1369 |
+      1370 | test('workspace tabs last-context discard retains only the original unknown save for explicit recovery',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1367:926
+
+    Error Context: test-results/personal-notes-workspace-t-85bee-them-on-account-replacement-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:1398:1 › workspace tabs libraries retain distinct applied queries and scroll when flags match 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 3
+    Received:   200
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      1397 |
+      1398 | test('workspace tabs libraries retain distinct applied queries and scroll when flags match',async({page})=>{
+    > 1399 |  await setup(page,{search:async(r,body)=>r.fulfill({json:{items:Array.from({length:20},(_,i)=>({...attribution,id:`30000000-0000-4000-8000-${String(i+10).padStart(12,'0')}`,title:`${body.query||'initial'} result ${i}`,revision:'1'})),next_cursor:null}})});await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();const query=page.getByRole('textbox',{name:'Search studies',exact:true}),surface=page.getByRole('complementary',{name:'Study tools',exact:true});await query.fill('alfa');await query.press('Enter');await expect(page.getByRole('button',{name:'alfa result 0',exact:true})).toBeVisible();const a=await surface.evaluate(el=>{el.scrollTop=200;return el.scrollTop;});expect(a).toBeGreaterThan(100);await page.waitForTimeout(100);await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await query.fill('beta');await query.press('Enter');await expect(page.getByRole('button',{name:'beta result 0',exact:true})).toBeVisible();const b=await surface.evaluate(el=>{el.scrollTop=400;return el.scrollTop;});expect(b).toBeGreaterThan(a+50);await page.waitForTimeout(100);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(query).toHaveValue('alfa');await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-a)).toBeLessThan(3);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').nth(1).click();await expect(query).toHaveValue('beta');await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-b)).toBeLessThan(3);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      1400 | });
+      1401 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1399:1520
+
+    Error Context: test-results/personal-notes-workspace-t-e53f7-and-scroll-when-flags-match-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement 
+    [desktop] › tests/personal-notes.spec.cjs:1398:1 › workspace tabs libraries retain distinct applied queries and scroll when flags match 

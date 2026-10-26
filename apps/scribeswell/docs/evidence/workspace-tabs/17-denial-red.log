@@ -1,0 +1,99 @@
+[WebServer] (node:1064801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:1064818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:267:31 › rename: 403 hides private state and preserves public reading (6.0s)
+(node:1064991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/personal-notes.spec.cjs:373:35 › collected current access or lifecycle refusal 403 keeps public reader usable (5.7s)
+(node:1065223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/personal-notes.spec.cjs:598:1 › library search hides unavailable pages retries applied input and clears on denial (5.7s)
+(node:1065439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [desktop] › tests/personal-notes.spec.cjs:940:29 › whole-study deletion current 403 masks private attempts without auto replay (942ms)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:267:31 › rename: 403 hides private state and preserves public reading 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "access is unavailable"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      266 | });
+      267 | for(const status of [401,403])test('rename: '+status+' hides private state and preserves public reading',async({page})=>{
+    > 268 |  const options={failRename:status};const {requests}=await setup(page,options);await firstNote(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('Recoverable title');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('alert')).toContainText(status===401?'Sign in':'access is unavailable');await expect(page.getByLabel('Title',{exact:true})).toHaveCount(0);await expect(page.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeAttached();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      269 |  if(status===401){const original=requests.find(r=>r.path.endsWith('/title')).payload;await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});options.failRename=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByLabel('Title',{exact:true})).toHaveValue('Recoverable title');expect(requests.filter(r=>r.path.endsWith('/title'))).toHaveLength(1);await page.getByRole('button',{name:'Retry rename',exact:true}).click();await expect(page.getByRole('heading',{name:'Recoverable title',exact:true})).toBeVisible();expect(requests.filter(r=>r.path.endsWith('/title'))[1].payload).toEqual(original);}
+      270 | });
+      271 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:268:414
+
+    Error Context: test-results/personal-notes-rename-403--59cf3-nd-preserves-public-reading-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:373:35 › collected current access or lifecycle refusal 403 keeps public reader usable 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "Studies access"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      372 |
+      373 | for(const status of [401,403,404])test(`collected current access or lifecycle refusal ${status} keeps public reader usable`,async({page})=>{
+    > 374 |  await setup(page,{failPassages:status});await collectionStudy(page);await addReference(page,'Gen1');if(status===404)await expect(page.getByRole('button',{name:'Retry passage change',exact:true})).toBeVisible();else await expect(page.getByRole('alert')).toContainText(status===401?'Sign in':'Studies access');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('region',{name:'Chapter text',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:/Word:/})).toBeVisible();
+          |                                                                                                                                                                                                                                                               ^
+      375 | });
+      376 |
+      377 | test('collected reference parser Python and browser accept the same canonical examples',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:374:255
+
+    Error Context: test-results/personal-notes-collected-c-f3d6b--keeps-public-reader-usable-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:598:1 › library search hides unavailable pages retries applied input and clears on denial 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Search studies', exact: true })
+    Expected: ""
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('textbox', { name: 'Search studies', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Search studies', exact: true })
+
+
+      601 |  failure=503;await page.getByRole('button',{name:'More studies',exact:true}).click();await expect(page.getByRole('button',{name:'Verified title',exact:true})).toHaveCount(0);await expect(input).toHaveValue('applied');
+      602 |  await input.fill('candidate only');failure=0;await page.getByRole('button',{name:'Retry search',exact:true}).click();await expect(page.getByRole('button',{name:'Verified title',exact:true})).toBeVisible();expect(reads.at(-1)).toBe('applied');await expect(input).toHaveValue('candidate only');
+    > 603 |  failure=403;await page.getByRole('button',{name:'More studies',exact:true}).click();await expect(input).toHaveValue('');await expect(page.getByRole('button',{name:'Verified title',exact:true})).toHaveCount(0);
+          |                                                                                                          ^
+      604 | });
+      605 |
+      606 | test('library search deduplicates More and rejects a late page after query change',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:603:106
+
+    Error Context: test-results/personal-notes-library-sea-00aa0--input-and-clears-on-denial-desktop/error-context.md
+
+  3 failed
+    [desktop] › tests/personal-notes.spec.cjs:267:31 › rename: 403 hides private state and preserves public reading 
+    [desktop] › tests/personal-notes.spec.cjs:373:35 › collected current access or lifecycle refusal 403 keeps public reader usable 
+    [desktop] › tests/personal-notes.spec.cjs:598:1 › library search hides unavailable pages retries applied input and clears on denial 
+  1 passed (20.8s)

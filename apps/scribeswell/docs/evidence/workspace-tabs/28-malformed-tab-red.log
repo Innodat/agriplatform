@@ -1,0 +1,30 @@
+[WebServer] (node:1088657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1088774) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly (934ms)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "http://127.0.0.1:5182/?reader=%7B%7D&foreign=keep#reading"
+    Received: "http://127.0.0.1:5182/?foreign=keep&reader=%7B%22v%22%3A1%2C%22panes%22%3A%5B%7B%22ref%22%3A%7B%22catalogue_id%22%3A%22scribeswell.references.v1%22%2C%22catalogue_version%22%3A%2248fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba%22%2C%22versification_id%22%3A%22oshb-hebrew-json-c2d8e9e5%22%2C%22book_id%22%3A%22Gen%22%2C%22target%22%3A%7B%22kind%22%3A%22chapter%22%2C%22chapter%22%3A2%7D%7D%7D%5D%2C%22active%22%3A0%7D#reading"
+
+      1411 |  await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);
+      1412 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 2');await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);expect(new URL(page.url()).searchParams.get('reader')).not.toBe('{}');
+    > 1413 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();expect(page.url()).toBe(original);await expect(page.getByText('Invalid reading link',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeVisible();expect(await page.evaluate(()=>[history.state.foreignOuter,history.state.usr.foreignUser])).toEqual(['retained','retained']);
+           |                                                                                                              ^
+      1414 |  if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Navigate:/}).first().click();await page.getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 1');await page.getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);if(await page.getByRole('button',{name:'Studies',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toBeVisible();
+      1415 | });
+      1416 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1413:110
+
+    Error Context: test-results/personal-notes-workspace-t-face8-other-tab-navigates-validly-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly 

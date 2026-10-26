@@ -1,0 +1,195 @@
+[WebServer] (node:1126783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 62 tests using 1 worker
+
+(node:1126819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/lexicon.spec.cjs:192:1 › dictionary Back restores pagination, expansions and inspector scroll; clipped links are absent (1.2s)
+  ✘   2 [desktop] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus (5.7s)
+(node:1127064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 [desktop] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry (5.8s)
+(node:1127242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [desktop] › tests/lexicon.spec.cjs:248:1 › delayed dictionary cannot move Occurrences scroll or focus its hidden heading (749ms)
+  ✓   5 [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus (881ms)
+  ✓   6 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 preview Open in new tab uses supplied verse without picker and retains source layout (694ms)
+  ✓   7 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 occurrence Open in new tab uses supplied verse without picker and retains source layout (694ms)
+  ✓   8 [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin (973ms)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:191:1 › review: confirmed conflict discard reopens latest while Stay preserves mine (1.9s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:490:1 › note links: Read Edit restores caret and keeps ordinary notes in format1 (1.7s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (2.0s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (1.5s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (1.5s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (1.8s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover (2.0s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover (2.2s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable (2.1s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (1.9s)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host (1.3s)
+  ✓  20 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards failed background input while the active retained note is saved (2.4s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards composing background input while the active retained note is saved (1.5s)
+  ✓  22 [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays (3.5s)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration (1.2s)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft (1.5s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:1449:1 › review tabs V1 sign-out rechecks saved background lanes receiving late composition during consent (2.4s)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:1452:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.1s)
+  ✓  27 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (833ms)
+  ✓  28 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (1.7s)
+  ✓  29 [desktop] › tests/workspace-tabs.spec.cjs:38:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (1.7s)
+  ✓  30 [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (902ms)
+  ✓  31 [desktop] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (3.0s)
+(node:1128675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 [mobile] › tests/lexicon.spec.cjs:192:1 › dictionary Back restores pagination, expansions and inspector scroll; clipped links are absent (1.9s)
+  ✘  33 [mobile] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus (6.4s)
+(node:1128930) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  34 [mobile] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry (5.9s)
+(node:1129165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 [mobile] › tests/lexicon.spec.cjs:248:1 › delayed dictionary cannot move Occurrences scroll or focus its hidden heading (721ms)
+  ✓  36 [mobile] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus (937ms)
+  ✓  37 [mobile] › tests/lexicon.spec.cjs:479:46 › review tabs V2 preview Open in new tab uses supplied verse without picker and retains source layout (735ms)
+  ✓  38 [mobile] › tests/lexicon.spec.cjs:479:46 › review tabs V2 occurrence Open in new tab uses supplied verse without picker and retains source layout (751ms)
+  ✓  39 [mobile] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin (1.8s)
+  ✓  40 [mobile] › tests/personal-notes.spec.cjs:191:1 › review: confirmed conflict discard reopens latest while Stay preserves mine (2.3s)
+  ✓  41 [mobile] › tests/personal-notes.spec.cjs:490:1 › note links: Read Edit restores caret and keeps ordinary notes in format1 (1.8s)
+  ✓  42 [mobile] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (2.1s)
+  ✓  43 [mobile] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (1.5s)
+  ✓  44 [mobile] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (2.2s)
+  ✓  45 [mobile] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (1.9s)
+  ✓  46 [mobile] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover (1.8s)
+  ✓  47 [mobile] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover (1.8s)
+  ✓  48 [mobile] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable (1.9s)
+  ✓  49 [mobile] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (1.8s)
+  ✓  50 [mobile] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host (1.4s)
+  ✓  51 [mobile] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards failed background input while the active retained note is saved (2.4s)
+  ✓  52 [mobile] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards composing background input while the active retained note is saved (1.4s)
+  ✓  53 [mobile] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays (3.4s)
+  ✓  54 [mobile] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration (1.3s)
+  ✓  55 [mobile] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft (1.5s)
+  ✓  56 [mobile] › tests/personal-notes.spec.cjs:1449:1 › review tabs V1 sign-out rechecks saved background lanes receiving late composition during consent (2.5s)
+  ✓  57 [mobile] › tests/personal-notes.spec.cjs:1452:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.2s)
+  ✓  58 [mobile] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (975ms)
+  ✓  59 [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (2.2s)
+  ✓  60 [mobile] › tests/workspace-tabs.spec.cjs:38:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (1.8s)
+  ✓  61 [mobile] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (909ms)
+  ✓  62 [mobile] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (2.9s)
+
+
+  1) [desktop] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'Open dictionary entry 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+        14 × locator resolved to <button data-dictionary-link="root" aria-label="Open dictionary entry 1" class="cursor-pointer underline text-amber-800">…</button>
+           - unexpected value "inactive"
+
+
+      236 |  await page.getByRole('button',{name:'Back to previous dictionary entry'}).focus();await page.keyboard.press('Enter');await expect(origin).toBeFocused();
+      237 |  await page.keyboard.press('Enter');unavailable=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();await expect(page.getByLabel('Dictionary inspector',{exact:true})).toBeFocused();
+    > 238 |  unavailable=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();
+          |                                                                                                          ^
+      239 | });
+      240 |
+      241 | test('Back keeps saved scroll through failed reload and retry',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:238:106
+
+    Error Context: test-results/lexicon-keyboard-dictionar-e2c05-failed-entry-fallback-focus-desktop/error-context.md
+
+  2) [desktop] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'Open dictionary entry 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+        14 × locator resolved to <button data-dictionary-link="bdb.1" aria-label="Open dictionary entry 1" class="cursor-pointer underline text-amber-800 break-words">…</button>
+           - unexpected value "inactive"
+
+
+      243 |  await page.route('**/api/bible/lexicon/**',r=>{const id=new URL(r.request().url()).pathname.split('/').pop();return r.fulfill({json:fail&&id==='4428'?{status:'unavailable',lexical_id:id}:{status:'available',lexical_id:id,lemma:id,bdb:[{kind:'text',text:'Long outline '.repeat(100)},{kind:'dictionary_reference',text:'father',lexical_id:'1'}]}});});
+      244 |  await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Show more',exact:true}).click();const origin=page.getByRole('button',{name:'Open dictionary entry 1',exact:true});await origin.scrollIntoViewIfNeeded();const panel=page.getByRole('complementary',{name:'Word analysis panel'}),saved=await panel.evaluate(el=>el.scrollTop);await origin.click();await expect(page.getByRole('heading',{name:'1',exact:true})).toBeVisible();
+    > 245 |  fail=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();fail=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBe(saved);
+          |                                                                                                                                                                                                                                                                              ^
+      246 | });
+      247 |
+      248 | test('delayed dictionary cannot move Occurrences scroll or focus its hidden heading',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:245:270
+
+    Error Context: test-results/lexicon-Back-keeps-saved-s-d7eae-ugh-failed-reload-and-retry-desktop/error-context.md
+
+  3) [mobile] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'Open dictionary entry 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+        14 × locator resolved to <button data-dictionary-link="root" aria-label="Open dictionary entry 1" class="cursor-pointer underline text-amber-800">…</button>
+           - unexpected value "inactive"
+
+
+      236 |  await page.getByRole('button',{name:'Back to previous dictionary entry'}).focus();await page.keyboard.press('Enter');await expect(origin).toBeFocused();
+      237 |  await page.keyboard.press('Enter');unavailable=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();await expect(page.getByLabel('Dictionary inspector',{exact:true})).toBeFocused();
+    > 238 |  unavailable=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();
+          |                                                                                                          ^
+      239 | });
+      240 |
+      241 | test('Back keeps saved scroll through failed reload and retry',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:238:106
+
+    Error Context: test-results/lexicon-keyboard-dictionar-e2c05-failed-entry-fallback-focus-mobile/error-context.md
+
+  4) [mobile] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'Open dictionary entry 1', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open dictionary entry 1', exact: true })
+        14 × locator resolved to <button data-dictionary-link="bdb.1" aria-label="Open dictionary entry 1" class="cursor-pointer underline text-amber-800 break-words">…</button>
+           - unexpected value "inactive"
+
+
+      243 |  await page.route('**/api/bible/lexicon/**',r=>{const id=new URL(r.request().url()).pathname.split('/').pop();return r.fulfill({json:fail&&id==='4428'?{status:'unavailable',lexical_id:id}:{status:'available',lexical_id:id,lemma:id,bdb:[{kind:'text',text:'Long outline '.repeat(100)},{kind:'dictionary_reference',text:'father',lexical_id:'1'}]}});});
+      244 |  await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Show more',exact:true}).click();const origin=page.getByRole('button',{name:'Open dictionary entry 1',exact:true});await origin.scrollIntoViewIfNeeded();const panel=page.getByRole('complementary',{name:'Word analysis panel'}),saved=await panel.evaluate(el=>el.scrollTop);await origin.click();await expect(page.getByRole('heading',{name:'1',exact:true})).toBeVisible();
+    > 245 |  fail=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();fail=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBe(saved);
+          |                                                                                                                                                                                                                                                                              ^
+      246 | });
+      247 |
+      248 | test('delayed dictionary cannot move Occurrences scroll or focus its hidden heading',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:245:270
+
+    Error Context: test-results/lexicon-Back-keeps-saved-s-d7eae-ugh-failed-reload-and-retry-mobile/error-context.md
+
+  4 failed
+    [desktop] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus 
+    [desktop] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry 
+    [mobile] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus 
+    [mobile] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry 
+  58 passed (2.1m)

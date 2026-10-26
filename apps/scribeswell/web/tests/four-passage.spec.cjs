@@ -886,11 +886,15 @@ test('review: wrapping controls and navigation errors requalify unchanged grid h
   await setup(page);
   await page.setViewportSize({
     width: 1000,
-    height: 760
+    // The tab region (74px) plus its12px gap consume86px; retain the
+    // original grid space so normal text qualifies and wrapped controls do not.
+    height: 846
   });
   await page.goto('/');
   for (let i = 0; i < 3; i++) await add(page);
   await expect(page.locator('[data-reader-pane]:visible')).toHaveCount(4);
+  const initialTextHeights = await page.locator('[data-reader-scroll]:visible').evaluateAll(nodes => nodes.map(node => node.clientHeight));
+  expect(Math.min(...initialTextHeights)).toBeGreaterThanOrEqual(200);
   const gridHeight = await page.locator('[data-reader-pane]').first().evaluate(node => node.parentElement.clientHeight);
   const trigger = page.locator('[data-reader-pane]').nth(3).getByRole('button', {
     name: /Navigate:/

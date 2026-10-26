@@ -1,0 +1,641 @@
+[
+  {
+    "mode": "forced",
+    "iteration": 0,
+    "result": "expect(received).toBeLessThan(expected)\n\nExpected: < 3\nReceived:   230\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+    "events": [
+      {
+        "kind": "frame",
+        "time": 110,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "\n    \n    \n  \n\n"
+      },
+      {
+        "kind": "frame",
+        "time": 2350,
+        "scroll": 0,
+        "height": 0,
+        "total": 0,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "\n    Scribes' WellGe"
+      },
+      {
+        "kind": "focusin",
+        "time": 2810,
+        "scroll": 0,
+        "height": 0,
+        "total": 0,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies"
+      },
+      {
+        "kind": "frame",
+        "time": 2919,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies"
+      },
+      {
+        "kind": "set-before",
+        "time": 3007,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:82:36",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 3008,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies",
+        "value": 0
+      },
+      {
+        "kind": "set-before",
+        "time": 3023,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:65:38"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 3023,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Studies",
+        "value": 0
+      },
+      {
+        "kind": "focusin",
+        "time": 3124,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Start a study"
+      },
+      {
+        "kind": "focusin",
+        "time": 3368,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Create study"
+      },
+      {
+        "kind": "set-before",
+        "time": 3617,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:49:23",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 3618,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0
+      },
+      {
+        "kind": "focusin",
+        "time": 3810,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Add note"
+      },
+      {
+        "kind": "store",
+        "time": 4059,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "\n    Scribes' Wellre",
+        "key": "noteScroll",
+        "stored": null
+      },
+      {
+        "kind": "set-before",
+        "time": 4227,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 4227,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0
+      },
+      {
+        "kind": "set-before",
+        "time": 4251,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 4251,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "\n    Scribes' Wellre",
+        "value": 0
+      },
+      {
+        "kind": "frame",
+        "time": 4283,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "\n    Scribes' Wellre"
+      },
+      {
+        "kind": "focusin",
+        "time": 4448,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "focus": "Word: בְּרֵאשִׁית"
+      },
+      {
+        "kind": "frame",
+        "time": 4491,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Word: בְּרֵאשִׁית"
+      },
+      {
+        "kind": "store",
+        "time": 4524,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": false,
+        "notesVisible": false,
+        "focus": "Word: בְּרֵאשִׁית",
+        "key": "word:12409d4e-4783-4c14-8cd8-09bf947e35b8:0:scroll",
+        "stored": 0
+      },
+      {
+        "kind": "frame",
+        "time": 4573,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": true,
+        "notesVisible": false,
+        "focus": "Word: בְּרֵאשִׁית"
+      },
+      {
+        "kind": "set-before",
+        "time": 4650,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "false",
+        "focus": "Word: בְּרֵאשִׁית",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/bible/WordStudy.tsx:158:34",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 4650,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "false",
+        "focus": "Word: בְּרֵאשִׁית",
+        "value": 0
+      },
+      {
+        "kind": "frame",
+        "time": 4651,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "false",
+        "focus": "Word: בְּרֵאשִׁית"
+      },
+      {
+        "kind": "focusin",
+        "time": 4789,
+        "scroll": 0,
+        "height": 631,
+        "total": 631,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "false",
+        "focus": "Show more"
+      },
+      {
+        "kind": "frame",
+        "time": 4831,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less"
+      },
+      {
+        "kind": "set-before",
+        "time": 4987,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less",
+        "value": 230,
+        "stack": [
+          "    at eval (eval at evaluate (:311:30), <anonymous>:1:18)",
+          "    at UtilityScript.evaluate (<anonymous>:313:16)",
+          "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 4988,
+        "scroll": 230,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less",
+        "value": 230
+      },
+      {
+        "kind": "scroll-event",
+        "time": 5001,
+        "scroll": 230,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less"
+      },
+      {
+        "kind": "store",
+        "time": 5006,
+        "scroll": 230,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less",
+        "key": "word:12409d4e-4783-4c14-8cd8-09bf947e35b8:0:scroll",
+        "stored": 230
+      },
+      {
+        "kind": "frame",
+        "time": 5006,
+        "scroll": 230,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less"
+      },
+      {
+        "kind": "scroll-event",
+        "time": 5234,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less"
+      },
+      {
+        "kind": "store",
+        "time": 5235,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less",
+        "key": "word:12409d4e-4783-4c14-8cd8-09bf947e35b8:0:scroll",
+        "stored": 0
+      },
+      {
+        "kind": "frame",
+        "time": 5235,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Show less"
+      },
+      {
+        "kind": "focusin",
+        "time": 5389,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "set-before",
+        "time": 5429,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 5430,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "value": 0
+      },
+      {
+        "kind": "frame",
+        "time": 5432,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "set-before",
+        "time": 5511,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "value": 600,
+        "stack": [
+          "    at eval (eval at evaluate (:311:30), <anonymous>:1:17)",
+          "    at UtilityScript.evaluate (<anonymous>:313:16)",
+          "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 5511,
+        "scroll": 600,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "value": 600
+      },
+      {
+        "kind": "scroll-event",
+        "time": 5518,
+        "scroll": 600,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "store",
+        "time": 5518,
+        "scroll": 600,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "key": "noteScroll",
+        "stored": {
+          "note": "40000000-0000-4000-8000-000000000001",
+          "scroll": 600
+        }
+      },
+      {
+        "kind": "frame",
+        "time": 5519,
+        "scroll": 600,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "scroll-event",
+        "time": 5657,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "store",
+        "time": 5658,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes",
+        "key": "noteScroll",
+        "stored": {
+          "note": "40000000-0000-4000-8000-000000000001",
+          "scroll": 0
+        }
+      },
+      {
+        "kind": "frame",
+        "time": 5658,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Notes"
+      },
+      {
+        "kind": "focusin",
+        "time": 5711,
+        "scroll": 0,
+        "height": 631,
+        "total": 2805,
+        "wordVisible": false,
+        "notesVisible": true,
+        "expanded": "true",
+        "focus": "Word"
+      },
+      {
+        "kind": "set-before",
+        "time": 5742,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Word",
+        "value": 0,
+        "stack": [
+          "    at http://127.0.0.1:5182/src/components/bible/WordStudy.tsx:158:34",
+          "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+          "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+        ]
+      },
+      {
+        "kind": "set-after",
+        "time": 5742,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Word",
+        "value": 0
+      },
+      {
+        "kind": "frame",
+        "time": 5744,
+        "scroll": 0,
+        "height": 631,
+        "total": 2676,
+        "wordVisible": true,
+        "notesVisible": false,
+        "expanded": "true",
+        "focus": "Word"
+      }
+    ]
+  }
+]

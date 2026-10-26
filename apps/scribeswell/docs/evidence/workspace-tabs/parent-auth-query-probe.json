@@ -1,0 +1,130 @@
+{
+  "syntheticOnly": true,
+  "userReads": 1,
+  "rows": [
+    {
+      "tag": "rendered-while-callback-user-read-held",
+      "queryKeys": [
+        "reader",
+        "foreign",
+        "access_token",
+        "refresh_token",
+        "expires_in",
+        "token_type",
+        "type",
+        "code",
+        "provider_token",
+        "provider_refresh_token"
+      ],
+      "malformedReader": true,
+      "foreign": "kept",
+      "invalidWarning": true,
+      "activeTab": "3e6c257c-3536-4f72-b0ef-febc32c65291",
+      "tabCount": 1,
+      "nativeKeys": [
+        "idx"
+      ],
+      "usrKeys": []
+    },
+    {
+      "tag": "after-callback-recovery-scrub",
+      "queryKeys": [
+        "reader",
+        "foreign"
+      ],
+      "malformedReader": true,
+      "foreign": "kept",
+      "invalidWarning": true,
+      "activeTab": "3e6c257c-3536-4f72-b0ef-febc32c65291",
+      "tabCount": 1,
+      "nativeKeys": [
+        "idx"
+      ],
+      "usrKeys": []
+    },
+    {
+      "tag": "new-picker-tab-before-valid-navigation",
+      "queryKeys": [
+        "reader",
+        "foreign",
+        "access_token",
+        "refresh_token",
+        "expires_in",
+        "token_type",
+        "type",
+        "code",
+        "provider_token",
+        "provider_refresh_token"
+      ],
+      "malformedReader": true,
+      "foreign": "kept",
+      "invalidWarning": true,
+      "activeTab": "18601e34-8823-4bcc-91b4-c030705ff25d",
+      "tabCount": 2,
+      "nativeKeys": [
+        "usr",
+        "key",
+        "idx"
+      ],
+      "usrKeys": [
+        "scribeswellReader"
+      ]
+    },
+    {
+      "tag": "valid-tab-B",
+      "queryKeys": [
+        "foreign",
+        "access_token",
+        "refresh_token",
+        "expires_in",
+        "token_type",
+        "type",
+        "code",
+        "provider_token",
+        "provider_refresh_token",
+        "reader"
+      ],
+      "malformedReader": false,
+      "foreign": "kept",
+      "invalidWarning": false,
+      "activeTab": "18601e34-8823-4bcc-91b4-c030705ff25d",
+      "tabCount": 2,
+      "nativeKeys": [
+        "usr",
+        "key",
+        "idx"
+      ],
+      "usrKeys": [
+        "scribeswellReader"
+      ]
+    },
+    {
+      "tag": "return-invalid-tab-A",
+      "queryKeys": [
+        "reader",
+        "foreign",
+        "access_token",
+        "refresh_token",
+        "expires_in",
+        "token_type",
+        "type",
+        "code",
+        "provider_token",
+        "provider_refresh_token"
+      ],
+      "malformedReader": true,
+      "foreign": "kept",
+      "invalidWarning": true,
+      "activeTab": "3e6c257c-3536-4f72-b0ef-febc32c65291",
+      "tabCount": 2,
+      "nativeKeys": [
+        "usr",
+        "key",
+        "idx"
+      ],
+      "usrKeys": [
+        "scribeswellReader"
+      ]
+    }
+  ]
+}

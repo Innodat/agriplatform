@@ -1,0 +1,87 @@
+[WebServer] (node:1057768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:1057829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1340:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (4.1s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (2.0s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1376:1 › workspace tabs direct Open in new tab retains a complete range with no picker and inherits only note identity (1.7s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs (2.0s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs (2.0s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1384:1 › workspace tabs inherited study outlines retain independent pagination cursors (984ms)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1388:1 › workspace tabs reject stale layout consent and clear open consent on account replacement (2.2s)
+  ✓   8 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (867ms)
+  ✓   9 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (1.7s)
+(node:1058369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1340:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (5.3s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (2.4s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1376:1 › workspace tabs direct Open in new tab retains a complete range with no picker and inherits only note identity (1.8s)
+  ✘  13 [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs (7.0s)
+(node:1058779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs (6.9s)
+(node:1058994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1384:1 › workspace tabs inherited study outlines retain independent pagination cursors (943ms)
+  ✓  16 [mobile] › tests/personal-notes.spec.cjs:1388:1 › workspace tabs reject stale layout consent and clear open consent on account replacement (2.1s)
+  ✓  17 [mobile] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (688ms)
+  ✓  18 [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (980ms)
+
+
+  1) [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: /Word: בְּרֵאשִׁית/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: /Word: בְּרֵאשִׁית/ }) with timeout 5000ms
+      - waiting for getByRole('button', { name: /Word: בְּרֵאשִׁית/ })
+
+
+      1379 |
+      1380 | for(const target of ['note','study'])test(`workspace tabs confirmed ${target} deletion clears every matching private association and retains public tabs`,async({page})=>{
+    > 1381 |  const {requests}=await setup(page);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('shared deleted resource');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('button',{name:`Delete ${target}`,exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:`Delete ${target}`,exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      1382 | });
+      1383 |
+      1384 | test('workspace tabs inherited study outlines retain independent pagination cursors',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1381:1185
+
+    Error Context: test-results/personal-notes-workspace-t-44c69-ion-and-retains-public-tabs-mobile/error-context.md
+
+  2) [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: /Word: בְּרֵאשִׁית/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: /Word: בְּרֵאשִׁית/ }) with timeout 5000ms
+      - waiting for getByRole('button', { name: /Word: בְּרֵאשִׁית/ })
+
+
+      1379 |
+      1380 | for(const target of ['note','study'])test(`workspace tabs confirmed ${target} deletion clears every matching private association and retains public tabs`,async({page})=>{
+    > 1381 |  const {requests}=await setup(page);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('shared deleted resource');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('button',{name:`Delete ${target}`,exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:`Delete ${target}`,exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      1382 | });
+      1383 |
+      1384 | test('workspace tabs inherited study outlines retain independent pagination cursors',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1381:1185
+
+    Error Context: test-results/personal-notes-workspace-t-d7592-ion-and-retains-public-tabs-mobile/error-context.md
+
+  2 failed
+    [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs 
+    [mobile] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs 
+  16 passed (49.1s)

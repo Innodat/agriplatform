@@ -1,0 +1,746 @@
+[
+  [
+    {
+      "kind": "frame",
+      "time": 18,
+      "focus": "\n    \n    \n  \n\n"
+    },
+    {
+      "kind": "frame",
+      "time": 288,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "\n    Scribes' WellGe"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 388,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "focusin",
+      "time": 388,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "Studies"
+    },
+    {
+      "kind": "frame",
+      "time": 401,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies"
+    },
+    {
+      "kind": "set-before",
+      "time": 414,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:82:36",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 415,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies",
+      "value": 0
+    },
+    {
+      "kind": "set-before",
+      "time": 428,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:65:38"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 428,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies",
+      "value": 0
+    },
+    {
+      "kind": "pointerdown",
+      "time": 453,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Studies"
+    },
+    {
+      "kind": "focusin",
+      "time": 453,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "Study A"
+    },
+    {
+      "kind": "set-before",
+      "time": 476,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "\n    Scribes' Wellre",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:49:23",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 476,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 575,
+      "focus": "\n    Scribes' Wellre",
+      "value": 0
+    },
+    {
+      "kind": "frame",
+      "time": 484,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 538,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "focusin",
+      "time": 538,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "A first"
+    },
+    {
+      "kind": "store",
+      "time": 551,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "A first",
+      "stored": {}
+    },
+    {
+      "kind": "set-before",
+      "time": 566,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A first",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 566,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A first",
+      "value": 0
+    },
+    {
+      "kind": "set-before",
+      "time": 569,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A first",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 569,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A first",
+      "value": 0
+    },
+    {
+      "kind": "frame",
+      "time": 571,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A first"
+    },
+    {
+      "kind": "set-before",
+      "time": 591,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "\n    Scribes' Wellre",
+      "value": 220,
+      "stack": [
+        "    at eval (eval at evaluate (:311:30), <anonymous>:2:20)",
+        "    at UtilityScript.evaluate (<anonymous>:313:16)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 591,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "\n    Scribes' Wellre",
+      "value": 220
+    },
+    {
+      "kind": "scroll-event",
+      "time": 595,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "store",
+      "time": 595,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "\n    Scribes' Wellre",
+      "stored": {
+        "note": "40000000-0000-4000-8000-000000000001",
+        "scroll": 220
+      }
+    },
+    {
+      "kind": "frame",
+      "time": 595,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 721,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "focusin",
+      "time": 722,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "New workspace tab"
+    },
+    {
+      "kind": "store",
+      "time": 741,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "New workspace tab",
+      "stored": {}
+    },
+    {
+      "kind": "focusin",
+      "time": 748,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": ""
+    },
+    {
+      "kind": "frame",
+      "time": 780,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": ""
+    },
+    {
+      "kind": "pointerdown",
+      "time": 852,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": ""
+    },
+    {
+      "kind": "focusin",
+      "time": 852,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "Cancel"
+    },
+    {
+      "kind": "focusin",
+      "time": 853,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "Navigate: Genesis, chapter 1. Open selector."
+    },
+    {
+      "kind": "pointerdown",
+      "time": 901,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "Navigate: Genesis, chapter 1. Open selector."
+    },
+    {
+      "kind": "focusin",
+      "time": 901,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 0,
+      "total": 0,
+      "focus": "Studies"
+    },
+    {
+      "kind": "set-before",
+      "time": 909,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 10,
+      "height": 575,
+      "total": 585,
+      "focus": "Studies",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/StudiesPanel.tsx:49:23",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 909,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "Studies",
+      "value": 0
+    },
+    {
+      "kind": "scroll-event",
+      "time": 915,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "Studies"
+    },
+    {
+      "kind": "frame",
+      "time": 915,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "Studies"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 965,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "Studies"
+    },
+    {
+      "kind": "focusin",
+      "time": 965,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "A second"
+    },
+    {
+      "kind": "set-before",
+      "time": 976,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 585,
+      "focus": "A second",
+      "value": 650,
+      "stack": [
+        "    at eval (eval at evaluate (:311:30), <anonymous>:2:20)",
+        "    at UtilityScript.evaluate (<anonymous>:313:16)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 976,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 10,
+      "height": 575,
+      "total": 585,
+      "focus": "A second",
+      "value": 650
+    },
+    {
+      "kind": "scroll-event",
+      "time": 978,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 10,
+      "height": 575,
+      "total": 585,
+      "focus": "A second"
+    },
+    {
+      "kind": "frame",
+      "time": 978,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 10,
+      "height": 575,
+      "total": 585,
+      "focus": "A second"
+    },
+    {
+      "kind": "set-before",
+      "time": 996,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 10,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 585,
+      "focus": "A second",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 996,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second",
+      "value": 0
+    },
+    {
+      "kind": "set-before",
+      "time": 998,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 998,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second",
+      "value": 0
+    },
+    {
+      "kind": "scroll-event",
+      "time": 1000,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second"
+    },
+    {
+      "kind": "store",
+      "time": 1000,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second",
+      "stored": {
+        "note": "40000000-0000-4000-8000-000000000002",
+        "scroll": 0
+      }
+    },
+    {
+      "kind": "frame",
+      "time": 1000,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "A second"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 1134,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "\n    Scribes' Wellre"
+    },
+    {
+      "kind": "focusin",
+      "time": 1134,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "set-before",
+      "time": 1147,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1",
+      "value": 220,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 1147,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1",
+      "value": 220
+    },
+    {
+      "kind": "scroll-event",
+      "time": 1150,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "store",
+      "time": 1150,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1",
+      "stored": {
+        "note": "40000000-0000-4000-8000-000000000001",
+        "scroll": 220
+      }
+    },
+    {
+      "kind": "frame",
+      "time": 1151,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "pointerdown",
+      "time": 1218,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "focusin",
+      "time": 1218,
+      "tab": "8a8396ee-02fd-47e0-9dd1-a841e848651b",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "set-before",
+      "time": 1232,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 220,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 375,
+      "focus": "Genesis 1",
+      "value": 0,
+      "stack": [
+        "    at http://127.0.0.1:5182/src/components/studies/NoteEditor.tsx:313:22",
+        "    at Object.react_stack_bottom_frame (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:18567:20)",
+        "    at runWithFiberInDEV (http://127.0.0.1:5182/node_modules/.vite/deps/react-dom_client.js?v=96573f3b:997:72)"
+      ]
+    },
+    {
+      "kind": "set-after",
+      "time": 1232,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1",
+      "value": 0
+    },
+    {
+      "kind": "scroll-event",
+      "time": 1242,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1"
+    },
+    {
+      "kind": "store",
+      "time": 1242,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1",
+      "stored": {
+        "note": "40000000-0000-4000-8000-000000000002",
+        "scroll": 0
+      }
+    },
+    {
+      "kind": "frame",
+      "time": 1242,
+      "tab": "8d6e4e8d-a3f0-4233-bcd7-e57db3530020",
+      "scroll": 0,
+      "height": 575,
+      "total": 6213,
+      "editorTop": 595,
+      "focus": "Genesis 1"
+    }
+  ]
+]

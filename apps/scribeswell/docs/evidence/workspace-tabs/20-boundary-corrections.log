@@ -1,0 +1,21 @@
+[WebServer] (node:1070334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:1070351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:267:31 › rename: 403 hides private state and preserves public reading (1.0s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:373:35 › collected current access or lifecycle refusal 403 keeps public reader usable (779ms)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:598:1 › library search hides unavailable pages retries applied input and clears on denial (673ms)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:940:29 › whole-study deletion current 403 masks private attempts without auto replay (892ms)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus (2.1s)
+(node:1070612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [mobile] › tests/personal-notes.spec.cjs:267:31 › rename: 403 hides private state and preserves public reading (884ms)
+  ✓   7 [mobile] › tests/personal-notes.spec.cjs:373:35 › collected current access or lifecycle refusal 403 keeps public reader usable (925ms)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:598:1 › library search hides unavailable pages retries applied input and clears on denial (1.0s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:940:29 › whole-study deletion current 403 masks private attempts without auto replay (1.4s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus (2.5s)
+
+  10 passed (13.8s)

@@ -1,0 +1,43 @@
+[WebServer] (node:1026423) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1026495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1286:1 › workspace tabs inherit note identity but retain independent tool and study contexts (5.9s)
+(node:1026662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/reader.spec.cjs:349:1 › workspace tabs retain independent layouts and Cancel retains a newly added tab (692ms)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1286:1 › workspace tabs inherit note identity but retain independent tool and study contexts 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByLabel('Note text', { exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByLabel('Note text', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Note text', { exact: true })
+        14 × locator resolved to <div dir="auto" role="textbox" aria-multiline="true" aria-readonly="false" aria-label="Note text" contenteditable="true" class="min-h-48 rounded border border-stone-300 bg-white p-3 outline-amber-600 whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-5 [&_p]:min-h-6 [&_a]:underline">Retained עברית</div>
+           - unexpected value "visible"
+
+
+      1289 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();
+      1290 |  await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();
+    > 1291 |  await expect(page.getByLabel('Note text',{exact:true})).not.toBeVisible();
+           |                                                              ^
+      1292 |  await page.getByRole('button',{name:'Analysis',exact:true}).click();
+      1293 |  await expect(page.getByLabel('Note text',{exact:true})).toContainText('Retained עברית');
+      1294 |  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1291:62
+
+    Error Context: test-results/personal-notes-workspace-t-5381c-ent-tool-and-study-contexts-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1286:1 › workspace tabs inherit note identity but retain independent tool and study contexts 
+  1 passed (8.6s)
