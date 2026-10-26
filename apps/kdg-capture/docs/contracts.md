@@ -1716,3 +1716,35 @@ stored evidence returns a safe unavailable error, never partial audit data.
 Owner-generated audit OpenAPI/client and [audit evidence](ONLINE_AUDIT_READ_EVIDENCE.md)
 record this technical subset. Historical display names, portal/UI, actual native SQL/RLS
 and full Story 3.1 remain outstanding; no migration or activation is performed.
+
+## Online administrator edit-context API subset — 2026-10-26
+
+The separate `admin_edit_context_http` candidate exposes
+`GET /api/v1/admin/captures/{capture_id}/edit-context`. Success requires current fixed-org
+capture.read.all AND capture.edit.all before checkout. Independently verified organization
+resource/admission scopes and current account/durable actor/membership must agree across
+the ordered pair. Denial never falls back to own permissions. The pair shares one
+three-second Access deadline inside the original ten-second request budget.
+
+The first read check's monotonic observation remains the SQL-entry freshness reference;
+the second decision and acquisition cannot refresh it. Use read-only all_read, existing
+organization-bound original detail retrieval and post-commit validation. Release and
+final serialization remain in the original budget; cancellation awaits owned unwind.
+
+Closed `AdminEditContext` contains only `capture: CaptureDetail` and exact ordered
+`editable_fields: ["observation_date", "answers"]`. It preserves displayed revision,
+original definition/version, child, owner/actor and stored provenance. The current
+administrator need not be the original owner/actor. Historical context does not require
+current child activity, assignment or new-create eligibility. Detail stays at most512KiB;
+whole response at most544KiB actual UTF8. Missing/foreign targets share private404;
+malformed evidence/execution fails safely without a partial capture.
+
+Any query selector or nonempty body is refused. No observations, expiry/offline leases,
+actor names, command/receipt/outcome fields or write authority are returned. Responses
+remain private/no-store and no browser cache or startup route is activated. Existing
+own-only context and offline observations remain unchanged. Future Save/recovery/conflict
+contracts must close separately and recheck authority at their own action boundary.
+
+See [administrator context evidence](ONLINE_ADMIN_EDIT_CONTEXT_EVIDENCE.md) and owner
+OpenAPI/generated client. No schema change, native/driver qualification, named portal
+presentation or complete Story3.1/3.2 claim is made.

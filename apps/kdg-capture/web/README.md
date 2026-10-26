@@ -406,3 +406,15 @@ From repository root with N set to retained Node 26.11.1, qualify the audit cont
 "$N" platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.audit.json
 "$N" apps/kdg-capture/web/tests/audit-read-http-proof.mjs
 ```
+
+The inert online administrator edit-context read requires both current all-read and
+all-edit but returns no offline observation or write lease. See
+[context evidence](../docs/ONLINE_ADMIN_EDIT_CONTEXT_EVIDENCE.md). From repository root
+with N set to retained Node26.11.1:
+
+```sh
+"$N" platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.admin-edit-context.json
+"$N" apps/kdg-capture/web/tests/admin-edit-context-http-proof.mjs
+```
+
+This does not mount administrator editing or change the own-only PWA cache contract.

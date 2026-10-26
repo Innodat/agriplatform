@@ -152,3 +152,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-online-admin-read.md`
   summary: Qualify actual administrator history SQL with tied timestamps and multiple pages before activation.
   evidence: New synthetic collaborators independently filter and sort, so native PostgreSQL must prove organization/date predicates, descending tuple keyset traversal and restricted all_read permissions; current user scope excludes native database work.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-kdg-online-admin-edit-context.md`
+  summary: Clarify shared KDG handler ownership for explicitly injected closing HTTP transports.
+  evidence: Synthetic transport-characterization.py reproduces closure on the existing all-read handler second call and on the current pair; existing own pairs share the pattern. Default transport=None is unaffected. Qualify a shared owner fix with closing-transport reuse tests before adopting a pooled custom transport.
