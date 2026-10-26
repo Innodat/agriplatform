@@ -368,3 +368,16 @@ Local-conflict qualification after review:883 focused real-IDB and71 HTTP checks
 affected commands including five scaffold parities;13 findings addressed, none deferred.
 The HTTP proof owns a90second watchdog and10second requests. Its --force-stall negative
 qualification records deadline failure and confirmed synthetic fixture shutdown.
+
+Retained-proposal extensions use the same explicit server and local decision APIs for
+confirmed v2 conflicts, active unsent stale work and paused re-review. Ordinary PUT/
+recovery still delivers fresh selected edits. With N set to retained Node26.11.1, run from repository root:
+
+```sh
+"$N" apps/kdg-capture/web/tests/retained-proposal-resolution-proof.mjs
+"$N" apps/kdg-capture/web/tests/retained-proposal-resolution-http-proof.mjs
+```
+
+See
+[retained-proposal evidence](../docs/RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md) for current
+qualification. Existing schema4 remains unmounted; previous decisions/bytes are retained.

@@ -178,9 +178,14 @@ try{
  const inspect=await new Promise(resolve=>{const q=indexedDB.open(seeded.opts.database);q.onsuccess=()=>resolve(q.result);});
  const persisted=await new Promise(resolve=>{const tx=inspect.transaction(['create_actions','records'],'readonly'),a=tx.objectStore('create_actions').get(A+'/'+O+'/'+ids.operation_id),r=tx.objectStore('records').get(A+'/'+O+'/'+ids.capture_id);tx.oncomplete=()=>resolve({action:a.result,row:r.result});});inspect.close();ok(persisted.action.delivery.receipt.operation_id===ids.operation_id&&persisted.row.local_capture.answers[Q].value===1&&!persisted.row.baseline,'detail403_keeps_original_intent_and_receipt_on_reopen');
  seeded=await seed('local-receipt-unresolved');store=seeded.store;const frozen=(await store.lookupPreparedCreate(pin)).pending;await store.consumeCreateReceipt(frozen,{kind:'committed',receipt});calls=[];result=await run(store,standard(calls,unresolved,{...snapshot,answers:{[Q]:{value:4}}}));ok(result.kind==='acknowledged'&&result.readback==='unavailable'&&!calls.some(x=>x[1]==='POST')&&!(await store.read()).records[0].baseline,'durable_receipt_unresolved_never_posts_and_checks_detail');store.close();
- seeded=await seed('late-storage');store=seeded.store;let release;const waiting=new Promise(resolve=>release=resolve);let returned;
- const wrapped={...store,consumeCreateReceipt:async(...args)=>{await waiting;returned=await store.consumeCreateReceipt(...args);return returned;}};
- result=await run(wrapped,standard(),{timeoutMs:20});release();await new Promise(resolve=>setTimeout(resolve,20));ok(result.kind==='verification_unavailable'&&returned.kind==='unavailable'&&!(await store.readCreateActions()).actions[0].delivery?.receipt,'late_storage_execution_aborted_without_dependent_commit');store.close();
+ seeded=await seed('late-storage');store=seeded.store;let release,finish,expire,returned,phaseReached=false,elapsed=0;const waiting=new Promise(resolve=>release=resolve),finished=new Promise(resolve=>finish=resolve);
+ // Select the receipt-storage phase before expiring the same ten-second budget.
+ // A short real timer can otherwise expire during IndexedDB setup on a busy host.
+ const nowDescriptor=Object.getOwnPropertyDescriptor(performance,'now'),originalTimeout=globalThis.setTimeout;
+ Object.defineProperty(performance,'now',{configurable:true,value:()=>elapsed});globalThis.setTimeout=function(callback,delay,...args){const timer=originalTimeout.call(this,callback,delay,...args);if(!expire&&delay===10000)expire=()=>callback(...args);return timer;};
+ const wrapped={...store,consumeCreateReceipt:async(...args)=>{phaseReached=true;elapsed=10001;expire();await waiting;try{returned=await store.consumeCreateReceipt(...args);return returned;}finally{finish();}}};
+ try{result=await run(wrapped,standard(),{timeoutMs:10000});ok(phaseReached,'late_storage_phase_reached_before_expiry');release();await finished;ok(result.kind==='verification_unavailable'&&returned.kind==='unavailable'&&!(await store.readCreateActions()).actions[0].delivery?.receipt,'late_storage_execution_aborted_without_dependent_commit');}
+ finally{release();globalThis.setTimeout=originalTimeout;if(nowDescriptor)Object.defineProperty(performance,'now',nowDescriptor);else delete performance.now;store.close();}
  const {createCreateDeliveryEntry}=await import('/compiled/web/src/create-delivery-entry.js');
  for(const mode of ['success','account','org','dispose','cancel','replace','reuse']){
   seeded=await seed('auth-'+mode);store=seeded.store;calls=[];let callback,seenSignal,aborts=0,gate,first=true;

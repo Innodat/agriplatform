@@ -1,4 +1,4 @@
-/** Explicit confirmed own-conflict decisions; no sender or mounted entry. */
+/** Explicit retained own-proposal decisions; no sender or mounted entry. */
 import type {Session} from './entry.js';
 import type {ConflictPin,ReviewedConflict,openHistoryStore} from './history-store.js';
 import {readCapture,type ReadResult} from './read.js';

@@ -1,4 +1,4 @@
-/** Human review holds no Auth lease; every explicit invocation acquires and releases one. */
+/** Server-current retained-proposal review holds no Auth lease; every explicit invocation acquires and releases one. */
 import {createAuthEntry,type AuthEntryOptions} from './auth-entry.js';
 import {resolveConflict,type ConflictResolutionRequest,type ConflictResolutionResult,type ConflictResolutionStore} from './conflict-resolution.js';
 import type {ConflictPin,ReviewedConflict} from './history-store.js';

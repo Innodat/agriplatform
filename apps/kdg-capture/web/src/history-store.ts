@@ -26,8 +26,8 @@ export type PendingReviewedEdit=Frozen<{version:2;base_kind:'local_create';accou
 export type ReviewedEdit=ServerReviewedEdit|PendingReviewedEdit;
 export type LocalEditIntent=ServerLocalEditIntent|Frozen<Omit<ServerLocalEditIntent,'version'|'base'|'predecessor_action_id'> & {version:2;base_kind:'local_create';base:LocalCaptureBase;predecessor:EditPredecessor;predecessor_action_id:string}>;
 export type ConflictPin=Readonly<{account_id:string;org_id:string;capture_id:string;source_action_id:string}>;
-export type ReviewedConflict=Frozen<ConflictPin & {mode:'current'|'replacement';current:CaptureDetail;edit_context?:EditContext;head_action_id:string;baseline_revision:string;resolution_generation:number}>;
-export type ReviewedLocalConflict=Frozen<ConflictPin & {kind:'local';mode:'current'|'replacement';current:CaptureDetail|LocalCaptureBase;head_action_id:string|null;create_action_id:string|null;baseline_revision:string|null;resolution_generation:number;epoch:number;edit_generation:number;snapshot:string;edit_review?:ReviewedEdit}>;
+export type ReviewedConflict=Frozen<ConflictPin & {mode:'current'|'replacement';current:CaptureDetail;edit_context?:EditContext;head_action_id:string;baseline_revision:string;resolution_generation:number;retained?:Readonly<{kind:'confirmed'|'stale'|'paused';snapshot:string;source:string;epoch:number;edit_generation:number;prior_decision_id?:string;prior_generation?:number}>}>;
+export type ReviewedLocalConflict=Frozen<ConflictPin & {kind:'local';mode:'current'|'replacement';current:CaptureDetail|LocalCaptureBase;head_action_id:string|null;create_action_id:string|null;baseline_revision:string|null;resolution_generation:number;epoch:number;edit_generation:number;snapshot:string;reconsideration?:Readonly<{decision_id:string;generation:number;source:string}>;edit_review?:ReviewedEdit}>;
 export type LocalResolutionSelection=Readonly<{reviewed:ReviewedLocalConflict;decision_id:string;action_id:string|null;changes:unknown}>;
 export type ResolutionSelection=Readonly<{reviewed:ReviewedConflict;decision_id:string;action_id:string|null;changes:unknown}>;
 export type ResolutionResult=Readonly<{kind:'adopted';decision_id:string}>|Readonly<{kind:'saved_locally';decision_id:string;action_id:string}>|Readonly<{kind:'blocked'|'stale'|'invalid'|'decision_id_reused'|'action_id_reused'}>;
@@ -73,7 +73,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   else if(observed===shared.editGeneration&&meta?.editDenied)shared.editDenied=true;
   shared.editDeniedAt=Math.max(shared.editDeniedAt,meta?.editDeniedAt??0);
  }
- const localConflictReviews=new WeakMap<object,unknown>(),conflictReviews=new WeakSet<object>(),reviews=new WeakSet<object>(),createReviews=new WeakSet<object>(),createBindings=new WeakMap<object,number>();
+ const localConflictReviews=new WeakMap<object,unknown>(),conflictReviews=new WeakMap<object,unknown>(),reviews=new WeakSet<object>(),createReviews=new WeakSet<object>(),createBindings=new WeakMap<object,number>();
  const createLatches=shared.createLatches;
  const current=()=>!closed&&shared.generation===generation;
  function sensible(observation:any,watermark:number,recovery=false){
@@ -374,6 +374,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   const r=structuredClone(reviewed) as ReviewedConflict;
   if(r.account_id!==account_id||r.org_id!==org_id||![r.capture_id,r.source_action_id,r.head_action_id].every(id)||!decimal(r.baseline_revision)||!Number.isSafeInteger(r.resolution_generation)||r.resolution_generation<0||!['current','replacement'].includes(r.mode))throw Error('invalid');
   validateDetail(r.current,r);
+  if(r.retained){const t=object(r.retained,['kind','snapshot','source','epoch','edit_generation'],['prior_decision_id','prior_generation']),snapshot=JSON.parse(r.retained.snapshot);if(!['confirmed','stale','paused'].includes(t.kind as string)||typeof t.source!=='string'||![t.epoch,t.edit_generation].every(n=>Number.isSafeInteger(n)&&Number(n)>=0)||snapshot.key!==partition+'/'+r.capture_id||snapshot.partition!==partition||(snapshot.resolution_generation??0)!==r.resolution_generation||(snapshot.saved_edit?.action_id??r.source_action_id)!==r.head_action_id||(snapshot.baseline?.revision??r.baseline_revision)!==r.baseline_revision)throw Error('invalid_retained');if(t.kind==='paused'&&(!id(t.prior_decision_id)||!Number.isSafeInteger(t.prior_generation)||Number(t.prior_generation)>=r.resolution_generation))throw Error('invalid_link');}
   let changes:LocalEditChanges|null=null;
   if(action_id!==null){
    if(r.mode!=='replacement'||!r.edit_context)throw Error('invalid');
@@ -388,6 +389,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   if(!reviewed||typeof reviewed!=='object'||!id(decision_id)||action_id!==null&&!id(action_id))throw Error('invalid');
   const r=structuredClone(reviewed) as ReviewedLocalConflict;
   if(r.kind!=='local'||r.account_id!==account_id||r.org_id!==org_id||![r.capture_id,r.source_action_id].every(id)||r.head_action_id!==null&&!id(r.head_action_id)||r.create_action_id!==null&&!id(r.create_action_id)||r.baseline_revision!==null&&!decimal(r.baseline_revision)||!['current','replacement'].includes(r.mode)||![r.resolution_generation,r.epoch,r.edit_generation].every(n=>Number.isSafeInteger(n)&&n>=0)||typeof r.snapshot!=='string')throw Error('invalid');
+  if(r.reconsideration){const link=object(r.reconsideration,['decision_id','generation','source']);if(!id(link.decision_id)||!Number.isSafeInteger(link.generation)||Number(link.generation)<0||Number(link.generation)>=r.resolution_generation||typeof link.source!=='string')throw Error('invalid_link');}
   const snapshot=JSON.parse(r.snapshot),base=snapshot.saved_edit?.base??snapshot.baseline??snapshot.local_capture;
   if(snapshot.key!==partition+'/'+r.capture_id||snapshot.partition!==partition||!base||canonical(snapshot.saved_edit?{...base,...snapshot.saved_edit.changes}:base)!==canonical(r.current)||(snapshot.saved_edit?.action_id??null)!==r.head_action_id||(snapshot.create_action_id??null)!==r.create_action_id||(snapshot.baseline?.revision??null)!==r.baseline_revision||(snapshot.resolution_generation??0)!==r.resolution_generation)throw Error('invalid');
   if(Object.hasOwn(r.current,'revision'))validateDetail(r.current,r);else{if(Object.hasOwn(r.current,'created_at')||r.current.capture_id!==r.capture_id||r.current.org_id!==org_id||r.current.owner_account_id!==account_id||!date(r.current.observation_date))throw Error('invalid');validateAnswers(r.current.definition,r.current.answers);}
@@ -399,14 +401,17 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
  async function localBranch(tx:IDBTransaction,pin:ConflictPin,check:()=>void){
   const row=await request<any>(tx.objectStore('records').get(partition+'/'+pin.capture_id));check();if(!row||row.pending||row.conflict)throw Error('incomplete');
   const graph=await captureGraph(tx,pin.capture_id,check),source=graph.edits.get(pin.source_action_id);
-  if(!source||source.status!=='Needs attention'||source.delivery||row.resolution_dispositions?.[source.action_id])throw Error('local_source_required');
-  const branch=descendantsOf(graph.edits,source.action_id);if(branch.includes(row.saved_edit?.action_id)||branch.some(a=>row.resolution_dispositions?.[a]))throw Error('active_source');
+  const paused=row.resolution_dispositions?.[source?.action_id]==='paused';
+  if(!source||!paused&&(source.status!=='Needs attention'||source.delivery||row.resolution_dispositions?.[source.action_id]))throw Error('local_source_required');
+  if(paused&&source.delivery&&!source.delivery.receipt&&!source.delivery.conflict)throw Error('uncertain_paused');
+  const branch=descendantsOf(graph.edits,source.action_id);if(branch.includes(row.saved_edit?.action_id)||branch.some(a=>row.resolution_dispositions?.[a]&&!paused))throw Error('active_source');
   const chain=new Set<string>();let cursor=graph.edits.get(row.saved_edit?.action_id);if(row.saved_edit&&(!cursor||canonical(cursor.base)!==canonical(row.saved_edit.base)||canonical(cursor.changes)!==canonical(row.saved_edit.changes)||row.resolution_dispositions?.[cursor.action_id]))throw Error('invalid_head');
   while(cursor){if(row.resolution_dispositions?.[cursor.action_id])throw Error('disposed_ancestor');chain.add(cursor.action_id);cursor=cursor.version===2&&cursor.predecessor.type==='capture.create'?undefined:graph.edits.get(cursor.predecessor_action_id);}
   for(const a of graph.actions)if(a.delivery&&!a.delivery.receipt&&!a.delivery.conflict&&!chain.has(a.action_id))throw Error('unknown_off_chain');
   if(graph.creates.some(a=>!a.delivery?.receipt&&a.action_id!==row.create_action_id))throw Error('unknown_create');
   const decisions=await request<any[]>(tx.objectStore('resolutions').index('capture').getAll(IDBKeyRange.only([partition,pin.capture_id]),101));check();if(decisions.length>100)throw Error('overflow');for(const d of decisions)if(!await decisionEffects(tx,d,check))throw Error('unsupported_decision');
-  return {row,source,branch,graph};
+  const prior=paused?decisions.find(d=>d.dispositions?.[source.action_id]==='paused'):undefined;if(paused&&!prior)throw Error('missing_pause');
+  return {row,source,branch,graph,prior,decision_count:decisions.length};
  }
  function localEditReview(row:any,meta:any,capture_id:string):ReviewedEdit{
   const local=!!row.pending_edit_context,context=local?row.pending_edit_context:row.edit_context;
@@ -417,14 +422,15 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   return {key:partition+'/'+action_id,partition,version:er.version===2?2:1,...(er.version===2?{base_kind:'local_create',predecessor:er.predecessor}:{}),type:'capture.edit',action_id,capture_id:r.capture_id,content:canonical({reviewed:er,input:changes}),base:er.base,changes,predecessor_action_id:er.predecessor_action_id,expected_revision:er.predecessor_action_id===null?er.base.revision:null,read_observation:er.read_observation,edit_observation:er.edit_observation,status:'Pending',result:{kind:'saved_locally',action_id}};
  }
  function supportedLocalDecision(d:any){try{
-  object(d,['key','partition','capture_id','version','decision_id','source_action_id','head_action_id','generation','current','selected','replacement_action_id','dispositions','content','result']);if(d.version!==2||d.key!==partition+'/'+d.decision_id||d.partition!==partition)return false;
+  object(d,['key','partition','capture_id','version','decision_id','source_action_id','head_action_id','generation','current','selected','replacement_action_id','dispositions','content','result']);if(![2,4].includes(d.version)||d.key!==partition+'/'+d.decision_id||d.partition!==partition)return false;
   const identity=object(JSON.parse(d.content),['reviewed','decision_id','action_id','changes']),chosen=localSelection(identity.reviewed,identity.decision_id as string,identity.action_id as string|null,identity.changes),r=chosen.r;
   if(chosen.content!==d.content||d.decision_id!==identity.decision_id||d.capture_id!==r.capture_id||d.source_action_id!==r.source_action_id||d.head_action_id!==r.head_action_id||d.generation!==r.resolution_generation||canonical(d.current)!==canonical(r.current)||canonical(d.selected)!==canonical(chosen.changes)||d.replacement_action_id!==identity.action_id)return false;
-  const outcome=d.replacement_action_id===null?{kind:'adopted',decision_id:d.decision_id}:{kind:'saved_locally',decision_id:d.decision_id,action_id:d.replacement_action_id};return canonical(d.result)===canonical(outcome)&&d.dispositions&&Object.keys(d.dispositions).length<=100&&d.dispositions[d.source_action_id]==='retired'&&Object.entries(d.dispositions).every(([a,v])=>id(a)&&v===(a===d.source_action_id?'retired':'paused'));
+  const outcome=d.replacement_action_id===null?{kind:'adopted',decision_id:d.decision_id}:{kind:'saved_locally',decision_id:d.decision_id,action_id:d.replacement_action_id};return canonical(d.result)===canonical(outcome)&&d.dispositions&&Object.keys(d.dispositions).length<=100&&d.dispositions[d.source_action_id]===(d.version===4?'paused':'retired')&&Object.entries(d.dispositions).every(([a,v])=>id(a)&&v===(d.version===4?(JSON.parse(r.snapshot).resolution_dispositions?.[a]??'paused'):(a===d.source_action_id?'retired':'paused')))&&((d.version===4)===!!r.reconsideration);
  }catch{return false;}}
  async function localDecisionEffects(tx:IDBTransaction,d:any,check:()=>void){try{
   if(!supportedLocalDecision(d))return false;const r=JSON.parse(d.content).reviewed as ReviewedLocalConflict,row=await request<any>(tx.objectStore('records').get(partition+'/'+d.capture_id));check();if(!row||!Number.isSafeInteger(row.resolution_generation)||row.resolution_generation<d.generation+1)return false;
-  const {edits,creates}=await captureGraph(tx,d.capture_id,check),source=edits.get(d.source_action_id);if(!source||source.status!=='Needs attention'||source.delivery)return false;
+  const {edits,creates}=await captureGraph(tx,d.capture_id,check),source=edits.get(d.source_action_id);if(!source||d.version===2&&(source.status!=='Needs attention'||source.delivery))return false;
+  if(d.version===4){const link=r.reconsideration;if(!link||canonical(source)!==link.source||!id(link.decision_id)||!Number.isSafeInteger(link.generation)||link.generation>=d.generation)return false;const prior=await request<any>(tx.objectStore('resolutions').get(partition+'/'+link.decision_id));check();if(!prior||prior.capture_id!==d.capture_id||prior.generation!==link.generation||prior.dispositions?.[d.source_action_id]!=='paused'||!await decisionEffects(tx,prior,check))return false;}
   if(r.create_action_id!==null&&!creates.some(a=>a.action_id===r.create_action_id))return false;if(r.head_action_id!==null&&!edits.has(r.head_action_id))return false;
   const branch=descendantsOf(edits,d.source_action_id);if(branch.length!==Object.keys(d.dispositions).length||branch.some(a=>row.resolution_dispositions?.[a]!==d.dispositions[a]||!Object.hasOwn(d.dispositions,a)))return false;
   const snapshot=JSON.parse(r.snapshot);if(snapshot.local_capture&&canonical(snapshot.local_capture)!==canonical(row.local_capture))return false;
@@ -447,28 +453,38 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    const {meta,clock,validate}=await readAccess(tx,check),old=await request<any>(tx.objectStore('resolutions').get(partition+'/'+decision_id));check();if(old)return {value:!await decisionEffects(tx,old,check)?result('blocked'):old.content===content?freeze(structuredClone(old.result)):result('decision_id_reused'),clock,validate};
    if(!localConflictReviews.has(reviewed as object))return {value:result('invalid'),clock,validate};
    const row=await request<any>(tx.objectStore('records').get(partition+'/'+r.capture_id));check();if(localSnapshot(row)!==r.snapshot||(meta.epoch??0)!==r.epoch||action_id!==null&&(meta.editGeneration??0)!==r.edit_generation)return {value:result('stale'),clock,validate};
-   const {branch,graph}=await localBranch(tx,r,check);if(action_id!==null&&graph.actions.length+graph.creates.length>=100)return {value:result('blocked'),clock,validate};let editRow:any;
+   const {branch,graph,decision_count}=await localBranch(tx,r,check);if(decision_count>=100)return {value:result('blocked'),clock,validate};if(action_id!==null&&graph.actions.length+graph.creates.length>=100)return {value:result('blocked'),clock,validate};let editRow:any;
    if(action_id!==null){editRow=(await editAccess(tx,r.capture_id,check)).row;if(canonical(localEditReview(editRow,meta,r.capture_id))!==canonical(r.edit_review))return {value:result('stale'),clock,validate};editAuthority(meta,editRow,r.edit_review);for(const table of ['edit_actions','create_actions']){const collision=await request<any>(tx.objectStore(table).get(partition+'/'+action_id));check();if(collision)return {value:result('action_id_reused'),clock,validate};}if(row.edit_status==='Needs attention'||r.edit_review!.baseline_revision!==null&&!(await ownProgress(tx,row,check))&&(r.edit_review as any).base.revision!==row.baseline.revision)throw Error('not_ready');}
-   const reviewedRead=localConflictReviews.get(reviewed as object);const finalValidate=()=>{validate();editObservation(reviewedRead,meta.wall);if(action_id!==null)editAuthority(meta,editRow,r.edit_review);};finalValidate();const dispositions=Object.fromEntries(branch.map(a=>[a,a===r.source_action_id?'retired':'paused'])),next={...row,resolution_generation:r.resolution_generation+1,resolution_dispositions:{...row.resolution_dispositions,...dispositions}};
+   const reviewedRead=localConflictReviews.get(reviewed as object);const finalValidate=()=>{validate();editObservation(reviewedRead,meta.wall);if(action_id!==null)editAuthority(meta,editRow,r.edit_review);};finalValidate();const dispositions=Object.fromEntries(branch.map(a=>[a,row.resolution_dispositions?.[a]??(a===r.source_action_id?'retired':'paused')])),next={...row,resolution_generation:r.resolution_generation+1,resolution_dispositions:{...row.resolution_dispositions,...dispositions}};
    if(action_id!==null){const intent=localReplacement(r,changes!,action_id);tx.objectStore('edit_actions').add(intent);Object.assign(next,{saved_edit:{action_id,base:intent.base,changes,...(intent.version===2?{base_kind:'local_create'}:{})},edit_status:'Pending'});}
-   const outcome:ResolutionResult=action_id===null?{kind:'adopted',decision_id}:{kind:'saved_locally',decision_id,action_id};tx.objectStore('records').put(next);tx.objectStore('resolutions').add({key:partition+'/'+decision_id,partition,capture_id:r.capture_id,version:2,decision_id,source_action_id:r.source_action_id,head_action_id:r.head_action_id,generation:r.resolution_generation,current:r.current,selected:changes,replacement_action_id:action_id,dispositions,content,result:outcome});return {value:freeze(outcome),clock,validate:finalValidate};
+   const outcome:ResolutionResult=action_id===null?{kind:'adopted',decision_id}:{kind:'saved_locally',decision_id,action_id};tx.objectStore('records').put(next);tx.objectStore('resolutions').add({key:partition+'/'+decision_id,partition,capture_id:r.capture_id,version:r.reconsideration?4:2,decision_id,source_action_id:r.source_action_id,head_action_id:r.head_action_id,generation:r.resolution_generation,current:r.current,selected:changes,replacement_action_id:action_id,dispositions,content,result:outcome});return {value:freeze(outcome),clock,validate:finalValidate};
   },execution);
  }
  function supportedResolution(value:any){
-  if(value?.version===2)return supportedLocalDecision(value);
+  if(value?.version===2||value?.version===4)return supportedLocalDecision(value);
   try{
-   const d:any=object(value,['key','partition','capture_id','version','decision_id','source_action_id','head_action_id','generation','current','selected','replacement_action_id','dispositions','content','result']);
-   if(d.version!==1||d.partition!==partition||d.key!==partition+'/'+d.decision_id)return false;
+   const d:any=object(value,['key','partition','capture_id','version','decision_id','source_action_id','head_action_id','generation','current','selected','replacement_action_id','dispositions','content','result'],['replacement_effect']);if(d.version===3&&d.replacement_action_id!==null&&typeof d.replacement_effect!=='string'||d.version===1&&Object.hasOwn(d,'replacement_effect'))return false;
+   if(![1,3].includes(d.version)||d.partition!==partition||d.key!==partition+'/'+d.decision_id)return false;
    const identity:any=object(JSON.parse(d.content),['reviewed','decision_id','action_id','changes']);
    const selected=selection(identity.reviewed,identity.decision_id,identity.action_id,identity.changes),r=selected.r;
    if(selected.content!==d.content||d.decision_id!==identity.decision_id||r.capture_id!==d.capture_id||r.source_action_id!==d.source_action_id||r.head_action_id!==d.head_action_id||r.resolution_generation!==d.generation||canonical(r.current)!==canonical(d.current)||canonical(selected.changes)!==canonical(d.selected)||identity.action_id!==d.replacement_action_id)return false;
    const outcome=d.replacement_action_id===null?{kind:'adopted',decision_id:d.decision_id}:{kind:'saved_locally',decision_id:d.decision_id,action_id:d.replacement_action_id};
-   if(canonical(outcome)!==canonical(d.result)||!d.dispositions||typeof d.dispositions!=='object'||Array.isArray(d.dispositions)||Object.keys(d.dispositions).length>100||d.dispositions[d.source_action_id]!=='retired'||!Object.hasOwn(d.dispositions,d.head_action_id))return false;
-   return Object.entries(d.dispositions).every(([action,value])=>id(action)&&value===(action===d.source_action_id?'retired':'paused'));
+   if(canonical(outcome)!==canonical(d.result)||!d.dispositions||typeof d.dispositions!=='object'||Array.isArray(d.dispositions)||Object.keys(d.dispositions).length>100||d.dispositions[d.source_action_id]!== (d.version===3&&r.retained?.kind==='paused'?'paused':'retired')||!Object.hasOwn(d.dispositions,d.head_action_id))return false;
+   return Object.entries(d.dispositions).every(([action,value])=>id(action)&&(d.version===1?value===(action===d.source_action_id?'retired':'paused'):['retired','paused'].includes(value as string)))&&(d.version===1?!r.retained:!!r.retained);
   }catch{return false;}
  }
- async function decisionEffects(tx:IDBTransaction,d:any,check:()=>void){
-  if(d?.version===2)return localDecisionEffects(tx,d,check);
+ // One transaction validates a finite retained decision graph. Later-effect explanations
+ // and earlier pause links may form a cycle; every member still validates its own
+ // complete effects. A failed member poisons the entire transaction's validation.
+ const effectChecks=new WeakMap<IDBTransaction,{active:Set<string>;validated:Map<string,boolean>;failed:boolean}>();
+ async function decisionEffects(tx:IDBTransaction,d:any,check:()=>void):Promise<boolean>{
+  let state=effectChecks.get(tx);if(!state){state={active:new Set(),validated:new Map(),failed:false};effectChecks.set(tx,state);}
+  if(state.failed||!supportedResolution(d)){state.failed=true;return false;}
+  const key=canonical(d);if(state.active.has(key))return true;if(state.validated.has(key))return state.validated.get(key)!&&!state.failed;
+  state.active.add(key);let valid=false;try{valid=await checkedDecisionEffects(tx,d,check);}catch{}finally{state.active.delete(key);}if(!valid)state.failed=true;state.validated.set(key,valid);return valid&&!state.failed;
+ }
+ async function checkedDecisionEffects(tx:IDBTransaction,d:any,check:()=>void):Promise<boolean>{
+  if(d?.version===2||d?.version===4)return localDecisionEffects(tx,d,check);
   if(!supportedResolution(d))return false;
   try{
    const row=await request<any>(tx.objectStore('records').get(partition+'/'+d.capture_id));check();
@@ -476,18 +492,28 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    validateDetail(row.baseline,{account_id,org_id,capture_id:d.capture_id});sameOriginal(d.current,row.baseline);
    if(BigInt(row.baseline.revision)<BigInt(d.current.revision))return false;
    if(row.baseline.revision===d.current.revision)for(const field of ['observation_date','answers','updated_by','updated_at'])if(canonical(row.baseline[field])!==canonical(d.current[field]))return false;
-   const {edits}=await captureGraph(tx,d.capture_id,check),source=edits.get(d.source_action_id);
-   if(source?.version!==1||!source.delivery?.conflict)return false;
-   sameOriginal(source.base,d.current);
-   if(BigInt(d.current.revision)<BigInt(source.delivery.conflict.current_revision))return false;
+   const {edits,creates}=await captureGraph(tx,d.capture_id,check),source=edits.get(d.source_action_id);
+   if(d.version===1){if(source?.version!==1||!source.delivery?.conflict)return false;sameOriginal(source.base,d.current);if(BigInt(d.current.revision)<BigInt(source.delivery.conflict.current_revision))return false;}else{const r=JSON.parse(d.content).reviewed,snapshot=JSON.parse(r.retained.snapshot);if(!source||canonical(source)!==r.retained.source||!serverClassification(snapshot,{edits,actions:[...edits.values()],creates},source,d.current,r.retained.kind))return false;if(r.retained.kind==='paused'){const prior=await request<any>(tx.objectStore('resolutions').get(partition+'/'+r.retained.prior_decision_id));check();if(!prior||prior.capture_id!==d.capture_id||prior.generation!==r.retained.prior_generation||prior.generation>=d.generation||prior.dispositions?.[d.source_action_id]!=='paused'||!await decisionEffects(tx,prior,check))return false;}}
    for(const [action,disposition] of Object.entries(d.dispositions))if(!edits.has(action)||row.resolution_dispositions?.[action]!==disposition)return false;
    for(const disposition of Object.values(row.resolution_dispositions??{}))if(!['retired','paused'].includes(disposition as string))return false;
    const descendants=new Set<string>([d.source_action_id]);let added=true;
    while(added){added=false;for(const a of edits.values())if(!descendants.has(a.action_id)&&!(a.version===2&&a.predecessor.type==='capture.create')&&descendants.has(a.predecessor_action_id)){descendants.add(a.action_id);added=true;}}
-   if(descendants.size!==Object.keys(d.dispositions).length||[...descendants].some(action=>!Object.hasOwn(d.dispositions,action)))return false;
+   if(d.version===1&&(descendants.size!==Object.keys(d.dispositions).length||[...descendants].some(action=>!Object.hasOwn(d.dispositions,action))))return false;
+   if(d.version===3){const r=JSON.parse(d.content).reviewed,snapshot=JSON.parse(r.retained.snapshot),expected=serverDispositions(snapshot,edits,source);if(canonical(expected)!==canonical(d.dispositions))return false;if(snapshot.saved_edit){const head=edits.get(snapshot.saved_edit.action_id);if(!head||canonical(head.base)!==canonical(snapshot.saved_edit.base)||canonical(head.changes)!==canonical(snapshot.saved_edit.changes))return false;}}
    if(d.replacement_action_id!==null){
     const replacement=edits.get(d.replacement_action_id);if(!replacement||replacement.version!==1||replacement.predecessor_action_id!==null||replacement.expected_revision!==d.current.revision||canonical(replacement.base)!==canonical(d.current)||canonical(replacement.changes)!==canonical(d.selected))return false;
+    if(d.version===3&&canonical(Object.fromEntries(Object.entries(replacement).filter(([k])=>k!=='delivery')))!==d.replacement_effect)return false;
     const identity=JSON.parse(replacement.content),r=identity.reviewed;if(r.resolution_generation!==d.generation+1||r.baseline_revision!==d.current.revision||canonical(r.capture)!==canonical(d.current))return false;
+   }
+   if(d.version===3){
+    const active=new Set<string>();let cursor=edits.get(row.saved_edit?.action_id);
+    if(row.saved_edit&&(!cursor||canonical(cursor.base)!==canonical(row.saved_edit.base)||canonical(cursor.changes)!==canonical(row.saved_edit.changes)))return false;
+    while(cursor){if(row.resolution_dispositions?.[cursor.action_id])return false;active.add(cursor.action_id);cursor=cursor.version===2&&cursor.predecessor.type==='capture.create'?undefined:edits.get(cursor.predecessor_action_id);}
+    if(d.replacement_action_id!==null&&!active.has(d.replacement_action_id)){
+     const selected=edits.get(d.replacement_action_id),receipt=selected?.delivery?.receipt;
+     if(receipt){if(BigInt(row.baseline.revision)<BigInt(receipt.result.revision)||row.baseline.revision===receipt.result.revision&&!matches(selected,row.baseline))return false;}
+     else{const later=await request<any[]>(tx.objectStore('resolutions').index('capture').getAll(IDBKeyRange.only([partition,d.capture_id]),101));check();if(later.length>100)return false;let explained=false;for(const decision of later)if(decision.generation>d.generation&&['retired','paused'].includes(decision.dispositions?.[d.replacement_action_id])&&decision.dispositions[d.replacement_action_id]===row.resolution_dispositions?.[d.replacement_action_id]&&await decisionEffects(tx,decision,check)){explained=true;break;}if(!explained)return false;}
+    }
    }
    return true;
   }catch{return false;}
@@ -498,24 +524,33 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   if(!await decisionEffects(tx,d,check))return result('blocked');
   return d.content===chosen.content?freeze(structuredClone(d.result)):result('decision_id_reused');
  }
- async function conflictBranch(tx:IDBTransaction,pin:ConflictPin,check:()=>void){
-  const row=await request<any>(tx.objectStore('records').get(partition+'/'+pin.capture_id));check();
-  if(!row?.baseline||!row.saved_edit||row.pending||row.conflict)throw Error('incomplete_branch');
-  const graph=await captureGraph(tx,pin.capture_id,check);
-  for(const action of graph.creates)if(!action.delivery?.receipt)throw Error('unknown_create');
-  for(const action of graph.actions)if(action.delivery&&!action.delivery.receipt&&!action.delivery.conflict)throw Error('unknown_edit');
-  const decisions=await request<any[]>(tx.objectStore('resolutions').index('capture').getAll(IDBKeyRange.only([partition,pin.capture_id]),101));check();
-  if(decisions.length>100||decisions.some(d=>!supportedResolution(d)))throw Error('unsupported_decision');
-  for(const d of decisions)if(!await decisionEffects(tx,d,check))throw Error('missing_effects');
-  const source=graph.edits.get(pin.source_action_id);
-  if(source?.version!==1||!source.delivery?.conflict||row.resolution_dispositions?.[source.action_id])throw Error('confirmed_conflict_required');
-  let cursor:any=graph.edits.get(row.saved_edit.action_id);
-  if(!cursor||canonical(cursor.base)!==canonical(row.saved_edit.base)||canonical(cursor.changes)!==canonical(row.saved_edit.changes))throw Error('invalid_head');
-  while(cursor.action_id!==source.action_id){if(row.resolution_dispositions?.[cursor.action_id]||cursor.predecessor_action_id===null)throw Error('unrelated_head');cursor=graph.edits.get(cursor.predecessor_action_id);if(!cursor)throw Error('unrelated_head');}
-  const descendants=new Set<string>([source.action_id]);let added=true;
-  while(added){added=false;for(const a of graph.actions)if(!descendants.has(a.action_id)&&!(a.version===2&&a.predecessor.type==='capture.create')&&descendants.has(a.predecessor_action_id)){descendants.add(a.action_id);added=true;}}
-  for(const action of descendants)if(row.resolution_dispositions?.[action])throw Error('retired_branch');
-  return {row,source,branch:[...descendants]};
+ function knownOriginal(source:any,current:any){
+  if(source.version===1){sameOriginal(source.base,current);return;}
+  for(const field of ['capture_id','org_id','owner_account_id','owner_actor_id','child_id','questionnaire_id','questionnaire_version_id','questionnaire_version','captured_at','definition'])if(canonical(source.base[field])!==canonical(current[field]))throw Error('changed_local_origin');
+ }
+ function serverClassification(row:any,graph:any,source:any,current:any,expected?:string){
+  knownOriginal(source,current);if(source.delivery?.conflict&&BigInt(current.revision)<BigInt(source.delivery.conflict.current_revision)||source.delivery?.receipt&&BigInt(current.revision)<BigInt(source.delivery.receipt.result.revision))throw Error('stale_current');let kind:'confirmed'|'stale'|'paused';
+  if(row.resolution_dispositions?.[source.action_id]==='paused')kind='paused';
+  else if(row.resolution_dispositions?.[source.action_id])throw Error('disposed');
+  else if(source.delivery?.conflict){if(BigInt(current.revision)<BigInt(source.delivery.conflict.current_revision))throw Error('stale_current');kind='confirmed';}
+  else{if(source.status!=='Pending'||source.delivery)throw Error('not_unsent');let cursor=graph.edits.get(row.saved_edit?.action_id);while(cursor&&cursor.action_id!==source.action_id)cursor=cursor.version===2&&cursor.predecessor.type==='capture.create'?undefined:graph.edits.get(cursor.predecessor_action_id);if(!cursor)throw Error('inactive');const parent=source.predecessor_action_id===null?null:source.version===2&&source.predecessor.type==='capture.create'?graph.creates?.find((a:any)=>a.action_id===source.predecessor_action_id):graph.edits.get(source.predecessor_action_id);if(parent&&!parent.delivery?.receipt)throw Error('unresolved_ancestor');const revision=parent?.delivery.receipt.result.revision??(source.version===1?source.base.revision:row.baseline?.revision);if(!decimal(revision)||BigInt(current.revision)<=BigInt(revision))throw Error('not_stale');kind='stale';}
+  if(expected&&kind!==expected)throw Error('wrong_classification');return kind;
+ }
+ function serverDispositions(row:any,edits:Map<string,any>,source:any){
+  const branch=new Set(descendantsOf(edits,source.action_id));let cursor=edits.get(row.saved_edit?.action_id);while(cursor){if(row.resolution_dispositions?.[cursor.action_id])throw Error('disposed_active');if(cursor.delivery?.receipt)break;branch.add(cursor.action_id);cursor=cursor.version===2&&cursor.predecessor.type==='capture.create'?undefined:edits.get(cursor.predecessor_action_id);}
+  const expanded=new Set<string>();for(const action of branch)for(const descendant of descendantsOf(edits,action))expanded.add(descendant);
+  return Object.fromEntries([...expanded].map(action=>[action,row.resolution_dispositions?.[action]??(action===source.action_id?'retired':'paused')]));
+ }
+ async function conflictBranch(tx:IDBTransaction,pin:ConflictPin,check:()=>void,current:Frozen<CaptureDetail>){
+  const row=await request<any>(tx.objectStore('records').get(partition+'/'+pin.capture_id));check();if(!row||row.pending||row.conflict)throw Error('incomplete_branch');
+  const graph=await captureGraph(tx,pin.capture_id,check);for(const action of graph.creates)if(!action.delivery?.receipt)throw Error('unknown_create');for(const action of graph.actions)if(action.delivery&&!action.delivery.receipt&&!action.delivery.conflict)throw Error('unknown_edit');
+  const decisions=await request<any[]>(tx.objectStore('resolutions').index('capture').getAll(IDBKeyRange.only([partition,pin.capture_id]),101));check();if(decisions.length>100)throw Error('overflow');for(const d of decisions)if(!await decisionEffects(tx,d,check))throw Error('missing_effects');
+  const source=graph.edits.get(pin.source_action_id);if(!source)throw Error('missing_source');const kind=serverClassification(row,graph,source,current),dispositions=serverDispositions(row,graph.edits,source);
+  for(const action of graph.actions)if(action.status==='Pending'&&!action.delivery?.receipt&&!row.resolution_dispositions?.[action.action_id]&&!Object.hasOwn(dispositions,action.action_id))throw Error('outside_unresolved_branch');
+  if(kind==='paused'&&!decisions.some(d=>d.dispositions?.[source.action_id]==='paused'))throw Error('missing_pause');
+  if(source.version===2){const parent=source.predecessor.type==='capture.create'?graph.creates.find(a=>a.action_id===source.predecessor_action_id):graph.edits.get(source.predecessor_action_id);if(!parent?.delivery?.receipt){if(kind!=='paused')throw Error('unacknowledged_parent');let cursor:any=parent;while(cursor&&!cursor.delivery?.receipt){if(!row.resolution_dispositions?.[cursor.action_id])throw Error('unresolved_ancestor');cursor=cursor.version===2&&cursor.predecessor.type==='capture.create'?graph.creates.find(a=>a.action_id===cursor.predecessor_action_id):graph.edits.get(cursor.predecessor_action_id);}if(!cursor?.delivery?.receipt)throw Error('unacknowledged_origin');}}
+  if(row.saved_edit){const head=graph.edits.get(row.saved_edit.action_id);if(!head||canonical(head.base)!==canonical(row.saved_edit.base)||canonical(head.changes)!==canonical(row.saved_edit.changes))throw Error('invalid_head');}
+  const prior=kind==='paused'?decisions.find(d=>d.dispositions?.[source.action_id]==='paused'):undefined;return {row,source,branch:Object.keys(dispositions),dispositions,kind,graph,prior,decision_count:decisions.length};
  }
  function conflictEditAuthority(meta:any,original:ReviewedConflict,context:Frozen<EditContext>){
   observeEditGeneration(meta);if(meta.editDenied||shared.editDenied)throw new AuthorityFailure('denied');
@@ -534,23 +569,26 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    if(!conflictReviews.has(reviewed as object))return {value:result('invalid'),clock,validate};
    let current:Frozen<CaptureDetail>,context:Frozen<EditContext>|undefined;
    try{({current,context}=conflictCurrent(value,r));sameOriginal(r.current,current);}catch{return {value:result('invalid'),clock,validate};}
-   const {row,source,branch}=await conflictBranch(tx,r,check);
-   if(row.saved_edit.action_id!==r.head_action_id||row.baseline.revision!==r.baseline_revision||(row.resolution_generation??0)!==r.resolution_generation||canonical(current)!==canonical(r.current))return {value:result('stale'),clock,validate};
-   sameOriginal(source.base,current);
-   if(BigInt(current.revision)<BigInt(source.delivery.conflict.current_revision)||BigInt(current.revision)<BigInt(row.baseline.revision))return {value:result('stale'),clock,validate};
-   const finalValidate=()=>{validate();if(action_id!==null){if(!context)throw Error('edit_context_required');conflictEditAuthority(meta,r,context);}};finalValidate();
+   const {row,source,branch,dispositions,graph,decision_count}=await conflictBranch(tx,r,check,current);
+   if(decision_count>=100)return {value:result('blocked'),clock,validate};
+   if(action_id!==null&&graph.actions.length+graph.creates.length>=100)return {value:result('blocked'),clock,validate};
+   if((row.saved_edit?.action_id??r.source_action_id)!==r.head_action_id||(row.baseline?.revision??r.baseline_revision)!==r.baseline_revision||(row.resolution_generation??0)!==r.resolution_generation||canonical(current)!==canonical(r.current))return {value:result('stale'),clock,validate};
+   knownOriginal(source,current);
+   if(r.retained&&(localSnapshot(row)!==r.retained.snapshot||(meta.epoch??0)!==r.retained.epoch||action_id!==null&&(meta.editGeneration??0)!==r.retained.edit_generation)||row.baseline&&BigInt(current.revision)<BigInt(row.baseline.revision))return {value:result('stale'),clock,validate};
+   const finalValidate=()=>{validate();editObservation(conflictReviews.get(reviewed as object),meta.wall);if(action_id!==null){if(!context)throw Error('edit_context_required');conflictEditAuthority(meta,r,context);}};finalValidate();
    if(action_id!==null)for(const name of ['edit_actions','create_actions']){const collision=await request<any>(tx.objectStore(name).get(partition+'/'+action_id));check();if(collision)return {value:result('action_id_reused'),clock,validate:finalValidate};}
-   const dispositions=Object.fromEntries(branch.map(action=>[action,action===r.source_action_id?'retired':'paused'])),nextGeneration=r.resolution_generation+1;
+   const nextGeneration=r.resolution_generation+1;
    await importBaseline(tx,current,check);
-   const next:any={...row,baseline:current,resolution_generation:nextGeneration,resolution_dispositions:{...row.resolution_dispositions,...dispositions},saved_edit:undefined,edit_status:'Synced'};
-   const outcome:ResolutionResult=action_id===null?{kind:'adopted',decision_id}:{kind:'saved_locally',decision_id,action_id};
+   const next:any={...row,baseline:current,pending_edit_context:undefined,resolution_generation:nextGeneration,resolution_dispositions:{...row.resolution_dispositions,...dispositions},saved_edit:undefined,edit_status:'Synced'};
+   const outcome:ResolutionResult=action_id===null?{kind:'adopted',decision_id}:{kind:'saved_locally',decision_id,action_id};let replacementEffect:string|undefined;
    if(action_id!==null){
     const editReview={account_id,org_id,capture_id:r.capture_id,base:current,capture:current,edit_epoch:epoch,edit_generation:meta.editGeneration??0,predecessor_action_id:null,baseline_revision:current.revision,resolution_generation:nextGeneration,read_observation:context!.read_observation,edit_observation:context!.edit_observation};
     tx.objectStore('edit_actions').add({key:partition+'/'+action_id,partition,version:1,type:'capture.edit',action_id,capture_id:r.capture_id,content:canonical({reviewed:editReview,input:changes}),base:current,changes,predecessor_action_id:null,expected_revision:current.revision,read_observation:context!.read_observation,edit_observation:context!.edit_observation,status:'Pending',result:{kind:'saved_locally',action_id}});
     Object.assign(next,{saved_edit:{action_id,base:current,changes},edit_status:'Pending',edit_context:context,edit_epoch:epoch,edit_generation:meta.editGeneration??0});
    }
+   if(action_id!==null&&r.retained){const replacement=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+action_id));check();replacementEffect=canonical(replacement);}
    finalValidate();tx.objectStore('records').put(next);
-   tx.objectStore('resolutions').add({key:partition+'/'+decision_id,partition,capture_id:r.capture_id,version:1,decision_id,source_action_id:r.source_action_id,head_action_id:r.head_action_id,generation:r.resolution_generation,current:r.current,selected:changes,replacement_action_id:action_id,dispositions,content,result:outcome});
+   tx.objectStore('resolutions').add({key:partition+'/'+decision_id,partition,capture_id:r.capture_id,version:r.retained?3:1,decision_id,source_action_id:r.source_action_id,head_action_id:r.head_action_id,generation:r.resolution_generation,current:r.current,selected:changes,replacement_action_id:action_id,dispositions,content,result:outcome,...(replacementEffect?{replacement_effect:replacementEffect}:{})});
    return {value:freeze(outcome),clock,validate:finalValidate};
   },execution);
  }
@@ -808,8 +846,8 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   },
   async openLocalConflict(pinned:ConflictPin,mode:'current'|'replacement'='current',execution:Execution={}){
    let pin:ConflictPin;try{pin={...pinned};object(pin,['account_id','org_id','capture_id','source_action_id']);if(pin.account_id!==account_id||pin.org_id!==org_id||![pin.capture_id,pin.source_action_id].every(id)||!['current','replacement'].includes(mode))return result('invalid');}catch{return result('invalid');}
-   return editOperation(async(tx,check)=>{const {meta,clock,validate}=await readAccess(tx,check),{row}=await localBranch(tx,pin,check);const er=mode==='replacement'?await editAccess(tx,pin.capture_id,check):undefined,edit_review=er?localEditReview(er.row,meta,pin.capture_id):undefined;
-    const base=row.saved_edit?.base??row.baseline??row.local_capture;if(!base)throw Error('no_current');const reviewed:ReviewedLocalConflict=freeze({...pin,kind:'local',mode,current:row.saved_edit?{...base,...row.saved_edit.changes}:base,head_action_id:row.saved_edit?.action_id??null,create_action_id:row.create_action_id??null,baseline_revision:row.baseline?.revision??null,resolution_generation:row.resolution_generation??0,epoch:meta.epoch??0,edit_generation:meta.editGeneration??0,snapshot:localSnapshot(row),...(edit_review?{edit_review}:{})});localSelection(reviewed,pin.source_action_id,null,null);const finalValidate=()=>{validate();if(er)editAuthority(meta,er.row,edit_review);};finalValidate();localConflictReviews.set(reviewed,freeze(structuredClone(meta.observation)));return {value:Object.freeze({kind:'opened' as const,reviewed}),clock,validate:finalValidate};},execution);
+   return editOperation(async(tx,check)=>{const {meta,clock,validate}=await readAccess(tx,check),{row,source,prior}=await localBranch(tx,pin,check);const er=mode==='replacement'?await editAccess(tx,pin.capture_id,check):undefined,edit_review=er?localEditReview(er.row,meta,pin.capture_id):undefined;
+    const base=row.saved_edit?.base??row.baseline??row.local_capture;if(!base)throw Error('no_current');const reviewed:ReviewedLocalConflict=freeze({...pin,kind:'local',mode,current:row.saved_edit?{...base,...row.saved_edit.changes}:base,head_action_id:row.saved_edit?.action_id??null,create_action_id:row.create_action_id??null,baseline_revision:row.baseline?.revision??null,resolution_generation:row.resolution_generation??0,epoch:meta.epoch??0,edit_generation:meta.editGeneration??0,snapshot:localSnapshot(row),...(prior?{reconsideration:{decision_id:prior.decision_id,generation:prior.generation,source:canonical(source)}}:{}),...(edit_review?{edit_review}:{})});localSelection(reviewed,pin.source_action_id,null,null);const finalValidate=()=>{validate();if(er)editAuthority(meta,er.row,edit_review);};finalValidate();localConflictReviews.set(reviewed,freeze(structuredClone(meta.observation)));return {value:Object.freeze({kind:'opened' as const,reviewed}),clock,validate:finalValidate};},execution);
   },
   useLocalCurrent(reviewed:unknown,decision_id:string,execution:Execution={}){return decideLocal(reviewed,decision_id,null,null,execution);},
   saveLocalConflictReplacement(reviewed:unknown,decision_id:string,action_id:string,changes:unknown,execution:Execution={}){return decideLocal(reviewed,decision_id,action_id,changes,execution);},
@@ -821,10 +859,10 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    let pin:ConflictPin,current:Frozen<CaptureDetail>,context:Frozen<EditContext>|undefined;
    try{pin={...pinned};object(pin,['account_id','org_id','capture_id','source_action_id']);if(pin.account_id!==account_id||pin.org_id!==org_id||![pin.capture_id,pin.source_action_id].every(id))return result('invalid');({current,context}=conflictCurrent(value,pin));}catch{return result('invalid');}
    return editOperation(async(tx,check)=>{
-    const {meta,clock,validate}=await readAccess(tx,check),{row,source}=await conflictBranch(tx,pin,check);sameOriginal(source.base,current);
-    if(BigInt(current.revision)<BigInt(source.delivery.conflict.current_revision)||BigInt(current.revision)<BigInt(row.baseline.revision))throw Error('stale_current');
-    const reviewed:ReviewedConflict=freeze({...pin,mode:context?'replacement':'current',current,...(context?{edit_context:context}:{}),head_action_id:row.saved_edit.action_id,baseline_revision:row.baseline.revision,resolution_generation:row.resolution_generation??0});
-    const finalValidate=()=>{validate();if(context)conflictEditAuthority(meta,reviewed,context);};finalValidate();conflictReviews.add(reviewed);
+    const {meta,clock,validate}=await readAccess(tx,check),{row,source,kind,prior,dispositions}=await conflictBranch(tx,pin,check,current);knownOriginal(source,current);
+    if(row.baseline&&BigInt(current.revision)<BigInt(row.baseline.revision))throw Error('stale_current');
+    const reviewed:ReviewedConflict=freeze({...pin,mode:context?'replacement':'current',current,...(context?{edit_context:context}:{}),head_action_id:row.saved_edit?.action_id??pin.source_action_id,baseline_revision:row.baseline?.revision??(source.delivery?.pending.command.expected_revision??(source.version===2&&source.predecessor.type==='capture.create'?(await request<any>(tx.objectStore('create_actions').get(partition+'/'+source.predecessor_action_id))).delivery.receipt.result.revision:source.base.revision)),resolution_generation:row.resolution_generation??0,...(source.version!==1||kind!=='confirmed'||Object.entries(dispositions).some(([action,value])=>value!==(action===source.action_id?'retired':'paused'))?{retained:{kind,snapshot:localSnapshot(row),source:canonical(source),epoch:meta.epoch??0,edit_generation:meta.editGeneration??0,...(prior?{prior_decision_id:prior.decision_id,prior_generation:prior.generation}:{})}}:{})});
+    const finalValidate=()=>{validate();if(context)conflictEditAuthority(meta,reviewed,context);};finalValidate();conflictReviews.set(reviewed,freeze(structuredClone(meta.observation)));
     return {value:Object.freeze({kind:'opened' as const,reviewed}),clock,validate:finalValidate};
    },execution);
   },

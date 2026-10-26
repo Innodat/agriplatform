@@ -1599,3 +1599,46 @@ the100-action graph bound before writes. Recovery validates chosen active ancest
 actual receipt/subsequent validated decision evidence, and refused corrupt/disposed
 ancestry remains retained. Focused883/HTTP71 checks and24 affected commands pass; all13
 review findings addressed. No public API, schema or activation expansion.
+
+## Remaining retained own-proposal decisions — 2026-10-26
+
+Existing `openConflict`/`useCurrent`/`saveConflictReplacement`/`lookupResolution` and
+unmounted Auth coordinator/entry signatures remain compatible. Validated classifications
+add confirmed pending-create v2 edit409, active unprepared stale v1/v2 work and explicitly
+selected paused proposals. Server-current choices use actual authorized detail/context;
+new replacements remain ordinary v1 edits at the reviewed current revision. Actual
+original create/ancestor receipts establish v2 origin; missing creation audit is never
+invented. Own receipt progress alone does not establish unrelated server staleness.
+
+Existing local choice/lookup methods also support explicitly reconsidered paused work
+against the actual chosen phone state. These choices issue no HTTP. Replacements use
+its actual current typed predecessor and wait for matching real receipts before command
+materialization. Earlier pending chosen work remains distinct from confirmed server state.
+
+New server/local retained decisions use versions3/4 in the existing schema4 resolutions
+store. Legacy1/2 interpretation remains strict. Original actions, wire bytes, proposals,
+predecessors and earlier decisions/dispositions stay immutable. A reconsideration keeps
+its original paused action blocked and links the earlier exact pause/generation. Only
+fresh explicitly selected actions may deliver. Server-current choices atomically cover
+the reviewed active unsent branch and descendants; unresolved unknown outcomes block
+competing decisions. Existing local choices may preserve chosen uncertain ancestors
+because new dependent work still waits for their actual matching receipts.
+
+Recovery verifies source, complete selected intent, active lineage or actual receipt/
+validated later dispositions, current baseline and historical effects. Linked decision
+validation is finite within one transaction; any failed member refuses the result.
+Missing/corrupt effects cannot be justified solely by another link. Current own-read
+recovers committed choices before fresh write checks/HTTP, including after edit loss,
+original review expiry, reopen and legitimate progress. A new current review privately
+pins its original own-read evidence; independent refresh never renews that review.
+
+New choices use snapshot/head/baseline/generation CAS and ordinary IDB completion.
+The100-action and100-decision qualification bounds include the proposed insertion;
+combined100/100 review and exact recovery meet explicit30-second execution fences;
+refusal preserves history and prior recoveries. These are local qualification bounds,
+not a universal server-history policy. Deadline/cancellation, denial and safe error
+contracts remain. No endpoint/OpenAPI/command/schema upgrade or activation is added.
+
+See [retained-proposal evidence](RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md). Qualification
+and review status is recorded there; no full Story2.3/UI, physical-device/browser update,
+native permissions/rollback or release readiness is implied.

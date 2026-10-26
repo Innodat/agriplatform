@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.auth.json","files":["src/history-store.ts","src/conflict-resolution.ts","src/conflict-resolution-entry.ts","tests/retained-proposal-resolution.types.ts"]}

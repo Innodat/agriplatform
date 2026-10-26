@@ -1,3 +1,25 @@
+## Current delivery — completed retained-proposal persistence decisions, 2026-10-26
+
+Read [retained-proposal evidence](RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md) and the
+[delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-retained-proposal-resolution.md).
+Baseline is cd41aea6b72593c9352e3cd67845df7e2fdce70f. Implementation and qualification pass for confirmed v2 edit409, active unprepared stale branches and explicit paused
+re-review. Final26-command qualification executes fresh and passes (687 focused/70 HTTP,3 creates/6 edits,
+all24 prior commands and five scaffold parities). A characterized create-proof timing
+correction preserves original outcomes;220 checks pass. Independent review completes:13 findings addressed, one low-impact refinement rejected,
+none deferred. Earlier decisions/dispositions remain recoverable; no full Story2.3 or activation/release completion is claimed.
+Remaining Story2.3 work includes mounted comparison/confirmation/accessibility;
+Story2.4 requires integrated mounted and installed-phone proof. Those are not completed
+by these persistence checks. Story3.1 additionally needs its stated online context,
+actor-display and bounded audit DTO closure before implementation; do not infer those
+from this slice. Continue ready authorized synthetic local/CI work without routine approval stops. Preserve
+concurrent work, all historical evidence/resources and TS7.0.2. No UI/editor/Leave,
+activation, real accounts/Auth/Access, native PostgreSQL/Docker, provisioning/migrations,
+deployment/production/pilot or cleanup. Fingerprints/HMAC remain deferred; never
+read/run/copy/hash the preexisting untracked migration fixture.
+Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — same-phone local conflict choices, 2026-10-26
 
 Read [local conflict evidence](LOCAL_CONFLICT_RESOLUTION_EVIDENCE.md) and current
