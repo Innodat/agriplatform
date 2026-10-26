@@ -6,7 +6,7 @@ const session=(id=A,token='synthetic-'+id)=>({user:{id},access_token:token});
 const context=id=>({account_id:id,actor_id:'44444444-4444-4444-8444-444444444444',membership_id:'1',authorization_scope:{kind:'organization',org_id:ORG},resource_scope:{kind:'own_account',account_id:id},permission:'kdg_capture.capture.read.own',decision_id:'55555555-5555-4555-8555-555555555555',checked_at:'2026-10-23T10:00:00Z'});
 const pending=(changes={})=>({account_id:A,org_id:ORG,from_date:'2026-10-01',to_date:'2026-10-26',limit:2,...changes});
 const receipt=()=>({capture_id:C,org_id:ORG,owner_account_id:A,owner_actor_id:A,child_id:C,child_label:'Child',questionnaire_id:OP,questionnaire_version_id:OP,questionnaire_version:'1',revision:'2',observation_date:'2026-10-26',answers:{[OP]:{value:3}},definition:{schema_version:1,questions:[{id:OP,type:'rating',label:'Original',required:true,minimum:1,maximum:5,minimum_label:'Goed',maximum_label:'Nie goed nie'}]},captured_at:'2026-10-26T10:00:00Z',created_by:A,created_at:'2026-10-26T10:00:00Z',updated_by:A,updated_at:'2026-10-26T10:00:00Z'});
-const page=()=>({account_id:A,org_id:ORG,from_date:'2026-10-01',to_date:'2026-10-26',limit:2,items:[receipt()],next_cursor:null});
+const page=()=>({account_id:A,org_id:ORG,from_date:'2026-10-01',to_date:'2026-10-26',limit:2,observation:{...context(A),expires_at:'2026-10-30T10:00:00Z'},items:[receipt()],next_cursor:null});
 const response=(value=page(),status=200)=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json','Cache-Control':'private, no-store'}});
 const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return{promise,resolve};};
 const tick=()=>new Promise(r=>setTimeout(r,0));

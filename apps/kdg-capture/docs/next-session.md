@@ -1,3 +1,33 @@
+## Current delivery — atomic offline own-history consumption, 2026-10-26
+
+Read [offline history evidence](OFFLINE_HISTORY_EVIDENCE.md), its
+[machine record](evidence/offline-history-20261026.json) and current [contracts](contracts.md).
+Successful history pages now carry exact Access-derived seven-day own-read evidence.
+The isolated IndexedDB consumer atomically commits original definitions, server
+baselines, page progress and observation while preserving pending-only captures,
+local overlays, uncertain IDs and conflicts. Scoped durable generations, explicit
+logout/denial locks and clock recovery protect reopening. Local reads are bounded.
+The request/transaction primitives and generated tests are builder-owned and adopted
+through sync-kdg-offline.mjs; domain cache policy stays in KDG.
+
+Final checks: 277 backend, 475 compiled client, 127 direct, four fixture guards,
+thirteen loopback groups and 61 isolated IndexedDB checks; all strict TS7.0.2,
+schema/client freshness, five scaffold parities and ten owner/renderer tests pass.
+Review: sixteen addressed, one low-complexity proposal rejected, no new deferred work.
+The timing-test scheduling correction and all evidence limits are recorded explicitly.
+
+Continue implementation across internal slices without routine next/approval stops.
+Next missing API/persistence contract is own-edit context with separately verified
+read/edit observations and original-record readback, followed by its local explicit-Save
+consumer. Consult approved Story2.2 and current owner contracts; no UI is implied.
+No UI/editor/Leave, service worker/browser/queue/default-startup activation, real
+accounts/Access, PostgreSQL/native-driver/Docker qualification, migrations/provisioning,
+deployment/production/pilot or cleanup. Preserve concurrent work, historical evidence,
+resources and dependencies including TypeScript7.0.2. Fingerprints/HMAC stay deferred.
+Never read/run/copy the preexisting untracked migration fixture. Earlier handoffs follow.
+
+---
+
 ## Current delivery - protected own-history pages, 2026-10-26
 
 Read [history-page evidence](OWN_HISTORY_PAGES_EVIDENCE.md), its

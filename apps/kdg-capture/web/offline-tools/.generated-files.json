@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "builder-v1",
+    "template": "indexeddb-primitives-v1-candidate",
+    "recipe": "e92a6caa92063faec7453bf4b0adaa8c71f1a6a365e9cf7fd5f62a31e7eae0af",
+    "source": "59414d026d0b702f79e81daa0a446543457df9b3f4e9e12287b20ca2821f40a8"
+  },
+  "files": {
+    "idb.ts": {
+      "classification": "generated",
+      "sha256": "4b33bf4badac772b851e0310370c0fb597c45bdc9960f4dae27173431de68e2d"
+    },
+    "idb.test.mjs": {
+      "classification": "generated",
+      "sha256": "26a40c1a4829cc307c64679dc1750337ab54d43aba8f7ac475270bc4194f09ee"
+    }
+  }
+}

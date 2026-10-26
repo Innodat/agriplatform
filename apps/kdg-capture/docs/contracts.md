@@ -1170,3 +1170,49 @@ continuation. It neither walks pages automatically nor changes cache, queue, sav
 status, uncertain-operation receipts or offline observations. Offline merging,
 read-observation renewal, history UI and activation remain later consuming work.
 See [history-page evidence](OWN_HISTORY_PAGES_EVIDENCE.md).
+
+
+## Candidate offline own-history consumption — 2026-10-26
+
+This increment extends the candidate history response with required `observation`.
+It supersedes the preceding candidate's no-observation-renewal limitation only for
+this exact successful own-history read. `/context`, own-detail reads, write receipts
+and unrelated successes still mint no new offline capability. The closed observation
+contains verified account_id, actor_id, membership_id, authorization_scope organization,
+resource_scope own_account, literal `kdg_capture.capture.read.own`, decision_id,
+checked_at and expires_at exactly seven days later, derived from the same Access check.
+A cursor or local clock never provides authority. Current per-page checks and request
+budgets are unchanged; fingerprints/HMAC remain deferred.
+
+The isolated KDG IndexedDB version1 candidate atomically imports validated full pages,
+original immutable definitions, server baselines, progress and that exact observation.
+Records/definitions/progress are account/org partitioned. Higher revisions replace
+older server baselines; contradictory immutable facts or equal-revision content refuse
+an entire import. Pending local fields, base snapshots, conflict evidence and original
+operation IDs remain untouched, including pending-only rows first gaining a baseline.
+Imported existence is not an uncertain-operation receipt. Missing rows never delete
+records; restart/refresh does not promise a database snapshot.
+
+`downloadOwnHistory` explicitly follows cursors under fixed bounds and fresh current
+scope. Network waits stay outside the local transaction. `openHistoryStore` owns its
+handle; ordinary close preserves valid offline reopening, while deny/logout persist
+an account/org lock and invalidate late generations. Restoration is explicit and uses
+fresh same-account own-read evidence; old or foreign callbacks cannot restore it.
+Local read checks stored expiry, a persisted wall watermark and process-local monotonic
+elapsed time. A clock anomaly requires fresh online restoration, including after a
+new JavaScript realm opens. These are managed-device policy checks, not tamperproof
+server authorization. Failed lock writes return unavailable and retain the current
+process lock; no persistence claim follows refused storage writes.
+
+Local reads use bounded prefix keyset/count reads, default30/max100, with `next_key`
+and separate `progress_next_key` continuation. This does not introduce automatic
+retention or prune locally authored records, pending work or referenced definitions.
+A completed local transaction confirms that page only; interrupted downloads retain
+prior committed data and partial progress, with outage distinct from known denial.
+
+Generic IndexedDB request/transaction completion helpers and generated tests now come
+from the builder template under `web/offline-tools`, checked through
+`platform/builder-cli/scripts/sync-kdg-offline.mjs`. KDG owns cache schema, observations,
+merge and retention policy; there is no generic offline history runtime engine.
+No UI/service-worker/default-startup activation or physical-device durability claim
+is included. See [offline history evidence](OFFLINE_HISTORY_EVIDENCE.md).

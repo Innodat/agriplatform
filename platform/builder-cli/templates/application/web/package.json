@@ -15,6 +15,7 @@
     "api:generate": "platform-api-client --schema ../api/openapi.json --output src/api/generated",
     "api:check": "platform-api-client --schema ../api/openapi.json --output src/api/generated --check",
     "test:auth": "node --test scripts/test-auth-lifecycle.mjs",
+    "test:local-storage": "node --test offline-tools/idb.test.mjs",
     "test:client": "node --experimental-strip-types --test scripts/test-health.mjs"
   },
   "dependencies": {

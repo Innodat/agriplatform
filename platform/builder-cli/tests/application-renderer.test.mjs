@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
+import {readFileSync} from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { renderService } from '../src/service-renderer.ts';
 import { renderApplication } from '../src/application-renderer.ts';
@@ -19,12 +20,13 @@ test('characterization: safe HTTP adapter survives typed OpenAPI boundary change
 test('acceptance: deterministic application file map, literal identity and explicit ownership',()=>{
  const input=application(), files=renderApplication(input,root);
  assert.deepEqual(files,renderApplication(input,root));
- assert.deepEqual(Object.keys(files).sort(),['write-tools/transaction_context.py','write-tools/test_transaction_context.py','native-database-tools/native_migration_checks.py','native-database-tools/test_native_migration_checks.py','database-tools/owned_migration.py','database-tools/test_owned_migration.py','AGENTS.md','README.md','api/AGENTS.md','api/README.md','api/export_openapi.py','api/main.py','api/pyproject.toml','api/safe_errors.py','api/tests/test_runtime.py','web/index.html','web/package.json','web/scripts/browser-smoke.mjs','web/scripts/proof-support.mjs','web/scripts/test-health.mjs','web/scripts/test-auth-lifecycle.mjs','web/local-host-tools/local-entry-host.mjs','web/local-host-tools/test-local-entry-host.mjs','web/src/App.tsx','web/src/auth/lifecycle.ts','web/src/auth/use-lifecycle.ts','web/src/api/health.ts','web/src/main.tsx','web/src/styles.css','web/tsconfig.json','web/vite.config.ts'].sort());
+ assert.deepEqual(Object.keys(files).sort(),['web/offline-tools/idb.ts','web/offline-tools/idb.test.mjs','write-tools/transaction_context.py','write-tools/test_transaction_context.py','native-database-tools/native_migration_checks.py','native-database-tools/test_native_migration_checks.py','database-tools/owned_migration.py','database-tools/test_owned_migration.py','AGENTS.md','README.md','api/AGENTS.md','api/README.md','api/export_openapi.py','api/main.py','api/pyproject.toml','api/safe_errors.py','api/tests/test_runtime.py','web/index.html','web/package.json','web/scripts/browser-smoke.mjs','web/scripts/proof-support.mjs','web/scripts/test-health.mjs','web/scripts/test-auth-lifecycle.mjs','web/local-host-tools/local-entry-host.mjs','web/local-host-tools/test-local-entry-host.mjs','web/src/App.tsx','web/src/auth/lifecycle.ts','web/src/auth/use-lifecycle.ts','web/src/api/health.ts','web/src/main.tsx','web/src/styles.css','web/tsconfig.json','web/vite.config.ts'].sort());
  for(const [path,file] of Object.entries(files)) {
   assert.ok(!path.includes('..')&&!path.startsWith('/')); assert.ok(['seed','generated'].includes(file.classification));
   assert.ok(!file.content.includes('{{')); assert.equal(file.classification==='generated',file.content.includes('GENERATED'));
  }
  assert.equal(files['web/src/App.tsx'].classification,'seed');
+ for(const name of ['idb.ts','idb.test.mjs']) assert.equal(files['web/offline-tools/'+name].content,readFileSync(new URL('../templates/application/web/offline-tools/'+name,import.meta.url),'utf8'));
  assert.match(files['api/main.py'].content,/title="bootstrap_application"/);
  assert.match(files['web/src/App.tsx'].content,/bootstrap_application/);
  assert.equal(JSON.parse(files['web/package.json'].content).devDependencies.typescript,'7.0.2');

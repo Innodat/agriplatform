@@ -126,6 +126,24 @@ export type CaptureDetail = {
 };
 
 /**
+ * ErrorEnvelope
+ */
+export type ErrorEnvelope = {
+    /**
+     * Code
+     */
+    code?: number | null;
+    /**
+     * Error
+     */
+    error: string;
+    /**
+     * Error Id
+     */
+    error_id: string;
+};
+
+/**
  * HistoryPage
  */
 export type HistoryPage = {
@@ -149,6 +167,7 @@ export type HistoryPage = {
      * Next Cursor
      */
     next_cursor: string | null;
+    observation: OwnReadObservation;
     /**
      * Org Id
      */
@@ -157,6 +176,70 @@ export type HistoryPage = {
      * To Date
      */
     to_date: string;
+};
+
+/**
+ * OrganizationScope
+ */
+export type OrganizationScope = {
+    /**
+     * Kind
+     */
+    kind: 'organization';
+    /**
+     * Org Id
+     */
+    org_id: string;
+};
+
+/**
+ * OwnAccountScope
+ */
+export type OwnAccountScope = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Kind
+     */
+    kind: 'own_account';
+};
+
+/**
+ * OwnReadObservation
+ */
+export type OwnReadObservation = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    authorization_scope: OrganizationScope;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+    /**
+     * Decision Id
+     */
+    decision_id: string;
+    /**
+     * Expires At
+     */
+    expires_at: string;
+    /**
+     * Membership Id
+     */
+    membership_id: string;
+    /**
+     * Permission
+     */
+    permission: 'kdg_capture.capture.read.own';
+    resource_scope: OwnAccountScope;
 };
 
 /**

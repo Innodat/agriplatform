@@ -22,6 +22,15 @@ class HistoryHandlerAcceptance(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.items[0].definition.model_dump(mode='json'),support.DEFINITION)
         self.assertEqual((first.org_id,first.account_id),(support.ORG,support.ACCOUNT))
         self.assertEqual(len(self.checks),2);self.assertFalse(self.db.in_transaction())
+    async def test_exact_access_observation_is_seven_days_without_another_check(self):
+        from datetime import timedelta
+        evidence=support.support.evidence(history.PERMISSION)
+        self.upstream=lambda:httpx.Response(200,json=evidence)
+        page=await self.execute()
+        observed=page.observation.model_dump(mode='json')
+        for key,value in evidence.items():self.assertEqual(observed[key],value)
+        self.assertEqual(page.observation.expires_at-page.observation.checked_at,timedelta(days=7))
+        self.assertEqual(len(self.checks),1)
     async def test_invalid_query_and_bearer_never_check_authority_or_select(self):
         for query in ({},{**self.query,'limit':None},{**self.query,'from_date':'2026-10-27'},{**self.query,'cursor':'bad'},{**self.query,'private':'canary'}):
             with self.assertRaises(history.protected.HandlerError) as failed:await self.execute(query)

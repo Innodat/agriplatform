@@ -1,6 +1,6 @@
 """Protected own-history pages. Cursors navigate; they never authorize a read."""
 import base64
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 import json
 import re
 from typing import Annotated, Literal
@@ -36,7 +36,13 @@ class Continuation(read.Closed):
     last_created_at: read.DeviceTime
     last_id: read.Identifier
 
+from context import Context
+
+class OwnReadObservation(Context):
+    expires_at: datetime
+
 class HistoryPage(read.Closed):
+    observation: OwnReadObservation
     org_id: read.Identifier
     account_id: read.Identifier
     from_date: read.ObservationDate
@@ -110,7 +116,7 @@ AND c.observation_date<=CAST(:to_date AS date)
 AND (CAST(:last_id AS uuid) IS NULL OR (c.created_at,c.id)<(CAST(:last_created_at AS timestamptz),CAST(:last_id AS uuid)))
 ORDER BY c.created_at DESC,c.id DESC LIMIT :row_limit'''
 
-def _page(rows,budget,context,query):
+def _page(rows,budget,context,query,evidence):
     if len(rows)>query.limit+1:raise write.WriteError('capture_read_unavailable')
     last=position(query,context)
     previous=(datetime.fromisoformat(last.last_created_at),last.last_id) if last else None
@@ -125,7 +131,8 @@ def _page(rows,budget,context,query):
         except (ValueError,TypeError,KeyError,write.WriteError):
             raise write.WriteError('capture_read_unavailable') from None
     included=[]
-    page=HistoryPage(org_id=context.org_id,account_id=context.account_id,from_date=query.from_date,to_date=query.to_date,limit=query.limit,items=[],next_cursor=None)
+    observation=OwnReadObservation.model_validate({**evidence.model_dump(mode='json'),'expires_at':evidence.checked_at+timedelta(days=7)})
+    page=HistoryPage(observation=observation,org_id=context.org_id,account_id=context.account_id,from_date=query.from_date,to_date=query.to_date,limit=query.limit,items=[],next_cursor=None)
     # Serialize the empty envelope once. Item bytes and commas accumulate;
     # only the small nullable cursor overhead changes for each candidate.
     envelope_bytes=len(page.model_dump_json().encode('utf-8'))
@@ -157,7 +164,7 @@ def _transaction(conn,budget,context,query,evidence):
         budget.remaining()
     budget.remaining()
     # Database work is complete before CPU-only validation and serialization.
-    page=_page(rows,budget,context,query)
+    page=_page(rows,budget,context,query,evidence)
     budget.remaining()
     return page
 

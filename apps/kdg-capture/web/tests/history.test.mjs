@@ -97,3 +97,11 @@ test('explicit null limit refuses before transport and null item refuses the who
  assert.equal(calls,0);
  for(const items of [[null],[detail(),null]])assert.deepEqual(await history(async()=>response(page({items}))),{kind:'invalid_response'});
 });
+
+for(const change of [null,{},{permission:'kdg_capture.capture.create.all'},{account_id:Q},{actor_id:'bad'},{membership_id:'0'},{decision_id:'bad'},{authorization_scope:{kind:'organization',org_id:Q}},{resource_scope:{kind:'own_account',account_id:Q}},{expires_at:'2026-11-03T10:00:00Z'},{expires_at:'2026-11-02T10:00:00.001Z'},{checked_at:'2026-02-30T10:00:00Z'},{extra:'private'}])test('closed exact own-read observation rejects '+JSON.stringify(change),async()=>{
+ const valid=page();const invalid=change===null?null:Object.keys(change).length?{...valid.observation,...change}:{};
+ assert.equal((await history(async()=>response({...valid,observation:invalid}))).kind,'invalid_response');
+});
+test('missing exact observation is refused while entry Context remains independent',async()=>{
+ const value=page();delete value.observation;assert.equal((await history(async()=>response(value))).kind,'invalid_response');
+});

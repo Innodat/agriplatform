@@ -2,7 +2,7 @@
 import type {HistoryPage,HistoryCapturesData} from '../../contracts/history-generated/types.gen';
 import type {Session} from './entry';
 import type {SafeError} from './read';
-import {id,token,object,strictJSON,date,freeze,validateDetail,errorResult,InvalidResponse,invalid,type Frozen} from './read-validation.js';
+import {id,token,object,strictJSON,date,instant,decimal,freeze,validateDetail,errorResult,InvalidResponse,invalid,type Frozen} from './read-validation.js';
 
 export type PendingHistory=Readonly<{account_id:string;org_id:string;from_date:string;to_date:string;limit?:number;cursor?:string}>;
 export type HistoryOptions={signal:AbortSignal;isCurrent:()=>boolean;request?:typeof fetch;timeoutMs?:number};
@@ -26,9 +26,15 @@ function cursor(raw:unknown,pinned:Pinned):Record<string,unknown> {
  timestamp(value.last_created_at);return value;
 }
 function compare(a:readonly [string,string],b:readonly [string,string]):number{return a[0]<b[0]?-1:a[0]>b[0]?1:a[1]<b[1]?-1:a[1]>b[1]?1:0;}
-function page(value:unknown,pinned:Pinned):Frozen<HistoryPage> {
- const p=object(value,['account_id','org_id','from_date','to_date','limit','items','next_cursor']);
+export function validateHistoryPage(value:unknown,pending:PendingHistory):Frozen<HistoryPage> {
+ object(pending,['account_id','org_id','from_date','to_date'],['limit','cursor']);
+ if(Object.hasOwn(pending,'limit')&&pending.limit===undefined)return invalid();
+ const pinned={...pending,limit:pending.limit===undefined?30:pending.limit};
+ if(!id(pinned.account_id)||!id(pinned.org_id)||!date(pinned.from_date)||!date(pinned.to_date)||pinned.from_date>pinned.to_date||!Number.isInteger(pinned.limit)||pinned.limit<1||pinned.limit>100)return invalid();
+ if(Object.hasOwn(pending,'cursor'))cursor(pinned.cursor,pinned);
+ const p=object(value,['observation','account_id','org_id','from_date','to_date','limit','items','next_cursor']);
  if(p.account_id!==pinned.account_id||p.org_id!==pinned.org_id||p.from_date!==pinned.from_date||p.to_date!==pinned.to_date||p.limit!==pinned.limit||!Array.isArray(p.items)||p.items.length>pinned.limit)return invalid();
+ validateOwnReadObservation(p.observation,pinned.account_id,pinned.org_id);
  let previous:readonly [string,string]|undefined;
  if(pinned.cursor){const last=cursor(pinned.cursor,pinned);previous=[timestamp(last.last_created_at),last.last_id as string];}
  const seen=new Set<string>();let lastDetail:ReturnType<typeof validateDetail>|undefined;
@@ -44,6 +50,14 @@ function page(value:unknown,pinned:Pinned):Frozen<HistoryPage> {
   if(!lastDetail||next.last_created_at!==lastDetail.created_at||next.last_id!==lastDetail.capture_id)return invalid();
  }
  return freeze(value as HistoryPage);
+}
+
+
+export function validateOwnReadObservation(value:unknown,account:string,org:string) {
+ const o=object(value,['account_id','actor_id','membership_id','authorization_scope','resource_scope','permission','decision_id','checked_at','expires_at']);
+ const a=object(o.authorization_scope,['kind','org_id']),r=object(o.resource_scope,['kind','account_id']);
+ if(o.account_id!==account||!id(o.actor_id)||!decimal(o.membership_id)||!id(o.decision_id)||a.kind!=='organization'||a.org_id!==org||r.kind!=='own_account'||r.account_id!==account||o.permission!==permission||!instant(o.checked_at)||!instant(o.expires_at)||!o.checked_at.endsWith('Z')||!o.expires_at.endsWith('Z')||Date.parse(o.expires_at)-Date.parse(o.checked_at)!==604800000||o.checked_at.slice(19)!==o.expires_at.slice(19))return invalid();
+ return o;
 }
 
 export async function historyCaptures(session:Session,pending:PendingHistory,options:HistoryOptions):Promise<HistoryResult> {
@@ -89,7 +103,7 @@ export async function historyCaptures(session:Session,pending:PendingHistory,opt
    }
    const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
    let value:unknown;try{value=strictJSON(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{return invalid();}
-   return response.status===200?{kind:'loaded',page:page(value,pinned)}:errorResult(response.status,value);
+   return response.status===200?{kind:'loaded',page:validateHistoryPage(value,pinned)}:errorResult(response.status,value);
   }catch(error){return {kind:error instanceof InvalidResponse?'invalid_response':'verification_unavailable'};}
  };
  try{return finish(await Promise.race([work(),stopped]));}

@@ -21,7 +21,7 @@ class CursorContract(unittest.TestCase):
             self.assertEqual((failed.exception.status,failed.exception.error_id),(422,'validation_failed'))
     def test_server_defense_rejects_out_of_order_foreign_or_out_of_filter_rows(self):
         for rows in ([support.row(),support.row()],[{**support.row(),'org_id':support.IDS[0]}],[{**support.row(),'observation_date':__import__('datetime').date(2025,1,1)}]):
-            with self.assertRaises(history.write.WriteError):history._page(rows,history.write.Budget(),self.context,self.query)
+            with self.assertRaises(history.write.WriteError):history._page(rows,history.write.Budget(),self.context,self.query,history.Context.model_validate(support.support.evidence(history.PERMISSION)))
     def test_private_worker_outcome_repr_never_renders_values_or_errors(self):
         error=ValueError('synthetic_history_cancel_canary')
         for outcome in (history.protected._WorkerOutcome(value={'private':'synthetic_history_cancel_canary'}),history.protected._WorkerOutcome(error=error)):
@@ -34,6 +34,6 @@ class CursorContract(unittest.TestCase):
         def dump(page,*a,**k):
             lengths.append(len(page.items));return original(page,*a,**k)
         with patch.object(history.HistoryPage,'model_dump_json',dump):
-            page=history._page(rows,history.write.Budget(),self.context,self.query)
+            page=history._page(rows,history.write.Budget(),self.context,self.query,history.Context.model_validate(support.support.evidence(history.PERMISSION)))
         self.assertEqual(len(page.items),30)
         self.assertEqual(lengths,[0,30])

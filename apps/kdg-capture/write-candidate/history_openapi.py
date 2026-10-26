@@ -10,7 +10,10 @@ def schema_for(app,error_pairs):
     detail=detail_schema(_create_app(None,None,None),error_pairs)
     schema=get_openapi(title=app.title,version=app.version,routes=app.routes)
     schema['components']=deepcopy(detail['components'])
-    history=get_openapi(title=app.title,version=app.version,routes=app.routes)['components']['schemas']['HistoryPage']
+    own=get_openapi(title=app.title,version=app.version,routes=app.routes)['components']['schemas']
+    for name,value in own.items():
+        if name not in schema['components']['schemas']:schema['components']['schemas'][name]=deepcopy(value)
+    history=own['HistoryPage']
     uuid=deepcopy(schema['components']['schemas']['CaptureDetail']['properties']['org_id'])
     for key in ('org_id','account_id'):history['properties'][key].update(uuid)
     for key in ('from_date','to_date'):history['properties'][key].update(format='date',pattern=r'^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\s\S])')

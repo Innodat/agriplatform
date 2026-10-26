@@ -1,6 +1,6 @@
 """Synthetic actual-route acceptance; never native database qualification."""
 import copy
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from contextlib import contextmanager
 import unittest
 from unittest.mock import patch
@@ -251,7 +251,9 @@ class HistoryAcceptance(unittest.IsolatedAsyncioTestCase):
         query=history.Query(from_date='2026-10-01',to_date='2026-10-26',limit=100)
         def intended():
             details=[history.read._snapshot(row,context,history.read.Lookup(capture_id=str(row['capture_id']))) for row in reversed(self.pool.connection.rows)]
-            return history.HistoryPage(org_id=support.ORG,account_id=support.ACCOUNT,from_date=query.from_date,to_date=query.to_date,limit=100,items=details[:4],next_cursor=history.continuation(query,context,details[3]))
+            evidence=history.Context.model_validate(support.support.evidence(history.PERMISSION))
+            observation=history.OwnReadObservation.model_validate({**evidence.model_dump(mode='json'),'expires_at':evidence.checked_at+timedelta(days=7)})
+            return history.HistoryPage(observation=observation,org_id=support.ORG,account_id=support.ACCOUNT,from_date=query.from_date,to_date=query.to_date,limit=100,items=details[:4],next_cursor=history.continuation(query,context,details[3]))
         remaining=2*1024*1024-len(intended().model_dump_json().encode('utf-8'))
         self.assertGreater(remaining,0)
         for row in list(reversed(self.pool.connection.rows))[:4]:
@@ -368,10 +370,10 @@ class HistoryAcceptance(unittest.IsolatedAsyncioTestCase):
 
     async def test_page_construction_runs_after_read_transaction_closes(self):
         history=boundary.recovery;original=history._page;observed=[]
-        def page(rows,budget,context,query):
+        def page(rows,budget,context,query,evidence):
             observed.append(self.pool.connection.in_transaction())
             self.assertEqual(self.pool.connection.calls[-1][0],'COMMIT')
-            return original(rows,budget,context,query)
+            return original(rows,budget,context,query,evidence)
         with patch.object(history,'_page',side_effect=page):result=await self.get()
         self.assertEqual(result.status_code,200);self.assertEqual(observed,[False])
     async def test_continuation_rechecks_current_dates_and_refresh_finds_newer_insertion(self):

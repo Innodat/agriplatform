@@ -280,3 +280,9 @@ atomic effects/evidence/receipt and first-committed recovery; the helper does no
 Reuse the exact context installed by transaction() on the same connection. The helper
 checks active/non-autocommit state and input matching, but does not read back GUCs or
 establish that a backend assertion is true. Keep key scope derived from that context.
+
+The generated `web/offline-tools/idb.ts` provides request results and transaction
+completion primitives. Register transaction completion before awaiting requests, and
+acknowledge durable local changes only after completion. Run `npm run test:local-storage`
+in `web/` for its generated behavior tests. Applications own schemas, authorization,
+partition fences and merge/retention rules; these helpers supply none of those policies.
