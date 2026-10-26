@@ -1,3 +1,30 @@
+## Current delivery — same-phone local conflict choices, 2026-10-26
+
+Read [local conflict evidence](LOCAL_CONFLICT_RESOLUTION_EVIDENCE.md) and current
+[contracts](contracts.md). Pure-store methods review actual chosen saved state and
+adopt it or save a fresh ordered replacement, retaining original create/proposal bytes.
+Known create rejection does not veto historical editing. Actual synchronized baseline
+wins over retained original-create evidence; exact recovery permits legitimate receipt,
+server-resolution and reference-label progress. No new endpoint/coordinator/startup.
+Final24-command qualification passes after acceptance audit and independent review:883
+focused checks,71 actual synthetic HTTP checks, all22 previous affected jobs and five
+scaffold parities. All13 findings addressed; none deferred. Original review expiry,
+selected-action recovery and valid action-count limits are proved. No complete
+Story2.3 or release readiness claim.
+
+Continue ready authorized work without routine next/approval stops. Next extend actual
+server-conflict review to confirmed v2 pending-create actions and unprepared active heads
+made stale by server progress, then explicit re-review of paused descendants. Reuse
+current read/edit-context/PUT/receipts, preserve original bytes and actual predecessors.
+Synthetic local/CI only: no UI/editor/Leave, active sender/claims/scheduling/queue/browser/
+service-worker/startup activation, real accounts/Auth/Access, native PostgreSQL/Docker,
+provisioning/migrations, deployment/production/pilot or cleanup. Preserve concurrent
+work, historical evidence/resources and TS7.0.2. Fingerprints/HMAC remain deferred.
+Never read/run/copy/hash the preexisting untracked migration fixture.
+Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — explicit confirmed-server conflict decisions, 2026-10-26
 
 Read [conflict-resolution evidence](CONFLICT_RESOLUTION_EVIDENCE.md), its

@@ -1551,3 +1551,51 @@ pending-create conflict decisions are the next technical subset.
 See [conflict-resolution evidence](CONFLICT_RESOLUTION_EVIDENCE.md) and its
 [machine record](evidence/conflict-resolution-20261026.json). Existing API/DB release
 safeguards remain binding; no new endpoint or conflict/override service is introduced.
+
+## Same-phone unprepared conflict decisions — 2026-10-26
+
+The unmounted schema4 store adds `openLocalConflict(pin, mode, execution?)`,
+`useLocalCurrent(reviewed, decision_id, execution?)`,
+`saveLocalConflictReplacement(reviewed, decision_id, action_id, changes, execution?)`
+and `lookupLocalResolution(selection, execution?)`. These are pure local transactions,
+with the same caller-owned execution/session lifetime as ordinary Save. They issue no
+HTTP and add no server endpoint, Auth provider or generic merge service.
+
+The source is an undisposed off-head Needs attention v1/v2 edit with no delivery
+payload. Reviews identify actual saved current content, current head/create, nullable
+baseline, generation and applicable authority. A synchronized baseline takes precedence
+over retained original-create evidence when no newer overlay exists. Source retirement,
+paused descendants, decision and new intent/overlay commit atomically under CAS.
+Original proposals/create bytes and predecessor relationships remain immutable.
+
+Use-current needs valid own-read and preserves existing chosen state/status. It never
+claims server acknowledgement or sets Synced. Replacement needs independent valid
+own-edit, original-version validation and a fresh ordinary v1/v2 action, based on the
+actual current predecessor. Known create rejection is not a new editing prerequisite;
+original creation validation still applies when delivery retries. Unresolved chosen
+ancestors stay unchanged and replacement revision waits for their actual matching
+receipts; uncertain independent prepared work refuses competing resolution.
+
+Version2 local decisions coexist with version1 confirmed-server decisions. Own-read
+exact recovery checks original normalized selection and retained effects before edit
+checks, allowing reopen, edit loss, actual receipt progress, later server resolution
+and reference-only child-label refresh. Missing/contradictory effects and changed retry
+input refuse success. Lookup identity is captured before awaiting. New decisions still
+require branded reviews, current scope/expiry and unchanged local snapshot/generations.
+Abort/quota/completion ambiguity never implies rollback or success without evidence.
+
+Existing conditional PUT/recovery/readback still owns server mutation. A later unrelated
+server change produces ordinary409 and retains the replacement. Known own-read denial
+blocks protected local history and recovery while retaining data. Review/recovery refuse
+unsupported/incomplete or over100-action capture graphs without deleting history.
+No complete Story2.3, browser update/device or release qualification is claimed. Confirmed
+v2 server409, active unprepared heads stale from server progress and re-review of already
+paused descendants are subsequent subsets. See [local evidence](LOCAL_CONFLICT_RESOLUTION_EVIDENCE.md).
+
+Post-review qualification: original current-review own-read evidence remains privately
+pinned for new decisions even after partition refresh; committed recovery needs current
+own-read, without renewed original edit authority. Replacement refuses insertion above
+the100-action graph bound before writes. Recovery validates chosen active ancestry or
+actual receipt/subsequent validated decision evidence, and refused corrupt/disposed
+ancestry remains retained. Focused883/HTTP71 checks and24 affected commands pass; all13
+review findings addressed. No public API, schema or activation expansion.

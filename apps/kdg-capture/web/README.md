@@ -354,3 +354,17 @@ branches. See [evidence](../docs/CONFLICT_RESOLUTION_EVIDENCE.md). New local sch
 is isolated and requires browser update/recovery qualification before activation.
 Use retained Node26.11.1/TS7.0.2 for `tests/conflict-resolution-proof.mjs` and
 `tests/conflict-resolution-http-proof.mjs`; no dependency installation or API override.
+
+Same-phone unprepared conflicts now have pure local review/choice/recovery methods.
+They preserve selected pending work and original create bytes; replacements use actual
+receipt predecessors through existing explicit delivery. No HTTP occurs during local
+choices. Run retained Node26.11.1/TS7.0.2 against
+`tests/local-conflict-resolution-proof.mjs` and
+`tests/local-conflict-resolution-http-proof.mjs` from repository root. See
+[local conflict evidence](../docs/LOCAL_CONFLICT_RESOLUTION_EVIDENCE.md). Schema4 stays
+unmounted; browser update/recovery and native/release qualification remain separate.
+
+Local-conflict qualification after review:883 focused real-IDB and71 HTTP checks,24
+affected commands including five scaffold parities;13 findings addressed, none deferred.
+The HTTP proof owns a90second watchdog and10second requests. Its --force-stall negative
+qualification records deadline failure and confirmed synthetic fixture shutdown.
