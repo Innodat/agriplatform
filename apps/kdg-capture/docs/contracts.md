@@ -1298,3 +1298,51 @@ recovery; never infer rollback, generate a replacement ID or label it Synced. Ne
 work needs a fresh handle-issued reviewed token. No sender, claim, receipt application,
 pending-create editing, unfinished-input autosave, editor UI or startup activation is
 implemented here. See [local edit Save evidence](LOCAL_EDIT_SAVE_EVIDENCE.md).
+
+
+## Candidate ordered local edit reconciliation — 2026-10-26
+
+The isolated v2 store now exposes `prepareEdit(action_id, execution)`,
+`consumeEditReceipt(pending, outcome, execution)` and
+`consumeEditConflict(pending, outcome, execution)`. This supersedes earlier
+materialization/receipt-application omissions only for server-backed own-edit local
+storage. No sender, claim, retry schedule or queue activation is implied.
+
+Preparation atomically retains a version1 delivery envelope containing the exact
+`PendingEdit`-compatible command and its serialized bytes, separate from immutable
+saved intent/base/input. A first action uses its reviewed revision. A successor waits
+for its exact predecessor's committed receipt; no-op results can retain the same
+revision. Repeated or competing preparation preserves bytes and original operation ID.
+An unresolved lookup/read cannot become a receipt. Already frozen commands stay
+recoverable under that same identity despite newer readback; an unprepared action
+facing known unrelated progress is blocked for attention without a fake server409.
+
+Receipt consumption accepts the existing adapter's closed `{kind: committed, receipt}`
+result, bound to the frozen organization/account/action/type/version/target and a
+result revision equal to expected or expected+1. Conflict consumption accepts the
+closed typed409 revision-conflict result. Retained delivery outcomes are validated
+before later use; unsupported or contradictory metadata remains retained and cannot
+advance descendants or confirmation. Identical repeated consumption is harmless.
+
+Readback never acknowledges an operation by itself. With its matched receipt already
+retained, actual authorized original-owner detail can retire only that same latest
+saved overlay. At the receipt revision, date/answers must match; newer server detail
+can display later content while confirming the older action completed. Attribution
+and timestamps come only from validated detail. Late receipts/readbacks preserve
+newer overlays, immutable reviewed bases and operation identities. Newly opened forms
+work after acknowledged readback; existing descendants may follow only their own
+verified predecessor progress, without rebasing onto unrelated changes.
+
+Conflicts retain frozen attempted command, reviewed base/proposal and safe current
+revision. Descendants remain blocked and readable; import cannot resolve the conflict
+or delete pending work. Current own-read governs outcome consumption; preparation also
+requires valid own-edit. Edit-only denial/expiry can therefore block preparation while
+allowing read-authorized receipt retention. No operation renews a permission through
+an unrelated success. Existing account/epoch/clock/session and transaction safeguards
+apply, including original-ID recovery when failure follows transaction completion.
+
+New results are `prepared` (stored bytes only), `blocked`, `invalid` and `reconciled`,
+with existing `expired`, `denied` and `unavailable` failures. Callers consume only
+validated transport/recovery results with the same scoped execution fence. No active
+Auth-to-sender coordinator, pending-create consumer or complete Story2.2 claim is made.
+See [ordered reconciliation evidence](EDIT_RECONCILIATION_EVIDENCE.md).

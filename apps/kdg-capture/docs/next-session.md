@@ -1,3 +1,33 @@
+## Current delivery — ordered local edit reconciliation, 2026-10-26
+
+Read [reconciliation evidence](EDIT_RECONCILIATION_EVIDENCE.md), its
+[machine record](evidence/edit-reconciliation-20261026.json) and current [contracts](contracts.md).
+The isolated store freezes eligible server-backed edit commands before return,
+consumes exact receipts/conflicts, and confirms only receipt-bound authorized
+readback. Parent receipts determine successor revision. Late acknowledgements preserve
+newer saved work; known unrelated progress/conflicts do not rebase or replay descendants.
+No sender, claim or automatic retry is activated.
+
+Final30 source-bound jobs pass: 103 reconciliation,92 Save,61 history checks,
+575 compiled client and127 direct tests, four guards and16 loopback groups; six
+strict TS7.0.2 adapter configurations, twelve schema/client freshness checks and
+five scaffold parities pass. Prior313 backend proof reused with77 unchanged backend
+source hashes. Review: nine addressed, one complexity proposal rejected, none deferred.
+Three isolated custody canaries also qualify failed exit status on source drift.
+
+Continue authorized KDG work without routine next/approval stops. Remaining Story2.2
+consumers include actual bounded delivery/recovery coordination and pending-create
+persistence/setup edit observations; do not claim end-to-end editing or sender leases.
+Recheck approved contracts before selecting the next coherent consumer.
+Synthetic local/CI only: no UI/editor/Leave, sender/queue/browser/service-worker/
+default-startup activation, real accounts/Auth/Access, PostgreSQL/native-driver/Docker
+qualification, provisioning/migrations, deployment/production/pilot or cleanup.
+Preserve concurrent work, historical evidence/resources and dependencies including
+TypeScript7.0.2. Fingerprints/HMAC stay deferred. Never read/run/copy the preexisting
+untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — local explicit edit Save, 2026-10-26
 
 Read [local edit Save evidence](LOCAL_EDIT_SAVE_EVIDENCE.md), its
