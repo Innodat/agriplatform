@@ -116,3 +116,7 @@
 - source_spec: `spec-scribeswell-host-validation-profiles.md`
   summary: Bound migration supervisor stdout buffering before allocation rather than checking wire size after communicate.
   evidence: Blind B2 verified against original7d1cd2b adapter; existing communicate buffers before4096 rejection. New fixed worker shapes remain small and deadlines/activation denials remain, but a hard memory ceiling requires separate supervisor transport work.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-capture-readback.md`
+  summary: Qualify the KDG own-detail joined original questionnaire read against actual PostgreSQL during separately authorized native qualification.
+  evidence: Blind B9 and verification VG1 show SQL-string doubles return prepared rows even if the original-version predicate is removed. Use two versions and an older owned capture plus restricted runtime role; current synthetic-only delivery explicitly excludes native/DB qualification and activation.

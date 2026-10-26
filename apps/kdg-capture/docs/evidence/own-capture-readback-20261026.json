@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-26",
+  "baseline_commit": "6c406485be200417e6857b0b935e4f400fe878cc",
+  "scope": "protected current own-capture detail, generated contract and isolated Auth client; synthetic local/CI only",
+  "commands_manifest": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/post-review-commands.json",
+    "sha256": "f610320a21026f962c83f127758c43539c20631476bad1ed03a59890ac56a028"
+  },
+  "implementation_source_manifest": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/implementation-final-source-sha256.json",
+    "sha256": "2994131f54ec3b9b8bc48dd308069cbd84a971ef2091a8c14016b3659ddd7cb3"
+  },
+  "red_provenance": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/red-provenance.json",
+    "sha256": "c1f1ad1374f438baeb1feef649510874a5ed45c462a23151391abc27cdb0fd89"
+  },
+  "initial_behavioral_red": {
+    "stub": {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/capture_read.red.py",
+      "sha256": "cf336228d0594b1ed68e99158c83975028f494422e788b16466f18f5a44c8696"
+    },
+    "log": {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/backend-red.log",
+      "sha256": "97d4be93ebfbe8dcd3d5b60746b7bac58e8957fff82d96bba84ddd5b6abdd360"
+    },
+    "test_reconstruction": {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/test_capture_read.red.reconstructed.py",
+      "sha256": "5cff53d2284770355af65c16ff6e4759a44043d812e4f4bd13e25ba98da6410a"
+    },
+    "limitation": "Original test bytes were not captured; reconstructed source is labelled. No preimplementation client/loopback RED claimed."
+  },
+  "proofs": {
+    "auth": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-43ae4054-cc75-4648-882a-4894be6ac8e2",
+    "auth_result": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-43ae4054-cc75-4648-882a-4894be6ac8e2/result.json",
+      "sha256": "781430d9d7051e537cb35f35c93d4edd4134ef22c95f800091c81cb5805d72c6"
+    },
+    "network": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-persistence-http-path-20261026/network-c32298c4-4ce7-4f7b-ae45-70e214845bf5",
+    "network_result": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-persistence-http-path-20261026/network-c32298c4-4ce7-4f7b-ae45-70e214845bf5/result.json",
+      "sha256": "694e8852dcc1ce2a760ba25d8f50200309eab97ca84fd5c4e68bc059cc0ce0e7"
+    }
+  },
+  "checks": {
+    "focused_backend": 41,
+    "compiled_auth_client": 399,
+    "read_transport": 52,
+    "read_auth_consumer": 20,
+    "direct_adapter_context_and_child": 179,
+    "network_requirement_groups": 9,
+    "fixture_guards": 3,
+    "strict_adapter_configurations": 4,
+    "schema_client_freshness_checks": 8,
+    "scaffold_parity": 4,
+    "typescript": "7.0.2",
+    "synthetic_backend_regressions": 240
+  },
+  "historical_preservation": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-baseline/baseline.json",
+    "sha256": "5d88e1e5b204bc81dcbad61c4e226797096baad1173be1fb1a41f1fed8ef729e"
+  },
+  "review": {
+    "status": "complete",
+    "layers": 3,
+    "addressed": 9,
+    "rejected_with_evidence": 1,
+    "deferred_findings": 2,
+    "deferred_groups": 1,
+    "deferred": "Actual PostgreSQL two-version original-definition join and restricted-role proof; explicitly excluded from this synthetic delivery."
+  },
+  "qualification_limits": [
+    "Synthetic Access and SQL model only; no actual database permissions, rollback, driver cancellation or TCP drain claim",
+    "No browser/editor/queue/default-startup activation, Leave, real accounts/Access, native/Docker qualification, provisioning/migrations, deployment/production/pilot or cleanup",
+    "Initial feature RED has retained stub/log but no immutable original test; reconstruction explicitly labelled",
+    "Earlier aggregate harness timeouts and one unchanged40ms edit setup timing failure are retained. Final240-case post-review suite passes without changing that test or runtime expectation.",
+    "Response validation/serialization completes before final server budget check; no ASGI/network completion deadline is claimed."
+  ],
+  "impacts": {
+    "scaffold": "Reuse existing generated Auth/transaction patterns and API-client owner. Tiny app-owned recovery engine factory hook preserves defaults; readback domain remains KDG. No neutral template defect found.",
+    "shared_ui": "none",
+    "agent_context": "none",
+    "documentation": "Append current contracts, prepend current handoff and preserve historical evidence; source-bound commands and limits.",
+    "adr": "none; existing accepted decisions apply unchanged"
+  },
+  "continuation_policy": "Continue authorized KDG implementation without routine next/approval prompts; genuine decisions/permission gaps and explicit exclusions remain binding.",
+  "pre_review_checks": {
+    "focused_backend": 36,
+    "compiled_auth_client": 389,
+    "read_transport": 44,
+    "read_auth_consumer": 18,
+    "direct_adapter_context_and_child": 171,
+    "network_requirement_groups": 9,
+    "fixture_guards": 3,
+    "strict_adapter_configurations": 4,
+    "schema_client_freshness_checks": 8,
+    "scaffold_parity": 4,
+    "typescript": "7.0.2"
+  },
+  "pre_review_commands_manifest": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/commands.json",
+    "sha256": "e44644bd953a78bd064b2dfbd9df61ab7cf363ab4bbc2582a673862866c11acf"
+  },
+  "final_source_manifest": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-post-review/source-sha256.json",
+    "sha256": "1ea1751055c1baadbee466d26603cd4603c1648869536a005acee100a7200623"
+  },
+  "pre_review_proofs": {
+    "auth": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-2931dbf3-a22c-4fe0-87f0-efd4a329e6f5",
+    "network": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-persistence-http-path-20261026/network-d391e029-df1c-4d97-aa86-df76c6dbb1b0",
+    "network_result": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-persistence-http-path-20261026/network-d391e029-df1c-4d97-aa86-df76c6dbb1b0/result.json",
+      "sha256": "fbc9fc3e41f641212fea33b24ec28510d32cf795256ba9156507a870afb45071"
+    }
+  },
+  "earlier_verifier_attempts": [
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/initial-final-timeout.json",
+      "sha256": "055feb6cbb0875fcd8b55c54bb8838260966ac7349465b11d66877cdee350071"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/final-backend.json.results.json",
+      "sha256": "eb987c2263f7789abc930f9e8c822fc308c1eaa834b934b6b69a4b1e756138a1"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/final-modules.json.results.json",
+      "sha256": "e185e4635178c02878197d887129d3599e93e135ab33c9458909cb059c42efff"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/root-verify/final-modules-remaining.json.results.json",
+      "sha256": "03082d5d63be3371e2882bc5cc0ee7ab8468a8231a15435eefbff1896cbae330"
+    }
+  ],
+  "review_patch_logs": [
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/review-fixes-red-python.log",
+      "sha256": "4814c377bd249165511a51e2154d76aeea290aaed8431c54d8dc571fdda5f37d"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/review-fixes-red-client.log",
+      "sha256": "1f6a4ba24a37e1b896461cc250ec3b3e6f0759d2d6e8a81090c0592511351d32"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/review-fixes-green-python.log",
+      "sha256": "028e80e90d781921b1e0f48ea6f517d35532be8c5578df759949881af1b2c230"
+    }
+  ],
+  "review_focused_proof": {
+    "path": "platform/deployment/.local/kdg-own-capture-readback-20261026/review-focused-6cd39eee-89cb-4c5e-9885-a315e4ea9210/result.json",
+    "sha256": "9bbb44a6cd201e9ea46dcf60ae82b7073dcd53141670ecf8cf6b2c6c02e5503e"
+  },
+  "storage_model_final": {
+    "acquired": 33,
+    "released": 33,
+    "disposed": 4,
+    "outcomes": 4,
+    "history": 3
+  }
+}

@@ -1,3 +1,33 @@
+## Current delivery - protected own-capture readback, 2026-10-26
+
+Read [readback evidence](OWN_CAPTURE_READBACK_EVIDENCE.md), its
+[machine record](evidence/own-capture-readback-20261026.json) and current
+[contracts](contracts.md). Candidate GET /api/v1/captures/{capture_id}, generated
+read contract and isolated transport/Auth consumer now return current original-owner
+detail with the original questionnaire and stored provenance. Current own-read
+precedes checkout; inactive/unassigned children remain readable with retained access.
+Reading never acknowledges an uncertain write or renews write authority.
+
+Synthetic loopback proves create/read/edit/read and original receipt recovery,
+missing/foreign isolation, current denial and safe failures. Implementation focus:
+41 focused backend, 52 transport and 20 Auth consumer cases pass. Final coordinator
+verification passes 240 backend, 399 compiled Auth/client and 179 direct cases, all
+contract/strict TypeScript 7.0.2 checks and four scaffold parity checks. Review: nine
+addressed, one rejected with evidence, one native qualification prerequisite deferred.
+
+Continue authorized implementation without repeated next/approval halts. Next missing
+consumer: own-history list/pagination contract and synthetic API/client proof, then
+its separately scoped offline cache integration. Recheck current contracts/evidence
+before choosing that delivery; no activation is implied.
+
+No editor/Leave, browser/queue/default-startup activation, real accounts/Access, native
+qualification, Docker, provisioning/migrations, production/deployment/pilot or cleanup.
+Preserve concurrent work, historical evidence/resources and approved dependencies.
+Fingerprints/HMAC remain deferred. Never read/run/copy the preexisting untracked
+migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — candidate persistence HTTP path, 2026-10-26
 
 Read [path evidence](PERSISTENCE_HTTP_PATH_EVIDENCE.md), [machine record](evidence/persistence-http-path-20261026.json)

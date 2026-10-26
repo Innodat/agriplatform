@@ -1089,3 +1089,40 @@ startup activation. Historical native evidence and ADR-0020 release gates remain
 Review: ten addressed, one rejected with evidence, none deferred. Three proof-process
 controls and two strict synthetic fixture cases pass. Sibling edit schema Unicode
 constraints and shared schema test-tool calendar checking are synchronized.
+
+
+## Candidate current own-capture detail — 2026-10-26
+
+`GET /api/v1/captures/{capture_id}` is an explicitly constructed candidate own-read
+boundary, without query selectors or a nonempty body. One bearer and current
+`kdg_capture.capture.read.own` authorization bind verified account/durable actor to the
+fixed organization before checkout. Its read-only transaction uses explicit capture,
+organization and original owner account predicates and returns the current saved
+capture, the permitted current child label and the original questionnaire definition.
+Unassignment/inactivation does not create a new read prerequisite. Missing and foreign
+captures return the same safe 404 `capture_unavailable`.
+
+`CaptureDetail` carries capture/org/original owner account/actor and child IDs,
+`child_label`, original questionnaire/version IDs and positive decimal
+`questionnaire_version`, original `definition`, current positive decimal `revision`,
+`observation_date`, `answers`, original untrusted device `captured_at`, and stored
+`created_by`/`created_at`/`updated_by`/`updated_at` attribution. No actor display-name
+lookup is implied. Creation membership/eligibility references, operation outcomes and
+revision archive are excluded. Date-only observations remain date-only; server times
+remain distinct from original device time.
+
+The bounded response limit is 512 KiB. Invalid required stored evidence fails safely
+as 503 `capture_read_unavailable`; current authentication/admission/setup, observation
+expiry, deadline and internal errors retain stable safe identifiers. Every response is
+private/no-store. One original execution budget covers authority, acquisition, SQL and
+release; cancellation retains worker ownership through unwind and never publishes late
+success. No external wait occurs inside the read transaction.
+
+The generated read contract supplies the isolated transport and Auth consumer. Each
+read pins account/org/capture and respects caller cancellation/current-generation
+fences; a stale response cannot populate a replacement account's state. A read result
+never acknowledges an uncertain operation, marks content Synced, updates an offline
+read observation, grants later write authority or automatically retries. Operation
+recovery still returns the original receipt even when detail now has a later revision.
+Listing, pagination, offline cache integration and activation remain separate consuming
+work. See [readback evidence](OWN_CAPTURE_READBACK_EVIDENCE.md).

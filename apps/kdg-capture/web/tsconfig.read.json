@@ -1,0 +1,4 @@
+{
+ "extends":"./tsconfig.json",
+ "files":["src/read.ts","tests/read.types.ts"]
+}

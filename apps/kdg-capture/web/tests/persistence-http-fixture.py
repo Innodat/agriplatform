@@ -7,7 +7,7 @@ import argparse
 import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager, contextmanager
 import copy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import socket
@@ -26,6 +26,8 @@ from sqlalchemy.exc import SQLAlchemyError
 import create_http
 import edit_http
 import recovery_http
+import read_http
+import capture_read as read
 import main as context_http
 import capture_create as create
 import capture_edit as edit
@@ -82,9 +84,9 @@ class Connection:
         sql=str(statement)
         if 'kdg_capture.' in sql and self.store.mode=='fail_sql':raise SQLAlchemyError('synthetic SQL failure')
         if sql==outcomes.SELECT:return Rows(self.outcomes.get((p['org'],p['account'],p['command'],p['operation'])))
-        if sql==create.CHILD:return Rows(dict(active=True) if p['org']==ORG and p['child']==CHILD else None)
+        if sql==create.CHILD:return Rows(dict(active=self.store.mode!='inactive_removed') if p['org']==ORG and p['child']==CHILD else None)
         if sql==create.ELIGIBILITY:return Rows(dict(membership_id=7,observed_active=True) if p['org']==ORG and p['account']==ACCOUNT and p['child']==CHILD and p['ref']=='synthetic' else None)
-        if sql==create.ASSIGNMENT:return Rows(dict(membership_id=7,active=True) if p['org']==ORG and p['account']==ACCOUNT and p['child']==CHILD and self.store.mode!='assigned_removed' else None)
+        if sql==create.ASSIGNMENT:return Rows(dict(membership_id=7,active=True) if p['org']==ORG and p['account']==ACCOUNT and p['child']==CHILD and self.store.mode not in ('assigned_removed','inactive_removed') else None)
         if sql==create.VERSION:return Rows(dict(questionnaire_id=QUESTIONNAIRE,definition=initial_definition([QUESTION,ACTOR,CHILD,VERSION]).model_dump()) if p['org']==ORG and p['version']==VERSION else None)
         if sql in (handler.STORED_CAPTURE,edit_handler.TARGET,recovery.TARGET):
             capture=self.captures.get(p['capture'])
@@ -92,16 +94,28 @@ class Connection:
             result=dict(id=p['capture'],org_id=p['org'],owner_account_id=p['account'])
             if sql==handler.STORED_CAPTURE:result['child_id']=capture['child']
             return Rows(result)
+        if sql==read.DETAIL:
+            capture=self.captures.get(p['capture'])
+            if not capture or capture['org']!=p['org'] or capture['account']!=p['account']:return Rows()
+            value=dict(capture_id=p['capture'],org_id=capture['org'],owner_account_id=capture['account'],
+                owner_actor_id=capture['owner_actor'],child_id=capture['child'],child_label='Synthetic child',
+                questionnaire_id=capture['questionnaire'],questionnaire_version_id=capture['version'],
+                questionnaire_version=1,definition=initial_definition([QUESTION,ACTOR,CHILD,VERSION]).model_dump(),
+                revision=capture['revision'],observation_date=date.fromisoformat(capture['date']),answers=copy.deepcopy(capture['answers']),
+                captured_at=capture['captured_at'],created_by=capture['created_by'],created_at=datetime.fromisoformat(capture['created_at']),
+                updated_by=capture['updated_by'],updated_at=datetime.fromisoformat(capture['updated_at']))
+            if self.store.mode=='invalid_detail':value['answers']={}
+            return Rows(value)
         if sql==edit.CAPTURE:
             capture=self.captures.get(p['capture'])
             if not capture or capture['org']!=p['org'] or capture['account']!=p['account']:return Rows()
             return Rows(dict(questionnaire_version_id=capture['version'],revision=capture['revision'],unchanged=capture['date']==p['date'].isoformat() and capture['answers']==json.loads(p['answers'])))
         if sql==create.CAPTURE_INSERT:
             if p['capture'] in self.captures:raise SQLAlchemyError('synthetic duplicate capture')
-            self.captures[p['capture']]=dict(org=p['org'],account=p['account'],child=p['child'],version=p['version'],revision=1,date=p['date'].isoformat(),answers=json.loads(p['answers']))
+            self.captures[p['capture']]=dict(org=p['org'],account=p['account'],child=p['child'],version=p['version'],revision=1,date=p['date'].isoformat(),answers=json.loads(p['answers']),questionnaire=p['questionnaire'],owner_actor=p['actor'],captured_at=p['device'],created_by=p['actor'],created_at=datetime.now(timezone.utc).isoformat(),updated_by=p['actor'],updated_at=datetime.now(timezone.utc).isoformat())
             return Rows()
         if sql==edit.UPDATE:
-            capture=self.captures[p['capture']];capture.update(date=p['date'].isoformat(),answers=json.loads(p['answers']),revision=p['revision'])
+            capture=self.captures[p['capture']];capture.update(date=p['date'].isoformat(),answers=json.loads(p['answers']),revision=p['revision'],updated_by=p['actor'],updated_at=datetime.now(timezone.utc).isoformat())
             return Rows()
         if sql==outcomes.INSERT:
             key=(p['org'],p['account'],p['command'],p['operation'])
@@ -127,17 +141,19 @@ async def serve(directory):
         if mode=='outage':return httpx.Response(503,json={'detail':{'code':'unavailable'}})
         if mode in ('deny','expired'):return httpx.Response(403 if mode=='deny' else 401,json={'detail':{'code':'access_denied' if mode=='deny' else 'authentication_required'}})
         if mode.startswith('assigned') and permission==create.ALL:return httpx.Response(403,json={'detail':{'code':'access_denied'}})
-        return httpx.Response(200,json=dict(account_id=ACCOUNT,actor_id=ACTOR,membership_id='7',authorization_scope=dict(kind='organization',org_id=ORG),resource_scope=dict(kind='own_account',account_id=ACTOR if mode=='mismatch' else ACCOUNT),permission=permission,decision_id=UNKNOWN,checked_at=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')))
+        account=ACTOR if mode=='foreign_read' else ACCOUNT
+        return httpx.Response(200,json=dict(account_id=account,actor_id=ACTOR,membership_id='7',authorization_scope=dict(kind='organization',org_id=ORG),resource_scope=dict(kind='own_account',account_id=ACTOR if mode=='mismatch' else account),permission=permission,decision_id=UNKNOWN,checked_at=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')))
     transport=httpx.MockTransport(access)
     args=dict(org_id=ORG,access_url='https://access.invalid',service_key='synthetic',transport=transport)
     create_app=create_http._create_app(handler.CreateHandler(**args),store,ORG)
     edit_app=edit_http._create_app(edit_handler.EditHandler(**args),store,ORG)
     recovery_app=recovery_http._create_app(recovery.RecoveryHandler(**args),store,ORG)
+    read_app=read_http._create_app(read.ReadHandler(**args),store,ORG)
     context_app=context_http.create_app(**args)
     @asynccontextmanager
     async def lifespan(app):
         async with AsyncExitStack() as stack:
-            for child in (create_app,edit_app,recovery_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
+            for child in (create_app,edit_app,recovery_app,read_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
             yield
         (directory/'storage-final.json').write_text(json.dumps(store.snapshot(),sort_keys=True,indent=2)+'\n')
     from starlette.applications import Starlette
@@ -151,10 +167,10 @@ async def serve(directory):
         if path=='/__fixture':
             if scope['method']=='POST':
                 raw=await receive();mode=json.loads(raw.get('body',b'{}')).get('mode')
-                if mode not in ('all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release'):return await JSONResponse({},status_code=422)(scope,receive,send)
+                if mode not in ('all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release','foreign_read','inactive_removed','invalid_detail'):return await JSONResponse({},status_code=422)(scope,receive,send)
                 store.mode=mode
             return await JSONResponse(store.snapshot())(scope,receive,send)
-        child=context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else create_app if path=='/api/v1/captures' else edit_app
+        child=context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else create_app if path=='/api/v1/captures' else read_app if scope['method']=='GET' else edit_app
         await child(scope,receive,send)
     sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)
     server=uvicorn.Server(uvicorn.Config(dispatch,log_level='warning',lifespan='on',timeout_graceful_shutdown=5))
