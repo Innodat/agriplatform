@@ -337,3 +337,12 @@ Node26.11.1 against `apps/kdg-capture/web/tests/create-delivery-proof.mjs` and
 `apps/kdg-capture/web/tests/create-delivery-http-proof.mjs`. These selected-source
 proofs use approved TS7.0.2 and retained Chromium/Python; no install or native database
 is required. The HTTP host seeds explicit synthetic eligibility and owns its shutdown.
+
+
+Pending-create edit persistence extends the isolated store's explicit `openEdit` and
+`saveEdit` with separate local-base actions and actual receipt predecessors. Original
+create bytes remain immutable; no server baseline/revision/audit is fabricated.
+Use the explicit delivery entries after predecessor receipts resolve. This is unmounted
+synthetic functionality; see [evidence](../docs/PENDING_CREATE_EDIT_EVIDENCE.md).
+Retained Node26.11.1/TS7.0.2 are required for `tests/pending-create-edit-proof.mjs` and
+`tests/pending-create-edit-http-proof.mjs`; no install or startup activation is needed.

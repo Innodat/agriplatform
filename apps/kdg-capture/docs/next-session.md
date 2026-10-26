@@ -1,3 +1,27 @@
+## Current delivery — pending-create local edits, 2026-10-26
+
+Read [pending-create edit evidence](PENDING_CREATE_EDIT_EVIDENCE.md), its
+[machine record](evidence/pending-create-edit-20261026.json) and current [contracts](contracts.md).
+The unmounted store saves separate local edits before creation synchronizes and derives
+expected revisions only from matching actual predecessor receipts. Original create
+bytes and local content remain unchanged. No server baseline/revision/audit is invented.
+Final20 source-bound commands pass:216 focused checks,47 actual synthetic HTTP
+groups, all existing affected suites and five scaffold parities. All13 review findings
+addressed, no deferrals. Do not claim complete Story2.2 or release readiness.
+Next implement the isolated explicit own-conflict resolution persistence consumer under
+approved Story2.3: use-current or a reviewed replacement, retained proposals and paused
+descendants; reuse current read/edit-context/PUT/recovery, no new conflict service.
+
+Continue ready authorized work without routine next/approval stops. Preserve historical
+evidence, concurrent work/resources and TypeScript7.0.2. Synthetic local/CI only:
+no UI/editor/Leave, active sender/queue/claims/scheduling/browser/service-worker/default-
+startup, real accounts/Auth/Access, native PostgreSQL/Docker, provisioning/migrations,
+deployment/production/pilot or cleanup. Fingerprints/HMAC remain deferred. Never
+read/run/copy/hash the preexisting untracked migration fixture.
+Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — explicit saved-create delivery/recovery, 2026-10-26
 
 Read [create delivery evidence](CREATE_DELIVERY_EVIDENCE.md), its

@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.auth.json","files":["src/history-store.ts","tests/pending-create-edit.types.ts"]}

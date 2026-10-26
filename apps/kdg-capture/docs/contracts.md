@@ -1469,3 +1469,34 @@ while retaining create receipt revision1. Preserve original local_capture and ne
 edit work. Known rejection retains selected Needs attention; unavailable outcomes
 retain original retryable IDs/bytes. Creation-only denial and read denial remain
 independent. See [owner evidence](CREATE_DELIVERY_EVIDENCE.md) and its machine record.
+
+
+## Pending-create own-edit persistence — 2026-10-26
+
+The unmounted store extends `openEdit`/`saveEdit` to completed locally saved creates
+without inventing server facts. Version2 `local_create` reviews/actions carry an
+explicit typed create/edit predecessor and a local base without server revision or
+creation/update audit fields. Existing version1 server-backed edits remain supported;
+unknown versions are retained and blocked. Each completed Save atomically retains its
+separate immutable proposal and latest overlay; original create pending, serialized,
+content, eligibility reference and local_capture remain unchanged. Whole-form original
+validation and hidden false-detail exclusion apply. No typing/autosave is introduced.
+
+Current exact setup own-read/own-edit observations authorize pending local editing;
+create permission, current child eligibility/assignment/activity and latest questionnaire
+are independent. Negative edit evidence invalidates old reviewed handles. Explicit
+newer positive setup restoration can authorize a future review and does not restore
+old generations. Process and durable denial must survive storage failures/reopen.
+
+`prepareEdit` resolves the first predecessor from its matching validated durable create
+receipt, including when server readback is unavailable. Later edits use their matching
+edit receipts. Neither history existence nor current baseline supplies a replacement
+expected revision. Unrelated server progress and stale local proposals are retained
+for attention; late create/readback or earlier edit acknowledgement preserves newer
+saved overlays. Existing explicit create/edit delivery and server checks are reused.
+No new HTTP contract, local schema reset, sender or runtime activation is introduced.
+
+See [pending-create edit evidence](PENDING_CREATE_EDIT_EVIDENCE.md) and its
+[machine record](evidence/pending-create-edit-20261026.json) for exact qualification,
+review, requirement-to-test mapping and limits. Ordinary release compatibility,
+controlled migrations before activation and explicit recovery remain binding.

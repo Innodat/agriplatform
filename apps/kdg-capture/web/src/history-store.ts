@@ -15,10 +15,16 @@ export type CreateDelivery=Frozen<{version:1;receipt?:{operation_id:string;comma
 export type LocalCreateIntent=Frozen<{key:string;partition:string;version:1;type:'capture.create';action_id:string;capture_id:string;pending:PendingCreate;serialized:string;content:string;status:'Pending';delivery?:CreateDelivery;result:{kind:'saved_locally';capture_id:string;operation_id:string}}>;
 export const HISTORY_DATABASE='kdg-own-history-v1';
 export type LocalEditChanges=Pick<CaptureDetail,'observation_date'|'answers'>;
-export type ReviewedEdit=Frozen<{account_id:string;org_id:string;capture_id:string;base:CaptureDetail;capture:CaptureDetail;edit_epoch:number;edit_generation:number;predecessor_action_id:string|null;baseline_revision:string;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation']}>;
+type ServerReviewedEdit=Frozen<{account_id:string;org_id:string;capture_id:string;base:CaptureDetail;capture:CaptureDetail;edit_epoch:number;edit_generation:number;predecessor_action_id:string|null;baseline_revision:string;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation']}>;
 export type PreparedEdit=Frozen<{account_id:string;org_id:string;capture_id:string;command:LocalEditChanges&{operation_id:string;command_version:1;expected_revision:string}}>;
 export type EditDelivery=Frozen<{version:1;pending:PreparedEdit;serialized:string;receipt?:{operation_id:string;command_type:'capture.edit';status:'committed';command_version:1;result:{capture_id:string;revision:string}};conflict?:{kind:'error';status:409;error_id:'kdg_capture.capture_revision_conflict';current_revision:string};readback_revision?:string}>;
-export type LocalEditIntent=Frozen<{key:string;partition:string;version:1;type:'capture.edit';action_id:string;capture_id:string;content:string;base:CaptureDetail;changes:LocalEditChanges;predecessor_action_id:string|null;expected_revision:string|null;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation'];status:'Pending'|'Needs attention';delivery?:EditDelivery;result:{kind:'saved_locally'|'needs_attention';action_id:string}}>;
+type ServerLocalEditIntent=Frozen<{key:string;partition:string;version:1;type:'capture.edit';action_id:string;capture_id:string;content:string;base:CaptureDetail;changes:LocalEditChanges;predecessor_action_id:string|null;expected_revision:string|null;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation'];status:'Pending'|'Needs attention';delivery?:EditDelivery;result:{kind:'saved_locally'|'needs_attention';action_id:string}}>;
+/** A completed local create has no server revision or server attribution. */
+export type LocalCaptureBase=Omit<CaptureDetail,'revision'|'created_by'|'created_at'|'updated_by'|'updated_at'>;
+export type EditPredecessor=Readonly<{type:'capture.create'|'capture.edit';action_id:string}>;
+export type PendingReviewedEdit=Frozen<{version:2;base_kind:'local_create';account_id:string;org_id:string;capture_id:string;base:LocalCaptureBase;capture:LocalCaptureBase;edit_epoch:number;edit_generation:number;predecessor:EditPredecessor;predecessor_action_id:string;baseline_revision:string|null;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation']}>;
+export type ReviewedEdit=ServerReviewedEdit|PendingReviewedEdit;
+export type LocalEditIntent=ServerLocalEditIntent|Frozen<Omit<ServerLocalEditIntent,'version'|'base'|'predecessor_action_id'> & {version:2;base_kind:'local_create';base:LocalCaptureBase;predecessor:EditPredecessor;predecessor_action_id:string}>;
 const tables=['records','definitions','partitions','downloads','edit_actions','setups','create_actions'];
 const week=604800000;
 type ChildLoss={generation:number;deniedAt:number;denied:boolean};
@@ -57,7 +63,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   const observed=meta?.editGeneration??0;
   // A newer durable generation may carry another realm's completed restoration.
   // An older/equal row cannot clear a known denial whose write failed locally.
-  if(observed>shared.editGeneration){shared.editGeneration=observed;shared.editDenied=meta?.editDenied===true;}
+  if(observed>shared.editGeneration){shared.editGeneration=observed;shared.editDenied=meta?.editDenied===true||shared.editDenied&&(meta?.editRestoredAt??0)<=shared.editDeniedAt;}
   else if(observed===shared.editGeneration&&meta?.editDenied)shared.editDenied=true;
   shared.editDeniedAt=Math.max(shared.editDeniedAt,meta?.editDeniedAt??0);
  }
@@ -130,7 +136,22 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
       await reconcileBaseline(tx,{...stored,key:recordKey,partition,baseline},baseline,check);
  }
  // Delivery is separate from immutable local intent, and never asserts a send occurred.
- function supported(action:any){return action?.version===1&&action.type==='capture.edit'&&action.partition===partition&&action.key===partition+'/'+action.action_id&&id(action.action_id)&&id(action.capture_id)&&action.status==='Pending';}
+ function supportedAction(action:any){
+  if(action?.version===2){try{
+   const identity=object(JSON.parse(action.content),['reviewed','input']),r=identity.reviewed as any;
+   if(r.version!==2||r.base_kind!=='local_create'||r.account_id!==account_id||r.org_id!==org_id||r.capture_id!==action.capture_id||r.predecessor_action_id!==r.predecessor?.action_id||r.predecessor_action_id!==action.predecessor_action_id||canonical(r.base)!==canonical(action.base)||canonical(r.predecessor)!==canonical(action.predecessor)||canonical(identity.input)!==canonical(action.changes)||action.expected_revision!==null||Object.hasOwn(action.base,'revision')||Object.hasOwn(action.base,'created_at'))return false;
+   const outcome=object(action.result,['kind','action_id']);if(outcome.action_id!==action.action_id||outcome.kind!==(action.status==='Pending'?'saved_locally':'needs_attention'))return false;
+   if(!date(action.changes.observation_date))return false;validateAnswers(action.base.definition,action.changes.answers);
+  }catch{return false;}}
+  return (action?.version===1||action?.version===2&&action.base_kind==='local_create'&&['capture.create','capture.edit'].includes(action.predecessor?.type)&&action.predecessor.action_id===action.predecessor_action_id)&&action.type==='capture.edit'&&action.partition===partition&&action.key===partition+'/'+action.action_id&&id(action.action_id)&&id(action.capture_id)&&['Pending','Needs attention'].includes(action.status);}
+ function supported(action:any){return supportedAction(action)&&action.status==='Pending';}
+ async function originalLocalBase(tx:IDBTransaction,action:any,check:()=>void){
+  if(action.version!==2)return true;
+  const row=await request<any>(tx.objectStore('records').get(partition+'/'+action.capture_id));check();
+  if(!row?.create_action_id)return false;
+  const original=await request<any>(tx.objectStore('create_actions').get(partition+'/'+row.create_action_id));check();
+  return supportedCreate(original)&&validCreateDelivery(original)&&original.capture_id===action.capture_id&&canonical(action.base)===canonical(localBase(original));
+ }
  function validateReceipt(pin:PreparedEdit,value:unknown){
   const r=object(value,['operation_id','command_type','status','command_version','result']),v=object(r.result,['capture_id','revision']);
   if(r.operation_id!==pin.command.operation_id||r.command_type!=='capture.edit'||r.command_version!==1||r.status!=='committed'||v.capture_id!==pin.capture_id||!decimal(v.revision)||!decimal(pin.command.expected_revision)||BigInt(v.revision)<BigInt(pin.command.expected_revision)||BigInt(v.revision)>BigInt(pin.command.expected_revision)+1n)throw Error('invalid_receipt');
@@ -153,6 +174,25 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    return true;
   }catch{return false;}
  }
+ async function checkedPrepared(tx:IDBTransaction,action:any,check:()=>void,seen=new Set<string>()):Promise<boolean>{
+  if(!prepared(action))return false;
+  if(action.version!==2)return true;
+  if(seen.has(action.action_id)||!await originalLocalBase(tx,action,check))return false;
+  seen.add(action.action_id);
+  let revision:string|undefined;
+  if(action.predecessor.type==='capture.create'){
+   const row=await request<any>(tx.objectStore('records').get(partition+'/'+action.capture_id));check();
+   if(row?.create_action_id!==action.predecessor.action_id)return false;
+   const parent=await request<any>(tx.objectStore('create_actions').get(partition+'/'+action.predecessor.action_id));check();
+   if(!supportedCreate(parent)||!validCreateDelivery(parent)||parent.capture_id!==action.capture_id)return false;
+   revision=parent.delivery?.receipt?.result.revision;
+  }else{
+   const parent=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+action.predecessor.action_id));check();
+   if(!await checkedPrepared(tx,parent,check,seen)||parent.capture_id!==action.capture_id||parent.delivery.conflict)return false;
+   revision=parent.delivery.receipt?.result.revision;
+  }
+  return decimal(revision)&&action.delivery.pending.command.expected_revision===revision;
+ }
  function matches(action:any,baseline:any){return action.capture_id===baseline.capture_id&&canonical(action.changes)===canonical({observation_date:baseline.observation_date,answers:baseline.answers});}
  async function reconcileBaseline(tx:IDBTransaction,row:any,baseline:any,check:()=>void){
   if(row.create_action_id){
@@ -164,7 +204,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   }
   if(row.saved_edit){
    const actions=tx.objectStore('edit_actions'),action=await request<any>(actions.get(partition+'/'+row.saved_edit.action_id));check();
-   if(prepared(action)&&!action.delivery.conflict&&action.delivery.receipt&&BigInt(action.delivery.receipt.result.revision)<=BigInt(baseline.revision)&&(action.delivery.receipt.result.revision!==baseline.revision||matches(action,baseline))){
+   if(await checkedPrepared(tx,action,check)&&!action.delivery.conflict&&action.delivery.receipt&&BigInt(action.delivery.receipt.result.revision)<=BigInt(baseline.revision)&&(action.delivery.receipt.result.revision!==baseline.revision||matches(action,baseline))){
     // Only actual imported detail supplies actor/timestamps; a receipt supplies no content.
     actions.put({...action,delivery:{...action.delivery,readback_revision:baseline.revision}});
     row={...row,saved_edit:undefined,edit_status:'Synced'};
@@ -173,11 +213,16 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   tx.objectStore('records').put(row);
  }
  async function ownProgress(tx:IDBTransaction,row:any,check:()=>void){
+  if(!row.saved_edit&&row.baseline&&row.create_action_id){const parent=await request<any>(tx.objectStore('create_actions').get(partition+'/'+row.create_action_id));check();if(supportedCreate(parent)&&validCreateDelivery(parent)&&parent.delivery?.receipt&&parent.delivery.receipt.result.revision===row.baseline.revision&&createMatches(parent,row.baseline))return true;}
   let action_id=row.saved_edit?.action_id;const seen=new Set<string>();
   while(action_id&&!seen.has(action_id)){
    seen.add(action_id);const action=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+action_id));check();
-   if(!supported(action)||action.capture_id!==row.baseline.capture_id||action.delivery&&(!prepared(action)||action.delivery.conflict))return false;
-   if(prepared(action)&&action.delivery.receipt?.result.revision===row.baseline.revision&&matches(action,row.baseline))return true;
+   if(!supported(action)||action.capture_id!==(row.baseline??row.local_capture).capture_id||action.delivery&&(!await checkedPrepared(tx,action,check)||action.delivery.conflict))return false;
+   if(row.baseline&&await checkedPrepared(tx,action,check)&&action.delivery.receipt?.result.revision===row.baseline.revision&&matches(action,row.baseline))return true;
+   if(action.version===2&&action.predecessor.type==='capture.create'){
+    const parent=await request<any>(tx.objectStore('create_actions').get(partition+'/'+action.predecessor.action_id));check();
+    return supportedCreate(parent)&&validCreateDelivery(parent)&&!!parent.delivery?.receipt&&!!row.baseline&&createMatches(parent,row.baseline)&&row.baseline.revision===parent.delivery.receipt.result.revision;
+   }
    action_id=action.predecessor_action_id;
   }
   return false;
@@ -199,7 +244,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   }catch{return result('invalid');}
   return editOperation<Readonly<{kind:'invalid'|'reconciled'}>>(async(tx,check)=>{
    const {clock,validate}=await readAccess(tx,check),actions=tx.objectStore('edit_actions'),action=await request<any>(actions.get(partition+'/'+pin.command.operation_id));check();validate();
-   if(!prepared(action)||canonical(action.delivery.pending)!==canonical(pin))return {value:result('invalid'),clock,validate};
+   if(!await checkedPrepared(tx,action,check)||!await originalLocalBase(tx,action,check)||canonical(action.delivery.pending)!==canonical(pin))return {value:result('invalid'),clock,validate};
    const d=action.delivery;
    if(conflict?!!d.receipt:!!d.conflict)return {value:result('invalid'),clock,validate};
    const before=conflict?d.conflict:d.receipt,after=conflict?outcome:outcome.receipt;
@@ -220,16 +265,33 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   observeEditGeneration(meta);
   if(meta.denied||meta.editDenied||shared.editDenied||(meta.epoch??0)!==epoch)throw new AuthorityFailure('denied');
   if(meta.clockLocked||shared.knownLock)throw Error('unavailable');
+  if(row?.pending_edit_context){
+   if(reviewed&&(reviewed.edit_epoch!==epoch||reviewed.edit_generation!==(meta.editGeneration??0)||reviewed.edit_generation!==shared.editGeneration))throw new AuthorityFailure('denied');
+   const context=row.pending_edit_context;
+   if(context.read_observation?.permission!=='kdg_capture.capture.read.own'||context.edit_observation?.permission!=='kdg_capture.capture.edit.own')throw new AuthorityFailure('denied');
+   if(!context.edit_observation)throw new AuthorityFailure('denied');
+   if(context.actor_id!==row.local_capture.owner_actor_id||context.read_observation.actor_id!==context.actor_id||context.edit_observation.actor_id!==context.actor_id||context.read_observation.membership_id!==context.membership_id||context.edit_observation.membership_id!==context.membership_id)throw new AuthorityFailure('denied');
+   editObservation(context.read_observation,meta.wall);const clock=editObservation(context.edit_observation,meta.wall);
+   if(reviewed){if(Math.min(Date.parse(reviewed.read_observation.checked_at),Date.parse(reviewed.edit_observation.checked_at))<=Math.max(meta.editDeniedAt??0,shared.editDeniedAt))throw new AuthorityFailure('denied');editObservation(reviewed.read_observation,meta.wall);editObservation(reviewed.edit_observation,meta.wall);}
+   return clock;
+  }
   if(!row?.baseline||!row?.edit_context)throw Error('unavailable');
   if(row.edit_epoch!==epoch||row.edit_generation!==(meta.editGeneration??0)||row.edit_generation!==shared.editGeneration)throw new AuthorityFailure('denied');
   if(reviewed&&(reviewed.edit_epoch!==epoch||reviewed.edit_generation!==row.edit_generation))throw new AuthorityFailure('denied');
   editObservation(row.edit_context.read_observation,meta.wall);const clock=editObservation(row.edit_context.edit_observation,meta.wall);
-  if(reviewed){editObservation(reviewed.read_observation,meta.wall);editObservation(reviewed.edit_observation,meta.wall);}
+  if(reviewed){if(Math.min(Date.parse(reviewed.read_observation.checked_at),Date.parse(reviewed.edit_observation.checked_at))<=Math.max(meta.editDeniedAt??0,shared.editDeniedAt))throw new AuthorityFailure('denied');editObservation(reviewed.read_observation,meta.wall);editObservation(reviewed.edit_observation,meta.wall);}
   return clock;
  }
  async function editAccess(tx:IDBTransaction,capture_id:string,check:()=>void){
   const partitions=tx.objectStore('partitions'),meta=await request<any>(partitions.get(partition));check();
   const row=await request<any>(tx.objectStore('records').get(partition+'/'+capture_id));check();
+  if(row?.local_capture&&(!row.edit_context||row.saved_edit?.base_kind==='local_create')){
+   const action=await request<any>(tx.objectStore('create_actions').get(partition+'/'+row.create_action_id));check();
+   if(!supportedCreate(action)||!validCreateDelivery(action)||canonical(row.local_capture)!==canonical(localBase(action)))throw Error('unavailable');
+   const setup=await request<any>(tx.objectStore('setups').get(partition));check();Object.defineProperty(row,'pending_edit_context',{value:setup?.value,enumerable:false});
+   if(!row.pending_edit_context)throw Error('unavailable');
+  }
+  if(row?.saved_edit){const saved=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+row.saved_edit.action_id));check();if(!supported(saved)||!await originalLocalBase(tx,saved,check)||saved.capture_id!==capture_id||canonical(saved.base)!==canonical(row.saved_edit.base)||canonical(saved.changes)!==canonical(row.saved_edit.changes))throw Error('unsupported_overlay');}
   const clock=editAuthority(meta,row);partitions.put({...meta,wall:clock.now});return {row,meta,clock};
  }
  async function editOperation<T>(work:(tx:IDBTransaction,check:()=>void)=>Promise<{value:T;clock:{now:number;tick:number};validate?:()=>unknown}>,execution:Execution){
@@ -250,6 +312,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    return outcome.kind==='saved_locally'&&outcome.capture_id===action.capture_id&&outcome.operation_id===action.action_id;
   }catch{return false;}
  }
+ function localBase(action:LocalCreateIntent){const {reviewed:r}=JSON.parse(action.content);const {operation_id,command_version,capture_id,child_id,questionnaire_version_id,child_eligibility_ref,...changes}=action.pending.command;return {capture_id,org_id,owner_account_id:account_id,owner_actor_id:r.actor_id,child_id,child_label:r.child.child_label,...r.questionnaire,...changes};}
  function validateCreateReceipt(action:LocalCreateIntent,value:unknown){
   const r=object(value,['operation_id','command_type','status','command_version','result']),v=object(r.result,['capture_id','revision']);
   if(r.operation_id!==action.action_id||r.command_type!=='capture.create'||r.command_version!==1||r.status!=='committed'||v.capture_id!==action.capture_id||v.revision!=='1')throw Error('invalid_receipt');
@@ -319,6 +382,12 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
     const locked=meta?.denied||meta?.clockLocked||shared.knownLock;
     if(locked&&(!execution.restoreDenied||Date.parse(p.read_observation.checked_at)<=Math.max(meta?.lockedCheckedAt??0,shared.lockedCheckedAt,meta?.deniedAt??0,shared.deniedAt)))throw new AuthorityFailure('denied');
     const clock=sensible(p.read_observation,meta?.wall??0,!!locked);
+    observeEditGeneration(meta);
+    let restoredEditGeneration=Math.max(meta?.editGeneration??0,shared.editGeneration);
+    const editDenied=meta?.editDenied||shared.editDenied;
+    const restoreEdit=!!(p.edit_observation&&editDenied&&execution.restoreDenied&&Math.min(Date.parse(p.read_observation.checked_at),Date.parse(p.edit_observation.checked_at))>Math.max(meta?.editDeniedAt??0,shared.editDeniedAt)&&wall()<Date.parse(p.edit_observation.expires_at));
+    if(restoreEdit){editObservation(p.edit_observation,meta?.wall??0);restoredEditGeneration++;}
+    const retainEditDenial=editDenied&&!restoreEdit;
     if(p.edit_observation===null){shared.editGeneration=Math.max(shared.editGeneration,meta?.editGeneration??0)+1;shared.editDenied=true;shared.editDeniedAt=wall();}
 
     const setups=tx.objectStore('setups'),old=await request<any>(setups.get(partition));check();
@@ -354,9 +423,9 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
     const observation=!meta?.observation||meta.observation.actor_id!==p.actor_id||meta.observation.membership_id!==p.membership_id||Date.parse(p.read_observation.checked_at)>Date.parse(meta.observation.checked_at)?p.read_observation:meta.observation;
     merged.read_observation=observation;validateProvision(merged,{account_id,org_id});
     // Provision may convey an edit denial; a setup response never fabricates per-record edit context.
-    const next={...meta,key:partition,epoch,setupNonce:null,observation,wall:clock.now,denied:false,clockLocked:false,childLosses,createGenerations:generations,createDeniedAt:deniedAt,...(p.edit_observation===null?{editGeneration:shared.editGeneration,editDenied:true,editDeniedAt:shared.editDeniedAt}:{})};
+    const next={...meta,key:partition,epoch,setupNonce:null,observation,wall:clock.now,denied:false,clockLocked:false,childLosses,createGenerations:generations,createDeniedAt:deniedAt,...(p.edit_observation===null||retainEditDenial?{editGeneration:Math.max(shared.editGeneration,meta?.editGeneration??0),editDenied:true,editDeniedAt:Math.max(shared.editDeniedAt,meta?.editDeniedAt??0)}:{editGeneration:restoredEditGeneration,editDenied:false,...(restoreEdit?{editRestoredAt:Math.min(Date.parse(p.read_observation.checked_at),Date.parse(p.edit_observation!.checked_at))}:{})})};
     setups.put({key:partition,value:merged});partitions.put(next);
-    return {value:result('committed'),clock,validate:()=>{sensible(p.read_observation,clock.now,!!locked);shared.knownLock=false;shared.clockLock=false;shared.lockedCheckedAt=0;shared.deniedAt=0;for(const [key,loss] of Object.entries(childLosses))shared.childLosses.set(key,loss as ChildLoss);}};
+    return {value:result('committed'),clock,validate:()=>{sensible(p.read_observation,clock.now,!!locked);if(p.edit_observation&&!retainEditDenial){if(shared.editGeneration>restoredEditGeneration)throw new AuthorityFailure('denied');shared.editGeneration=restoredEditGeneration;shared.editDenied=false;}shared.knownLock=false;shared.clockLock=false;shared.lockedCheckedAt=0;shared.deniedAt=0;for(const [key,loss] of Object.entries(childLosses))shared.childLosses.set(key,loss as ChildLoss);}};
    },execution);
   },
   async openCreate(child_id:string,execution:Execution={}){
@@ -476,7 +545,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
      if(!old||(BigInt(context.capture.revision)>=BigInt(old.capture.revision)&&Date.parse(context.read_observation.checked_at)>=Date.parse(old.read_observation.checked_at)&&Date.parse(context.edit_observation.checked_at)>=Date.parse(old.edit_observation.checked_at)))records.put({...row,edit_context:context,edit_epoch:epoch,edit_generation:restoredGeneration});
      const observation=!meta?.observation||Date.parse(context.read_observation.checked_at)>Date.parse(meta.observation.checked_at)?context.read_observation:meta.observation;
      editObservation(context.read_observation,meta?.wall??0);editObservation(context.edit_observation,meta?.wall??0);check();
-     partitions.put({...meta,key:partition,epoch,observation,wall:clock.now,editGeneration:restoredGeneration,editDenied:false});
+     partitions.put({...meta,key:partition,epoch,observation,wall:clock.now,editGeneration:restoredGeneration,editDenied:false,...(denied?{editRestoredAt:Math.min(Date.parse(context.read_observation.checked_at),Date.parse(context.edit_observation.checked_at))}:{})});
      return {value:result('committed'),clock,validate:()=>{if(shared.editGeneration>restoredGeneration)throw new AuthorityFailure('denied');editObservation(context.read_observation,clock.now);editObservation(context.edit_observation,clock.now);shared.editGeneration=restoredGeneration;shared.editDenied=false;}};
     },execution);
    }catch{return result('unavailable');}
@@ -485,11 +554,14 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    if(!id(capture_id))return result('unavailable');
    return editOperation(async(tx,check)=>{
     const {row,meta,clock}=await editAccess(tx,capture_id,check);
+    if(row.pending_edit_context&&!row.saved_edit&&row.baseline&&row.baseline.revision!=='1')throw Error('current_context_required');
     // A refresh can update the baseline, never the base of already saved local work.
-    const reviewed:ReviewedEdit=freeze(structuredClone({account_id,org_id,capture_id,base:row.saved_edit?.base??row.baseline,
-     capture:row.saved_edit?{...row.saved_edit.base,...row.saved_edit.changes}:row.baseline,
-     edit_epoch:epoch,edit_generation:row.edit_generation,predecessor_action_id:row.saved_edit?.action_id??null,baseline_revision:row.baseline.revision,
-     read_observation:row.edit_context.read_observation,edit_observation:row.edit_context.edit_observation}));
+    const local=!!row.pending_edit_context,context=local?row.pending_edit_context:row.edit_context;
+    const reviewed:ReviewedEdit=freeze(structuredClone({account_id,org_id,capture_id,base:row.saved_edit?.base??(local?row.local_capture:row.baseline),
+     capture:row.saved_edit?{...row.saved_edit.base,...row.saved_edit.changes}:(local?row.local_capture:row.baseline),
+     edit_epoch:epoch,edit_generation:local?(meta.editGeneration??0):row.edit_generation,predecessor_action_id:row.saved_edit?.action_id??(local?row.create_action_id:null),baseline_revision:row.baseline?.revision??null,
+     ...(local?{version:2,base_kind:'local_create',predecessor:{type:row.saved_edit?'capture.edit':'capture.create',action_id:row.saved_edit?.action_id??row.create_action_id}}:{}),
+     read_observation:context.read_observation,edit_observation:context.edit_observation}));
     reviews.add(reviewed);return {value:Object.freeze({kind:'opened' as const,reviewed}),clock,validate:()=>editAuthority(meta,row)};
    },execution);
   },
@@ -503,7 +575,7 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
     if(changes.answers&&typeof changes.answers==='object'&&!Array.isArray(changes.answers))for(const q of r.base.definition.questions){
      const answer=changes.answers[q.id];if(q.type==='boolean'&&answer&&answer.value===false&&Object.hasOwn(answer,'details'))delete answer.details;
     }
-    validateDetail({...structuredClone(r.base),...changes},{account_id,org_id,capture_id:r.capture_id});
+    if(r.version===2){if(!date(changes.observation_date))throw Error('invalid_date');validateAnswers(r.base.definition,changes.answers);}else validateDetail({...structuredClone(r.base),...changes},{account_id,org_id,capture_id:r.capture_id});
     const command=JSON.stringify({operation_id:action_id,command_version:1,expected_revision:'9223372036854775807',...changes});
     strictJSON(command);if(new TextEncoder().encode(command).byteLength>131072)return result('invalid');
    }catch{return result('invalid');}
@@ -513,18 +585,18 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
     editAuthority(meta,row,r);
     const key=partition+'/'+action_id,content=canonical({reviewed:r,input:changes}),existing=await request<any>(actions.get(key));check();
     const validate=()=>editAuthority(meta,row,r);validate();
-    if(existing){if(existing.content!==content)return {value:result('action_id_reused'),clock};return {value:freeze(structuredClone(existing.result)),clock,validate};}
+    if(existing){if(existing.content!==content)return {value:result('action_id_reused'),clock};if(r.version===2&&(existing.version!==2||!supportedAction(existing)||!await originalLocalBase(tx,existing,check)))return {value:result('unavailable'),clock,validate};return {value:freeze(structuredClone(existing.result)),clock,validate};}
     const createIdentity=await request<any>(tx.objectStore('create_actions').get(key));check();
     if(createIdentity)return {value:result('action_id_reused'),clock,validate};
     if(!reviews.has(reviewed as object))return {value:result('unavailable'),clock};
-    const progress=row.baseline.revision===r.base.revision||await ownProgress(tx,row,check);
-    const stale=(row.saved_edit?.action_id??null)!==r.predecessor_action_id||row.baseline.revision!==r.baseline_revision||!progress||row.edit_status==='Needs attention'||!!row.pending||!!row.conflict;
+    const progress=r.version===2?(!row.baseline||await ownProgress(tx,row,check)):row.baseline.revision===r.base.revision||await ownProgress(tx,row,check);
+    const stale=(row.saved_edit?.action_id??(r.version===2?row.create_action_id:null))!==r.predecessor_action_id||(row.baseline?.revision??null)!==r.baseline_revision||!progress||row.edit_status==='Needs attention'||!!row.pending||!!row.conflict;
     const outcome=Object.freeze({kind:stale?'needs_attention' as const:'saved_locally' as const,action_id});
-    const intent={key,partition,version:1,type:'capture.edit',action_id,capture_id:r.capture_id,content,base:r.base,changes,
+    const intent={key,partition,version:r.version===2?2:1,...(r.version===2?{base_kind:'local_create',predecessor:r.predecessor}:{}),type:'capture.edit',action_id,capture_id:r.capture_id,content,base:r.base,changes,
      predecessor_action_id:r.predecessor_action_id,expected_revision:r.predecessor_action_id===null?r.base.revision:null,
      read_observation:r.read_observation,edit_observation:r.edit_observation,status:stale?'Needs attention':'Pending',result:outcome};
     validate();actions.add(intent);
-    if(!stale)tx.objectStore('records').put({...row,saved_edit:{action_id,base:r.base,changes},edit_status:'Pending'});
+    if(!stale)tx.objectStore('records').put({...row,saved_edit:{action_id,base:r.base,changes,...(r.version===2?{base_kind:'local_create'}:{})},edit_status:'Pending'});
     return {value:outcome,clock,validate};
    },execution);
   },
@@ -535,9 +607,9 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    return editOperation<Readonly<{kind:'missing'|'blocked'}>|Frozen<{kind:'prepared';pending:PreparedEdit;serialized:string}>>(async(tx,check)=>{
     const {clock,validate}=await readAccess(tx,check);
     const action=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+pin.action_id));check();validate();
-    if(!supported(action))return {value:result('blocked'),clock,validate};
+    if(!supported(action)||!await originalLocalBase(tx,action,check))return {value:result('blocked'),clock,validate};
     if(!action.delivery)return {value:result('missing'),clock,validate};
-    if(!prepared(action)||action.delivery.conflict)return {value:result('blocked'),clock,validate};
+    if(!await checkedPrepared(tx,action,check)||action.delivery.conflict)return {value:result('blocked'),clock,validate};
     return {value:freeze({kind:'prepared' as const,pending:action.delivery.pending,serialized:action.delivery.serialized}),clock,validate};
    },execution);
   },
@@ -557,21 +629,26 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    if(!id(action_id))return result('invalid');
    return editOperation<Readonly<{kind:'blocked'|'invalid'}>|Frozen<{kind:'prepared';pending:PreparedEdit;serialized:string}>>(async(tx,check)=>{
     const actions=tx.objectStore('edit_actions'),action=await request<any>(actions.get(partition+'/'+action_id));check();
-    if(!supported(action)){const {clock,validate}=await readAccess(tx,check);return {value:result('blocked'),clock,validate};}
+    if(!supported(action)||!await originalLocalBase(tx,action,check)){const {clock,validate}=await readAccess(tx,check);return {value:result('blocked'),clock,validate};}
     const {row,meta,clock}=await editAccess(tx,action.capture_id,check),validate=()=>editAuthority(meta,row);validate();
     if(action.delivery){
-     if(!prepared(action)||action.delivery.conflict)return {value:result('blocked'),clock,validate};
+     if(!await checkedPrepared(tx,action,check)||action.delivery.conflict)return {value:result('blocked'),clock,validate};
      return {value:freeze({kind:'prepared' as const,pending:action.delivery.pending,serialized:action.delivery.serialized}),clock,validate};
     }
     if(row.pending||row.conflict||row.edit_status==='Needs attention')return {value:result('blocked'),clock,validate};
-    if(row.baseline.revision!==action.base.revision&&!await ownProgress(tx,row,check)){
+    if((action.version===2?!!row.baseline:row.baseline.revision!==action.base.revision)&&!await ownProgress(tx,row,check)){
      validate();tx.objectStore('records').put({...row,edit_status:'Needs attention'});
      return {value:result('blocked'),clock,validate};
     }
     let expected_revision=action.expected_revision;
-    if(action.predecessor_action_id!==null){
+    if(action.version===2&&action.predecessor.type==='capture.create'){
+     if(row.create_action_id!==action.predecessor.action_id)return {value:result('blocked'),clock,validate};
+     const parent=await request<any>(tx.objectStore('create_actions').get(partition+'/'+action.predecessor.action_id));check();validate();
+     if(!supportedCreate(parent)||!validCreateDelivery(parent)||parent.capture_id!==action.capture_id||!parent.delivery?.receipt)return {value:result('blocked'),clock,validate};
+     expected_revision=parent.delivery.receipt.result.revision;
+    }else if(action.predecessor_action_id!==null){
      const parent=await request<any>(actions.get(partition+'/'+action.predecessor_action_id));check();validate();
-     if(!prepared(parent)||parent.capture_id!==action.capture_id||parent.delivery.conflict||!parent.delivery.receipt)return {value:result('blocked'),clock,validate};
+     if(!await checkedPrepared(tx,parent,check)||parent.capture_id!==action.capture_id||parent.delivery.conflict||!parent.delivery.receipt)return {value:result('blocked'),clock,validate};
      expected_revision=parent.delivery.receipt.result.revision;
     }
     if(!decimal(expected_revision))return {value:result('blocked'),clock,validate};
@@ -631,13 +708,23 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   /** Current denial affects editing only; a newer explicit context import restores it. */
   async denyEdit(pinned:Readonly<{account_id:string;org_id:string}>={account_id,org_id},execution:Execution={}){
    if(pinned.account_id!==account_id||pinned.org_id!==org_id)return result('unavailable');
-   return editOperation(async(tx,check)=>{
+   try{if(!current()||execution.signal?.aborted||execution.isCurrent&&execution.isCurrent()!==true)return result('unavailable');}catch{return result('unavailable');}
+   const previous={generation:shared.editGeneration,denied:shared.editDenied,deniedAt:shared.editDeniedAt};
+   const provisional={generation:previous.generation+1,deniedAt:Math.max(previous.deniedAt,wall())};
+   shared.editGeneration=provisional.generation;shared.editDenied=true;shared.editDeniedAt=provisional.deniedAt;
+   const outcome=await editOperation(async(tx,check)=>{
     const store=tx.objectStore('partitions'),meta=await request<any>(store.get(partition));check();
-    if((meta?.epoch??0)!==epoch)throw Error('superseded');
-    shared.editGeneration=Math.max(shared.editGeneration,meta?.editGeneration??0)+1;shared.editDenied=true;shared.editDeniedAt=wall();
+    if((meta?.epoch??0)!==epoch){
+     // Retract only this invocation's provisional negative. Never clear another
+     // denial or restoration observed while the epoch check was queued.
+     if(shared.editGeneration===provisional.generation&&shared.editDeniedAt===provisional.deniedAt){shared.editGeneration=previous.generation;shared.editDenied=previous.denied;shared.editDeniedAt=previous.deniedAt;}
+     throw Error('superseded');
+    }
+    shared.editGeneration=Math.max(shared.editGeneration,meta?.editGeneration??0)+1;shared.editDenied=true;shared.editDeniedAt=Math.max(shared.editDeniedAt,wall());
     store.put({...meta,key:partition,epoch,editGeneration:shared.editGeneration,editDenied:true,editDeniedAt:shared.editDeniedAt});
     return {value:result('denied'),clock:{now:wall(),tick:mono()}};
    },execution);
+   return outcome;
   },
   /** Retained completed proposals are readable under own-read, including after edit denial. */
   async readEditActions(bounds:Readonly<{limit?:number;after?:string}>={},execution:Execution={}){

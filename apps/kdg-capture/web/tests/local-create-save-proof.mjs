@@ -39,7 +39,7 @@ try{
   const actions=await s.readCreateActions();ok(actions.kind==='available'&&actions.actions.length===1,'reopened_one_create_action');
   ok(actions.actions[0].pending.command.operation_id===ids.operation_id&&actions.actions[0].pending.command.answers[Q].value===1,'original_generated_create_command');
   const history=await s.read();ok(history.records.length===1&&!history.records[0].baseline&&history.records[0].local_capture.answers[Q].value===1,'local_content_without_server_provenance');
-  ok((await s.openEdit(ids.capture_id)).kind==='unavailable','pending_create_not_server_edit');
+  const pendingEdit=await s.openEdit(ids.capture_id);ok(pendingEdit.kind==='opened'&&pendingEdit.reviewed.version===2&&pendingEdit.reviewed.base_kind==='local_create'&&!Object.hasOwn(pendingEdit.reviewed.base,'revision')&&!Object.hasOwn(pendingEdit.reviewed.base,'created_at')&&!Object.hasOwn(pendingEdit.reviewed.base,'created_by')&&!history.records[0].baseline,'pending_create_local_edit_without_server_facts');
   ok((await s.saveCreate(opened.reviewed,ids,input)).kind==='saved_locally'&&(await s.readCreateActions()).actions.length===1,'same_attempt_retry_after_reopen');
   ok((await s.saveCreate(opened.reviewed,ids,{...input,answers:{[Q]:{value:2}}})).kind==='action_id_reused','changed_retry_refused');s.close();return checks;
  });checks.push(...out);
