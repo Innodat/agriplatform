@@ -1,3 +1,29 @@
+## Current delivery — explicit confirmed-server conflict decisions, 2026-10-26
+
+Read [conflict-resolution evidence](CONFLICT_RESOLUTION_EVIDENCE.md), its
+[machine record](evidence/conflict-resolution-20261026.json) and current [contracts](contracts.md).
+Unmounted review/decision consumers support use-current under own-read and a new
+reviewed replacement through existing conditional edit delivery. Original proposals,
+commands and descendants remain retained; dispositions and decisions commit together.
+Final qualification passes22 source-bound commands (282 focused/77 actual HTTP
+checks and all20 previous regression/parity commands). Two review rounds complete:
+21 findings addressed, five rejected with evidence, none deferred.
+Committed decisions recover under own-read before fresh write checks, including after
+server progress/edit denial; actual revoked edit authority refuses new replacements.
+Local schema4 remains isolated; coordinated browser update/recovery proof is required
+before activation. No complete Story2.3 or release readiness is claimed.
+
+Continue ready authorized work without routine next/approval stops. Next extend explicit
+conflict decisions to same-phone unprepared and pending-create proposals, preserving
+original create bytes and actual receipt predecessors. Synthetic local/CI only:
+no UI/editor/Leave, active sender/queue/claims/scheduling/browser/service-worker/default-
+startup, real accounts/Auth/Access, native PostgreSQL/Docker, provisioning/migrations,
+deployment/production/pilot or cleanup. Preserve historical evidence, concurrent work/
+resources and TS7.0.2. Fingerprints/HMAC remain deferred. Never read/run/copy/hash the
+preexisting untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — pending-create local edits, 2026-10-26
 
 Read [pending-create edit evidence](PENDING_CREATE_EDIT_EVIDENCE.md), its

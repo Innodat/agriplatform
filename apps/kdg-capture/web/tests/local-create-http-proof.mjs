@@ -97,7 +97,7 @@ try{
    };
    globalThis.setupPersistenceDeadline=async phase=>{
     const target=await openHistoryStore(scope,{database:'actual-create-save'});
-    const raw=await new Promise((resolve,reject)=>{const q=indexedDB.open('actual-create-save',3);q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error);});
+    const raw=await new Promise((resolve,reject)=>{const q=indexedDB.open('actual-create-save');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error);});
     const snapshot=()=>new Promise((resolve,reject)=>{const tx=raw.transaction('setups','readonly'),q=tx.objectStore('setups').get(scope.account_id+'/'+scope.org_id);q.onsuccess=()=>resolve(JSON.stringify(q.result));q.onerror=()=>reject(q.error);});
     const before=await snapshot();let blocker,active=false,seen=false,release=()=>{},fallbackTimer;
     const wrapped={...target,[phase==='import'?'importProvision':'denySetup']:(...args)=>{seen=true;return target[phase==='import'?'importProvision':'denySetup'](...args);}};

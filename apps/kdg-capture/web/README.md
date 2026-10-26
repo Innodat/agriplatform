@@ -346,3 +346,11 @@ Use the explicit delivery entries after predecessor receipts resolve. This is un
 synthetic functionality; see [evidence](../docs/PENDING_CREATE_EDIT_EVIDENCE.md).
 Retained Node26.11.1/TS7.0.2 are required for `tests/pending-create-edit-proof.mjs` and
 `tests/pending-create-edit-http-proof.mjs`; no install or startup activation is needed.
+
+
+Explicit confirmed-server conflict resolution is unmounted. It reuses current own
+read/edit-context and conditional PUT, retaining original proposals and paused
+branches. See [evidence](../docs/CONFLICT_RESOLUTION_EVIDENCE.md). New local schema4
+is isolated and requires browser update/recovery qualification before activation.
+Use retained Node26.11.1/TS7.0.2 for `tests/conflict-resolution-proof.mjs` and
+`tests/conflict-resolution-http-proof.mjs`; no dependency installation or API override.

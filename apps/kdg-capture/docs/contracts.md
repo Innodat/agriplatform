@@ -1500,3 +1500,54 @@ See [pending-create edit evidence](PENDING_CREATE_EDIT_EVIDENCE.md) and its
 [machine record](evidence/pending-create-edit-20261026.json) for exact qualification,
 review, requirement-to-test mapping and limits. Ordinary release compatibility,
 controlled migrations before activation and explicit recovery remain binding.
+
+
+## Explicit confirmed-server own conflict decisions — 2026-10-26
+
+The unmounted `createConflictResolutionEntry` offers `review(pin, mode)`,
+`useCurrent(reviewed, decision_id)` and `saveReplacement(reviewed, decision_id,
+action_id, changes)`. Pin account/org/capture/source_action_id. Current review fetches
+actual authorized detail; replacement review fetches current exact own-edit context.
+Decision invocation owns a new bounded Auth lease and rechecks actual current state.
+No transaction or execution lease spans human review. Total30seconds default/max;
+each HTTP phase gets at most10seconds/remaining, including final publication/release.
+
+The store provides `openConflict`, `lookupResolution`, `useCurrent`,
+`saveConflictReplacement` and bounded `readResolutions`. This subset requires a known server-backed v1 edit409, the active
+head within its branch and fully interpreted capture actions. Any unknown prepared
+outcome blocks competing decisions; unresolved lookup cannot prove no in-flight commit.
+Known off-head proposals remain retained. Original content/status/command bytes,
+predecessors, receipts and create intent are immutable. Derived descendant dispositions
+are separate local metadata; descendants are paused, never silently replayed/included.
+
+Use-current requires own-read only and creates no server write/revision. Replacement
+validates the complete original-version result, creates a new operation pinned to the
+reviewed server revision and uses ordinary edit delivery/recovery/readback. Fresh
+current context cannot renew the original review's expiry. Neither detail nor entry
+context fabricates a seven-day offline observation; retain valid existing own-read or
+use the existing setup/history refresh. Decision/action/overlay/dispositions commit
+atomically under current head/baseline/generation CAS. Exact decision retry is idempotent;
+changed identity/content is rejected. Unknown/malformed decisions remain retained and
+blocked. Late old outcomes cannot revive resolved branches or clear newer proposals.
+
+The coordinator performs own-read `lookupResolution` before HTTP or authority required
+for a new replacement. Immutable identity uses the original reviewed decision and
+normalized complete input, excluding newly fetched detail/permission timestamps.
+A committed decision remains recoverable after server/baseline progress, edit denial
+and reopen; recovery verifies retained source, linked replacement, dispositions and
+generation. Missing or contradictory effects refuse success. New decisions still
+require fresh current-state checks, branding and CAS. An unavailable own-read probe
+after edit403 does not prove read denial; only actual applicable read403 locks it.
+
+Isolated local schema4 adds immutable `resolutions` and capture indexes without
+resetting existing/opaque rows. Older connections close and schema3 code refuses4,
+preventing bypass of new disposition fences. Activation requires coordinated browser
+update/compatibility/recovery qualification; no default-startup upgrade or release
+readiness is claimed. Conflict review and decision recovery refuse captures with
+over100 retained actions or unsupported/incomplete state, without partial decisions
+or deleting history. Same-phone unprepared and
+pending-create conflict decisions are the next technical subset.
+
+See [conflict-resolution evidence](CONFLICT_RESOLUTION_EVIDENCE.md) and its
+[machine record](evidence/conflict-resolution-20261026.json). Existing API/DB release
+safeguards remain binding; no new endpoint or conflict/override service is introduced.
