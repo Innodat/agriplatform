@@ -172,3 +172,17 @@ test('body limit counts cumulative UTF-8 bytes at 16384, including split multiby
   await tick();assert.equal(cancelled,1);
  }
 });
+
+test('a delegated predicate aborting synchronously blocks dispatch',async()=>{
+ const owner=new AbortController();let calls=0;
+ assert.deepEqual(await read(async()=>{calls++;return response(receipt());},{signal:owner.signal,isCurrent:()=>{owner.abort();return true;}}),{kind:'cancelled'});
+ assert.equal(calls,0);
+});
+test('a delegated predicate aborting synchronously blocks final publication',async()=>{
+ for(const status of [200,403]){
+  const owner=new AbortController();let arm=false;
+  const res=response(status===200?receipt():{error:'private',error_id:'access_denied'},status);
+  Object.defineProperty(res,'status',{get(){arm=true;return status;}});
+  assert.deepEqual(await read(async()=>res,{signal:owner.signal,isCurrent:()=>{if(arm)owner.abort();return true;}}),{kind:'cancelled'});
+ }
+});

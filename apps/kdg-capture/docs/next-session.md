@@ -1,3 +1,38 @@
+## Current delivery — unconnected own-edit request adapter, 2026-10-26
+
+Read [adapter evidence](EDIT_ADAPTER_EVIDENCE.md), [source-bound record](evidence/edit-adapter-20261026.json)
+and [contracts](contracts.md). `editCapture` now sends one pinned generated edit command
+through the fixed own-API PUT. Only matching original operation/capture v1 receipts
+acknowledge; safe typed409 conflicts expose current_revision without upstream content.
+Serialized nested input/bearer/identity and caller-owned cancellation/generation fences
+remain pinned. One monotonic deadline covers preflight through strict bounded response;
+late/mismatched/cancelled/failing results preserve caller input and never assert rollback.
+
+Post-review54 edit and41 recovery cases pass (95 across the two edited test files).
+Companion recovery characterization and the small predicate-before-signal fix prevent
+synchronous delegated callbacks from dispatching or publishing after cancellation.
+Initial rejected edit leases skip payload traversal; direct undefined answer entries
+refuse while omitted optional details remain valid. HTTP201/202 and concurrent operations
+are covered. Synchronous JSON preflight cannot be preempted or heap-bounded; the byte
+ceiling is checked after serialization and an elapsed deadline prevents transport.
+Fresh reconstructed stub/deadline/status mutants retain exact sources and patches;
+original logs/capsules remain historical. Root final verification passes124 affected
+edit/recovery/entry tests, strict TypeScript7.0.2 edit/recovery configs and all three
+scaffold parity checks. Three independent review layers completed; nine addressed, none deferred.
+Backend/generated contracts, Auth/entry, shared UI/context/ADR and dependencies stay
+unchanged. Evidence includes root verification and review triage; scoped local commit follows.
+
+Future consuming work must bind this adapter to the existing Auth/entry execution lease,
+without a second lifecycle. Browser/editor/queue and active API startup adoption remain
+separate, as do real Identity/Access, native contention/cancellation/TCP drain and ADR-0020
+release gates. No automatic retry/recovery, new identity, queue/store mutation or Synced
+feedback is implemented. Cancellation after dispatch may still commit. No Docker/native,
+Leave/editor, migration/provisioning, deployment/production/pilot or cleanup occurred.
+Concurrent work, historical evidence/resources and approved dependencies are preserved;
+fingerprints/HMAC remain deferred.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — reviewed native candidate own-edit HTTP, 2026-10-25
 
 Read [native evidence](NATIVE_EDIT_HTTP_EVIDENCE.md), [source-bound record](evidence/native-edit-http-20261025.json)

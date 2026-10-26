@@ -1,0 +1,471 @@
+{
+  "date": "2026-10-26",
+  "baseline_commit": "05e4b70e70ef88833f38adacf5e4d20015faa3ca",
+  "scope": "unconnected candidate own-edit request adapter; synthetic local verification only",
+  "commands": [
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/atdd-red.log",
+      "exit_code": 1,
+      "qualification": "Initial child isolation infrastructure failure; not acceptance RED",
+      "log_sha256": "9c4a5e5b96927113efa093116310c955ef7ac4462927c40c20c3cab0437ba41a"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/atdd-behavior-red.log",
+      "exit_code": 1,
+      "qualification": "Explicit non-dispatching acceptance stub; 45 tests, 44 fail, 1 pass",
+      "log_sha256": "ee5a3877654b71dc1c97bdca124dec34d2d870c8e1bcffec7d554f689fa131da"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/edit-first.log",
+      "exit_code": 0,
+      "qualification": "First implementation;45 passing tests",
+      "log_sha256": "89dca919b568ce300a7304d1e59949b65e191321af401025fb0f74de27dc4714"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/edit-final.log",
+      "exit_code": 0,
+      "qualification": "Final focused suite;48 passing tests",
+      "log_sha256": "696e0c31187c6e5a9408eac8a80001080736a6dca68ace95df0e6ccfcdf8a569"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs apps/kdg-capture/web/tests/entry.test.mjs apps/kdg-capture/web/tests/recovery-entry.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/regression.log",
+      "exit_code": 1,
+      "qualification": "Optional compiled recovery-entry test needs its existing auth-proof harness;116 direct-source tests passed, compiled-module import failed",
+      "log_sha256": "2de8f57e6f38f551f51e3ca6362141acdcd3c5d4cab79a2b68ed0858f41f4391"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs apps/kdg-capture/web/tests/entry.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/regression-final.log",
+      "exit_code": 0,
+      "qualification": "116 passing affected tests",
+      "log_sha256": "a48809bb8f23eb95f7202ae5f1a9cc789640ac6aa3bc0260872307577e6fff21"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none --test-name-pattern=serialization\\ uses\\ the\\ original\\ deadline apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/preflight-deadline-red.log",
+      "exit_code": 1,
+      "qualification": "Negative control: remove only preflight monotonic guard; unwanted transport call observed",
+      "log_sha256": "f5ded171fdd7e346c94ed8da6cfc78df7267b270ec7aac78ec375cc4ad3aa7d7"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none --test-name-pattern='serialization uses the original deadline' apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/preflight-deadline-green.log",
+      "exit_code": 0,
+      "qualification": "Guard restored; zero transport calls",
+      "log_sha256": "280763c0ec68c8fe53b072839819c160750acbc64a46690dedadccdb42135b49"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.edit.json",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/types-edit.log",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.recovery.json",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/types-recovery.log",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/parity-write.log",
+      "exit_code": 0,
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/parity-database.log",
+      "exit_code": 0,
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/parity-native-database.log",
+      "exit_code": 0,
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --version",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/typescript-version.log",
+      "exit_code": 0,
+      "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red.log",
+      "exit_code": 1,
+      "qualification": "Initial post-review regressions before test separation",
+      "log_sha256": "832d00651f225b80c0d92124a8f1deab5cde7043c47451ef8e696001aee0aa0c"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red-final.log",
+      "exit_code": 1,
+      "qualification": "Six regression failures: edit/recovery dispatch/publication race, rejected-lease traversal, undefined direct answers",
+      "log_sha256": "bcf6a0ab4a6359a50ee2eeb593a56d71152c92505f42215c28f74f574c88c575"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-green.log",
+      "exit_code": 0,
+      "qualification": "95 cases pass after corrections",
+      "log_sha256": "3f70190fc8beaa59f9a1f8ef619994012a679bc4aacb22ab0b7eb37f03425995"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-final.log",
+      "exit_code": 0,
+      "qualification": "95 cases pass, including omitted optional details and explicit nested details:undefined",
+      "log_sha256": "6a6b525f13cb92171a6950b4df1a57c715c4d710169485095ed50fda0092d3e0"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=one own edit pins the original command' apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.log",
+      "exit_code": 1,
+      "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+      "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.ts",
+      "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.patch",
+      "log_sha256": "18a37489becb1b30fcb261884bebcaa7a23a2c2f70797adcfac73c061277a63a"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=only HTTP 200 can acknowledge' apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.log",
+      "exit_code": 1,
+      "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+      "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.ts",
+      "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.patch",
+      "log_sha256": "d5271033836f28206f0ad1dba96049f44fa7f569255c212bfd4541eb1531a23e"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=serialization uses the original deadline' apps/kdg-capture/web/tests/edit.test.mjs",
+      "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.log",
+      "exit_code": 1,
+      "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+      "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.ts",
+      "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.patch",
+      "log_sha256": "f8d3b1d96e0126d77126a95bc832f6c5efae2b0a7954fae234658a9bee271b39"
+    }
+  ],
+  "source_capsule": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/source",
+  "source_sha256": {
+    "apps/kdg-capture/web/src/edit.ts": "8152eb223ddcfcb5f55387ceeb69679faaaaabca808d70268e5026b541525602",
+    "apps/kdg-capture/web/tests/edit.test.mjs": "3f0cf3f1bac7c74fc4822b137f02948d562283cc4d377ab0a07d6d149cabf88d",
+    "apps/kdg-capture/web/tests/edit.types.ts": "930a3e02587bab1ea8bded8f3bd60f9578c1e367dc521aee7a0d7b831d08e899",
+    "apps/kdg-capture/web/tsconfig.edit.json": "58c5c0f17361c530bee4cb34e86e28f8541a87cf7b612d47f35f1179d3c3670d",
+    "apps/kdg-capture/web/src/recovery.ts": "e9661858c884447f06fd52ce98d37858797072f1011922e7416e756ceda4ea08",
+    "apps/kdg-capture/web/src/entry.ts": "78379ca3bcc3c84f856750c2d62506fe4784f6b5ab9bfc3a594ed3aff02660a5",
+    "apps/kdg-capture/web/src/recovery-entry.ts": "39f5a15079e12938e38369ef49a8da23c073a9e7317ba64c246e307f140037a1",
+    "apps/kdg-capture/web/tsconfig.recovery.json": "41dc1afab18eb0dbba97a39a26b680bff6a88c683515378135da14bc8e0290c0",
+    "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+    "apps/kdg-capture/contracts/edit-generated/types.gen.ts": "beb6d0ec1cacc54b980f01d51ed5f4ee074be91ed7d6ebeb1333b63004dd36c9",
+    "apps/kdg-capture/write-candidate/edit-openapi.json": "a0b7b2463ad8aa6a7c5de228ca6356e3789cf8507c4c15f105b8b0855a301375",
+    "apps/kdg-capture/docs/EDIT_ADAPTER_EVIDENCE.md": "8b04221183db87000a7ef61096788fc636d596e808a68251da3015a36185f3ac",
+    "apps/kdg-capture/docs/contracts.md": "8ffa252da1138e52f9e7a60f3de48bc08d7640cab434efe9381c9aab1ad1c8e0",
+    "apps/kdg-capture/docs/next-session.md": "99cd8252811500724c416ef979095af51a5429fbb779b4e1792839c7a1fa7aac",
+    "apps/kdg-capture/AGENTS.md": "bef60bbfc0f0ebe49859da1c48c5a68e433627931f544989f73ff6ab6519a6f9",
+    "apps/kdg-capture/web/tests/recovery.test.mjs": "bd0d62e29a9e4bb1489770260d44a4a978207135bbd5261204910394dadc92cd"
+  },
+  "frozen_spec_intent_sha256": "e3f65b0ba2c88e516b997c331c57a78eed23ab7e6e8d20c05604fbad6e29a86c",
+  "checks": {
+    "focused_edit_tests": 54,
+    "focused_recovery_tests": 41,
+    "edited_test_files_total": 95,
+    "post_review_regression_failures_before_fix": 6,
+    "fresh_negative_controls_failed": 3,
+    "negative_type_cases": 8,
+    "final_full_affected_types_and_parity": "passed; exact commands and logs in root_final_verification",
+    "affected_tests": 124,
+    "strict_edit_and_recovery": true,
+    "three_scaffold_parity_checks": true,
+    "full_final_verification": "passed"
+  },
+  "historical_preservation": {
+    "contracts_original_bytes": 72339,
+    "contracts_original_sha256": "2989869e2cfa0f810a9765ff0fd13072ea1cafcc41b75dedf16924833c08cebe",
+    "contracts_prefix_unchanged": true,
+    "handoff_original_bytes": 218156,
+    "handoff_original_sha256": "d953786a94f428530316e8e8f59fbe08593ec4f36af07b15dd416dd644da7da9",
+    "handoff_suffix_unchanged": true
+  },
+  "traceability": {
+    "valid_pinned_edit": [
+      "one own edit pins the original command",
+      "snapshot pins serialized nested answers",
+      "request byte ceiling"
+    ],
+    "receipt_identity_closed_shape_revision": [
+      "rejects wrong_operation",
+      "rejects wrong_command",
+      "receipt target must match",
+      "rejects overflow",
+      "rejects extra_result"
+    ],
+    "typed_conflict_safe_error_pairs": [
+      "conflict exposes only required typed exact current revision",
+      "all generated status/id variants",
+      "edit.types.ts"
+    ],
+    "invalid_preflight_no_transport": [
+      "invalid account, selectors",
+      "invalid request identity/revision/options",
+      "request byte ceiling"
+    ],
+    "current_execution_fence": [
+      "stale generations and cancellation",
+      "pre-cancelled/stale/failed leases",
+      "body-phase cancellation/staleness",
+      "stale and throwing fences suppress late network failures"
+    ],
+    "deadline_body_bounds_cleanup": [
+      "one deadline bounds headers/body",
+      "empty microtask chunks",
+      "body limit counts cumulative UTF-8",
+      "rejected response metadata and late headers",
+      "serialization uses the original deadline"
+    ],
+    "strict_response_parser": [
+      "malformed bytes, duplicate/escaped duplicate keys",
+      "duplicate scanning accepts ordinary escaped message text",
+      "redirects, missing bodies, extra/nested unsafe errors"
+    ],
+    "no_mutation_retry_or_absence_claim": [
+      "all failures preserve the caller command",
+      "network failures do not expose exceptions",
+      "snapshot pins serialized nested answers"
+    ],
+    "review_cancellation_race": [
+      "edit/recovery: a delegated predicate aborting synchronously blocks dispatch",
+      "edit/recovery: a delegated predicate aborting synchronously blocks final publication"
+    ],
+    "review_preflight_and_missing_answers": [
+      "rejected initial leases do not traverse command getters or answer toJSON",
+      "undefined answer entries refuse without dropping input; omitted optional details remain valid"
+    ],
+    "review_status_and_concurrency": [
+      "only HTTP 200 can acknowledge an otherwise valid matching receipt",
+      "concurrent operations keep independent cancellation, receipts and late-body disposal",
+      "all generated status/id variants are mapped without upstream messages"
+    ]
+  },
+  "impact": {
+    "scaffold": "KDG edit/recovery delegated-callback race corrected locally; scaffold Auth lease uses a pure captured-state predicate and has no corresponding callback race; existing template/code/test parity passes",
+    "shared_ui": "none",
+    "agent_context": "none",
+    "documentation": "evidence/record; append-only contracts; prepended handoff",
+    "adr": "none"
+  },
+  "unchanged_owners": [
+    "generated edit schema/types",
+    "backend",
+    "Auth/entry",
+    "dependencies; TypeScript7.0.2"
+  ],
+  "limitations": [
+    "No actual Auth/session lifecycle integration or real Identity/Access authority",
+    "No Docker/native/database/browser/editor/queue/startup activation, deployment, production/pilot, migration/provisioning or cleanup",
+    "No new backend/native suite claim; backend sources unchanged",
+    "Optional compiled recovery-entry proof was not rerun through its auth-proof harness",
+    "Abort and body disposal are best effort; requests cancelled/timed out after dispatch may still commit",
+    "No retry/recovery/refresh/new identity/store mutation/Synced feedback; fingerprints/HMAC deferred",
+    "Synchronous JSON preflight cannot be preempted or heap-bounded; byte ceiling is post-serialization"
+  ],
+  "pre_review_source_sha256": {
+    "apps/kdg-capture/web/src/edit.ts": "d5c809e39be50864ee9e4e5b95d9901133073440afbcb83dbfdca45c46effb65",
+    "apps/kdg-capture/web/tests/edit.test.mjs": "e639b350a92d7add5766f023439f9c6a8deb728b97c19b73e51dbd7091259335",
+    "apps/kdg-capture/web/tests/edit.types.ts": "930a3e02587bab1ea8bded8f3bd60f9578c1e367dc521aee7a0d7b831d08e899",
+    "apps/kdg-capture/web/tsconfig.edit.json": "58c5c0f17361c530bee4cb34e86e28f8541a87cf7b612d47f35f1179d3c3670d",
+    "apps/kdg-capture/web/src/recovery.ts": "6650516a48005191c18f6e16751755876829de0100255c866457c4404fbbdf40",
+    "apps/kdg-capture/web/src/entry.ts": "78379ca3bcc3c84f856750c2d62506fe4784f6b5ab9bfc3a594ed3aff02660a5",
+    "apps/kdg-capture/web/src/recovery-entry.ts": "39f5a15079e12938e38369ef49a8da23c073a9e7317ba64c246e307f140037a1",
+    "apps/kdg-capture/web/tsconfig.recovery.json": "41dc1afab18eb0dbba97a39a26b680bff6a88c683515378135da14bc8e0290c0",
+    "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+    "apps/kdg-capture/contracts/edit-generated/types.gen.ts": "beb6d0ec1cacc54b980f01d51ed5f4ee074be91ed7d6ebeb1333b63004dd36c9",
+    "apps/kdg-capture/write-candidate/edit-openapi.json": "a0b7b2463ad8aa6a7c5de228ca6356e3789cf8507c4c15f105b8b0855a301375",
+    "apps/kdg-capture/docs/EDIT_ADAPTER_EVIDENCE.md": "8307fc9267fb9761a923ea863c78648d445c131685e691fb1b3c2057b5465828",
+    "apps/kdg-capture/docs/contracts.md": "c4f083d5f1be4930c77e39a2faf77a84af062b7e9712ef1a5d9fb8c9c05e9c0c",
+    "apps/kdg-capture/docs/next-session.md": "d94369f6f2b97ab725851fbf351f8a70aad5ffe5b6e6d68ab34f3bc4d555e5be",
+    "apps/kdg-capture/AGENTS.md": "bef60bbfc0f0ebe49859da1c48c5a68e433627931f544989f73ff6ab6519a6f9"
+  },
+  "pre_review_checks": {
+    "atdd_failures": 44,
+    "atdd_passes": 1,
+    "focused_tests": 48,
+    "affected_tests": 116,
+    "negative_type_cases": 8,
+    "typescript": "7.0.2",
+    "strict_edit_and_recovery": true,
+    "three_scaffold_parity_checks": true,
+    "preflight_deadline_negative_control_failed_then_guard_passed": true
+  },
+  "pre_review_source_capsule": "platform/deployment/.local/kdg-edit-adapter-20261026/source",
+  "frozen_spec_path": "_bmad-output/implementation-artifacts/spec-kdg-edit-adapter.md",
+  "changed_companion": "App-owned recovery.ts predicate-before-final-signal correction; two characterization tests. Pure scaffold Auth predicate requires no template patch.",
+  "post_review": {
+    "source_and_logs_directory": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review",
+    "commands": [
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red.log",
+        "exit_code": 1,
+        "qualification": "Initial post-review regressions before test separation",
+        "log_sha256": "832d00651f225b80c0d92124a8f1deab5cde7043c47451ef8e696001aee0aa0c"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red-final.log",
+        "exit_code": 1,
+        "qualification": "Six regression failures: edit/recovery dispatch/publication race, rejected-lease traversal, undefined direct answers",
+        "log_sha256": "bcf6a0ab4a6359a50ee2eeb593a56d71152c92505f42215c28f74f574c88c575"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-green.log",
+        "exit_code": 0,
+        "qualification": "95 cases pass after corrections",
+        "log_sha256": "3f70190fc8beaa59f9a1f8ef619994012a679bc4aacb22ab0b7eb37f03425995"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-final.log",
+        "exit_code": 0,
+        "qualification": "95 cases pass, including omitted optional details and explicit nested details:undefined",
+        "log_sha256": "6a6b525f13cb92171a6950b4df1a57c715c4d710169485095ed50fda0092d3e0"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=one own edit pins the original command' apps/kdg-capture/web/tests/edit.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.log",
+        "exit_code": 1,
+        "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+        "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.ts",
+        "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.patch",
+        "log_sha256": "18a37489becb1b30fcb261884bebcaa7a23a2c2f70797adcfac73c061277a63a"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=only HTTP 200 can acknowledge' apps/kdg-capture/web/tests/edit.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.log",
+        "exit_code": 1,
+        "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+        "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.ts",
+        "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.patch",
+        "log_sha256": "d5271033836f28206f0ad1dba96049f44fa7f569255c212bfd4541eb1531a23e"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none '--test-name-pattern=serialization uses the original deadline' apps/kdg-capture/web/tests/edit.test.mjs",
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.log",
+        "exit_code": 1,
+        "qualification": "Fresh reconstructed negative control; exact tested source and patch retained; final source restored",
+        "tested_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.ts",
+        "patch_from_final_source": "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.patch",
+        "log_sha256": "f8d3b1d96e0126d77126a95bc832f6c5efae2b0a7954fae234658a9bee271b39"
+      }
+    ],
+    "red_provenance": "Original acceptance-stub and first deadline-mutant source were not captured at execution time; old logs remain observed evidence only. Fresh controls are explicitly reconstructed and separately source/patch-bound.",
+    "retained_control_sha256": {
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.log": "d5271033836f28206f0ad1dba96049f44fa7f569255c212bfd4541eb1531a23e",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-green.log": "3f70190fc8beaa59f9a1f8ef619994012a679bc4aacb22ab0b7eb37f03425995",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.patch": "fae561534686657290fae05aa294a3bea5c9151561f56d0bf42781bdd5388351",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/recovery-red.test.mjs": "bd0d62e29a9e4bb1489770260d44a4a978207135bbd5261204910394dadc92cd",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.patch": "7eb5facf189d68097791b53919a0897fb3718801c7c74da58f707fe3d7979757",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.log": "f8d3b1d96e0126d77126a95bc832f6c5efae2b0a7954fae234658a9bee271b39",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.patch": "5fc683bbd6a183adfe9cae0d0a552e5e17790475c3bea34ee3e98b1a24866379",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/edit-red.test.mjs": "5ca16af7f5bb42acf0fe24d39c402797bde71880e30d0a90c729e5e1d11a97d9",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/edit-before-fixes.ts": "d5c809e39be50864ee9e4e5b95d9901133073440afbcb83dbfdca45c46effb65",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red-final.log": "bcf6a0ab4a6359a50ee2eeb593a56d71152c92505f42215c28f74f574c88c575",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.ts": "86cde228afeb9d7d21ed4c92165c060ca9b364b8d0d0368e5d70ff103f24c2b7",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/status-ok-mutant.ts": "2b985b0de81d6793178fd25eea02a40cfd0927bb46094a21c02d2988f841a804",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/reconstructed-stub.log": "18a37489becb1b30fcb261884bebcaa7a23a2c2f70797adcfac73c061277a63a",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-final.log": "6a6b525f13cb92171a6950b4df1a57c715c4d710169485095ed50fda0092d3e0",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/preflight-deadline-mutant.ts": "1cc23d5b9e451913137ef6eaa586f31898b1724efeec89830bc53d140bb49120",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/behavior-red.log": "832d00651f225b80c0d92124a8f1deab5cde7043c47451ef8e696001aee0aa0c",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/recovery-before-fixes.ts": "6650516a48005191c18f6e16751755876829de0100255c866457c4404fbbdf40",
+      "platform/deployment/.local/kdg-edit-adapter-20261026/post-review/negative-controls.json": "a00d1fb06b1d6c9841c393215aa29aaba82693eadf721c77f91f9b1fe1e4ed98"
+    },
+    "synchronous_preflight_limit": "JSON serialization and shallow preflight are synchronous and cannot be preempted or heap-bounded. Request-byte ceiling is checked after serialization. Original elapsed deadline prevents transport after preflight. No traversal engine added.",
+    "full_final_verification": "passed; see root_final_verification",
+    "fixes": [
+      "Evaluate delegated freshness predicate before final owner-signal read at dispatch, stream checks and publication in edit and recovery",
+      "Gate initial edit leases before payload getters/toJSON",
+      "Refuse direct undefined answer entries without rejecting omitted optional fields or nested details:undefined",
+      "Require HTTP200 with 201/202 negative tests; independent concurrent operations and late body disposal",
+      "Iterate every generated error enum identifier"
+    ]
+  },
+  "root_final_verification": {
+    "commands": [
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs apps/kdg-capture/web/tests/entry.test.mjs",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/regression.log",
+        "log_sha256": "e745a414eba37da30c5ed473034d974e8b1aa67b7faba1bc40ad51e709aba198"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.edit.json",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/types-edit.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.recovery.json",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/types-recovery.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/parity-write.log",
+        "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/parity-database.log",
+        "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+      },
+      {
+        "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+        "exit_code": 0,
+        "log": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/parity-native-database.log",
+        "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+      }
+    ],
+    "checks": {
+      "focused_edit_tests": 54,
+      "affected_tests": 124,
+      "skipped": 0,
+      "failed": 0,
+      "strict_edit_and_recovery": true,
+      "three_scaffold_parity_checks": true,
+      "typescript": "7.0.2"
+    },
+    "review": {
+      "layers": 3,
+      "addressed": 9,
+      "deferred": 0
+    },
+    "source_capsule": "platform/deployment/.local/kdg-edit-adapter-20261026/root-final/source",
+    "source_sha256": {
+      "apps/kdg-capture/web/src/edit.ts": "8152eb223ddcfcb5f55387ceeb69679faaaaabca808d70268e5026b541525602",
+      "apps/kdg-capture/web/tests/edit.test.mjs": "3f0cf3f1bac7c74fc4822b137f02948d562283cc4d377ab0a07d6d149cabf88d",
+      "apps/kdg-capture/web/tests/edit.types.ts": "930a3e02587bab1ea8bded8f3bd60f9578c1e367dc521aee7a0d7b831d08e899",
+      "apps/kdg-capture/web/tsconfig.edit.json": "58c5c0f17361c530bee4cb34e86e28f8541a87cf7b612d47f35f1179d3c3670d",
+      "apps/kdg-capture/web/src/recovery.ts": "e9661858c884447f06fd52ce98d37858797072f1011922e7416e756ceda4ea08",
+      "apps/kdg-capture/web/src/entry.ts": "78379ca3bcc3c84f856750c2d62506fe4784f6b5ab9bfc3a594ed3aff02660a5",
+      "apps/kdg-capture/web/src/recovery-entry.ts": "39f5a15079e12938e38369ef49a8da23c073a9e7317ba64c246e307f140037a1",
+      "apps/kdg-capture/web/tsconfig.recovery.json": "41dc1afab18eb0dbba97a39a26b680bff6a88c683515378135da14bc8e0290c0",
+      "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+      "apps/kdg-capture/contracts/edit-generated/types.gen.ts": "beb6d0ec1cacc54b980f01d51ed5f4ee074be91ed7d6ebeb1333b63004dd36c9",
+      "apps/kdg-capture/write-candidate/edit-openapi.json": "a0b7b2463ad8aa6a7c5de228ca6356e3789cf8507c4c15f105b8b0855a301375",
+      "apps/kdg-capture/docs/EDIT_ADAPTER_EVIDENCE.md": "8b04221183db87000a7ef61096788fc636d596e808a68251da3015a36185f3ac",
+      "apps/kdg-capture/docs/contracts.md": "8ffa252da1138e52f9e7a60f3de48bc08d7640cab434efe9381c9aab1ad1c8e0",
+      "apps/kdg-capture/docs/next-session.md": "99cd8252811500724c416ef979095af51a5429fbb779b4e1792839c7a1fa7aac",
+      "apps/kdg-capture/AGENTS.md": "bef60bbfc0f0ebe49859da1c48c5a68e433627931f544989f73ff6ab6519a6f9",
+      "apps/kdg-capture/web/tests/recovery.test.mjs": "bd0d62e29a9e4bb1489770260d44a4a978207135bbd5261204910394dadc92cd"
+    }
+  }
+}

@@ -86,8 +86,11 @@ export async function recoverOperation(session: Session,pending: PendingRecovery
   const signal=options.signal, isCurrent=options.isCurrent, request=options.request??fetch;
   const current=()=>{try {return isCurrent()===true;} catch {return false;}};
   const deadline=performance.now()+duration;
-  const finish=(result: RecoveryResult): RecoveryResult => Object.freeze(signal.aborted?{kind:'cancelled'}:
-    !current()?{kind:'superseded'}:performance.now()>=deadline?{kind:'verification_unavailable'}:result);
+  const finish=(result: RecoveryResult): RecoveryResult => {
+    const fresh=current(); // Delegated predicates may synchronously abort the owner.
+    return Object.freeze(signal.aborted?{kind:'cancelled'}:
+      !fresh?{kind:'superseded'}:performance.now()>=deadline?{kind:'verification_unavailable'}:result);
+  };
   // Copy primitives before any await; caller mutation cannot retarget this request.
   let auth: Session, pinned: PendingRecovery;
   try {
@@ -98,7 +101,7 @@ export async function recoverOperation(session: Session,pending: PendingRecovery
       (pinned.command_type!=='capture.create'&&pinned.command_type!=='capture.edit') ||
       (pinned.command_type==='capture.edit'&&!id(pinned.capture_id))) return finish({kind:'invalid_request'});
   } catch {return finish({kind:'invalid_request'});}
-  if (signal.aborted || !current()) return finish({kind:'superseded'});
+  if (!current() || signal.aborted) return finish({kind:'superseded'});
   const controller=new AbortController();let body: ReadableStream<Uint8Array>|null|undefined;let reader: ReadableStreamDefaultReader<Uint8Array>|undefined;
   let stop!: (result: RecoveryResult)=>void;
   const stopped=new Promise<RecoveryResult>(resolve=>{stop=resolve;});
@@ -118,9 +121,9 @@ export async function recoverOperation(session: Session,pending: PendingRecovery
       while (true) {
         // Immediate read promises can starve timer tasks, especially on empty
         // chunks. Enforce the same monotonic deadline inside the read loop.
-        if (signal.aborted || !current() || performance.now()>=deadline) return finish({kind:'verification_unavailable'});
+        if (!current() || signal.aborted || performance.now()>=deadline) return finish({kind:'verification_unavailable'});
         const chunk=await reader.read();
-        if (signal.aborted || !current() || performance.now()>=deadline) return finish({kind:'verification_unavailable'});
+        if (!current() || signal.aborted || performance.now()>=deadline) return finish({kind:'verification_unavailable'});
         if (chunk.done) break;
         if (!chunk.value.byteLength) continue;
         if (size+chunk.value.byteLength>16384) return invalid();

@@ -1011,3 +1011,34 @@ eight of each parent. The first32-source proof at15/31/28 remains historical evi
 remain unchanged. ASGI/mocked Access prove no real network or Identity/Access authority;
 native contention/cancellation/TCP drain, active API/browser/editor/queue/UI and ADR-0020
 release gates remain open. No migration, provisioning, privilege expansion or cleanup.
+
+
+### Candidate unconnected own-edit request adapter — 2026-10-26
+
+`web/src/edit.ts:editCapture(session,pending,options)` consumes generated edit types.
+Pending input pins account/org/capture and its original EditCommand. Before any await,
+it snapshots bearer, identity primitives and the complete serialized nested command.
+One selector-free same-origin PUT uses JSON, no-store and redirect refusal with a131072
+UTF-8 byte request ceiling. Backend retains original-definition/domain validation.
+
+Only an exact closed v1 capture.edit committed receipt matching original operation and
+capture acknowledges success. Canonical signed-bigint revision strings stay exact.
+Generated safe status/error pairs expose required current_revision only for409 revision
+conflict, without upstream text/snapshot. Caller-owned cancellation/generation fencing
+and one at-most10-second deadline cover preflight, headers/body and publication, with
+16384-byte strict JSON/Unicode/duplicate-key response validation and best-effort disposal.
+Stale/throwing fences suppress late receipts/errors. Cancellation after dispatch may
+still commit; failure never implies unresolved, rollback or safe new identity.
+
+No retry/recovery/refresh, saved-input/store mutation or Synced feedback occurs.
+Candidate remains unconnected to browser/editor/queue/Auth and active startup.
+[Evidence](EDIT_ADAPTER_EVIDENCE.md) records54 edit and41 recovery cases passing after
+review corrections; root final verification passes124 affected tests, both strict
+TypeScript7.0.2 configurations and all three scaffold parity checks. Three review layers
+completed, nine findings addressed, none deferred. Companion app-owned recovery now shares the demonstrated small predicate-before-
+final-signal correction, with dispatch/publication characterization tests. Initial rejected
+edit leases skip payload getters/toJSON. Direct undefined answer entries refuse without
+dropping input; legitimate omitted optional fields remain valid. Synchronous JSON preflight
+cannot be preempted or heap-bounded: the byte check follows serialization and an elapsed
+deadline prevents transport. Actual Auth integration, real Access, browser/native and
+release activation remain separate gates.
