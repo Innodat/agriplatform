@@ -1,0 +1,565 @@
+{
+  "date": "2026-10-26",
+  "baseline_commit": "a97e9d1ea74ea42c6812b30568ae7dcd48b24daa",
+  "parent_at_evidence": "a5172ca1677f1638b837b6908c5b07a8c48a41a2",
+  "scope": "Synthetic isolated local explicit Save for server-backed own captures; no UI or sender activation",
+  "counts": {
+    "local_edit_checks": 92,
+    "history_checks": 61,
+    "compiled_client_tests": 575,
+    "loopback_groups": 16,
+    "direct_tests": 127,
+    "fixture_guards": 4,
+    "strict_adapter_configs": 6,
+    "schema_client_freshness": 12,
+    "scaffold_parities": 5
+  },
+  "proofs": {
+    "local-edit-save": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-local-edit-save-20261026/save-d8a1de59-27b9-44ca-8e13-c17702083ee0/result.json",
+      "sha256": "7029535242e2151c6247d7cd6b607d4c283bf71dc012042807b19695f21003e7",
+      "checks": 92
+    },
+    "auth": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-74419cd6-f0d6-4bc7-8399-43a5620ba61c/result.json",
+      "sha256": "349b2a4da39454d215972f3c8998b2e8ed41526b0e0681c51c1e5304f9605b1c",
+      "checks": 3,
+      "test_counts": {
+        "total": 575,
+        "executed": 575,
+        "passed": 575,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    "network": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-persistence-http-path-20261026/network-075cc2e1-cbf1-4d32-b2da-583f409db8ef/result.json",
+      "sha256": "f475a2eedd90529096fdcd8707b24851775b5123eb3dd4db91126ca1a1df1912",
+      "checks": 16
+    },
+    "history-store": {
+      "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-offline-history-20261026/store-718ac71d-0c8f-4ca6-be40-b0a21defa9ce/result.json",
+      "sha256": "a26292a2de89121042854286a87f5d72a992afcdd5db8ca6c3fadbf38b3bc45c",
+      "checks": 61
+    }
+  },
+  "verification": [
+    {
+      "name": "final-local-edit-save",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/local-edit-save-proof.mjs"
+      ],
+      "timeout": 120,
+      "exit_code": 0,
+      "seconds": 2.99,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-local-edit-save.log",
+      "log_sha256": "0125f9a0f674df8785137642a455d868ddb3c15b9e88b071ee59526575544ed5",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-auth",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/auth-proof.mjs",
+        "--unit-only"
+      ],
+      "timeout": 60,
+      "exit_code": 0,
+      "seconds": 3.256,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-auth.log",
+      "log_sha256": "c0772a399e7356ce71d10e81e2ffd5f25d73081f057fe72ee2474f940b388ee7",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-network",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/persistence-http-proof.mjs"
+      ],
+      "timeout": 60,
+      "exit_code": 0,
+      "seconds": 6.873,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-network.log",
+      "log_sha256": "cf75f8bb315d5e935e584e38af85b8ba8039d212b9e77e74290fe6098ba9a1e9",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-fixture",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/web/tests/test_persistence_http_fixture.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.225,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-fixture.log",
+      "log_sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-direct",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "--test",
+        "--test-isolation=none",
+        "apps/kdg-capture/web/tests/edit.test.mjs",
+        "apps/kdg-capture/web/tests/recovery.test.mjs",
+        "apps/kdg-capture/web/tests/entry.test.mjs",
+        "apps/kdg-capture/web/tests/persistence-child.test.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.923,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-direct.log",
+      "log_sha256": "4f9ac5aa97bc981f3eef12e5424771f168c21ebbf5728e4a824dfdfc3c8bf0c3",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-history-store",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/history-store-proof.mjs"
+      ],
+      "timeout": 120,
+      "exit_code": 0,
+      "seconds": 3.698,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-history-store.log",
+      "log_sha256": "a3482717019f913f697b786b534ad56af716d69959e16ee8d684ddbeb5e0914d",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-create",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.create.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.72,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-create.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-create",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_create_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.996,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-create.log",
+      "log_sha256": "c7746ca8aba6aef50cfcc6ea40a9fbb05f07b177e916175cacf95a7f49fd42b2",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-create",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/create-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/create-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.127,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-create.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-edit",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.edit.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.622,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-edit.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-edit",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_edit_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.972,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-edit.log",
+      "log_sha256": "f28ca75ecdbeb9fe97a37b20660ec93eab74a67447ef8ddbcadbe686947e6fa8",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-edit",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/edit-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/edit-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.175,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-edit.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-recovery",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.recovery.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.673,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-recovery.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-recovery",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_recovery_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.024,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-recovery.log",
+      "log_sha256": "8e469796aa85e4614fe793d362e026e1fbff11f3028b87b04e7b611c9d2d0a56",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-recovery",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/recovery-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/recovery-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.293,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-recovery.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-read",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.read.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.974,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-read.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-read",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_read_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.367,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-read.log",
+      "log_sha256": "5492c86aa89422de04a1c7c8a632906130aee41d1220806d5bc542148c8e4a0c",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-read",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/read-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/read-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.685,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-read.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-history",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.history.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.926,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-history.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-history",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_history_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.581,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-history.log",
+      "log_sha256": "94397ec65f5f358e7b3461fe28544e43caf0ea0f83912c7efd482f749b283a9d",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-history",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/history-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/history-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.174,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-history.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-types-edit-context",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/web/tsconfig.edit-context.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.776,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-types-edit-context.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-schema-edit-context",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_edit_context_openapi.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.327,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-schema-edit-context.log",
+      "log_sha256": "450c2433407d4e6c835586650faa5f890559e300683a90740d441b462caf35dd",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-generated-edit-context",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+        "--schema",
+        "apps/kdg-capture/write-candidate/edit-context-openapi.json",
+        "--output",
+        "apps/kdg-capture/contracts/edit-context-generated",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.336,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-generated-edit-context.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-parity-auth",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-auth.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.273,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-parity-auth.log",
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-parity-write",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.321,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-parity-write.log",
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-parity-database",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.271,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-parity-database.log",
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-parity-native-database",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-native-database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.218,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-parity-native-database.log",
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3",
+      "source_unchanged": true
+    },
+    {
+      "name": "final-parity-offline",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-offline.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.218,
+      "log": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final-parity-offline.log",
+      "log_sha256": "31f3deb69fdb9d4cae781d7ed37dad32083c5b26c0e1252878ab90dd863a97f2",
+      "source_unchanged": true
+    }
+  ],
+  "full_source_bound_results": "platform/deployment/.local/kdg-local-edit-save-20261026/root-verify/final.json.results.json",
+  "source_sha256": {
+    "apps/kdg-capture/web/src/history-store.ts": "64a9a7634d2e5070c9f98412887a82c8c389978d4c78d8109e564e37fb6e92dc",
+    "apps/kdg-capture/web/tests/history-store-proof.mjs": "55b4d5c7ecc7671ece26bf574c49c9784bf5c4373e227d9d46985bf45ae49998",
+    "apps/kdg-capture/web/tests/local-edit-save-proof.mjs": "cbce16aa09627942ab6c75a0f91ad86bbb2290c334f55b51590fa6008ac66fa1",
+    "apps/kdg-capture/web/tests/local-edit-save.types.ts": "84c065465418b3ce25493833e9e54ff37ea97417f100ae32995b8734351183d5"
+  },
+  "backend_regression_reused": {
+    "tests": 313,
+    "reason": "No API/write-candidate/write-test source changed; all retained backend source hashes match prior passing proof. No backend suite rerun is claimed for this browser-only item.",
+    "unchanged_files": 77,
+    "prior_record": "platform/deployment/.local/kdg-edit-context-20261026/root-verify/final.json.results.json",
+    "prior_record_sha256": "341fca29925265fb8669409c259feda7ee049a739778ebba18377a2d050dc58c",
+    "prior_backend_log": "platform/deployment/.local/kdg-edit-context-20261026/root-verify/final-backend.log",
+    "prior_backend_log_sha256": "bab42c05fa0c271ca1cce84d2c69d00e2330af99d45f2a4593f3561aef79fc05"
+  },
+  "artifacts": [
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/rederive-1/manifest.json",
+      "sha256": "30e862b1114ac582fa91baa2bd2a4c91c8f560af6ffe07fa13d4c6370c9e3879"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/implementation-149ef139-4cf4-4187-9d55-28ebf4ced43d/manifest.json",
+      "sha256": "b9052ca400fd5ffda5a536f35116d2bca0517a1bad467ca8b984e5a1c4d61f3b"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/review-repair-c3b75ab5-d1b8-43da-a6fa-d63d4aa94bc3/manifest.json",
+      "sha256": "8b75d2ff6cfe222aac2397bccf9a09f9c6a85b934fe72b93000d2293dfee257d"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/save-15917dc8-9400-4f4f-a069-85ae63e299be/result.json",
+      "sha256": "d14ba621156c9a883b4af6536e9510dbbd11107a5c24c3b8358e625f1318c31f"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/save-94868344-8805-4ec7-b70e-b6f681f362ee/refinements.json",
+      "sha256": "41c52157f217257424d12aabf04696d408eabe0685eba6cb46cc7c4a343e58ad"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/save-46a29ef8-5f4d-411e-92a1-83a6c9259a4a/repairs.json",
+      "sha256": "df0e905281f4ce8ea23ffadea063020f04dda0e5e4acfde52d4651a108e34000"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-local-edit-save-20261026/final-selected-source/manifest.json",
+      "sha256": "b7e44095704fad233549bc121f5c21dcef8b50fa3eb6818e5522d010a4d7efc5"
+    }
+  ],
+  "review": {
+    "passes": 2,
+    "plan_rederivations": 1,
+    "findings": 25,
+    "addressed": 23,
+    "rejected": 2,
+    "new_deferred": 0,
+    "rejected_reasons": [
+      "Pending-create editing remains outside this server-backed consumer and is retained in approved Story2.2.",
+      "A separate byte-projection/detail listing API was not justified by a demonstrated everyday memory defect; current reads are count/key bounded."
+    ]
+  },
+  "preservation": {
+    "protected_files": 9,
+    "historical_evidence_files": 87,
+    "unchanged_protected_files": 8,
+    "concurrent_protected_drift": {
+      "package.json": {
+        "baseline_sha256": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+        "current_sha256": "afbeadffb47b4638ce905a9db8ab16ff16d78ad248a79a2f9cbeab67ea8012aa",
+        "change": "Concurrent apps/pts/web workspace registration only; all other manifest fields and dependency declarations unchanged. Preserved without staging."
+      }
+    },
+    "all_historical_hashes_equal_baseline": true,
+    "contracts_append": true,
+    "handoff_prepend": true,
+    "concurrent_changes": "Preserved, including intervening Scribeswell commit; no unrelated paths staged."
+  },
+  "impacts": {
+    "scaffold": "Reuse proven generated IDB/Auth primitives; no demonstrated neutral defect. All five parities pass.",
+    "shared_ui": "None; no UI activated.",
+    "agent_context": "No change.",
+    "documentation": "Current contracts/evidence/handoff updated while retaining previous bytes.",
+    "adr": "Inherit accepted decisions; none edited."
+  },
+  "reproduction_gap": "Clean checkout alone lacks the ignored retained approved npm/Playwright/Chromium capsules. Exact commands and cwd are recorded; no install/version/baseline change occurred.",
+  "limits": [
+    "No pending-create producer, queue claims/sending/reconciliation, editor/conflict-resolution UI or startup activation.",
+    "No actual PostgreSQL/native-driver/Docker or physical-device qualification; prior activation safeguards remain open.",
+    "Local v1 data upgrade proof is not live old/new bundle coexistence qualification.",
+    "Failed denial writes latch within process, without a durable-state claim across destroyed JavaScript process.",
+    "Completion-boundary expiry/session failure may retain committed original-account work; retain and recover original action identity.",
+    "No real accounts/Auth/Access, provisioning/migrations, deployment/production/pilot or cleanup. Fingerprints/HMAC remain deferred; TypeScript7.0.2 unchanged."
+  ]
+}

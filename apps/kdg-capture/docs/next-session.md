@@ -1,3 +1,33 @@
+## Current delivery — local explicit edit Save, 2026-10-26
+
+Read [local edit Save evidence](LOCAL_EDIT_SAVE_EVIDENCE.md), its
+[machine record](evidence/local-edit-save-20261026.json) and current [contracts](contracts.md).
+The isolated schema-v2 store now imports exact edit-context, issues pinned reviewed
+tokens and atomically saves completed own-edit overlays/actions. Stable action IDs,
+predecessors, retained attention proposals and bounded action reads are implemented.
+Independent edit denial preserves read access; fresh restoration repairs durable/
+process generations without reviving old tokens. Completion-boundary failure can
+retain work, so recovery uses the original action identity. No sender/UI is activated.
+
+Final29 source-bound jobs pass: 92 local Save,61 history,575 compiled client,
+127 direct tests, four guards and16 loopback groups; six strict TS7.0.2 adapter
+configurations, twelve schema/client freshness checks and five scaffold parities pass.
+The prior313 backend proof is reused with unchanged backend source hashes. Review:
+23 findings addressed, two rejected with evidence, no new deferred work.
+
+Continue authorized KDG implementation without routine next/approval stops. Remaining
+Story2.2 work includes pending-create local persistence/setup edit observations and
+ordered delivery/receipt reconciliation. Recheck the approved story and contracts
+before selecting its next coherent consumer; do not claim end-to-end editing complete.
+No UI/editor/Leave, service-worker/browser/queue/default-startup activation, real
+accounts/Auth/Access, PostgreSQL/native-driver/Docker qualification, migrations/
+provisioning, deployment/production/pilot or cleanup. Preserve concurrent work,
+historical evidence/resources and dependencies including TypeScript7.0.2.
+Fingerprints/HMAC remain deferred. Never read/run/copy the preexisting untracked
+migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — protected own-edit context, 2026-10-26
 
 Read [own-edit context evidence](OWN_EDIT_CONTEXT_EVIDENCE.md), its

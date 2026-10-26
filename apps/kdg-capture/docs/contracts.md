@@ -1251,3 +1251,50 @@ This remains unmounted synthetic code. Actual PostgreSQL permissions, joins,
 read-only effects and native cancellation/drain qualification remain activation
 prerequisites. No local Save/UI/worker activation is included. See
 [own-edit context evidence](OWN_EDIT_CONTEXT_EVIDENCE.md) and its machine record.
+
+
+## Candidate local explicit edit Save — 2026-10-26
+
+For server-backed own captures, the isolated IndexedDB owner now consumes verified
+edit-context through `importEditContext`, opens immutable reviewed tokens through
+`openEdit`, and commits explicit completed changes through `saveEdit`. This extends
+the earlier history-only store; the database name is unchanged and local schema v2
+adds `edit_actions` while retaining v1 data and opaque pending/conflict fields.
+
+The original questionnaire, owner/child/version and server provenance remain fixed.
+Saved overlays and immutable action snapshots remain separate from the latest server
+baseline. Typing and Cancel cause no edit/action write. Whole-form validation supports
+rating1 and false, excludes hidden false-answer details from durable changes/identity,
+rejects invalid wire characters and respects the existing131072-byte PUT limit with
+maximum expected-revision overhead. Caller objects are copied before the first await.
+
+Each explicit action uses its caller-supplied stable UUID, literal type `capture.edit`
+and version1. It retains reviewed base, normalized changes, exact observations,
+predecessor and local outcome. Identical retry recovers the same local result; changed
+content under the same ID refuses. A first eligible action retains its reviewed
+revision; successors have no guessed revision. These are local intents, not ready
+wire payloads or server receipts. Future materialization/delivery remains separate.
+
+Eligible Save commits intent and overlay together. A stale local head or unrelated
+newer baseline retains a separate Needs attention proposal without replacing newer
+saved changes. Existing unresolved pending/conflict work likewise prevents an ordinary
+overlay replacement. `readEditActions` retrieves retained actions/proposals under
+current valid own-read, default30/max100 with namespace-bound key continuation.
+Nothing prunes, deletes or automatically resolves those proposals.
+
+Known edit denial has an independent durable generation, preserving current own-read.
+Read-only history restoration cannot revive old edit evidence. Explicit restoration
+requires newer verified edit-context; old reviewed tokens remain invalidated. The
+process keeps known denial when its durable write fails, without claiming persistence
+across a destroyed JavaScript process. Denial/restoration across tabs and reopening
+must preserve the same authority boundary. Expired observations return `expired`,
+known denial returns `denied`, transient execution/storage/clock failures return
+`unavailable`; no English-message branching is required.
+
+Successful results are `saved_locally` or `needs_attention` after commit/publication
+checks. Completion-boundary cancellation or expiry may suppress success after work
+committed. Retain original action ID/input and inspect/retry that identity after valid
+recovery; never infer rollback, generate a replacement ID or label it Synced. New
+work needs a fresh handle-issued reviewed token. No sender, claim, receipt application,
+pending-create editing, unfinished-input autosave, editor UI or startup activation is
+implemented here. See [local edit Save evidence](LOCAL_EDIT_SAVE_EVIDENCE.md).
