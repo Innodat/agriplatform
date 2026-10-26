@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/tmp/scribeswell-implementation-python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "apps/scribeswell/tests/test_fenced_importer.py",
+    "apps/scribeswell/tests/test_import_bible.py",
+    "apps/scribeswell/tests/test_corpus_manifest.py",
+    "apps/scribeswell/tests/test_highlight_evidence.py",
+    "apps/scribeswell/tests/test_corpus_publication_input.py"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 8.41,
+  "before": {
+    "apps/scribeswell/tools/py/import_bible.py": "b9d4e333519578449a6c65e5d9e6e6b161c4b3496aa5451ee4f5e5c87e273d66",
+    "apps/scribeswell/backend/database.py": "23a353a337804a35605fb33f6907f6ebf3a3a218f1052065c925cd9175bfefbf",
+    "apps/scribeswell/backend/corpus_evidence.py": "922fd3921da486754aa3646ac9d96e1ac0c6028f26bc29c69143031552501614",
+    "apps/scribeswell/backend/corpus_publication_input.py": "3d64d3747131faeec2b72c937b38f91e03ac7d073d78f250e306eb9f7cd6a0b4",
+    "apps/scribeswell/backend/corpus_manifest.py": "fe803eff158c78d0d540b2ab285023dc7401cf89682bf74be0383d5b1aaae7c5",
+    "apps/scribeswell/backend/highlight_evidence.py": "310fd7eb562300c8d16f4dbb4e494b9484ad4934d3fa50eb3a17eba89fc73ff9",
+    "apps/scribeswell/tests/test_fenced_importer.py": "72916f828dc1f6eb332a8a91cf16a566fd394e7224ebfe5a5c52a0343aa5d357",
+    "apps/scribeswell/tests/test_import_bible.py": "bfb8efbe1a28fcb469d8a2fb21616e5127079df9bc4cf14de341ea938ffc80e7",
+    "apps/scribeswell/tests/test_corpus_manifest.py": "5c11d3eedba3f3e8411ecbe355b13e72fbd8433d28b55dafe56af82ce117fa23",
+    "apps/scribeswell/tests/test_highlight_evidence.py": "098bc0b54850ddcb9841255774d19bf54a50a348a97cf549d827943e9c4b791f",
+    "apps/scribeswell/tests/test_corpus_publication_input.py": "c35593e68b3b055c1e60c429df41e6b227db1d268ec77750693277b99cef39e2"
+  },
+  "after": {
+    "apps/scribeswell/tools/py/import_bible.py": "b9d4e333519578449a6c65e5d9e6e6b161c4b3496aa5451ee4f5e5c87e273d66",
+    "apps/scribeswell/backend/database.py": "23a353a337804a35605fb33f6907f6ebf3a3a218f1052065c925cd9175bfefbf",
+    "apps/scribeswell/backend/corpus_evidence.py": "922fd3921da486754aa3646ac9d96e1ac0c6028f26bc29c69143031552501614",
+    "apps/scribeswell/backend/corpus_publication_input.py": "3d64d3747131faeec2b72c937b38f91e03ac7d073d78f250e306eb9f7cd6a0b4",
+    "apps/scribeswell/backend/corpus_manifest.py": "fe803eff158c78d0d540b2ab285023dc7401cf89682bf74be0383d5b1aaae7c5",
+    "apps/scribeswell/backend/highlight_evidence.py": "310fd7eb562300c8d16f4dbb4e494b9484ad4934d3fa50eb3a17eba89fc73ff9",
+    "apps/scribeswell/tests/test_fenced_importer.py": "72916f828dc1f6eb332a8a91cf16a566fd394e7224ebfe5a5c52a0343aa5d357",
+    "apps/scribeswell/tests/test_import_bible.py": "bfb8efbe1a28fcb469d8a2fb21616e5127079df9bc4cf14de341ea938ffc80e7",
+    "apps/scribeswell/tests/test_corpus_manifest.py": "5c11d3eedba3f3e8411ecbe355b13e72fbd8433d28b55dafe56af82ce117fa23",
+    "apps/scribeswell/tests/test_highlight_evidence.py": "098bc0b54850ddcb9841255774d19bf54a50a348a97cf549d827943e9c4b791f",
+    "apps/scribeswell/tests/test_corpus_publication_input.py": "c35593e68b3b055c1e60c429df41e6b227db1d268ec77750693277b99cef39e2"
+  },
+  "unchanged": true,
+  "scope": "Application-side pure and repository-wrapper doubles only; no native database/owner integration."
+}

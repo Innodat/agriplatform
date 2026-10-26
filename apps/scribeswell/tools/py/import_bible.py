@@ -26,7 +26,8 @@ import json
 import os
 import re
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
+from contextlib import contextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -51,6 +52,34 @@ from corpus_source import (BOOK_METADATA, OSIS_TO_META, NAME_EN_TO_META,
                            decode_word, validate_book)
 
 
+from corpus_evidence import LABEL, SHA256, MAX_SOURCE_BYTES, _unique_object, EvidenceError, build_source_candidate
+from corpus_publication_input import _uuid, _generation
+
+
+class ImportBindingError(ValueError):
+    def __init__(self):
+        super().__init__('corpus_import.binding_invalid')
+
+
+@dataclass(frozen=True)
+class ImportBinding:
+    source_id: str
+    attempt_id: str
+    generation: str
+    input_sha256: str
+
+    def __post_init__(self):
+        valid = (isinstance(self.source_id, str) and LABEL.fullmatch(self.source_id)
+                 and isinstance(self.input_sha256, str) and SHA256.fullmatch(self.input_sha256))
+        try:
+            _uuid(self.attempt_id)
+            _generation(self.generation)
+        except (ValueError, TypeError):
+            valid = False
+        if not valid:
+            raise ImportBindingError()
+
+
 # ── Batch helpers ─────────────────────────────────────────────────────────────
 
 BATCH_SIZE = 500
@@ -64,7 +93,11 @@ def chunked(lst: list, size: int):
 # ── Importer ──────────────────────────────────────────────────────────────────
 
 class BibleImporter:
-    def __init__(self, database_url: str, dry_run: bool = False):
+    def __init__(self, database_url: str, dry_run: bool = False, *, binding: ImportBinding | None = None):
+        if binding is not None and not isinstance(binding, ImportBinding):
+            raise ImportBindingError()
+        self.binding = binding
+        self._run_active = False
         self.dry_run = dry_run
         self.db = None
         if not dry_run:
@@ -88,12 +121,25 @@ class BibleImporter:
         for batch in chunked(rows, BATCH_SIZE):
             self.db.upsert(table, batch, on_conflict)
 
+    @contextmanager
+    def _write_transaction(self):
+        if self.binding is not None and not self._run_active:
+            raise ImportBindingError()
+        with self.db.transaction():
+            if self.binding is not None:
+                with self.db.connection() as connection:
+                    connection.execute('SELECT scribeswell.bind_corpus_write(%s,%s,%s,%s)',
+                                       (self.binding.source_id, int(self.binding.generation),
+                                        self.binding.attempt_id, self.binding.input_sha256))
+            yield
+
     # ── seed books ────────────────────────────────────────────────────────────
 
     def seed_books(self) -> None:
         print("📚 Seeding books...")
         if not self.dry_run:
-            self._upsert("book", BOOK_METADATA, on_conflict="id")
+            with self._write_transaction():
+                self._upsert("book", BOOK_METADATA, on_conflict="id")
         self.stats["books"] = len(BOOK_METADATA)
         print(f"   ✓ {len(BOOK_METADATA)} books")
 
@@ -120,6 +166,8 @@ class BibleImporter:
                 raise RuntimeError(f"{reference}: stored values differ at {key}")
 
     def import_book(self, book_name: str, book_data: list, verify_only=False) -> None:
+        if self.binding is not None and not self.dry_run and not verify_only and not self._run_active:
+            raise ImportBindingError()
         self.validate_book(book_name, book_data)
         book_id = NAME_EN_TO_META[book_name]["id"]
         chapters = [{"book_id": book_id, "chapter_num": c} for c in range(1, len(book_data)+1)]
@@ -139,7 +187,7 @@ class BibleImporter:
         elif any(row["chapter_num"] not in range(1, len(chapters) + 1) for row in actual):
             raise RuntimeError(f"{book_name} chapters: unexpected records")
         for c, verses in enumerate(book_data, 1):
-            with self.db.transaction():
+            with (self.db.transaction() if verify_only else self._write_transaction()):
                 ref = f"{book_name} {c}"
                 if not verify_only:
                     self._upsert("chapter", [chapters[c - 1]], "book_id,chapter_num")
@@ -181,7 +229,39 @@ class BibleImporter:
         print(f"   Verified {book_name}: {len(chapters)} chapters", flush=True)
 
     def run(self, source_path: Path, only_book: str | None = None, verify_only=False) -> None:
-        data = json.loads(source_path.read_text(encoding="utf-8"))
+        if self._run_active:
+            raise ImportBindingError()
+        with source_path.open('rb') as source:
+            raw = source.read(MAX_SOURCE_BYTES + 1) if self.binding is not None else source.read()
+        checksum = hashlib.sha256(raw).hexdigest()
+        if self.binding is not None and (len(raw) > MAX_SOURCE_BYTES or checksum != self.binding.input_sha256):
+            raise ImportBindingError()
+        try:
+            data = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_object if self.binding else None)
+        except (UnicodeError, ValueError, RecursionError):
+            if self.binding is not None:
+                raise ImportBindingError() from None
+            raise
+        if self.binding is not None:
+            if type(data) is not dict or set(data) != set(NAME_EN_TO_META):
+                raise ImportBindingError()
+            # Even --book repairs must qualify the complete approved artifact first.
+            try:
+                # Local preflight labels qualify structure/bytes only. No manifest or
+                # publication identity is created or inferred from this discarded result.
+                build_source_candidate(raw, self.binding.input_sha256, source_id=self.binding.source_id,
+                                       catalogue_version='import-preflight-v1',
+                                       versification_id='import-preflight-v1',
+                                       tokenization_version='import-preflight-v1')
+            except EvidenceError:
+                raise ImportBindingError() from None
+        self._run_active = True
+        try:
+            self._run_data(data, checksum, only_book, verify_only)
+        finally:
+            self._run_active = False
+
+    def _run_data(self, data, checksum, only_book, verify_only):
         if not isinstance(data, dict) or not data:
             raise ValueError("Source must be a nonempty mapping of English book names to chapter lists")
         if only_book:
@@ -203,7 +283,7 @@ class BibleImporter:
             print(f"{'Checking' if verify_only else 'Importing'} {name}...", flush=True)
             self.import_book(name, chapters, verify_only=verify_only)
         print(json.dumps({"status": "validated" if self.dry_run else "verified", "source_sha256":
-                          hashlib.sha256(source_path.read_bytes()).hexdigest(), "counts": self.stats}), flush=True)
+                          checksum, "counts": self.stats}), flush=True)
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -225,7 +305,20 @@ def main() -> None:
         help="Import only one book by OSIS id (e.g. Gen, Exod)"
     )
     parser.add_argument("--verify-only", action="store_true", help="Compare stored data with source without writing")
+    parser.add_argument('--source-id', help='Source identity for an existing fenced attempt')
+    parser.add_argument('--attempt-id', help='Current owner-issued attempt UUID')
+    parser.add_argument('--generation', help='Current positive decimal attempt generation')
+    parser.add_argument('--expected-source-sha256', help='Approved full artifact checksum')
     args = parser.parse_args()
+    values = (args.source_id, args.attempt_id, args.generation, args.expected_source_sha256)
+    binding = None
+    if any(value is not None for value in values):
+        if not all(value is not None for value in values):
+            parser.error('all four fenced attempt options are required together')
+        try:
+            binding = ImportBinding(*values)
+        except ImportBindingError:
+            parser.error('fenced attempt options are invalid')
     if args.dry_run and args.verify_only:
         parser.error("--dry-run and --verify-only are mutually exclusive")
 
@@ -238,8 +331,10 @@ def main() -> None:
         parser.error("SCRIBESWELL_IMPORT_DATABASE_URL is required")
     importer = None
     try:
-        importer = BibleImporter(IMPORT_DATABASE_URL, dry_run=args.dry_run)
+        importer = BibleImporter(IMPORT_DATABASE_URL, dry_run=args.dry_run, binding=binding)
         importer.run(source_path=source, only_book=args.book, verify_only=args.verify_only)
+    except ImportBindingError:
+        raise SystemExit('Import failed: approved source or attempt binding is invalid') from None
     except DatabaseUnavailable:
         raise SystemExit("Import failed: database unavailable; retry after recovery") from None
     finally:
