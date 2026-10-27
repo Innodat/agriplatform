@@ -1,0 +1,35 @@
+[workflow]
+persistent_facts = ["file:platform/docs/development/bmad-codex-usage.md"]
+implementation_handoff = """
+Choose the delegated implementation settings from the spec's actual scope. Default
+to model gpt-6.1-sol with reasoning effort high. Use model gpt-6.1-terra with reasoning
+effort medium only for a small bounded task with clear inputs and verification.
+Authorization, migrations, concurrency, service contracts and release/recovery always
+use Sol High. Uncertainty defaults to Sol High. Set both values explicitly in the
+actual launch; do not merely mention the model in the child prompt. If unavailable,
+disclose that and use an available stronger configuration or stop.
+
+Launch a subagent with no prior conversation context and those settings, with this prompt:
+
+Read {spec_file} fully and implement it. Load every file listed in its frontmatter
+context before starting. Respect repository instructions and approved owner specs/ADRs.
+When done, report what changed, actual verification results and anything incomplete or risky.
+
+Keep the agent available for review fixes. Verify actual results using existing BMAD
+checks before proceeding. Record the selected settings and only available usage/time
+observations in the existing spec; do not invoke a custom helper or add a reporting turn.
+"""
+
+[[workflow.review_layers]]
+id = "blind-hunter"
+name = "Blind Hunter"
+instruction = """
+Launch a context-free subagent at the current session's model capability with this prompt:
+
+Review the unified diff at `{diff_file}`. Read the file and trace affected behavior.
+Look for missing behavior as well as defects. Report supported findings with file/line,
+a reachable trigger and evidence. Return a Markdown list without severity or priority.
+Zero supported findings is valid; there is no finding quota. If the diff is empty or
+unreadable, report that fact rather than claiming a successful review. Do not invoke
+skills or spawn subagents. Return your findings as final text.
+"""
