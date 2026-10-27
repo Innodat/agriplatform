@@ -7,6 +7,7 @@ COPY apps/scribeswell/migrations apps/scribeswell/migrations
 COPY apps/scribeswell/studies-alembic.ini apps/scribeswell/studies-alembic.ini
 COPY apps/scribeswell/studies-migrations apps/scribeswell/studies-migrations
 COPY apps/scribeswell/studies-database-tools apps/scribeswell/studies-database-tools
+COPY apps/scribeswell/deployment/studies_release_contract.py apps/scribeswell/deployment/studies_release_contract.py
 COPY apps/scribeswell/deployment/studies_migrate.py apps/scribeswell/deployment/studies_migrate.py
 COPY apps/scribeswell/backend/database.py apps/scribeswell/backend/database.py
 COPY apps/scribeswell/deployment/migrate.py apps/scribeswell/deployment/migrate.py

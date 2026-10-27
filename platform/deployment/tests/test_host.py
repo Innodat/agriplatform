@@ -85,6 +85,41 @@ class Host(unittest.TestCase):
    self.assertEqual(report['migrations']['pts-owned']['status'],'succeeded')
    self.assertEqual(report['migrations']['scribeswell-owned']['status'],'failed')
    self.assertFalse(any(c[:2]==['docker','compose'] for c in calls))
+ def test_private_migration_evidence_is_validated_before_activation(self):
+  valid={'complete':True,'owner':'scribeswell_studies','before':'scribeswell_studies_0008','after':'scribeswell_studies_0009','recovery':'forward-only'}
+  cases=[('actual',json.dumps(valid)),('repeat',json.dumps(valid|{'before':'scribeswell_studies_0009'})),('fresh',json.dumps(valid|{'before':None})),
+   ('missing',None),('old',json.dumps({key:value for key,value in (valid|{'after':'scribeswell_studies_0001'}).items() if key!='before'})),
+   ('wrong-target',json.dumps(valid|{'after':'scribeswell_studies_0008'})),('foreign',json.dumps(valid|{'owner':'foreign'})),
+   ('unknown-before',json.dumps(valid|{'before':'unknown'})),('missing-before',json.dumps({key:value for key,value in valid.items() if key!='before'})),
+   ('duplicate',json.dumps(valid)[:-1]+',"after":"scribeswell_studies_0009"}'),('malformed','not-json'),('oversized',' '*4097+json.dumps(valid)),
+   ('unsafe',json.dumps(valid|{'unsafe':'secret-child-payload'})),('failed',json.dumps({'complete':False,'code':'scribeswell_studies_migration_failed'}))]
+  for name,payload in cases:
+   with self.subTest(report=name),tempfile.TemporaryDirectory() as d:
+    root=Path(d);self.setup_target(root);calls=[]
+    path=root/'env/scribeswell-migrations.env'
+    path.write_text(path.read_text()+'SCRIBESWELL_STUDIES_MIGRATION_ENABLED=true\nSCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL=postgresql+psycopg://scribeswell_studies_migrator:fixture@db.stage.supabase.co/postgres?sslmode=require\n')
+    def execute(command,**kwargs):
+     calls.append(command)
+     if command[:2]==['docker','run']:
+      self.migration_report(command,self.success_report(command))
+      if Path(command[command.index('--env-file')+1]).name=='scribeswell-migrations.env' and payload is not None:
+       evidence=Path(command[command.index('-v')+1].removesuffix(':/evidence'))
+       (evidence/'studies-migrations.json').write_text(payload)
+     if command[:2]==['docker','compose']:
+      observed=json.loads((root/'attempt/evidence.json').read_text())
+      self.assertEqual(observed['migrations']['scribeswell-owned']['private_detail'],json.loads(payload))
+    def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
+    success=name in ('actual','repeat','fresh')
+    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value=''),patch.object(host,'supervisor_events',return_value={}):
+     if success:self.deploy(root)
+     else:
+      with self.assertRaisesRegex(ValueError,'migration failed'):self.deploy(root)
+    report=json.loads((root/'attempt/evidence.json').read_text())
+    self.assertEqual(report['activated'],success)
+    self.assertEqual(any(command[:2]==['docker','compose'] for command in calls),success)
+    self.assertEqual(report['migrations']['scribeswell-owned']['private_detail'],json.loads(payload) if success else None)
+    self.assertNotIn('secret-child-payload',json.dumps(report))
+    if not success:self.assertFalse((root/'state/release-pending.json').exists())
  def test_catalogue_reference_enters_migration_compatibility_fingerprint(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);app=root/'app';app.mkdir();(app/'alembic.ini').write_text('[alembic]')

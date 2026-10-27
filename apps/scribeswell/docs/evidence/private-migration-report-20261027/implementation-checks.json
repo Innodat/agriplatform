@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-27",
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_personal_notes_release.py platform/deployment/tests/test_host.py -q",
+      "phase": "before",
+      "result": "23 passed in 8.94s",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_personal_notes_release.py -q",
+      "phase": "acceptance-red",
+      "result": "1 failed, 4 passed in 1.83s",
+      "exit_code": 1,
+      "failure": "truthful before0008/after0009 rejected by old supervisor"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_personal_notes_release.py platform/deployment/tests/test_host.py -q",
+      "phase": "coordinated-green",
+      "result": "45 passed in 12.36s",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_personal_notes_release.py apps/scribeswell/tests/test_owned_migrations.py platform/deployment/tests/test_host.py platform/deployment/tests/test_release.py platform/deployment/tests/test_registry_auth.py -q",
+      "phase": "final-focused-regression",
+      "result": "92 passed, 77 skipped in 30.10s",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_studies_migration_report_native.py --collect-only -q",
+      "phase": "native-collection-only",
+      "result": "6 collected in 1.12s",
+      "exit_code": 0
+    }
+  ],
+  "native_execution": "parent-owned pending",
+  "source_sha256": {
+    "apps/scribeswell/deployment/studies_release_contract.py": "a6004855d59c8c94e547025ddf868edf3996226e459f8cc0374702059b13a7d2",
+    "apps/scribeswell/deployment/studies_migrate.py": "92b624e3e81eb5a4fed7ba1772ed4f03adf014e164f117502661eafb57f7f6e0",
+    "apps/scribeswell/deployment/migrate.py": "628820b4646ee124b29920b895ef4d6274de40866df2054c3b2534a3ad63f39c",
+    "apps/scribeswell/deployment/Migrations.Dockerfile": "1a28a4dcef7c4fc25661ca7518da53ca807f4d6f11670ddd8bf4ac7c21c3a011",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "dd97c3889a6b410e5eee4dec20709d872f1f23025098d44804be1cf134cc5c1d",
+    "apps/scribeswell/tests/test_studies_migration_report_native.py": "55885f791648d360d84b4ab76d250300f9b15ba0ebeef32a94e3fea7f8de7e59",
+    "platform/deployment/host-release.py": "48e9d3e13333204d1acad709d9417b258901cd898ae57722400b260646058d5f",
+    "platform/deployment/registry.json": "a1224cdbf722875a65f348985400bf71c0c78bbe52faf99de501ac7b835edb51",
+    "platform/deployment/tests/test_host.py": "54ebe4f09d75238234bc5d37308903dc22657ec5a334711969b396a06dd407f8",
+    "platform/deployment/tests/test_release.py": "d0fbc7404a20fc660c1d9b86568532aec774ba978c4af4efeebf2b232bf04367",
+    "apps/scribeswell/docs/PRIVATE_MIGRATION_REPORT.md": "881287903ad0cb3dcf13eb1c308f10d5fce6455c1ea3cd2bd14dc7d5e5e93664",
+    "apps/scribeswell/deployment/README.md": "c8f72336e5ef4ce5419ce5258224609c1dd5d8abfb595d8ca81d994bea73e782",
+    "_bmad-output/implementation-artifacts/spec-scribeswell-truthful-private-migration-report.md": "c80296cf4ea4eb255bf8c747d53ab0188110dd8645e72ae177df615bd0383ab9"
+  },
+  "model_selected": "gpt-6.1-sol/high",
+  "actual_model": "unknown",
+  "usage": "unknown",
+  "compute_elapsed": "unknown",
+  "production_activation": false
+}

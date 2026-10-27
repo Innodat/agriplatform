@@ -1,0 +1,31 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_personal_notes_release.py apps/scribeswell/tests/test_owned_migrations.py platform/deployment/tests/test_host.py platform/deployment/tests/test_release.py platform/deployment/tests/test_registry_auth.py -q",
+  "result": "92 passed, 77 skipped in30.41s",
+  "exit_code": 0,
+  "earlier_recorded_source_snapshot": {
+    "apps/scribeswell/deployment/studies_release_contract.py": "a6004855d59c8c94e547025ddf868edf3996226e459f8cc0374702059b13a7d2",
+    "apps/scribeswell/deployment/studies_migrate.py": "92b624e3e81eb5a4fed7ba1772ed4f03adf014e164f117502661eafb57f7f6e0",
+    "apps/scribeswell/deployment/migrate.py": "628820b4646ee124b29920b895ef4d6274de40866df2054c3b2534a3ad63f39c",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "dd97c3889a6b410e5eee4dec20709d872f1f23025098d44804be1cf134cc5c1d",
+    "apps/scribeswell/tests/test_studies_migration_report_native.py": "55885f791648d360d84b4ab76d250300f9b15ba0ebeef32a94e3fea7f8de7e59",
+    "platform/deployment/host-release.py": "48e9d3e13333204d1acad709d9417b258901cd898ae57722400b260646058d5f",
+    "platform/deployment/registry.json": "a1224cdbf722875a65f348985400bf71c0c78bbe52faf99de501ac7b835edb51",
+    "platform/deployment/tests/test_host.py": "54ebe4f09d75238234bc5d37308903dc22657ec5a334711969b396a06dd407f8",
+    "platform/deployment/tests/test_release.py": "d0fbc7404a20fc660c1d9b86568532aec774ba978c4af4efeebf2b232bf04367"
+  },
+  "sources_after_parent_checks": {
+    "apps/scribeswell/deployment/studies_release_contract.py": "a6004855d59c8c94e547025ddf868edf3996226e459f8cc0374702059b13a7d2",
+    "apps/scribeswell/deployment/studies_migrate.py": "92b624e3e81eb5a4fed7ba1772ed4f03adf014e164f117502661eafb57f7f6e0",
+    "apps/scribeswell/deployment/migrate.py": "628820b4646ee124b29920b895ef4d6274de40866df2054c3b2534a3ad63f39c",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "dd97c3889a6b410e5eee4dec20709d872f1f23025098d44804be1cf134cc5c1d",
+    "apps/scribeswell/tests/test_studies_migration_report_native.py": "55885f791648d360d84b4ab76d250300f9b15ba0ebeef32a94e3fea7f8de7e59",
+    "platform/deployment/host-release.py": "48e9d3e13333204d1acad709d9417b258901cd898ae57722400b260646058d5f",
+    "platform/deployment/registry.json": "a1224cdbf722875a65f348985400bf71c0c78bbe52faf99de501ac7b835edb51",
+    "platform/deployment/tests/test_host.py": "54ebe4f09d75238234bc5d37308903dc22657ec5a334711969b396a06dd407f8",
+    "platform/deployment/tests/test_release.py": "d0fbc7404a20fc660c1d9b86568532aec774ba978c4af4efeebf2b232bf04367"
+  },
+  "unchanged_from_implementation_snapshot": true,
+  "native_skips": "Other opted-in native groups absent in this focused invocation; six new native cases and historical migration case passed separately."
+}

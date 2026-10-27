@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import sys
 APP=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(APP/'deployment'))
+from studies_release_contract import TARGET, REVISIONS, valid_result
 
 def selected(environ):
     enabled=environ.get('SCRIBESWELL_STUDIES_MIGRATION_ENABLED','false')
@@ -19,8 +21,18 @@ def upgrade(environ):
     url=make_url(raw)
     if url.username!='scribeswell_studies_migrator':raise ValueError('studies_migration_authority_invalid')
     os.environ['SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL']=raw
-    command.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
-    return {'complete':True,'owner':'scribeswell_studies','after':'scribeswell_studies_0001','recovery':'forward-only'}
+    from alembic.script import ScriptDirectory
+    config=Config(str(APP/'studies-alembic.ini'))
+    history=ScriptDirectory.from_config(config)
+    if history.get_heads()!=[TARGET] or set(revision.revision for revision in history.walk_revisions())!=set(REVISIONS):
+        raise ValueError('studies_migration_history_invalid')
+    config.attributes['scribeswell_studies_expected_head']=TARGET
+    command.upgrade(config,'head')
+    result={'complete':True,'owner':'scribeswell_studies',
+            'before':config.attributes['scribeswell_studies_before'],
+            'after':config.attributes['scribeswell_studies_after'],'recovery':'forward-only'}
+    if not valid_result(result):raise ValueError('studies_migration_report_invalid')
+    return result
 
 if __name__=='__main__':
     try:

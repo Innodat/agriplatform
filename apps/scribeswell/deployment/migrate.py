@@ -10,6 +10,7 @@ ROOT = APP.parents[1]
 BUDGET_SECONDS = 180
 sys.path.insert(0,str(APP / 'migrations'))
 sys.path.insert(0,str(APP / 'deployment'))
+from studies_release_contract import valid_result as valid_private_result
 from release_profile import from_environ, selection, evidence as profile_evidence, strict_json, valid_result, OPTION_KEYS, REVISIONS
 
 def validate_url(environ):
@@ -111,10 +112,10 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
                 child.kill();child.communicate(timeout=5)
                 entry.update(status='unknown',outcome_requires_reconciliation=True)
                 raise RuntimeError from None
-            expected_private={'complete':True,'owner':'scribeswell_studies','after':'scribeswell_studies_0001','recovery':'forward-only'}
-            if child.returncode or len(private_output)>4096 or strict_json(private_output,4096)!=expected_private:raise RuntimeError
+            private_result=strict_json(private_output,4096)
+            if child.returncode or not valid_private_result(private_result):raise RuntimeError
             with Path(target).with_name('studies-migrations.json').open('x',encoding='utf8') as private_evidence:
-                private_evidence.write(json.dumps(expected_private)+'\n');private_evidence.flush();os.fsync(private_evidence.fileno())
+                private_evidence.write(json.dumps(private_result)+'\n');private_evidence.flush();os.fsync(private_evidence.fileno())
         report['complete']=True
         save()
     except BaseException:

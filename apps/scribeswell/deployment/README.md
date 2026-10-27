@@ -92,3 +92,12 @@ roles and continued authenticated execution authority. Do not globally revoke
 PUBLIC function privileges or change the unrelated legacy functions. Retain prior
 ACL evidence for recovery. This target correction was subsequently approved and applied; see the production
 status record for verification and retained recovery evidence.
+
+## Optional private Studies release evidence
+
+The coordinated worker, supervisor and host use the app-owned
+[private migration report contract](../docs/PRIVATE_MIGRATION_REPORT.md). The current
+release target is `scribeswell_studies_0009`; a success records observed `before`
+and committed `after`, and never activates a release. Old `0001` evidence is stale.
+Private migration opt-in remains disabled by default. Keep corpus evidence and its
+validation profile unchanged; qualify private evidence separately when enabled.

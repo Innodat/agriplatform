@@ -43,6 +43,13 @@ published policy; it does not relax the owner's validation or fabricate its arti
 
 ## Application and platform release owners: truthful private-head reporting
 
+**Follow-up2026-10-27:** the report correction below is now implemented and natively
+qualified in this Scribeswell session. The [adopted private report contract](PRIVATE_MIGRATION_REPORT.md)
+records actual before/committed after0009 and coordinated app/host validation.
+The quoted request is retained as history, not outstanding implementation. Actual
+environment release/recovery rehearsal and the Access readiness request above remain.
+
+
 `apps/scribeswell/deployment/studies_migrate.py:upgrade` upgrades Alembic `head` but
 returns `after:scribeswell_studies_0001`. Both
 `apps/scribeswell/deployment/migrate.py` and `platform/deployment/host-release.py`

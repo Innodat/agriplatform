@@ -1,0 +1,11 @@
+{
+  "change": "one adopted load-bearing private release report companion",
+  "previous_companions": 36,
+  "current_companions": 37,
+  "all_resolve": true,
+  "old_prefix_sha256_normalizing_only_added_companion": "a2f5191a5b712dbbdff5ed759fc6992ce54424a06936aff612687de8b52f9b13",
+  "kernel_and_questions_unchanged": true,
+  "stable_CAP_ids": 11,
+  "acceptance_rows": 38,
+  "wrapper_only_drops": []
+}

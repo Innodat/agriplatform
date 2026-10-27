@@ -24,6 +24,13 @@ def scribeswell_contract():
  module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
  return module
 
+def scribeswell_studies_contract():
+ # The release image and host SHA bind this app-owned private target together.
+ path=ROOT/'apps/scribeswell/deployment/studies_release_contract.py'
+ spec=importlib.util.spec_from_file_location('scribeswell_studies_release_contract',path)
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ return module
+
 def execute(args,**kwargs):
  # Suppress third-party exception/stdout content: credentials may be in database errors.
  return subprocess.run(args,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,**kwargs)
@@ -202,8 +209,15 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
         qualified=contract.successful_report(detail,expected_validation)
         if migration_values.get('SCRIBESWELL_STUDIES_MIGRATION_ENABLED')=='true':
          private_file=evidence/'studies-migrations.json'
-         private_detail=json.loads(private_file.read_text()) if private_file.exists() else None
-         qualified=qualified and private_detail=={'complete':True,'owner':'scribeswell_studies','after':'scribeswell_studies_0001','recovery':'forward-only'}
+         private_detail=None
+         if private_file.exists():
+          with private_file.open() as stream:
+           try:private_detail=contract.strict_json(stream.read(4097),4096)
+           except ValueError:pass
+         private_qualified=scribeswell_studies_contract().valid_result(private_detail)
+         # Retain only validated private observations, never raw child diagnostics.
+         entry['private_detail']=private_detail if private_qualified else None
+         qualified=qualified and private_qualified
         entry['detail']=detail if qualified else contract.safe_failure(detail,expected_validation)
        else:
         entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None
