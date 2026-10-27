@@ -1828,3 +1828,24 @@ responses with best-effort stream cancellation. Safe typed outcomes expose no ra
 
 See [adapter evidence](AUDIT_ADAPTER_EVIDENCE.md). No Auth entry, startup, UI, storage,
 historical actor names, native SQL or real authority qualification is introduced.
+
+
+## Inert administrator detail request adapter — 2026-10-27
+
+`web/src/admin-detail.ts:readAdminCapture(session,pending,options)` consumes the existing
+AdminDetail generated contract with one explicit same-origin authenticated GET. Caller,
+bearer, organization and capture are pinned before awaits. Original owner/actor, definition,
+answers and actual update provenance remain intact for a reader who may differ from the
+owner/executor. The unchanged detail validator checks content against the separately
+validated response owner; own-only consumers remain strict. Detail has no reader echo;
+the pinned request and current-generation guard bind publication, while the backend
+independently checks current read.all. No own fallback or inferred edit/offline authority.
+
+The closed original-definition snapshot is deeply immutable. Strict JSON/UTF8, duplicate/
+unknown field rejection,512KiB actual streamed bytes including errors, JSON/private/no-store
+metadata and redirect refusal apply. One maximum10s budget covers fetch/body/validation/
+publication. Cancellation, supersession and ignored aborts discard late data and cancel
+owned streams best-effort. Safe typed errors contain no raw payload/error text/credentials.
+No retries, persistence, Auth entry, UI, startup wiring or actor-name resolution. See
+[adapter evidence](ADMIN_DETAIL_ADAPTER_EVIDENCE.md). Full Story3.1/3.2 and release gates
+remain open.

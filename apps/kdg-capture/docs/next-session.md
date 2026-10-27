@@ -1,3 +1,30 @@
+## Completed delivery — inert administrator detail request adapter, 2026-10-27
+
+The next ready Story3.1 consumer returns a complete immutable original-definition
+snapshot for a current online administrator across owners, without mounting it. Read
+[adapter evidence](ADMIN_DETAIL_ADAPTER_EVIDENCE.md), [current contract](contracts.md#inert-administrator-detail-request-adapter--2026-10-27) and
+[delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-admin-detail-request-adapter.md).
+
+Parent qualification passes78 adapter tests, strict TypeScript7.0.2,108 existing
+read/history and73 audit-adapter tests,76 affected backend tests,37 synthetic HTTP
+checks and five scaffold parities. Three review layers complete with no supported findings or verification gaps. Request caller/
+scope is pinned; original ownership and actual update provenance are preserved. No
+reader echo or historical actor labels is invented. No Auth/UI/storage/startup wiring.
+
+Next assess inert administrator history pagination or edit/recovery request consumers
+against existing current owner contracts. Historical actor labels still need their
+separate Identity HTTP contract; current-account/assignment-target names are insufficient.
+Full Story3.1/3.2, portal/session/device, real authority and release gates remain open.
+
+Continue authorized synthetic local/CI work without routine approval stops. Preserve
+concurrent/historical work, retained Docker resources and TypeScript7.0.2. No UI/editor/
+Leave, real services/accounts, startup/browser/worker/queue activation, provisioning/
+migrations/privilege expansion, dependencies, deployment/production/pilot/push or cleanup.
+Fingerprints/HMAC deferred. Never read/run/copy/hash migrations/tests/schema_fixture.py.
+Historical handoffs follow unchanged.
+
+---
+
 ## Completed delivery — inert online audit request adapter, 2026-10-27
 
 The next ready synthetic Story 3.1 subset consumes the existing closed audit contract

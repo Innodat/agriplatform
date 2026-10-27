@@ -1,0 +1,4 @@
+{
+ "extends":"./tsconfig.json",
+ "files":["src/admin-detail.ts","tests/admin-detail-adapter.types.ts"]
+}
