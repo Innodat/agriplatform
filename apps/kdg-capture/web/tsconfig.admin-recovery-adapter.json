@@ -1,0 +1,4 @@
+{
+ "extends":"./tsconfig.json",
+ "files":["src/admin-recovery.ts","tests/admin-recovery-adapter.types.ts"]
+}
