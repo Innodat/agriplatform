@@ -1,8 +1,17 @@
-## Administrator request batch in progress — 2026-10-27
+## Fresh-session handoff — administrator request batch complete, 2026-10-27
 
-Delivery1 edit-context and delivery2 explicit administrator PUT adapters are complete. Context98 focused tests; PUT59 focused/69 affected backend/60 owner HTTP/95 own client tests; strict TS7.0.2, owner freshness and five parities pass. Each delivery has three independent clear review layers and no new deferrals. See [batch checkpoint](admin-request-batch-checkpoint.md), [context evidence](ADMIN_EDIT_CONTEXT_ADAPTER_EVIDENCE.md) and [PUT evidence](ADMIN_EDIT_ADAPTER_EVIDENCE.md).
+Three deliveries are committed: inert administrator edit-context, explicit conditional PUT and original edit recovery GET. The recovery delivery is `6d9ad0228310981ac26de58e9de17fdbb2d76ca8`; all delivery revisions, evidence and ownership are in the [concise checkpoint](admin-request-batch-checkpoint.md). Batch limit reached; no additional ready implementation is established here.
 
-Continue the third/final ready administrator recovery request consumer under the authorized maximum of three. Preserve current exclusions/concurrent work/resources: no UI/editor/Leave, integration/activation, real services/accounts, native database/Docker, provisioning/migrations/privilege expansion, dependencies, deployment/production/pilot/push or cleanup. Retain TS7.0.2; HMAC deferred. Never access migrations/tests/schema_fixture.py. Historical actor labels need separate Identity HTTP; full portal/session/device and real authority/release stay gated. Historical handoffs follow unchanged.
+Verification:220 new focused tests, strict TS7.0.2 and nine independent review layers pass; no supported findings, verification gaps or new deferrals. Affected synthetic backend/HTTP/client checks pass, prior successful proof sources match current files, and five scaffold parities freshly pass. Read [context](ADMIN_EDIT_CONTEXT_ADAPTER_EVIDENCE.md), [PUT](ADMIN_EDIT_ADAPTER_EVIDENCE.md) and [recovery](ADMIN_RECOVERY_ADAPTER_EVIDENCE.md) evidence for exact commands, retained RED/GREEN capsules/logs and limits. Existing historical deferrals remain in their owner records.
+
+Fresh-session start:
+
+1. Read apps/kdg-capture/AGENTS.md, this header, checkpoint, current contracts and the three done specs linked by evidence. Recheck current full Git revision/status and actual sources; preserve concurrent work. No unfinished item remains from this batch.
+2. Assess the next bounded synthetic consumer against current owner readiness before code. Historical actor labels still lack their separate Identity HTTP contract; current-account/assignment-target names are insufficient. Do not infer another ready consumer or full Story3.1/3.2 completion. Mounted portal/session/conflict/device, real authority and release remain gated.
+
+All current exclusions remain: no UI/editor/Leave, Auth/session/startup/browser/queue/worker integration or activation, real services/accounts, native database/Docker, provisioning/migrations/privilege expansion, dependencies, deployment/production/pilot/push or cleanup. Retain TS7.0.2, concurrent/historical work and all preexisting resources; fingerprints/HMAC deferred. Never read/run/copy/hash migrations/tests/schema_fixture.py.
+
+Fixture state: synthetic owner HTTP fixtures stopped normally; retained source capsules/logs/results are referenced by machine evidence. No Docker/native or resource lifecycle operation ran. Original implementation bytes and historical document text remain preserved. Context headroom/model usage are unknown; this handoff deliberately selects a fresh session. Historical handoffs follow unchanged.
 
 ---
 
