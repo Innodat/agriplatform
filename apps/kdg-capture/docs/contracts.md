@@ -1895,3 +1895,29 @@ Strict closed JSON/UTF8/duplicate-key handling, private/no-store, same-origin an
 `web/src/admin-recovery.ts:recoverAdminEdit(session,pending,options)` makes one explicit admin operations GET with exactly command_type=capture.edit and no body/selectors. Pin caller/bearer/org/operation/original capture/type before awaits. Current server read.all is independent of edit.all; executor-private receipts have no own/admin authority discriminator. Only exact original v1 edit receipt/capture/canonical revision acknowledges recovery. Closed unresolved stays ambiguous; old/no-op receipt revision is unchanged without guessing current state.
 
 Strict closed JSON/UTF8/duplicate-key, private/no-store and redirects are checked. Streamed response/error ceiling16384 bytes; original maximum10s deadline and abort/generation fences protect publication and best-effort cancel owned bodies. Safe generated errors carry no raw messages or conflict revision. No writes, retry, new identity, persistence, Synced or rollback/absence promise. See [evidence](ADMIN_RECOVERY_ADAPTER_EVIDENCE.md). No UI/session/startup integration, real authority, release or full Story3.2 claim.
+
+## Historical actor display planning — 2026-10-27
+
+See the [Identity-owned candidate contract](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md)
+for the proposed historical-attribution label read and owner/consumer acceptance cases.
+It is pending ratification and exact credential/projection readiness. Existing audit
+IDs, routes, response bounds and generated types are unchanged. No historical-name
+lookup, named portal, runtime integration or full Story 3.1 qualification is claimed.
+
+### Historical actor display readiness closure — 2026-10-27
+
+The user's subsequent “next” agrees the candidate defaults. Exact credential policy
+and synthetic/native projection boundaries now live in the
+[Identity contract](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md#exact-read-projection-boundary).
+Only an isolated synthetic owner HTTP candidate is selected; active Access wiring,
+existing owner exports, KDG audit DTOs, database privileges and runtime state stay
+unchanged. Named KDG composition and native proof remain separate work.
+
+### Isolated Identity actor display owner completion — 2026-10-27
+
+The [owner candidate](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md) now passes
+81 focused and127 affected tests, isolated schema/type freshness, strictTS7 and
+three-layer review. One verification gap was patched; no new deferral. See
+[owner evidence](../../../services/access/HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md).
+No KDG audit DTO, route, generated type or named composition is changed. Combined
+DTO/budget/current-authorization/response-publication contracts remain next.

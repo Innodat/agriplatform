@@ -1,3 +1,71 @@
+## Completed isolated Identity actor display HTTP candidate — 2026-10-27
+
+The [Identity owner candidate](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md)
+is implemented and reviewed: actual POST404 acceptance RED, 81 focused tests,
+127 affected HTTP tests, isolated exporter/generator freshness and strictTS7.0.2 pass.
+Three independent review layers completed; one verification gap was addressed with
+a cleanup-deadline regression. No open finding or new deferral. Exact commands,
+source/log custody and limits: [owner evidence](../../../services/access/HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md).
+
+The factory remains isolated and unmounted with explicit configuration and injected
+read-only rows. No active Access app/client/schema, native DB/grants/migrations,
+real credentials, KDG UI/session/startup or resource lifecycle changed. Nine protected
+active/dependency files remain unchanged; concurrent work and prior evidence remain.
+
+Next close the KDG composition contract: authorized record/page actor selection,
+combined DTO and byte bound, shared deadline, response validation and late-publication
+fences. Then select one bounded synthetic consumer. Native projection/retention,
+real authority and release remain separately gated. Full Story3.1 is not complete.
+All historical scope exclusions remain binding; historical handoff bytes follow intact.
+
+---
+
+## Historical actor display owner readiness closed — 2026-10-27
+
+The user's “next” agrees the preceding contract defaults. The [Identity owner contract](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md#exact-credential-policy)
+now specifies dedicated active/previous keys, fixed-org policy, rotation design and
+an injected read-only projection; future native function/role design is explicit.
+The [BMAD spec](../../../_bmad-output/specs/spec-kdg-historical-actor-display/SPEC.md)
+selects one isolated synthetic owner HTTP candidate with HTTP acceptance RED first.
+
+Next implement that candidate through BMAD: HD-1–HD-5 and owner HD-7, candidate-only
+OpenAPI/types, no active Access app/export changes and no SQL adapter or grants.
+KDG composition/HD-6, native proof, real credentials and runtime activation remain
+separate. No previous batch is reopened. All prior scope exclusions remain binding.
+This pass changed documents only; no runtime tests, dependencies or resources changed.
+Historical handoff bytes remain preserved below.
+
+---
+
+## Historical actor display contract drafted — 2026-10-27
+
+The next prerequisite now has a concrete [Identity-owned candidate contract](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md)
+and a [BMAD planning spec](../../../_bmad-output/specs/spec-kdg-historical-actor-display/SPEC.md).
+Current retained names, trusted KDG server selection, closed bounded lookup and safe
+missing/outage behavior are proposed; HD-1–HD-7 define future acceptance proof.
+No resolver, generated types or named consumer is implemented or qualified.
+
+Next resolve the candidate's explicit readiness items: ratify label/fallback and
+service trust/selection semantics, wire bounds, exact credential configuration and
+restricted Identity projection. Then select one synthetic owner delivery with RED
+first; KDG composition needs its own complete DTO contract. No fourth delivery or
+full Story 3.1 readiness follows. All exclusions in the prior handoff remain binding.
+Documentation checks only; concurrent changes and all historical text are preserved.
+
+---
+
+## Next prerequisite assessed — 2026-10-27
+
+Read [the current readiness assessment](admin-next-readiness.md), based on Git
+`29763767fc3bb2895fea2500283759975f826d81`. No fourth ready implementation was
+established within the current scope. The concrete next proposal is Identity-owned
+historical actor display contract planning with the KDG audit consumer, before code.
+No runtime tests, service activation or resource operations ran in this assessment;
+concurrent work and all prior evidence remain preserved. Existing exclusions below
+remain binding. The completed batch handoff follows unchanged.
+
+---
+
 ## Fresh-session handoff — administrator request batch complete, 2026-10-27
 
 Three deliveries are committed: inert administrator edit-context, explicit conditional PUT and original edit recovery GET. The recovery delivery is `6d9ad0228310981ac26de58e9de17fdbb2d76ca8`; all delivery revisions, evidence and ownership are in the [concise checkpoint](admin-request-batch-checkpoint.md). Batch limit reached; no additional ready implementation is established here.
@@ -3856,3 +3924,22 @@ schema usage and current-account organization projection execution. See
 Next: the membership-aware selected-organization effective Access SQL reader through
 existing owner tooling, then its HTTP/consumer gates. No account-reader, application
 grant, PtS/KDG activation, real access, deployment or cleanup follows from this bridge.
+
+
+### Isolated historical actor display owner candidate — 2026-10-27
+
+Identity now has an isolated, unmounted synthetic candidate for
+`POST /v2/identity/actor-displays`: explicit dedicated-key/fixed-organization policy,
+read-only injected projection, strict bounded DTOs and separate generated wire types.
+Owner verification records an actual missing-route POST404 RED, 80 focused passes,
+127 affected HTTP passes and exporter/generator/TS7 checks. Formal review is pending.
+See the [owner contract](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md) and
+[delivery evidence](../../../services/access/HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md).
+
+This does not mount a running endpoint or resolve KDG audit names. HD-6 and consuming
+HD-7 remain separate: KDG must select IDs only from the freshly authorized record/page,
+release its business transaction before HTTP, bind results to account/org/page/session,
+preserve the shared deadline and invalidate late results after authority/scope changes.
+Define the combined DTO and byte bound before composition. Native Identity retention,
+projection privileges, real credentials, deployment and installed-device proof remain
+gated. No SQL, migrations, active OpenAPI/client or resource lifecycle changed here.

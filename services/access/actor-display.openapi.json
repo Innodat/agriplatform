@@ -1,0 +1,281 @@
+{
+  "components": {
+    "schemas": {
+      "ActorDisplayDenied": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/Closed"
+          },
+          "error": {
+            "const": "Request could not be completed",
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "const": "service_access_denied",
+            "default": "service_access_denied",
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "details",
+          "error_id"
+        ],
+        "title": "ActorDisplayDenied",
+        "type": "object"
+      },
+      "ActorDisplayInvalid": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/Closed"
+          },
+          "error": {
+            "const": "Request could not be completed",
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "const": "validation_failed",
+            "default": "validation_failed",
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "details",
+          "error_id"
+        ],
+        "title": "ActorDisplayInvalid",
+        "type": "object"
+      },
+      "ActorDisplayResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "labels": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "resolved": "#/components/schemas/ResolvedActorDisplay",
+                  "unavailable": "#/components/schemas/UnavailableActorDisplay"
+                },
+                "propertyName": "status"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ResolvedActorDisplay"
+                },
+                {
+                  "$ref": "#/components/schemas/UnavailableActorDisplay"
+                }
+              ]
+            },
+            "maxItems": 203,
+            "minItems": 1,
+            "title": "Labels",
+            "type": "array"
+          },
+          "org_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Org Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "labels"
+        ],
+        "title": "ActorDisplayResponse",
+        "type": "object"
+      },
+      "ActorDisplayUnavailable": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/Closed"
+          },
+          "error": {
+            "const": "Request could not be completed",
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "const": "identity.actor_display_unavailable",
+            "default": "identity.actor_display_unavailable",
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "details",
+          "error_id"
+        ],
+        "title": "ActorDisplayUnavailable",
+        "type": "object"
+      },
+      "Closed": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Closed",
+        "type": "object"
+      },
+      "ResolvedActorDisplay": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "status": {
+            "const": "resolved",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "status",
+          "display_name"
+        ],
+        "title": "ResolvedActorDisplay",
+        "type": "object"
+      },
+      "UnavailableActorDisplay": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "unavailable",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "status"
+        ],
+        "title": "UnavailableActorDisplay",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "KdgActorDisplayKey": {
+        "in": "header",
+        "name": "X-Service-Key",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "title": "Identity historical actor display candidate",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/v2/identity/actor-displays": {
+      "post": {
+        "operationId": "identity_actor_displays",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "actor_ids": {
+                    "items": {
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string"
+                    },
+                    "maxItems": 203,
+                    "minItems": 1,
+                    "title": "Actor Ids",
+                    "type": "array"
+                  },
+                  "org_id": {
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "title": "Org Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "org_id",
+                  "actor_ids"
+                ],
+                "title": "ActorDisplayRequest",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDisplayResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDisplayDenied"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDisplayInvalid"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorDisplayUnavailable"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "KdgActorDisplayKey": []
+          }
+        ],
+        "summary": "Actor Displays"
+      }
+    }
+  }
+}
