@@ -1,3 +1,34 @@
+## Completed delivery — native administrator API qualification, 2026-10-27
+
+The user approved retained synthetic PostgreSQL qualification. It is complete: 38 native
+cases, 83 focused helper tests (27 new), five scaffold parity checks and three review
+layers pass. Six review corrections addressed, one false claim and three low-value
+additions rejected; no new deferrals. Read [native evidence](NATIVE_ADMIN_API_EVIDENCE.md),
+[current contracts](contracts.md#native-administrator-savereadrecovery-qualification--2026-10-27)
+and [delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-native-admin-api.md).
+
+Actual restricted SQL verifies both owner/admin edit orderings, stale unchanged-value
+conflict, private/no-op receipt recovery, real rollback and current detail/context/audit.
+Access/account/actor evidence is synthetic; no application/schema change was required.
+The initial nested-loop harness failure was independently reconciled and retained,
+then corrected; both passing attempts and their source capsules/datasets remain.
+Final counts: parents 11 each, captures 20, history 50, outcomes 56. Prior rows, sentinel,
+applied 0002 provenance and three restricted identities remain unchanged. All four
+containers were initially running and remain running; no lifecycle calls ran. Candidate
+connections closed. Run/database/network/volume custody remains the recorded fixture.
+
+Continue ready authorized synthetic local/CI implementation without routine approval
+stops. Full administrator UI/session/device and history-list pagination native evidence,
+real Identity/Access and release activation remain open; this does not qualify Story 3.1/
+3.2 in full. No preparers, migrations/promotion, provisioning, privilege expansion,
+cleanup/reset, real accounts, UI/editor/Leave, startup/browser/queue/worker activation,
+production/deployment/pilot, installs/dependency changes or push. Preserve concurrent
+work, historical evidence/resources and TypeScript 7.0.2. Fingerprints/HMAC deferred.
+Never read/run/copy/hash migrations/tests/schema_fixture.py. Historical handoffs follow
+unchanged; the earlier no-native exclusion was superseded only for this completed slice.
+
+---
+
 ## Completed delivery — administrator conditional edit/recovery, 2026-10-27
 
 Baseline is 3db852ec451982fcc7edd6895c8f867598c0bb6e. The administrator context

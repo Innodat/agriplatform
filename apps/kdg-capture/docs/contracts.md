@@ -1779,3 +1779,20 @@ No proposal store, force overwrite, draft, offline all-edit observation or schem
 The candidate is not mounted or released. See [qualified evidence](ONLINE_ADMIN_EDIT_EVIDENCE.md)
 and [generated contract](../contracts/admin-edit-generated/index.ts). Full portal conflict
 comparison, session rendering, native SQL/RLS/driver and release qualification remain.
+
+
+## Native administrator Save/read/recovery qualification — 2026-10-27
+
+The existing administrator APIs now have retained PostgreSQL qualification with synthetic
+Access and distinct owner/admin identities. Actual all_write correction preserves original
+ownership and commits the real executor's private outcome/history; no-op, conditional
+conflicts, changed-target replay and read.all-only recovery after edit loss are verified.
+Independent restricted read-only sessions separate all-read records/history from private
+executor outcomes. Detail/context/audit match original definition and current storage.
+Real constraint failure after the provisional outcome rolls back completely; original
+retry succeeds once. No wire/schema/permission scope or startup contract changed.
+
+See [native evidence](NATIVE_ADMIN_API_EVIDENCE.md). This remains an inert candidate;
+real Access/Identity, listener/network, native contention/cancellation, mounted portal/
+session/device and release activation remain separate gates. Existing migration/release,
+least privilege, ownership and recovery safeguards remain binding.
