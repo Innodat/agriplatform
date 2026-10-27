@@ -1,3 +1,32 @@
+## Completed delivery — inert administrator history request adapter, 2026-10-27
+
+The next ready Story 3.1 consumer returns one complete immutable organization page across
+owners without mounting it. Read [adapter evidence](ADMIN_HISTORY_ADAPTER_EVIDENCE.md),
+[current contract](contracts.md#inert-administrator-history-request-adapter--2026-10-27)
+and [delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-admin-history-request-adapter.md).
+
+Parent qualification passes 121 adapter tests, strict TypeScript 7.0.2,259 existing client
+tests,114 affected backend tests, 37 synthetic HTTP checks, owner freshness and five
+scaffold parities. Three independent review layers complete with no supported findings
+or verification gaps; no new deferrals. Cursors bind current caller/org/read.all/dates/
+limit; exact microsecond creation-time/ID order and short byte-limited continuation are
+preserved. Original owners, complete definitions/answers and actual executors remain.
+No Auth/UI/storage/startup wiring or complete Story 3.1 claim.
+
+Next assess inert administrator edit-context or explicit edit/recovery request consumers
+against existing current owner contracts. Historical actor labels still require their
+separate Identity HTTP contract; current-account/assignment-target names are insufficient.
+Full Story 3.1/3.2, portal/session/device, real authority and release gates remain open.
+
+Continue authorized synthetic local/CI work without routine approval stops. Preserve
+concurrent/historical work, retained Docker resources and TypeScript 7.0.2. No UI/editor/
+Leave, real services/accounts, startup/browser/worker/queue activation, provisioning/
+migrations/privilege expansion, dependencies, deployment/production/pilot/push or cleanup.
+Fingerprints/HMAC deferred. Never read/run/copy/hash migrations/tests/schema_fixture.py.
+Historical handoffs follow unchanged.
+
+---
+
 ## Completed delivery — inert administrator detail request adapter, 2026-10-27
 
 The next ready Story3.1 consumer returns a complete immutable original-definition

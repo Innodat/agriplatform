@@ -1849,3 +1849,28 @@ owned streams best-effort. Safe typed errors contain no raw payload/error text/c
 No retries, persistence, Auth entry, UI, startup wiring or actor-name resolution. See
 [adapter evidence](ADMIN_DETAIL_ADAPTER_EVIDENCE.md). Full Story3.1/3.2 and release gates
 remain open.
+
+
+## Inert administrator history request adapter — 2026-10-27
+
+`web/src/admin-history.ts:adminHistoryCaptures` explicitly consumes one generated
+AdminHistory GET page under a pinned current account/bearer/org/inclusive-date/limit/
+cursor context. Server current read.all remains authoritative. Closed reader echoes,
+complete original-owner definition/answer/provenance snapshots, unique strictly descending
+creation-time/ID positions and exact continuation are validated before immutable publication.
+Short byte-limited pages may continue; empty terminal pages are legal. Canonical caller/
+org/read.all/date/limit cursors carry no authority, signature or snapshot guarantee.
+
+One same-origin private/no-store JSON request rejects redirects, duplicate keys, invalid
+UTF8/unknown fields and malformed original details. Actual streamed page bytes including
+errors are capped at 2 MiB; compact per-detail bytes at 512 KiB. One original maximum 10s
+execution budget fences fetch/body/validation/publication against cancellation,
+supersession and timeout, with best-effort owned stream cancellation. Stable safe errors
+expose no raw error/body/bearer. No retry, own fallback, automatic pagination, storage,
+Auth/session/UI/startup wiring, offline observation, actor names or edit authority.
+
+[Adapter evidence](ADMIN_HISTORY_ADAPTER_EVIDENCE.md) records 121 adapter tests, strict
+TypeScript 7.0.2,259 existing client tests,114 backend tests, 37 synthetic HTTP checks,
+owner freshness and five scaffold parities. Three independent review layers completed
+without supported findings or verification gaps. Full Story 3.1/3.2, portal/session/device,
+historical actor-label HTTP, real authority and controlled release gates remain open.
