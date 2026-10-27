@@ -10,6 +10,9 @@ Personal Studies and genuine standalone signup have passed the isolated real-own
 qualification. Default Access startup now also passes the app's actual browser/signup
 consumer integration against the qualified exact owner pair; see
 [default-startup evidence](DEFAULT_STARTUP_INTEGRATION_EVIDENCE.md).
+The separate [frozen Access runtime qualification](FROZEN_ACCESS_RUNTIME_EVIDENCE.md)
+now passes the unchanged hardened Python3.15 default image against the same reviewed
+pair, with a freshly prepared version2 artifact and all inherited consumer oracles.
 Coordinated environment release/recovery evidence remains outstanding. Sharing remains
 separate; implementing a substitute Access or Notification path would cross ownership.
 
@@ -117,6 +120,20 @@ the actual handoff Python3.12.3 interpreter; this does not qualify the productio
 Python3.15 bundle or unrelated Identity0027 working changes. Both new fixture runs
 stopped normally. Prior historical handoff and unsuccessful-attempt evidence remains
 retained; no production activation or coordinated release/recovery claim is made.
+
+**Frozen runtime follow-up2026-10-27:** the separate exact-source Access bundle and
+default image passed actual Python3.15.0/uv0.13.1 offline packaging, all three invalid
+packaging builds, ten real startup refusals, browser/disabled-authority/signup/local-mail
+and24 SQL checkpoints without skips. Runtime proved exactly14 owner modules and1,145
+dependency files; independent live inspection matched the genuine artifact bytes.
+Final review-fixed run`9d74848b-c1f5-4107-a07f-13bcfc1d9cb7` and its private proof/context remain
+retained. Parent audit checked11,617 hashes/entries; all11 owned containers and21
+process groups stopped normally, with API exit0/no OOM and no fixture-port listeners.
+The earlier4fecf04d successful proof and safe JSON remain superseded pre-review
+history; all failed-attempt history remains. The original190-input archive/qualification
+and live bundle remain unchanged. This
+qualifies the frozen Access image only; whole Scribeswell production-image and actual
+environment release/recovery, external SMTP and physical-device gates remain.
 
 Impacts: owner readiness/qualification, consumer artifact example and documentation;
 no shared UI, generator, agent-context or ADR changes. Recipient/invitation and

@@ -1,5 +1,33 @@
 # Final native implementation evidence — 2026-10-26
 
+## Frozen Access image follow-up — 2026-10-27
+
+The separate [frozen runtime qualification](FROZEN_ACCESS_RUNTIME_EVIDENCE.md) passed
+the reviewed Identity0026/Access0019 default Access image using actual Python3.15.0,
+offline uv0.13.1 packaging and a genuine fresh owner-prepared version2 artifact.
+All inherited browser/disabled-authority/signup/local-mail and24 independent SQL
+checkpoints passed without skips, including actual OTP elapsed122.000231s. Three
+invalid bundle builds and ten unsafe default-image startups refused. Exactly14 owner
+modules and1,145 dependency files matched frozen provenance; the genuine artifact's
+bytes matched inside the running image. Runtime restrictions and absence of pytest
+and migration credentials were observed.
+
+Final review-fixed run`9d74848b-c1f5-4107-a07f-13bcfc1d9cb7` stopped all11 owned containers and21
+process groups normally; successful API exit0/no OOM and no declared-port listeners
+were independently confirmed; all nine SO_REUSEADDR binds succeeded. The parent audit checked11,617
+hashes/entries and repeated113 focused tests in0.91s. The archived packager suite
+passed10 tests in0.12s and composition check-only passed15 migrations without writes.
+The earlier4fecf04d successful proof/safe JSON remains superseded pre-review history;
+its TCP close-state exclusive-rebind observation and all failed attempts are retained.
+Original qualified archive,190 owner inputs/qualification and live bundle remain
+unchanged. See [safe command/hash/oracle evidence](evidence/frozen-access-runtime-20261027.json).
+
+Earlier Python3.12 owner/default-startup evidence below remains historical with its
+original scope. This follow-up qualifies only the separate frozen Access image;
+whole Scribeswell production-image qualification, actual environment release/recovery,
+external SMTP, physical-device acceptance and sharing/Notification remain gated.
+Production is not activated.
+
 ## Current outcome — parent final verification
 
 The complete final browser command `npm run test:browser --workspace=apps/scribeswell/web -- --workers=2 --fully-parallel` passed: **1174passed,2expected native-only skips,24.4minutes** (runner1466.96s). All103selected runtime/test/contract source hashes stayed unchanged. [Final command/results](evidence/final-integration/browser-verification/browser-results.json), before/after snapshots, exact runner and full log are retained. Both desktop and mobile completed; the skipped native-only browser path was independently executed against the real app API/PostgreSQL below. Historical failed/interrupted runs and withdrawn invalid-harness evidence remain distinct in the chronological sections that follow.
