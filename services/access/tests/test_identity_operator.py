@@ -104,7 +104,7 @@ def test_autocommit_rejects_even_when_getter_reports_read_committed(surface):
     assert error.value.code=='isolation_unsupported' and not c.calls
 
 
-@pytest.mark.parametrize('state,code',[('IC001','operation_busy'),('55P03','operation_unavailable'),('57014','operation_unavailable'),('IC002','access_denied'),('IC003','operation_conflict'),('IC004','operation_verification_unavailable'),('XX000','operation_unavailable')])
+@pytest.mark.parametrize('state,code',[('IC001','operation_busy'),('55P03','operation_unavailable'),('57014','operation_unavailable'),('IC002','access_denied'),('42501','access_denied'),('IC003','operation_conflict'),('IC004','operation_verification_unavailable'),('XX000','operation_unavailable')])
 def test_only_exact_outcome_wait_is_busy_and_no_error_chain(state,code):
     import identity_operator as o
     class DriverError(RuntimeError):sqlstate=state

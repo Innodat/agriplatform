@@ -86,3 +86,53 @@ def test_each_descriptor_binding_refuses(prepared,field,value):
     document=json.loads(descriptor.read_bytes());document[field]=value
     descriptor.write_text(json.dumps(document))
     with pytest.raises(t.TargetError):t.load_target(descriptor)
+
+
+@pytest.fixture
+def prepared_leave(tmp_path,monkeypatch):
+    import json,shutil
+    import identity_operator_target as t
+    original=t.ROOT
+    monkeypatch.setattr(t,'ROOT',tmp_path);monkeypatch.setattr(t.dev,'ROOT',tmp_path)
+    source=tmp_path/t.LEAVE_ENV_REF;source.parent.mkdir(parents=True)
+    environment=json.loads((original/t.LEAVE_ENV_REF).read_bytes());environment['workspace_root']=str(tmp_path)
+    source.write_text(json.dumps(environment))
+    schema=tmp_path/'platform/deployment/schema/leave-development-target-v1.json';schema.parent.mkdir(parents=True);shutil.copyfile(original/'platform/deployment/schema/leave-development-target-v1.json',schema)
+    run=tmp_path/t.LEAVE_RUN_REF/t.LEAVE_RUN
+    t.native_cli.prepare(run,environment,source.read_bytes(),t.LEAVE_RUN)
+    (run/'secrets').mkdir(mode=0o700);secret=run/'secrets/identity-operator.env'
+    secret.write_bytes(b'IDENTITY_OPERATOR_PASSWORD=explicit-existing-password\n');secret.chmod(0o600)
+    project=t.dev.project_identity(environment,t.LEAVE_RUN)
+    row=dict(State=dict(Running=True),NetworkSettings=dict(Ports={'5432/tcp':[dict(HostIp='127.0.0.1',HostPort='55582')]},Networks={project+'-network':dict(NetworkID='verified-leave-network')}))
+    monkeypatch.setattr(t.native_cli,'network',lambda *args:'verified-leave-network')
+    monkeypatch.setattr(t.native_cli,'docker',lambda *args:json.dumps([row]).encode())
+    return t,source,run,secret,row
+
+
+def test_leave_descriptor_is_explicit_namespace_and_original_worker_binding(prepared_leave):
+    t,source,run,secret,row=prepared_leave
+    descriptor=t.prepare_target(source,t.LEAVE_RUN,namespace='1234abcd')
+    target=t.load_target(descriptor)
+    assert descriptor==run/'identity-operator-1234abcd.json'
+    assert target.database=='idb_88a737ddad7b_1234abcd' and target.port==55582 and target.password=='explicit-existing-password'
+    assert 'explicit-existing-password' not in repr(target)
+
+
+@pytest.mark.parametrize('defect',['foreign_run','no_namespace','namespace','owner','secret_mode','secret_content','container','network','database'])
+def test_leave_descriptor_rejects_foreign_binding_before_connections(prepared_leave,defect):
+    import json
+    t,source,run,secret,row=prepared_leave
+    if defect=='foreign_run':
+        with pytest.raises(t.TargetError):t.prepare_target(source,'11111111-1111-4111-8111-111111111111',namespace='1234abcd')
+        return
+    if defect in ('no_namespace','namespace','owner'):
+        with pytest.raises(t.TargetError):t.prepare_target(source,t.LEAVE_RUN,namespace=None if defect=='no_namespace' else '1234abcG' if defect=='namespace' else '1234abcd',owner='access' if defect=='owner' else 'identity')
+        return
+    descriptor=t.prepare_target(source,t.LEAVE_RUN,namespace='1234abcd')
+    if defect=='secret_mode':secret.chmod(0o644)
+    elif defect=='secret_content':secret.write_bytes(b'IDENTITY_OPERATOR_PASSWORD=${HOME}\n')
+    elif defect=='container':row['State']['Running']=False
+    elif defect=='network':next(iter(row['NetworkSettings']['Networks'].values()))['NetworkID']='foreign'
+    elif defect=='database':
+        value=json.loads(descriptor.read_bytes());value['database']='idb_88a737ddad7b_foreign';descriptor.write_text(json.dumps(value))
+    with pytest.raises(t.TargetError):t.load_target(descriptor)

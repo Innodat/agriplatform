@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 
-from identity_operator_input import Command, EnsureAccountActorCommand, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, parse_command, CommandValidationError
+from identity_operator_input import Command, CreatePersonCommand, LinkPersonCommand, EnsureAccountActorCommand, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, parse_command, CommandValidationError
 
 
 class OperatorError(RuntimeError):
@@ -74,9 +74,39 @@ class JoinMembershipResult:
 
 
 @dataclass(frozen=True)
+class PersonTarget:
+    person_id: str
+
+
+@dataclass(frozen=True)
+class PersonLinkTarget:
+    account_id: str
+    person_id: str
+    actor_id: str
+
+
+@dataclass(frozen=True)
+class PersonResult:
+    command: Literal['person.create']
+    target: PersonTarget
+    disposition: Literal['created', 'unchanged']
+    revision: str
+    event_id: str | None
+
+
+@dataclass(frozen=True)
+class PersonLinkResult:
+    command: Literal['account.link_person']
+    target: PersonLinkTarget
+    disposition: Literal['created', 'unchanged']
+    revision: str
+    event_id: str | None
+
+
+@dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: EnsureAccountActorResult | RegisterResult | RetireMembershipResult | JoinMembershipResult
+    result: PersonResult | PersonLinkResult | EnsureAccountActorResult | RegisterResult | RetireMembershipResult | JoinMembershipResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -90,9 +120,11 @@ def canonical_command(command: Command):
     """
     value = asdict(command)
     value['operation_id'] = str(UUID(value['operation_id']))
-    for name in ('actor_id', 'account_id'):
+    for name in ('actor_id', 'account_id', 'person_id'):
         if name in value['payload']:
             value['payload'][name] = str(UUID(value['payload'][name]))
+    if isinstance(command, LinkPersonCommand):
+        value['payload'].pop('expected_revision' if command.payload.expected_absent else 'expected_absent')
     if value['scope']['kind'] == 'organization':
         value['scope']['org_id'] = str(UUID(value['scope']['org_id']))
     return rfc8785.dumps(value)
@@ -132,6 +164,8 @@ def _remaining(deadline):
 
 
 def _receipt(row, operation_id, command='actor.register_system'):
+    if command in ('person.create', 'account.link_person'):
+        return _person_receipt(row, operation_id, command)
     if command in ('membership.retire', 'membership.join'):
         return _membership_receipt(row, operation_id, command)
     if row is None:
@@ -162,6 +196,30 @@ def _receipt(row, operation_id, command='actor.register_system'):
             result['disposition'], None, event), 1, 1, committed_at)
     return Receipt(operation_id, RegisterResult('actor.register_system', ActorTarget(target),
                    result['disposition'], None, event), 1, 1, committed_at)
+
+
+def _person_receipt(row, operation_id, command):
+    if row is None:
+        return None
+    valid = False
+    try:
+        result, cv, rv, instant = row
+        fields = {'person_id'} if command == 'person.create' else {'account_id','person_id','actor_id'}
+        valid = (type(cv) is int and cv == 1 and type(rv) is int and rv == 1
+            and type(result) is dict and set(result) == {'target','disposition','revision','event_id'}
+            and type(result['target']) is dict and set(result['target']) == fields
+            and result['disposition'] in ('created','unchanged') and result['revision'] == '1'
+            and isinstance(instant, datetime) and instant.tzinfo is not None
+            and ((result['disposition'] == 'created') == (result['event_id'] is not None)))
+        if valid:
+            for value in list(result['target'].values()) + ([result['event_id']] if result['event_id'] is not None else []):
+                valid = valid and type(value) is str and UUID(value).int != 0 and str(UUID(value)) == value
+    except (ValueError, TypeError, AttributeError, KeyError):
+        valid = False
+    if not valid:
+        raise OperatorError('operation_verification_unavailable',operation_id)
+    model, target = (PersonResult,PersonTarget) if command == 'person.create' else (PersonLinkResult,PersonLinkTarget)
+    return Receipt(operation_id,model(command,target(**result['target']),result['disposition'],result['revision'],result['event_id']),1,1,instant)
 
 
 def _membership_receipt(row, operation_id, command='membership.retire'):
@@ -223,7 +281,7 @@ def _run(connection, operation_id, statement, parameters, deadline, command='act
     except Exception as error:
         original = getattr(error, 'orig', None)
         state = getattr(original, 'sqlstate', None)
-        failure = {'IC001': 'operation_busy', 'IC002': 'access_denied',
+        failure = {'IC001': 'operation_busy', 'IC002': 'access_denied', '42501': 'access_denied',
             'IC003': 'operation_conflict', 'IC004': 'operation_verification_unavailable',
             'IC005': 'command_invalid'}.get(state, 'operation_unavailable')
     if failure is not None:
@@ -236,6 +294,16 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command, (CreatePersonCommand, LinkPersonCommand)):
+        parameters = dict(operation=operation_id,person=str(UUID(command.payload.person_id)),reason=command.reason_code,
+            evidence=command.evidence_ref,canonical=canonical_command(command))
+        if isinstance(command, LinkPersonCommand):
+            parameters.update(account=str(UUID(command.payload.account_id)),actor=str(UUID(command.payload.actor_id)),
+                revision=command.payload.expected_revision)
+            statement = 'SELECT * FROM identity.link_person(CAST(:operation AS uuid),CAST(:account AS uuid),CAST(:person AS uuid),CAST(:actor AS uuid),CAST(:revision AS bigint),:reason,:evidence,:canonical)'
+        else:
+            statement = 'SELECT * FROM identity.create_person(CAST(:operation AS uuid),CAST(:person AS uuid),:reason,:evidence,:canonical)'
+        return _run(connection,operation_id,statement,parameters,deadline,command.command)
     if isinstance(command, EnsureAccountActorCommand):
         return _run(connection, operation_id,
             'SELECT * FROM identity.ensure_account_actor(CAST(:operation AS uuid),CAST(:account AS uuid),'
@@ -272,7 +340,7 @@ def execute(connection, body: bytes):
              evidence=command.evidence_ref, canonical=canonical), deadline)
 
 
-def outcome(connection, operation_id, *, command='actor.register_system', org_id=None, account_id=None):
+def outcome(connection, operation_id, *, command='actor.register_system', org_id=None, account_id=None, person_id=None):
     deadline = time.monotonic() + 10
     invalid = False
     try:
@@ -281,7 +349,20 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
             operation_id = str(UUID(operation_id))
     except (ValueError, TypeError, AttributeError):
         invalid = True
-    if command in ('membership.retire', 'membership.join'):
+    if command in ('person.create','account.link_person'):
+        try:
+            invalid = invalid or org_id is not None or type(person_id) is not str or not UUID(person_id).int or str(UUID(person_id)) != person_id.lower()
+            person_id = str(UUID(person_id))
+            if command == 'account.link_person':
+                invalid = invalid or type(account_id) is not str or not UUID(account_id).int or str(UUID(account_id)) != account_id.lower()
+                account_id = str(UUID(account_id))
+            else:
+                invalid = invalid or account_id is not None
+        except (ValueError, TypeError, AttributeError):
+            invalid = True
+    elif person_id is not None:
+        invalid = True
+    elif command in ('membership.retire', 'membership.join'):
         try:
             for value in (org_id, account_id):
                 if type(value) is not str or str(UUID(value)) != value.lower() or not UUID(value).int:
@@ -299,6 +380,10 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
         invalid = True
     if invalid:
         raise OperatorError('command_invalid')
+    if command in ('person.create','account.link_person'):
+        return _run(connection,operation_id,
+            'SELECT * FROM identity.person_command_outcome(:command,CAST(:operation AS uuid),CAST(:person AS uuid),CAST(:account AS uuid))',
+            dict(command=command,operation=operation_id,person=person_id,account=account_id),deadline,command)
     if command in ('membership.retire', 'membership.join'):
         return _run(connection, operation_id,
             ('SELECT * FROM identity.' + ('membership_join_outcome' if command == 'membership.join' else 'membership_retirement_outcome') + '(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid))'),

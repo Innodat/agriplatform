@@ -61,8 +61,33 @@ def test_head20_dispatch_retains_exact19(monkeypatch):
     with pytest.raises(b.BaselineError,match='identity_unknown_history'):
         b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.STUDIES_SETUP_REVISION)
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen[-1]=='studies_setup'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.PERSON_LINKS_REVISION)
+    b.verify_owned_postcondition(object())
+    assert seen[-1]=='person_links'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.PREFERENCES_REVISION)
+    b.verify_owned_postcondition(object())
+    assert seen[-1]=='language_preferences'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.ACCOUNT_GRANT_TARGET_REVISION)
+    b.verify_owned_postcondition(object())
+    assert seen[-1]=='account_grant_target'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.CAPABILITY_REVISION)
+    b.verify_owned_postcondition(object())
+    assert seen[-1]=='capability_reader'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.DISCOVERY_REVISION)
+    b.verify_owned_postcondition(object(),require_head=True)
+    assert seen[-1]=='discovery'
 
 
 @pytest.mark.parametrize('defect', [None, 'migration', 'missing_reference', 'modified_reference', 'source_pins'])

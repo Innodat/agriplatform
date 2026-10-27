@@ -1,0 +1,50 @@
+{
+  "catalog": {
+    "columns": {
+      "rows": 139,
+      "sha256": "7bc9f62143b3e459a1349a2835f2717ec9b735e2a32436732e86cc2ca9dce748"
+    },
+    "constraints": {
+      "rows": 138,
+      "sha256": "e4719f7a5c8346c12bd792152d2713e3376c1ba4da3de457a174f4a93a465289"
+    },
+    "discovery_columns": {
+      "rows": 20,
+      "sha256": "b8498ecb1aa551fbe802761e9058fdc30ee3871c9573f99a8ba3639be4bdf32d"
+    },
+    "discovery_functions": {
+      "rows": 10,
+      "sha256": "ae11befffe1b168d587c72bacd7a7d9e459ca61c79536f71a475d9d93d5f6d7f"
+    },
+    "effective_tables": {
+      "rows": 686,
+      "sha256": "bd199fe0ddd9eaaca8daaab130b866e30d78b37c8769504f72e8e93df9656de7"
+    },
+    "functions": {
+      "rows": 56,
+      "sha256": "855bcfac2a4da2e6826ac8089d5031cdec151cdd4dcc2a5cd929d76b443396dc"
+    },
+    "indexes": {
+      "rows": 22,
+      "sha256": "e356a988aab28b4735bcdeb7e881b85c60b2830645fc0e219dd06481773ea6a8"
+    },
+    "policies": {
+      "rows": 29,
+      "sha256": "b706ffb967e402e4920d639481bd866fe0518c2a8238e89f786e78a4f476b0a1"
+    },
+    "relations": {
+      "rows": 36,
+      "sha256": "26f7601d25b081eb5a19e10de76660f82a2af7cfe19f1d898ec089adcbbd73fc"
+    },
+    "schema": {
+      "rows": 1,
+      "sha256": "725c6c0020353e1824a548b0d88a579bdd314823b169adbad1702a16ac3c7118"
+    },
+    "triggers": {
+      "rows": 39,
+      "sha256": "9bad327bb348d5dd6cc1eaab59f21d2948b645cdf75848e30e5fab43fdca09ac"
+    }
+  },
+  "migration_sha256": "ba6ca82cfb0bbddb7ba5c9ab58ffc4d2d63283adcd413cdc69acdac754f68818",
+  "predecessor_reference_sha256": "b6ee32aeb585f9ac5c0ad19ca278644a207a56692a9c3847e465f98252faac40"
+}

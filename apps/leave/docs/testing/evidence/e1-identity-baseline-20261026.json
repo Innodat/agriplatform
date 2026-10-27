@@ -1,0 +1,1420 @@
+{
+  "story": "E1-ID-A",
+  "status": "accepted-tracker-review",
+  "date": "2026-10-26",
+  "baseline_commit": "7c0e9319c8dc05cd51a3814d7753db0d3048ff81",
+  "new_database_execution": false,
+  "new_production_changes": false,
+  "focused_test_result": "300 passed in 7.79s",
+  "checks": [
+    {
+      "label": "focused-tests",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "services/access/tests/test_identity_baseline.py",
+        "services/access/tests/test_identity_composition.py",
+        "services/access/tests/test_profile_fields.py",
+        "services/access/tests/test_legacy_roles.py",
+        "services/access/tests/test_token_hook.py",
+        "services/access/tests/test_check_reader_bridge.py",
+        "apps/pts/tests/test_release.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/home/ck/repos/innodat/agriplatform",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 8.256,
+      "log": ".local/leave-id-a-20261026/focused-tests-source-bound.log",
+      "sha256": "faa57ec970c0fadbbe0820134c25f37cb48cdb6ec3065ad3e2163e490f9a33dc"
+    },
+    {
+      "label": "compose-legacy",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-B",
+        "tools/py/run_compose_supabase.py",
+        "--check-only"
+      ],
+      "cwd": "/home/ck/repos/innodat/agriplatform",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.075,
+      "log": ".local/leave-id-a-20261026/compose-legacy-source-bound.log",
+      "sha256": "717595e678ccf63899c5205c751ac89f675a1bb9c150c02c28dd7a693452dcf7"
+    },
+    {
+      "label": "compose-owned",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-B",
+        "tools/py/run_compose_supabase.py",
+        "--identity-authority",
+        "owned",
+        "--no-seeds",
+        "--check-only"
+      ],
+      "cwd": "/home/ck/repos/innodat/agriplatform",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.089,
+      "log": ".local/leave-id-a-20261026/compose-owned-source-bound.log",
+      "sha256": "b474dc31d67f2d4e6745b6f9bb3602aa6a62c732910d0d252cc6d1a51bce5dc7"
+    }
+  ],
+  "custody_audit": {
+    "kind": "read_only_historical_artifact_audit",
+    "database_contact": false,
+    "current_head": "6926cb527e319e1842c105c06fcd5d5fabac4a45",
+    "baseline": {
+      "commit": "e4723c5ca371df01779af3964d306d0fcd38bc0c",
+      "git_files": [
+        {
+          "path": "apps/kdg-capture/docs/next-session.md",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "apps/kdg-capture/docs/shared-prerequisites.md",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "apps/pts/tests/test_release.py",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "platform/docs/architecture/contracts/identity-migration-ownership-inventory.md",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "tools/py/deploy_pts.py",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "tools/py/run_compose_supabase.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/spec-id-a-baseline.md",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/IDENTITY-MIGRATIONS.md",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/IDENTITY_BASELINE_EVIDENCE.md",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-alembic.ini",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/env.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/identity-migrations/identity_baseline.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/identity-migrations/pyproject.toml",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/identity-migrations/reference.json",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/source-pins.json",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/uv.lock",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0001_baseline.py",
+          "historical_git_matches": true,
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_identity_baseline.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/tests/test_identity_baseline.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        },
+        {
+          "path": "services/access/tests/test_identity_composition.py",
+          "historical_git_matches": true,
+          "current_matches": false
+        }
+      ],
+      "source_pins": 7,
+      "trusted_reference_matches": true,
+      "journal_steps": 44,
+      "logs": [
+        {
+          "label": "clean-first",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/clean-first.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "clean-repeat",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/clean-repeat.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "legacy-adopt",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-adopt.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "legacy-repeat",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-repeat.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "mismatch_acl-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_acl-refuse.log",
+          "expected_sha256": "269e77748ed155f3075a9aecd99fe5fe9f61dd19856b8813409c2246884d45fb",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch"
+        },
+        {
+          "label": "mismatch_trigger-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_trigger-refuse.log",
+          "expected_sha256": "b54b1a224d5c473b009fae74964a517708f9b30c062960975a4b66c9be270e6e",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch"
+        },
+        {
+          "label": "mismatch_owner-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_owner-refuse.log",
+          "expected_sha256": "57d4c5949b1b894a32b1ad3d4734b046fe023bf8799f2f3d778a2d9cce9a208d",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch"
+        },
+        {
+          "label": "mismatch_default-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_default-refuse.log",
+          "expected_sha256": "0fac47c93c224c007337ee1faddfb9d71f9dbf214bb706dc742cb4ed175b7f61",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch"
+        },
+        {
+          "label": "mismatch_history-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_history-refuse.log",
+          "expected_sha256": "cf30db00946d0697a384a6b6afd7c104174019268a5d92a10894e7e0bbe3451e",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_history"
+        },
+        {
+          "label": "mismatch_columns-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mismatch_columns-refuse.log",
+          "expected_sha256": "8d34739ac68c40e634654644557720c6f7bdea2afda84284f3949573821ce4d8",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch"
+        },
+        {
+          "label": "bare-stamp-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/bare-stamp-refuse.log",
+          "expected_sha256": "ac67b9ff2c7fa2bebf4db95e4eb06fc477ab29ecccf8c6f5fce528c32275d66f",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_use_verified_upgrade_route"
+        },
+        {
+          "label": "downgrade-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/downgrade-refuse.log",
+          "expected_sha256": "97b2f0950c39d9f2dd7f3b4b8d13b7329f694282c28146a4038d60a2f42abd2e",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_use_verified_upgrade_route"
+        },
+        {
+          "label": "empty-upgrade-base-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/empty-upgrade-base-refuse.log",
+          "expected_sha256": "7f424134a6ad03e2fe1bdbb3896a5bfc62ff012e053a6446800c79053daec118",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_history"
+        },
+        {
+          "label": "mid-source-failure-rollback",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/mid-source-failure-rollback.log",
+          "expected_sha256": "09ce29e36c079d229eb37ac81b39e863401b5b1e9aeda0de81cd90d552579de2",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_migration_failed_requires_reconciliation"
+        },
+        {
+          "label": "rollback-reconciled-clean",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/rollback-reconciled-clean.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "elevated-runtime-clean-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/elevated-runtime-clean-refuse.log",
+          "expected_sha256": "eff5416c4eb0f98ccc48363309c6d03b933fbe3393b6e7f1727bb3d9181d8a40",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_catalog_mismatch:roles"
+        },
+        {
+          "label": "restricted-runtime-clean",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/restricted-runtime-clean.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "ledger-column-grant-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/ledger-column-grant-refuse.log",
+          "expected_sha256": "bdec85b8e0d31908b8e49f338fad7d74fb23eb39ff781aac8f3034c95a67660b",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_history"
+        },
+        {
+          "label": "ledger-column-reconciled",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/ledger-column-reconciled.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "legacy-partial-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-partial-refuse.log",
+          "expected_sha256": "41d8c4bab18fe8ecb4a302e2d1ffd78f31bad8303e29611db3f727e869259305",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_legacy_history"
+        },
+        {
+          "label": "legacy-partial-refuse-attempt-2",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-partial-refuse-attempt-2.log",
+          "expected_sha256": "41d8c4bab18fe8ecb4a302e2d1ffd78f31bad8303e29611db3f727e869259305",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_legacy_history"
+        },
+        {
+          "label": "legacy-misnamed-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-misnamed-refuse.log",
+          "expected_sha256": "41d8c4bab18fe8ecb4a302e2d1ffd78f31bad8303e29611db3f727e869259305",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_legacy_history"
+        },
+        {
+          "label": "legacy-unknown-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-unknown-refuse.log",
+          "expected_sha256": "eada86c4e94f07c7a5bc0d57fa045da58cb829896e878e32d8e317bb9b792c68",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_legacy_history"
+        },
+        {
+          "label": "legacy-ledger-reconciled",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/legacy-ledger-reconciled.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "owned-unknown-legacy-refuse",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/owned-unknown-legacy-refuse.log",
+          "expected_sha256": "e77e77554be360e6f86ce8e229f2a7eb26102fea689a445f7dd0b4fbb8dda0e4",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_unknown_legacy_history"
+        },
+        {
+          "label": "clean-conflicting-original-ledger",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/clean-conflicting-original-ledger.log",
+          "expected_sha256": "9138b10a953ada1ff669404d37f5daa686afaf985d86d2d2b96715cec77bedd6",
+          "matched": true,
+          "available": true,
+          "exit_code": 1,
+          "expected_failure": "identity_conflicting_legacy_history"
+        },
+        {
+          "label": "composition-identity-first",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/composition-identity-first.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "composition-seeded-repeat",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/composition-seeded-repeat.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "populated-auth-clean",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/populated-auth-clean.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        },
+        {
+          "label": "populated-auth-repeat",
+          "path": "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/populated-auth-repeat.log",
+          "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "matched": true,
+          "available": true,
+          "exit_code": 0,
+          "expected_failure": null
+        }
+      ],
+      "audit_inputs": {
+        "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/post-commit-audit.json": "86b75cdfd737afdaa99c8a5678bc1f72d4f5b86263c14758928f3fb340309420",
+        "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/final-audit.json": "9dff5819b565d69bd6bda09eb45231d63b0916b12d7c1010c15bda4b987c91a0",
+        "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/identity-qualification.json": "0e08cb8277254dcde0641b05c30d32fadaa5463eb5b5a0cb67f2996449b8b4b1",
+        "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/focused-checks.json": "36dd9cce685f38237da3954d9697ae65c27287fdf5a0cdf379d004a32b9a8a3b",
+        "platform/deployment/.local/identity-baseline/qualification-im60qj1l/review-cases/receipt-overwrite-observation.json": "c905cc8b9a70f64a5fbc779d26b81428b46361e530ba7e0aa76899f4e68cd7f0"
+      },
+      "prior_receipt_overwrite_limitation": "Preserved in receipt-overwrite-observation.json; no old overwritten CPU log recovery claimed"
+    },
+    "hardening": {
+      "frame": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022",
+      "receipt_anchors": {
+        "check-reader-retained.json": "3cfd1db690cde9b308998a50e00723343cfb7135800282cc23900fe34777c8f7",
+        "check-reader-source.json": "336c69c008c8fe67c1a69182aeebce7e69798d24491abc08a744cb72b630eeeb",
+        "baseline-preparation-custody.json": "f0bec9196cc8916b3ad4df642736cc1f5ce75fcd22245b778ebf42e2238ebc48"
+      },
+      "logs_verified": 29,
+      "stages": [
+        "supported-ensure-join-populated-Access14-prior-grant-receipt",
+        "rollback-only-foreign-policy-role-dependency-refused-and-fully-restored",
+        "flags-bidirectional-memberships-dependencies-PUBLIC-ledger-catalog-refusals-atomic-postcondition-rollback",
+        "exact-populated19-controlled20-only-Identity-history-and-approved-ACLs-change",
+        "repeat20-exact-preservation-and-drift-refusal-forward-retry",
+        "authorized-Auth-hook-Expense-role-lookup-profile-current-account-target-postgres-callers-with-and-without-JWT-role",
+        "supported-ensure-join-and-six-prior-Access14-clients-replay-revoke-and-exact-recovery",
+        "actual-private-role-raw-tables-both-ledgers-other-projections-writes-owner-escalation-denied",
+        "current-member-nullable-internal-actor-missing-malformed-setup-wrong-account-org-context",
+        "retired-membership-fails-closed-with-unchanged-data",
+        "deleted-profile-organization-fail-closed-rollback-preserves-complete-state"
+      ],
+      "sources": [
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/actor-bootstrap-evidence.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/auth-helper-definitions.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/baseline-preparation-custody.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/bootstrap.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/credentials.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/account-actor-ensure-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/active-membership-index-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/actor-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/authority-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/env.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/identity_baseline.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/legacy-role-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-actor-attribution-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-binding-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-join-command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-retention-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-retire-command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/membership-retirement-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/organization-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/organization-target-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/profile-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/projection-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/pyproject.toml",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/source-pins.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/target-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/token-hook-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/uv.lock",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0001_baseline.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0002_actor_registry.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0003_current_account_actor.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0004_current_account_organization.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0005_operator_authority.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0006_actor_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0007_organization_targets.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0008_profile_fields.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0009_legacy_roles.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0010_token_hook.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0011_membership_binding.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0012_membership_retention.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0013_membership_retirement.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0014_active_membership_index.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0015_membership_actor_attribution.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0016_membership_retire_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0017_membership_join_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0018_account_actor_ensure.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical-identity19/versions/0019_organization_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/historical_identity19_driver.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/identity-operator-credential.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/root_qualification_driver.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/run.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/identity-baseline/check-reader-bridge-reviewed-20261022/runtime-credential.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/.local/kdg/99b7231c-0a5b-4bdb-98e8-3329564c526a/supabase/config.toml",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/dev.py",
+          "current_matches": false
+        },
+        {
+          "path": "platform/deployment/environments/kdg-local.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/images.py",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/native_cli.py",
+          "current_matches": false
+        },
+        {
+          "path": "platform/deployment/schema/development-target-v1.json",
+          "current_matches": true
+        },
+        {
+          "path": "platform/deployment/toolchain.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/CHECK-READER-BRIDGE.md",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/access_operator.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/access_operator_input.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/alembic.ini",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-alembic.ini",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/account-actor-ensure-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/active-membership-index-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/actor-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/authority-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/check-reader-bridge-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/env.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/identity_baseline.py",
+          "current_matches": false
+        },
+        {
+          "path": "services/access/identity-migrations/legacy-role-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-actor-attribution-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-binding-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-join-command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-retention-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-retire-command-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/membership-retirement-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/organization-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/organization-target-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/profile-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/projection-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/pyproject.toml",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/source-pins.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/target-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/token-hook-reference.json",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/uv.lock",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0001_baseline.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0002_actor_registry.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0003_current_account_actor.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0004_current_account_organization.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0005_operator_authority.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0006_actor_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0007_organization_targets.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0008_profile_fields.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0009_legacy_roles.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0010_token_hook.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0011_membership_binding.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0012_membership_retention.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0013_membership_retirement.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0014_active_membership_index.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0015_membership_actor_attribution.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0016_membership_retire_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0017_membership_join_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0018_account_actor_ensure.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0019_organization_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity-migrations/versions/0020_check_reader_bridge.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity_operator.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity_operator_input.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/identity_operator_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/main.py",
+          "current_matches": false
+        },
+        {
+          "path": "services/access/migrations/access_baseline.py",
+          "current_matches": false
+        },
+        {
+          "path": "services/access/migrations/access_registration_baseline.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/access_registration_catalog.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/env.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0001_initial.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0002_membership_binding.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0003_registry_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0004_application_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0005_permission_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0006_entry_permission_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0007_application_set_enabled.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0008_organization_application_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0009_organization_application_configure.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0010_grant_lifecycle_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0011_grant_registry_bridge.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0012_strict_grant_integrity.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0013_grant_assign.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/migrations/versions/0014_grant_revoke.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/operator_cli.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_access_membership_binding.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_access_registry_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_account_actor_ensure.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_active_membership_index.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_actor_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_actor_foundation.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_application_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_application_set_enabled.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_check_reader_bridge.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_current_account_actor.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_current_account_organization.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_entry_permission_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_grant_assign.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_grant_lifecycle_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_grant_registry_bridge.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_grant_revoke.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_identity_baseline.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_identity_organization_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_identity_pregrant_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_legacy_roles.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_actor_attribution.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_binding.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_join_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_retention.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_retire_command.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_membership_retirement.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_operator_authority.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_operator_target.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_organization_application_configure.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_organization_application_storage.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_organization_targets.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_permission_register.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_profile_fields.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_strict_grant_integrity.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/qualify_token_hook.py",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tests/test_check_reader_bridge.py",
+          "current_matches": false
+        },
+        {
+          "path": "services/access/tools/identity_bridge.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_access_check_reader.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_access_operator_roles.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_account_verification_auth.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_account_verification_role.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_command_role.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_operator_roles.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_projection_role.sql",
+          "current_matches": true
+        },
+        {
+          "path": "services/access/tools/prepare_identity_target_roles.sql",
+          "current_matches": true
+        }
+      ],
+      "historical_git_files_verified": 43
+    },
+    "limits": [
+      "No fresh database/catalog/state inspection",
+      "Later source drift is reported; historical head20 proof is not current head21 database requalification",
+      "Revision0001 alone is not the privilege-safe independent ID-A acceptance profile"
+    ]
+  },
+  "audit_command": [
+    "python3",
+    ".local/leave-id-a-20261026/audit_retained.py"
+  ],
+  "audit_script_sha256": "d331583266f8d3f62f19b95b9ef42077555955613faf7e87ea666dfaad309c24",
+  "impacts": {
+    "scaffold": "Existing owner recipe and generated neutral helper retained; no generator changes justified by this reconciliation.",
+    "shared_ui": "None.",
+    "agent_context": "Existing instructions suffice.",
+    "documentation": "Current-state corrections, Leave traceability and tracking.",
+    "adr": "Accepted decisions unchanged."
+  },
+  "limits": [
+    "Historical sources/logs audited without database contact or current-state inspection.",
+    "Six head20 recorded sources have later changes; current head21 database requalification is not claimed.",
+    "Arbitrary live ownership/ACL differences are not an approved equivalent baseline.",
+    "Actual provider sign-in, hosted CI and release activation are not qualified.",
+    "Earlier overwritten baseline CPU receipts were not recovered."
+  ],
+  "earlier_unbound_checks": [
+    {
+      "label": "focused-tests",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "services/access/tests/test_identity_baseline.py",
+        "services/access/tests/test_identity_composition.py",
+        "services/access/tests/test_profile_fields.py",
+        "services/access/tests/test_legacy_roles.py",
+        "services/access/tests/test_token_hook.py",
+        "services/access/tests/test_check_reader_bridge.py",
+        "apps/pts/tests/test_release.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.26,
+      "log": ".local/leave-id-a-20261026/focused-tests.log",
+      "sha256": "366ff518131ead7adf4d1268ce7917fdc3c80042cedca47936c38f5f4da334b5"
+    },
+    {
+      "label": "compose-legacy",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-B",
+        "tools/py/run_compose_supabase.py",
+        "--check-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.134,
+      "log": ".local/leave-id-a-20261026/compose-legacy.log",
+      "sha256": "717595e678ccf63899c5205c751ac89f675a1bb9c150c02c28dd7a693452dcf7"
+    },
+    {
+      "label": "compose-owned",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python",
+        "-B",
+        "tools/py/run_compose_supabase.py",
+        "--identity-authority",
+        "owned",
+        "--no-seeds",
+        "--check-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.183,
+      "log": ".local/leave-id-a-20261026/compose-owned.log",
+      "sha256": "b474dc31d67f2d4e6745b6f9bb3602aa6a62c732910d0d252cc6d1a51bce5dc7"
+    }
+  ],
+  "current_tested_sources": {
+    "apps/pts/tests/test_release.py": "9ab377e961c723d4ff254476349120baec02419effc54741c5926402b8c8befe",
+    "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql": "cad9d5f3e5be38efdcf39ab338c06ecc693758f965234b0e5782c00480a61992",
+    "platform/supabase/migrations/20250815150000_platform_auth-hook.sql": "3286922124a974349691fe88ede59a595409df86a94654b713bb82a68cbf828d",
+    "platform/supabase/migrations/20250815160000_platform_create_audit_log_tbl.sql": "32cc49339c0ec9029261528c71e65246fd430498c7b693f31794489235c67b35",
+    "platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql": "853882974e29bba54c40de0ccb47d17362fd33e2ce2c4b940353388f364c1e01",
+    "platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql": "d3683ac1cba6b78ba4cad7086a2f6868a44aa116b3c3f76de77572a3d1066ace",
+    "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql": "f7a1f2bf26f5f72807d1451de441f53291562b4c41e3ae75e03957c11b0c8d20",
+    "services/access/access_operator.py": "c307b62540a8d3f230f2802222ddb30f2e268cc57ceef765d81e8e62ef03a85f",
+    "services/access/access_operator_input.py": "532a709b8a34bbb36c5b462bd9c30bc54727e3a2448c4d0f7ccc44c8f689b288",
+    "services/access/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "services/access/identity-alembic.ini": "65680e9d7c2699e90901cf4877c1ca2396aa282d51713178664afa3be08a10b2",
+    "services/access/identity-migrations/account-actor-ensure-reference.json": "9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50",
+    "services/access/identity-migrations/active-membership-index-reference.json": "b710b943ecb95e4b7cbce9eb77debad8f1ad181c40a2532ff87cd85be317033b",
+    "services/access/identity-migrations/actor-reference.json": "c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a",
+    "services/access/identity-migrations/authority-reference.json": "2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e",
+    "services/access/identity-migrations/check-reader-bridge-reference.json": "154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7",
+    "services/access/identity-migrations/command-reference.json": "ebe11f9cd4dbed35496488e6eb21b5c6af4c3c8f767447fd1e1ad7fb2c2c1188",
+    "services/access/identity-migrations/env.py": "0ddde18b0594e24318afc857a52f6a503f84510c2556e8d0a10b5b70201198de",
+    "services/access/identity-migrations/identity_baseline.py": "a5c2c0de1a673022074ce637d5dcee6c21ad9ddbd34671e6456d769142448b90",
+    "services/access/identity-migrations/identity_studies_catalog.py": "1ae89cafe1aa9d4cd1556a4127c50c34588b2322a357d32e3bb8f0184587ff15",
+    "services/access/identity-migrations/legacy-role-reference.json": "983d00ac73bfc9d86188ce166cece3c246926f169b9993af0141a527d8bbd0aa",
+    "services/access/identity-migrations/membership-actor-attribution-reference.json": "2204a3ca4323bf9693aacc5f4202d2aab1516ac395e71516df2d8f702298a715",
+    "services/access/identity-migrations/membership-binding-reference.json": "43bf6d868efb7234ebd8199d884f7cafcca018a2fd274df6329187381a6827f3",
+    "services/access/identity-migrations/membership-join-command-reference.json": "8e6a0b7f61535e0c541b7e80836e1431331ddb37a5ad57432a800b02e4ebd5df",
+    "services/access/identity-migrations/membership-retention-reference.json": "6476b2210402434fd4fa732a7ab882dc8ca02cdbc694c94955647f43d696cf81",
+    "services/access/identity-migrations/membership-retire-command-reference.json": "71bd766de85d53269c7f972851442eacdfea45f4d785589d42abb3d2a38ec488",
+    "services/access/identity-migrations/membership-retirement-reference.json": "63543e9abe478ddc277cb00f8f241b181dd3e88c8eb29be827fc17835c3cfab0",
+    "services/access/identity-migrations/organization-reference.json": "5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae",
+    "services/access/identity-migrations/organization-target-reference.json": "ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235",
+    "services/access/identity-migrations/profile-reference.json": "05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868",
+    "services/access/identity-migrations/projection-reference.json": "6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9",
+    "services/access/identity-migrations/pyproject.toml": "94f9ad951f5b918d284025821374d4aa4d777ee915811c0d32a411144faae434",
+    "services/access/identity-migrations/reference.json": "ae183b435b2659efbe1a9f2ffdf3eaf1b8d64b2f9256ea72927b6f78453beb00",
+    "services/access/identity-migrations/source-pins.json": "0f28f5840356dfb04a9209cf56e8f693028e1873d1ef18392cd7bb478713804f",
+    "services/access/identity-migrations/studies-setup-reference.json": "87a95ea22f9d2314fc81eaf7ac9f9f1150b1ee169d83078900d37fb9235b2f6d",
+    "services/access/identity-migrations/studies_migration_support.py": "2d92f0ec27003fdbdbc1dd4d68888471aa645b895bb7f6d37945a95b6b88766a",
+    "services/access/identity-migrations/target-reference.json": "7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae",
+    "services/access/identity-migrations/token-hook-reference.json": "f227a7839ba8e04fe1626254e91678c73cf3fc2aa5e38fdb0a5b1ec6a3633263",
+    "services/access/identity-migrations/uv.lock": "74d94dbb7b89d8f75d887dcab613c12fb4980ab90a5c0ad52e2b7ba9e88dbf4e",
+    "services/access/identity-migrations/versions/0001_baseline.py": "4b33bc6021e217fd96e5ef786ac2481e614932ee1c15a249c24bbfb55a40ef9f",
+    "services/access/identity-migrations/versions/0002_actor_registry.py": "77c77c8f5db450c48b5a667368254ee8d521e453950e8b5dd5d27c0efbc7c4d5",
+    "services/access/identity-migrations/versions/0003_current_account_actor.py": "31925c2e52ed62d48a4b2bea1b034b8146ecbe41f4e4b93b58db26a5c708b780",
+    "services/access/identity-migrations/versions/0004_current_account_organization.py": "fd016959f0fe2cdb733b0024b866ceeb96c123a87df18090ca1e1195ce859abf",
+    "services/access/identity-migrations/versions/0005_operator_authority.py": "be31c3d4e83837faf4e6f05c5a599e1e50e795ed94149da5180aa070d5dcac9b",
+    "services/access/identity-migrations/versions/0006_actor_command.py": "7da9c22b372729985df6614c2d7dd01555c1c2c2ac7ddd808ab2fdc6c2e75273",
+    "services/access/identity-migrations/versions/0007_organization_targets.py": "4b33697b0dc527c50cfa2d8b91d8d69e6f54af102b955b7384afa09842771727",
+    "services/access/identity-migrations/versions/0008_profile_fields.py": "25b1c51480aef40fad8a415d7dfd02f84a390e349bb38f1014fd3662e195a7c7",
+    "services/access/identity-migrations/versions/0009_legacy_roles.py": "50407446f35645e2a239ef7aa0b41f1d2668c30c6396a1cfd4bb9d0d719cab63",
+    "services/access/identity-migrations/versions/0010_token_hook.py": "6f748bb499f53ed72e03eb18982e086ab7603a57b27c2539bb8659a01c544595",
+    "services/access/identity-migrations/versions/0011_membership_binding.py": "44072efb27ac625f2452ded35be12514ffdbe4de3192bb7e1e6c94a49cbb61e3",
+    "services/access/identity-migrations/versions/0012_membership_retention.py": "d150cec639791529494cbb7857093358bd2243ec43533561046a56c2344c4dab",
+    "services/access/identity-migrations/versions/0013_membership_retirement.py": "4dbefed1d54829eaefcbd6f1f9f6bb27d4a41cdbde23f3ad771d6dea166385e0",
+    "services/access/identity-migrations/versions/0014_active_membership_index.py": "1df16b4b819b2bcff0145d6f1bada7779336b56101a06bfc325c272622c8e637",
+    "services/access/identity-migrations/versions/0015_membership_actor_attribution.py": "70be70971e7f06475e2fe365dfaed9c8e8e5d96d11edc0375e4b114696126742",
+    "services/access/identity-migrations/versions/0016_membership_retire_command.py": "3962b69ff0136d7cbae40c265f633b172a831a8958712d4c939a8365b5437ded",
+    "services/access/identity-migrations/versions/0017_membership_join_command.py": "4b600f96f3cfe7327eea09d7635f1aa9ab0e1d099c535d36e96786f72fd9117c",
+    "services/access/identity-migrations/versions/0018_account_actor_ensure.py": "909751f004f90dcee50a1408123c629ad5262a52158c9989ac2e8e197834935f",
+    "services/access/identity-migrations/versions/0019_organization_target.py": "beca1f2caacdf420cfa8d0dee8af00173beab8cc50fab02dd5bcae217d05dc9c",
+    "services/access/identity-migrations/versions/0020_check_reader_bridge.py": "c9563431b70ffe73edd57deb264fefee4e64a063647c9a8583c09dd2e8b0f0e7",
+    "services/access/identity-migrations/versions/0021_studies_account_setup.py": "5f5aba7996c879775582ea2d08d625968366cb95629ed314ec340846840f014c",
+    "services/access/identity_operator.py": "72fc62dc298608ec09ad42c939b3f30a9007cad559a9271bf146d06da0e21091",
+    "services/access/identity_operator_input.py": "2e1cfca4cf4d291c60d156aff84515a21593789bdc37ffcddcdd0ad2a3a2f71d",
+    "services/access/identity_operator_target.py": "0d3ba46d8f4eb3f56e6c3cb5b493c5922884a0ec10ea2e2c2ac6e9781d381fe3",
+    "services/access/main.py": "536ac65db054c8cf24cca92aa85f4da6824244a7aa73aea7567842906ceaf6a1",
+    "services/access/operator_cli.py": "b21a4d507a72a45fba415fd256f7b9b51e1cb1bb0dd188b072c0adc57d4eb447",
+    "services/access/organization_check.py": "c54feacb3f3bb1608ebf763389531a2292d26cf5b97a8020c792e00c2c33e5c0",
+    "services/access/studies_access.py": "84eae38b91eba6183bf12d8ad7235db45dbe60fc03e6cfd19379e6df7790b360",
+    "services/access/studies_contract.py": "9712442d1ecbf650221c88a07bc3476846032d4b57cc4b635265c50a8ed048c5",
+    "services/access/studies_identity.py": "0bc386809513328ac34170174a136f02e69daa11f9d2c9c9616e3de08d5e43cb",
+    "services/access/studies_readiness.py": "a202d9791a61d4a6d766e388e9d4835d5a4ac8ce7c2714e797ccfa07843b2bce",
+    "services/access/tests/test_check_reader_bridge.py": "977e10908e428054bb1576d436c9bab8a445165585e08ec4a02231ccf9390a5d",
+    "services/access/tests/test_identity_baseline.py": "c169b56affcd8c5e505fae1c1fd11b1a04e8b4e6c9d2943b57217f1ebe4fce77",
+    "services/access/tests/test_identity_composition.py": "a65698144f3a59409c6a9bdb6f8b525f6250c42ba50ed4c4fa8923f8a6fa67ae",
+    "services/access/tests/test_legacy_roles.py": "f677bedf573b061b0214d846621e582685721d49f234269a410bb8add71adc11",
+    "services/access/tests/test_profile_fields.py": "15a1b75f31497d458a9f2cb864e7f96e796af1bd09a2dc7976d43d66f42a2937",
+    "services/access/tests/test_token_hook.py": "02267405b154a38e4096d19fa39e432f461264b18d86492797cb4ec550623a89",
+    "services/access/tools/identity_bridge.sql": "e4063529f1dd589a7269bdcff3ec5695ed599ab1e1df6ecfc3f9042765fa90fc",
+    "services/access/tools/prepare_access_check_reader.sql": "c6edb6ee31bfced123d147ced96637a37c8b81d9fe3ef1fc9c5812e70fbe110a",
+    "services/access/tools/prepare_access_check_reader_execution.sql": "4846dea5bc9108de55cd8c128b63264071dc01444ca6f714b7b6092c9ace34ef",
+    "services/access/tools/prepare_access_operator_roles.sql": "50b1019557201bebe471b5042978965bc50a74aec8de8e9bd1e02aa22cff03a9",
+    "services/access/tools/prepare_identity_account_verification_auth.sql": "b666dcd035ac99711c1b10d75dfdbcfd0c3d4daf448c61478b3bae5e8b747fcb",
+    "services/access/tools/prepare_identity_account_verification_role.sql": "e1f012d94beb0746a8b7047d5047301d4809798e031a008fe649ef2ce3874290",
+    "services/access/tools/prepare_identity_command_role.sql": "b1feea6117a5c1ca36f779ddac126adbb041de3e48f59381e75e63c3d6aa88c2",
+    "services/access/tools/prepare_identity_operator_roles.sql": "ff8b6f620f0152f3f814dfb4b65cf086bc4ebe2e0c2baaf6f9cc8aa2f1f134b1",
+    "services/access/tools/prepare_identity_projection_role.sql": "20b056ad189e637894638491b76d5095b56317fa5fcdadfb61595483e8d4b11d",
+    "services/access/tools/prepare_identity_target_roles.sql": "eea2b7ebb522dee43c481c3ee1b9af76b1ad45faaf59772fd1b21854864f5e78",
+    "services/access/tools/prepare_studies_auth_evidence.sql": "b9388c493a8af6adf3ba915042eff7b554c621117cd6c5edf51583e6090b662c",
+    "services/access/tools/prepare_studies_runtime_roles.sql": "eb1f9464a395332f9177904aa20e74c7cf3ffd33ee887b45b04225a9d99466c7",
+    "tools/py/deploy_pts.py": "936158cd75c8b2f2b43617e4ee22c68fd362d0cc50e837239dc22ec001b6a6a2",
+    "tools/py/run_compose_supabase.py": "d0adec2912c0f7d8a4e4553125bd18bc9139f834a29475326b879d6fa92c0755"
+  },
+  "source_unchanged_during_verification": true,
+  "python_environment": {
+    "version": "3.15.0 (main, Oct 14 2026, 01:05:07) [Clang 23.1.3 ]",
+    "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "packages": {
+      "iniconfig": "2.3.1",
+      "alembic": "1.20.0",
+      "pytest": "9.1.1",
+      "Pygments": "2.21.0",
+      "pluggy": "1.7.0",
+      "Mako": "1.4.3",
+      "packaging": "26.3",
+      "typing_extensions": "4.16.0",
+      "MarkupSafe": "3.0.4",
+      "rfc8785": "0.1.4",
+      "psycopg-binary": "3.3.6",
+      "SQLAlchemy": "2.1.4",
+      "psycopg": "3.3.6"
+    },
+    "interpreter_sha256": "610b28e9e2a4c0dc26e80c0f2b4f9601c379b955cce23755a75212fa984d36ce"
+  },
+  "audit_script_source": "\"\"\"Read-only custody audit; never connects to a database or loads credentials.\"\"\"\nfrom pathlib import Path\nimport hashlib\nimport json\nimport subprocess\n\nROOT = Path(__file__).resolve().parents[2]\nBASE = ROOT / 'platform/deployment/.local/identity-baseline'\nOUT = Path(__file__).resolve().parent\n\ndef digest(data):\n    return hashlib.sha256(data).hexdigest()\n\ndef load(path):\n    return json.loads(path.read_text())\n\ndef file_hash(path):\n    return digest(path.read_bytes()) if path.is_file() else None\n\noriginal = BASE / 'qualification-im60qj1l/review-cases'\npost = load(original / 'post-commit-audit.json')\ngit_checks = []\nfor name, expected in post['committed_sha256'].items():\n    data = subprocess.check_output(['git', 'show', post['commit'] + ':' + name], cwd=ROOT)\n    git_checks.append(dict(path=name, historical_git_matches=digest(data)==expected,\n                           current_matches=file_hash(ROOT/name)==expected))\nassert all(row['historical_git_matches'] for row in git_checks)\nsource_pins = load(ROOT/'services/access/identity-migrations/source-pins.json')\nassert all(file_hash(ROOT/name)==expected for name,expected in source_pins.items())\nassert file_hash(ROOT/'services/access/identity-migrations/reference.json') == 'ae183b435b2659efbe1a9f2ffdf3eaf1b8d64b2f9256ea72927b6f78453beb00'\n\njournal = load(original/'identity-qualification.json')['steps']\nbaseline_logs = []\nfor row in journal:\n    if 'log_sha256' not in row:\n        continue\n    path = original/(row['label']+'.log')\n    # The baseline copied journal includes original logs in the parent frame.\n    if not path.is_file():\n        path = original.parent/'second-cases'/(row['label']+'.log')\n    if not path.is_file():\n        path = original.parent/(row['label']+'.log')\n    baseline_logs.append(dict(label=row['label'],path=str(path.relative_to(ROOT)),expected_sha256=row['log_sha256'],matched=file_hash(path)==row['log_sha256'],\n                              available=path.is_file(),exit_code=row['exit_code'],\n                              expected_failure=row.get('expected_failure')))\nassert baseline_logs and all(row['matched'] for row in baseline_logs)\n\nframe = BASE/'check-reader-bridge-reviewed-20261022'\nanchors = {\n    'check-reader-retained.json':'3cfd1db690cde9b308998a50e00723343cfb7135800282cc23900fe34777c8f7',\n    'check-reader-source.json':'336c69c008c8fe67c1a69182aeebce7e69798d24491abc08a744cb72b630eeeb',\n    'baseline-preparation-custody.json':'f0bec9196cc8916b3ad4df642736cc1f5ce75fcd22245b778ebf42e2238ebc48',\n}\nassert all(file_hash(frame/name)==expected for name,expected in anchors.items())\nretained = load(frame/'check-reader-retained.json')\nassert retained['sources']==load(frame/'check-reader-source.json')\nassert all(file_hash(frame/name)==expected for name,expected in retained['logs'].items())\nsources = []\nfor name,expected in retained['sources'].items():\n    # Hash bytes only. Private fixture content never leaves this process.\n    sources.append(dict(path=name,current_matches=file_hash(ROOT/name)==expected))\nhistorical_proof = load(frame/'baseline-preparation-custody.json')\nhistorical = frame/'historical-identity19'\ngit19 = []\nfor path in sorted(historical.rglob('*')):\n    if path.is_file():\n        name = 'services/access/identity-migrations/'+str(path.relative_to(historical))\n        data = subprocess.check_output(['git','show',historical_proof['historical_commit']+':'+name],cwd=ROOT)\n        git19.append(digest(data)==file_hash(path))\nassert git19 and all(git19)\nresult = dict(\n    kind='read_only_historical_artifact_audit',database_contact=False,\n    current_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),\n    baseline=dict(commit=post['commit'],git_files=git_checks,source_pins=len(source_pins),\n                  trusted_reference_matches=True,journal_steps=len(journal),logs=baseline_logs,\n                  audit_inputs={str((original/name).relative_to(ROOT)):file_hash(original/name)\n                                for name in ('post-commit-audit.json','final-audit.json','identity-qualification.json','focused-checks.json','receipt-overwrite-observation.json')},\n                  prior_receipt_overwrite_limitation='Preserved in receipt-overwrite-observation.json; no old overwritten CPU log recovery claimed'),\n    hardening=dict(frame=str(frame.relative_to(ROOT)),receipt_anchors=anchors,\n                   logs_verified=len(retained['logs']),stages=retained['stages'],sources=sources,\n                   historical_git_files_verified=len(git19)),\n    limits=['No fresh database/catalog/state inspection',\n            'Later source drift is reported; historical head20 proof is not current head21 database requalification',\n            'Revision0001 alone is not the privilege-safe independent ID-A acceptance profile'])\n(OUT/'custody.json').write_text(json.dumps(result,indent=2)+'\\n')\nprint(json.dumps(dict(baseline_git_files_verified=len(git_checks),baseline_logs_verified=sum(r['matched'] for r in baseline_logs),baseline_logs_total=len(baseline_logs),hardening_logs_verified=len(retained['logs']),historical19_git_files_verified=len(git19),hardening_current_source_matches=sum(r['current_matches'] for r in sources),hardening_sources_total=len(sources),hardening_source_drift=[r['path'] for r in sources if not r['current_matches']]),indent=2))\n",
+  "audit_reproduction": "Extract audit_script_source from this JSON to .local/leave-id-a-20261026/audit_retained.py under repository root, then run audit_command. Requires the original retained local artifacts and Git objects; no network/database operations.",
+  "internal_review": {
+    "blind_findings": 9,
+    "edge_findings": 0,
+    "verification_gaps": 0,
+    "root_corrections": 1,
+    "resolved": 10,
+    "deferred": 0,
+    "acceptance_disposition": "Approved by user2026-10-26; original independent-history condition adjusted explicitly."
+  },
+  "acceptance_decision": {
+    "date": "2026-10-26",
+    "owner": "user",
+    "instruction": "approve, next",
+    "decision": "Use the existing hardened sequential Identity history as Leave foundation; no independent pre-ID-B baseline required.",
+    "limits": "No ID-B completion, fresh database/provider proof or live activation implied."
+  },
+  "previous_unmet_acceptance": "Safe baseline independently of ID-B: delivered protection requires existing later shared migrations; original0001 alone is unsafe. No waiver or completed ID-B implied."
+}

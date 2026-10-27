@@ -1,0 +1,2080 @@
+{
+  "schema_version": 1,
+  "scope": "Synthetic native qualification oracles, credentials removed; exact guarded private fixture retained",
+  "fixture_sha256": "b67f224ab451cafeac2fc71b9ac37e4b90386a21f00bcfe081ae0cdd14896959",
+  "checks_passed": [
+    "primary-mixed-entry",
+    "shared-person-account-only",
+    "actorless-current-entry",
+    "export-is-not-entry",
+    "eligible-page100",
+    "eligible-page7",
+    "missing-person-context",
+    "person-does-not-union-memberships",
+    "wrong-selector",
+    "applications-caller-leave",
+    "applications-caller-pts",
+    "applications-caller-reference",
+    "applications-caller-people",
+    "applications-caller-unknown",
+    "directory-cannot-list-contexts",
+    "invalid-query-0",
+    "invalid-query-1",
+    "invalid-query-2",
+    "invalid-query-3",
+    "apps-account-override",
+    "invalid-bearer",
+    "missing-bearer",
+    "missing-sql-context",
+    "malformed-sql-context",
+    "wrong-sql-context-kind",
+    "transaction-and-account-reuse",
+    "stale-session-defaults-rejected",
+    "unselected-organization-grants-hidden",
+    "unselected-account-grants-hidden",
+    "restricted-runtime-0",
+    "restricted-runtime-1",
+    "restricted-runtime-2",
+    "restricted-runtime-3",
+    "restricted-runtime-4",
+    "restricted-runtime-5",
+    "restricted-runtime-6",
+    "restricted-runtime-7",
+    "restricted-runtime-8",
+    "restricted-runtime-9",
+    "unrelated-executor-0",
+    "unrelated-executor-1",
+    "public-browser-function-acls",
+    "private-authorize-only",
+    "temporary-object-shadowing",
+    "signal-revoke",
+    "wait-revoke",
+    "committed-revoke-observed",
+    "other-account-not-revoked",
+    "signal-regrant",
+    "wait-regrant",
+    "explicit-regrant-observed",
+    "signal-retire",
+    "wait-retire",
+    "retired-membership-not-listed",
+    "retired-apps-empty",
+    "signal-rejoin",
+    "wait-rejoin",
+    "new-membership-no-stale-grants",
+    "rejoin-does-not-revive-apps",
+    "signal-disable-profile",
+    "wait-disable-profile",
+    "disabled-profile-is-denial",
+    "disabled-context-is-denial",
+    "signal-restore-profile",
+    "wait-restore-profile",
+    "profile-restored",
+    "signal-provider-pause",
+    "wait-provider-pause",
+    "provider-unavailable",
+    "signal-provider-resume",
+    "wait-provider-resume",
+    "provider-restored",
+    "signal-catalogue129",
+    "wait-catalogue129",
+    "oversized-catalogue-no-truncation",
+    "oversized-context-config"
+  ],
+  "coverage": [
+    "account-zero-membership",
+    "caller-isolation",
+    "catalogue-overflow",
+    "context-isolation",
+    "disabled-account",
+    "entry-not-admin",
+    "mixed-scope",
+    "over-100",
+    "provider-unavailable",
+    "public-execute-denied",
+    "rejoin",
+    "restricted-runtime",
+    "revocation",
+    "shared-person-accounts",
+    "sparse-pagination",
+    "spoofed-input",
+    "temp-shadowing"
+  ],
+  "steps": [
+    {
+      "name": "primary-mixed-entry",
+      "coverage": [
+        "mixed-scope"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "leave",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            },
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account",
+                "organization"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "shared-person-account-only",
+      "coverage": [
+        "account-zero-membership",
+        "shared-person-accounts"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "same_person",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "actorless-current-entry",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "missing_actor",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "export-is-not-entry",
+      "coverage": [
+        "entry-not-admin"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "missing_person",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "leave",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "eligible-page100",
+      "coverage": [
+        "sparse-pagination",
+        "over-100"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "account",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [
+            {
+              "org_id": "00000000-0000-0000-0000-000000000008",
+              "name": "Synthetic workspace 7",
+              "membership_id": "9007199254741007"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000009",
+              "name": "Synthetic workspace 8",
+              "membership_id": "9007199254741008"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000a",
+              "name": "Synthetic workspace 9",
+              "membership_id": "9007199254741009"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000b",
+              "name": "Synthetic for-profit 10",
+              "membership_id": "9007199254741010"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000c",
+              "name": "Synthetic workspace 11",
+              "membership_id": "9007199254741011"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000d",
+              "name": "Synthetic workspace 12",
+              "membership_id": "9007199254741012"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000e",
+              "name": "Synthetic workspace 13",
+              "membership_id": "9007199254741013"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000000f",
+              "name": "Synthetic workspace 14",
+              "membership_id": "9007199254741014"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000010",
+              "name": "Synthetic workspace 15",
+              "membership_id": "9007199254741015"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000011",
+              "name": "Synthetic workspace 16",
+              "membership_id": "9007199254741016"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000012",
+              "name": "Synthetic workspace 17",
+              "membership_id": "9007199254741017"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000013",
+              "name": "Synthetic workspace 18",
+              "membership_id": "9007199254741018"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000014",
+              "name": "Synthetic workspace 19",
+              "membership_id": "9007199254741019"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000015",
+              "name": "Synthetic workspace 20",
+              "membership_id": "9007199254741020"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000016",
+              "name": "Synthetic workspace 21",
+              "membership_id": "9007199254741021"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000017",
+              "name": "Synthetic workspace 22",
+              "membership_id": "9007199254741022"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000018",
+              "name": "Synthetic workspace 23",
+              "membership_id": "9007199254741023"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000019",
+              "name": "Synthetic workspace 24",
+              "membership_id": "9007199254741024"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001a",
+              "name": "Synthetic workspace 25",
+              "membership_id": "9007199254741025"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001b",
+              "name": "Synthetic workspace 26",
+              "membership_id": "9007199254741026"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001c",
+              "name": "Synthetic workspace 27",
+              "membership_id": "9007199254741027"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001d",
+              "name": "Synthetic workspace 28",
+              "membership_id": "9007199254741028"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001e",
+              "name": "Synthetic workspace 29",
+              "membership_id": "9007199254741029"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000001f",
+              "name": "Synthetic workspace 30",
+              "membership_id": "9007199254741030"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000020",
+              "name": "Synthetic workspace 31",
+              "membership_id": "9007199254741031"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000021",
+              "name": "Synthetic workspace 32",
+              "membership_id": "9007199254741032"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000022",
+              "name": "Synthetic workspace 33",
+              "membership_id": "9007199254741033"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000023",
+              "name": "Synthetic workspace 34",
+              "membership_id": "9007199254741034"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000024",
+              "name": "Synthetic workspace 35",
+              "membership_id": "9007199254741035"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000025",
+              "name": "Synthetic workspace 36",
+              "membership_id": "9007199254741036"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000026",
+              "name": "Synthetic workspace 37",
+              "membership_id": "9007199254741037"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000027",
+              "name": "Synthetic workspace 38",
+              "membership_id": "9007199254741038"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000028",
+              "name": "Synthetic workspace 39",
+              "membership_id": "9007199254741039"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000029",
+              "name": "Synthetic workspace 40",
+              "membership_id": "9007199254741040"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002a",
+              "name": "Synthetic workspace 41",
+              "membership_id": "9007199254741041"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002b",
+              "name": "Synthetic workspace 42",
+              "membership_id": "9007199254741042"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002c",
+              "name": "Synthetic workspace 43",
+              "membership_id": "9007199254741043"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002d",
+              "name": "Synthetic workspace 44",
+              "membership_id": "9007199254741044"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002e",
+              "name": "Synthetic workspace 45",
+              "membership_id": "9007199254741045"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000002f",
+              "name": "Synthetic workspace 46",
+              "membership_id": "9007199254741046"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000030",
+              "name": "Synthetic workspace 47",
+              "membership_id": "9007199254741047"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000031",
+              "name": "Synthetic workspace 48",
+              "membership_id": "9007199254741048"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000032",
+              "name": "Synthetic workspace 49",
+              "membership_id": "9007199254741049"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000033",
+              "name": "Synthetic workspace 50",
+              "membership_id": "9007199254741050"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000034",
+              "name": "Synthetic workspace 51",
+              "membership_id": "9007199254741051"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000035",
+              "name": "Synthetic workspace 52",
+              "membership_id": "9007199254741052"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000036",
+              "name": "Synthetic workspace 53",
+              "membership_id": "9007199254741053"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000037",
+              "name": "Synthetic workspace 54",
+              "membership_id": "9007199254741054"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000038",
+              "name": "Synthetic workspace 55",
+              "membership_id": "9007199254741055"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000039",
+              "name": "Synthetic workspace 56",
+              "membership_id": "9007199254741056"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003a",
+              "name": "Synthetic workspace 57",
+              "membership_id": "9007199254741057"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003b",
+              "name": "Synthetic workspace 58",
+              "membership_id": "9007199254741058"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003c",
+              "name": "Synthetic workspace 59",
+              "membership_id": "9007199254741059"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003d",
+              "name": "Synthetic workspace 60",
+              "membership_id": "9007199254741060"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003e",
+              "name": "Synthetic workspace 61",
+              "membership_id": "9007199254741061"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000003f",
+              "name": "Synthetic workspace 62",
+              "membership_id": "9007199254741062"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000040",
+              "name": "Synthetic workspace 63",
+              "membership_id": "9007199254741063"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000041",
+              "name": "Synthetic workspace 64",
+              "membership_id": "9007199254741064"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000042",
+              "name": "Synthetic workspace 65",
+              "membership_id": "9007199254741065"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000043",
+              "name": "Synthetic workspace 66",
+              "membership_id": "9007199254741066"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000044",
+              "name": "Synthetic workspace 67",
+              "membership_id": "9007199254741067"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000045",
+              "name": "Synthetic workspace 68",
+              "membership_id": "9007199254741068"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000046",
+              "name": "Synthetic workspace 69",
+              "membership_id": "9007199254741069"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000047",
+              "name": "Synthetic workspace 70",
+              "membership_id": "9007199254741070"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000048",
+              "name": "Synthetic workspace 71",
+              "membership_id": "9007199254741071"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000049",
+              "name": "Synthetic workspace 72",
+              "membership_id": "9007199254741072"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004a",
+              "name": "Synthetic workspace 73",
+              "membership_id": "9007199254741073"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004b",
+              "name": "Synthetic workspace 74",
+              "membership_id": "9007199254741074"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004c",
+              "name": "Synthetic workspace 75",
+              "membership_id": "9007199254741075"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004d",
+              "name": "Synthetic workspace 76",
+              "membership_id": "9007199254741076"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004e",
+              "name": "Synthetic workspace 77",
+              "membership_id": "9007199254741077"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000004f",
+              "name": "Synthetic workspace 78",
+              "membership_id": "9007199254741078"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000050",
+              "name": "Synthetic workspace 79",
+              "membership_id": "9007199254741079"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000051",
+              "name": "Synthetic workspace 80",
+              "membership_id": "9007199254741080"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000052",
+              "name": "Synthetic workspace 81",
+              "membership_id": "9007199254741081"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000053",
+              "name": "Synthetic workspace 82",
+              "membership_id": "9007199254741082"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000054",
+              "name": "Synthetic workspace 83",
+              "membership_id": "9007199254741083"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000055",
+              "name": "Synthetic workspace 84",
+              "membership_id": "9007199254741084"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000056",
+              "name": "Synthetic workspace 85",
+              "membership_id": "9007199254741085"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000057",
+              "name": "Synthetic workspace 86",
+              "membership_id": "9007199254741086"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000058",
+              "name": "Synthetic workspace 87",
+              "membership_id": "9007199254741087"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000059",
+              "name": "Synthetic workspace 88",
+              "membership_id": "9007199254741088"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005a",
+              "name": "Synthetic workspace 89",
+              "membership_id": "9007199254741089"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005b",
+              "name": "Synthetic workspace 90",
+              "membership_id": "9007199254741090"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005c",
+              "name": "Synthetic workspace 91",
+              "membership_id": "9007199254741091"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005d",
+              "name": "Synthetic workspace 92",
+              "membership_id": "9007199254741092"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005e",
+              "name": "Synthetic workspace 93",
+              "membership_id": "9007199254741093"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000005f",
+              "name": "Synthetic workspace 94",
+              "membership_id": "9007199254741094"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000060",
+              "name": "Synthetic workspace 95",
+              "membership_id": "9007199254741095"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000061",
+              "name": "Synthetic workspace 96",
+              "membership_id": "9007199254741096"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000062",
+              "name": "Synthetic workspace 97",
+              "membership_id": "9007199254741097"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000063",
+              "name": "Synthetic workspace 98",
+              "membership_id": "9007199254741098"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000064",
+              "name": "Synthetic workspace 99",
+              "membership_id": "9007199254741099"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000065",
+              "name": "Synthetic workspace 100",
+              "membership_id": "9007199254741100"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000066",
+              "name": "Synthetic workspace 101",
+              "membership_id": "9007199254741101"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000067",
+              "name": "Synthetic workspace 102",
+              "membership_id": "9007199254741102"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000068",
+              "name": "Synthetic workspace 103",
+              "membership_id": "9007199254741103"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000069",
+              "name": "Synthetic workspace 104",
+              "membership_id": "9007199254741104"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006a",
+              "name": "Synthetic workspace 105",
+              "membership_id": "9007199254741105"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006b",
+              "name": "Synthetic workspace 106",
+              "membership_id": "9007199254741106"
+            }
+          ],
+          "next_cursor": "MDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDZi"
+        }
+      }
+    },
+    {
+      "name": "eligible-page7",
+      "coverage": [
+        "over-100"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "account",
+        "path": "/v2/organizations",
+        "query": "application=leave&cursor=MDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDZi"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006c",
+              "name": "Synthetic workspace 107",
+              "membership_id": "9007199254741107"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006d",
+              "name": "Synthetic workspace 108",
+              "membership_id": "9007199254741108"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006e",
+              "name": "Synthetic workspace 109",
+              "membership_id": "9007199254741109"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-00000000006f",
+              "name": "Synthetic workspace 110",
+              "membership_id": "9007199254741110"
+            },
+            {
+              "org_id": "00000000-0000-0000-0000-000000000070",
+              "name": "Synthetic workspace 111",
+              "membership_id": "9007199254741111"
+            },
+            {
+              "org_id": "9ceb5702-2b08-4962-a0d1-446724127389",
+              "name": "Synthetic organization",
+              "membership_id": "1"
+            },
+            {
+              "org_id": "f78a7405-31da-4b68-a1db-82a03c2334eb",
+              "name": "Synthetic for-profit",
+              "membership_id": "2"
+            }
+          ],
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "name": "missing-person-context",
+      "coverage": [],
+      "request": {
+        "caller": "leave",
+        "token": "missing_person",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [
+            {
+              "org_id": "9ceb5702-2b08-4962-a0d1-446724127389",
+              "name": "Synthetic organization",
+              "membership_id": "3"
+            }
+          ],
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "name": "person-does-not-union-memberships",
+      "coverage": [
+        "shared-person-accounts"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [],
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "name": "wrong-selector",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "account",
+        "path": "/v2/organizations",
+        "query": "application=reference"
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "applications-caller-leave",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "applications-caller-pts",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "pts",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "applications-caller-reference",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "reference",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "applications-caller-people",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "people",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "applications-caller-unknown",
+      "coverage": [
+        "caller-isolation"
+      ],
+      "request": {
+        "caller": "unknown",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "directory-cannot-list-contexts",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "service_access_denied"
+      }
+    },
+    {
+      "name": "invalid-query-0",
+      "coverage": [
+        "spoofed-input"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave&account_id=ce106179-1b00-4c1a-90e1-30c5f996741e"
+      },
+      "expected": {
+        "status": 422,
+        "error_id": "validation_failed"
+      }
+    },
+    {
+      "name": "invalid-query-1",
+      "coverage": [
+        "spoofed-input"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave&application=leave"
+      },
+      "expected": {
+        "status": 422,
+        "error_id": "validation_failed"
+      }
+    },
+    {
+      "name": "invalid-query-2",
+      "coverage": [
+        "spoofed-input"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave&page_size=101"
+      },
+      "expected": {
+        "status": 422,
+        "error_id": "validation_failed"
+      }
+    },
+    {
+      "name": "invalid-query-3",
+      "coverage": [
+        "spoofed-input"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave&cursor=malformed"
+      },
+      "expected": {
+        "status": 422,
+        "error_id": "validation_failed"
+      }
+    },
+    {
+      "name": "apps-account-override",
+      "coverage": [
+        "spoofed-input"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "same_person",
+        "path": "/v2/applications",
+        "query": "account_id=ce106179-1b00-4c1a-90e1-30c5f996741e"
+      },
+      "expected": {
+        "status": 422,
+        "error_id": "validation_failed"
+      }
+    },
+    {
+      "name": "invalid-bearer",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "invalid",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 401,
+        "error_id": "authentication_required"
+      }
+    },
+    {
+      "name": "missing-bearer",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "missing",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 401,
+        "error_id": "authentication_required"
+      }
+    },
+    {
+      "name": "missing-sql-context",
+      "coverage": [
+        "context-isolation"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.discover_applications()",
+        "expected_sqlstate": "ID001",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "malformed-sql-context",
+      "coverage": [
+        "context-isolation"
+      ],
+      "sql": {
+        "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','user',true),set_config('app.account_id','malformed',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+        "expected_sqlstate": "ID001",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wrong-sql-context-kind",
+      "coverage": [
+        "context-isolation"
+      ],
+      "sql": {
+        "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','setup',true),set_config('app.account_id','ce106179-1b00-4c1a-90e1-30c5f996741e',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+        "expected_sqlstate": "ID001",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "transaction-and-account-reuse",
+      "coverage": [
+        "context-isolation"
+      ],
+      "sql": {
+        "statements": [
+          {
+            "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','user',true),set_config('app.account_id','ce106179-1b00-4c1a-90e1-30c5f996741e',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+            "expected_rows": [
+              [
+                2
+              ]
+            ]
+          },
+          {
+            "statement": "SELECT * FROM access.discover_applications()",
+            "expected_sqlstate": "ID001"
+          },
+          {
+            "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','user',true),set_config('app.account_id','e669b51d-ae29-44d8-846e-a5435cbca59d',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+            "expected_rows": [
+              [
+                0
+              ]
+            ]
+          },
+          {
+            "statement": "SELECT * FROM access.discover_applications()",
+            "expected_sqlstate": "ID001"
+          },
+          {
+            "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','user',true),set_config('app.account_id','ce106179-1b00-4c1a-90e1-30c5f996741e',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+            "expected_rows": [
+              [
+                2
+              ]
+            ]
+          },
+          {
+            "statement": "SELECT * FROM access.discover_applications()",
+            "expected_sqlstate": "ID001"
+          }
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "stale-session-defaults-rejected",
+      "coverage": [
+        "context-isolation"
+      ],
+      "sql": {
+        "statements": [
+          {
+            "statement": "WITH saved AS MATERIALIZED (SELECT set_config('app.context_kind','user',false),set_config('app.account_id','ce106179-1b00-4c1a-90e1-30c5f996741e',false),set_config('app.org_id','',false),set_config('app.discovery_transaction',pg_current_xact_id()::text,false)) SELECT count(*) FROM saved",
+            "expected_rows": [
+              [
+                1
+              ]
+            ]
+          },
+          {
+            "statement": "SELECT * FROM access.discover_applications()",
+            "expected_sqlstate": "ID001"
+          }
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "unselected-organization-grants-hidden",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.grants",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "unselected-account-grants-hidden",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.account_grants",
+        "expected_rows": [],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-0",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM identity.users",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-1",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM identity.org_member",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-2",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM identity.current_account_memberships()",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-3",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM identity.discovery_account_context()",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-4",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.discovery_memberships()",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-5",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT identity.authorize('identity.users.read')",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-6",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SET ROLE identity_discovery_owner",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-7",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SET ROLE access_discovery_owner",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-8",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "CREATE TABLE access.discovery_forbidden(id int)",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "restricted-runtime-9",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "DELETE FROM access.account_grants",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "unrelated-executor-0",
+      "coverage": [
+        "public-execute-denied"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.discover_applications()",
+        "expected_sqlstate": "42501",
+        "executor_role": "access_operator"
+      }
+    },
+    {
+      "name": "unrelated-executor-1",
+      "coverage": [
+        "public-execute-denied"
+      ],
+      "sql": {
+        "statement": "SELECT * FROM access.discover_applications()",
+        "expected_sqlstate": "42501",
+        "executor_role": "identity_operator"
+      }
+    },
+    {
+      "name": "public-browser-function-acls",
+      "coverage": [
+        "public-execute-denied"
+      ],
+      "sql": {
+        "statement": "SELECT NOT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace CROSS JOIN LATERAL aclexplode(p.proacl) a WHERE n.nspname='access' AND p.proname IN ('discovery_memberships','discover_applications','discover_organizations') AND a.privilege_type='EXECUTE' AND (a.grantee=0 OR a.grantee IN (SELECT oid FROM pg_roles WHERE rolname IN ('anon','authenticated','service_role'))))",
+        "expected_rows": [
+          [
+            true
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "private-authorize-only",
+      "coverage": [
+        "restricted-runtime"
+      ],
+      "sql": {
+        "statement": "SELECT has_function_privilege('identity_discovery_owner','identity.authorize(identity.app_permission)','EXECUTE'),has_function_privilege('access_runtime','identity.authorize(identity.app_permission)','EXECUTE')",
+        "expected_rows": [
+          [
+            true,
+            false
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "temporary-object-shadowing",
+      "coverage": [
+        "temp-shadowing"
+      ],
+      "sql": {
+        "statements": [
+          {
+            "statement": "CREATE TEMP TABLE users(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE org(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE org_member(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE applications(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE permissions(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE entry_permissions(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE grants(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE TEMP TABLE account_grants(id uuid)",
+            "expected_rows": []
+          },
+          {
+            "statement": "CREATE FUNCTION pg_temp.current_account_memberships() RETURNS TABLE(org_id uuid,org_name text,membership_id bigint) LANGUAGE sql AS 'SELECT NULL::uuid,NULL::text,1::bigint'",
+            "expected_rows": []
+          },
+          {
+            "statement": "WITH ctx AS MATERIALIZED (SELECT set_config('app.context_kind','user',true),set_config('app.account_id','ce106179-1b00-4c1a-90e1-30c5f996741e',true),set_config('app.org_id','',true),set_config('app.discovery_transaction',pg_current_xact_id()::text,true) marker) SELECT count(*) FROM ctx CROSS JOIN LATERAL access.discover_organizations('leave'||substring(ctx.marker,1,0),NULL,1) d",
+            "expected_rows": [
+              [
+                2
+              ]
+            ]
+          }
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "signal-revoke",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "revoke"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-revoke",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393089
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "committed-revoke-observed",
+      "coverage": [
+        "revocation"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "leave",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account",
+                "organization"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "other-account-not-revoked",
+      "coverage": [
+        "revocation"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "same_person",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "signal-regrant",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "regrant"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-regrant",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393090
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "explicit-regrant-observed",
+      "coverage": [
+        "revocation"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "leave",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            },
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account",
+                "organization"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "signal-retire",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "retire"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-retire",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393091
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "retired-membership-not-listed",
+      "coverage": [
+        "rejoin"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "missing_person",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [],
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "name": "retired-apps-empty",
+      "coverage": [
+        "rejoin"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "missing_person",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": []
+        }
+      }
+    },
+    {
+      "name": "signal-rejoin",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "rejoin"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-rejoin",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393092
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "new-membership-no-stale-grants",
+      "coverage": [
+        "rejoin"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "missing_person",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "organizations": [],
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "name": "rejoin-does-not-revive-apps",
+      "coverage": [
+        "rejoin"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "missing_person",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": []
+        }
+      }
+    },
+    {
+      "name": "signal-disable-profile",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "disable-profile"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-disable-profile",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393093
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "disabled-profile-is-denial",
+      "coverage": [
+        "disabled-account"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "missing_actor",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "access_denied"
+      }
+    },
+    {
+      "name": "disabled-context-is-denial",
+      "coverage": [
+        "disabled-account"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "missing_actor",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 403,
+        "error_id": "access_denied"
+      }
+    },
+    {
+      "name": "signal-restore-profile",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "restore-profile"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-restore-profile",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393094
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "profile-restored",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "missing_actor",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "signal-provider-pause",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "provider-pause"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-provider-pause",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393095
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "provider-unavailable",
+      "coverage": [
+        "provider-unavailable"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 503,
+        "error_id": "authorization_unavailable"
+      }
+    },
+    {
+      "name": "signal-provider-resume",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "provider-resume"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-provider-resume",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393096
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "provider-restored",
+      "coverage": [],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 200,
+        "fields": {
+          "applications": [
+            {
+              "app_id": "leave",
+              "eligible_scope_kinds": [
+                "organization"
+              ]
+            },
+            {
+              "app_id": "pts",
+              "eligible_scope_kinds": [
+                "account"
+              ]
+            },
+            {
+              "app_id": "reference",
+              "eligible_scope_kinds": [
+                "account",
+                "organization"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "signal-catalogue129",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH signal AS (SELECT pg_notify(%s,%s)) SELECT 1 FROM signal",
+        "parameters": [
+          "dsc_43563716eb5697cc",
+          "catalogue129"
+        ],
+        "expected_rows": [
+          [
+            1
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "wait-catalogue129",
+      "coverage": [],
+      "sql": {
+        "statement": "WITH bound AS MATERIALIZED (SELECT set_config('lock_timeout','2800',true)) SELECT pg_advisory_xact_lock(%s)::text FROM bound",
+        "parameters": [
+          151393097
+        ],
+        "expected_rows": [
+          [
+            ""
+          ]
+        ],
+        "executor_role": "access_runtime"
+      }
+    },
+    {
+      "name": "oversized-catalogue-no-truncation",
+      "coverage": [
+        "catalogue-overflow"
+      ],
+      "request": {
+        "caller": "directory",
+        "token": "account",
+        "path": "/v2/applications",
+        "query": ""
+      },
+      "expected": {
+        "status": 503,
+        "error_id": "authorization_unavailable"
+      }
+    },
+    {
+      "name": "oversized-context-config",
+      "coverage": [
+        "catalogue-overflow"
+      ],
+      "request": {
+        "caller": "leave",
+        "token": "same_person",
+        "path": "/v2/organizations",
+        "query": "application=leave"
+      },
+      "expected": {
+        "status": 503,
+        "error_id": "authorization_unavailable"
+      }
+    }
+  ],
+  "review_patch_supplement": {
+    "source_proof_sha256": "a5f4e79ec72f48366b5491b75b251307f74bff35d061a26eb42aa4dfaacd67e6",
+    "checks_passed": [
+      "leave-distinct-two-contexts",
+      "reference-context-app-specific"
+    ],
+    "same_account_distinct_eligibility": true,
+    "steps": [
+      {
+        "name": "leave-distinct-two-contexts",
+        "request": {
+          "caller": "leave",
+          "token": "account",
+          "path": "/v2/organizations",
+          "query": "application=leave"
+        },
+        "expected": {
+          "status": 200,
+          "fields": {
+            "organizations": [
+              {
+                "org_id": "4c14479d-7813-48a0-b9c8-571544c0c227",
+                "name": "Synthetic organization",
+                "membership_id": "1"
+              },
+              {
+                "org_id": "b2867556-384c-461e-ba02-4b9ca760d694",
+                "name": "Synthetic for-profit",
+                "membership_id": "2"
+              }
+            ],
+            "next_cursor": null
+          }
+        }
+      },
+      {
+        "name": "reference-context-app-specific",
+        "coverage": [
+          "mixed-scope"
+        ],
+        "request": {
+          "caller": "reference",
+          "token": "account",
+          "path": "/v2/organizations",
+          "query": "application=reference"
+        },
+        "expected": {
+          "status": 200,
+          "fields": {
+            "organizations": [
+              {
+                "org_id": "4c14479d-7813-48a0-b9c8-571544c0c227",
+                "name": "Synthetic organization",
+                "membership_id": "1"
+              }
+            ],
+            "next_cursor": null
+          }
+        }
+      }
+    ]
+  }
+}

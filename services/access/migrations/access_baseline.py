@@ -27,7 +27,7 @@ def require_equal(actual, expected, code='access_catalog_mismatch'):
 
 
 def validate_revision(revisions):
-    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], ['access_0013'], ['access_0014'], [HEAD], [STUDIES_HEAD]):
+    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], ['access_0013'], ['access_0014'], [HEAD], [STUDIES_HEAD], ['access_0017'], ['access_0018'], ['access_0019']):
         raise BaselineError('access_unknown_history')
     return revisions[0]
 
@@ -53,11 +53,14 @@ def verify_prerequisites(connection):
     if connection.execute(text("SELECT has_database_privilege(current_user,current_database(),'CREATE')")).scalar_one():
         raise BaselineError('access_migration_role_excess_authority')
     # No owner assumption, inherited writer or runtime owner path is permitted.
-    if rows(connection, "SELECT 1 FROM pg_auth_members WHERE member IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_migrator','access_runtime')) AND roleid NOT IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_operator_authority_owner','access_command_owner','access_check_reader','access_studies_owner'))"):
+    if rows(connection, "SELECT 1 FROM pg_auth_members WHERE member IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_migrator','access_runtime')) AND roleid NOT IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_operator_authority_owner','access_command_owner','access_check_reader','access_studies_owner','access_capability_reader','access_discovery_owner'))"):
         raise BaselineError('access_migration_role_excess_authority')
     if rows(connection,"SELECT 1 FROM pg_auth_members WHERE roleid=(SELECT oid FROM pg_roles WHERE rolname='access_check_reader') OR member=(SELECT oid FROM pg_roles WHERE rolname='access_check_reader')"):
         from access_organization_check_catalog import reader_edges, EDGE
         require_equal(reader_edges(connection),[EDGE],'access_check_reader_role_unsafe')
+    if rows(connection, "SELECT 1 FROM pg_roles WHERE rolname='access_capability_reader'"):
+        from access_capability_catalog import verify_reader_role
+        verify_reader_role(connection, installed=bool(rows(connection, "SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_account_capability'")), stage=None if rows(connection, "SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='identity' AND p.proname='capability_account_context'") else 'empty')
     # Preserve the exact existing native Supabase bootstrap, including the separate
     # ADMIN-only edge and SET-only edge. Names alone never establish authority.
     incoming = rows(connection, "SELECT pg_get_userbyid(member),pg_get_userbyid(grantor),admin_option,coalesce((to_jsonb(m)->>'inherit_option')::boolean,(SELECT rolinherit FROM pg_roles WHERE oid=m.member)),coalesce((to_jsonb(m)->>'set_option')::boolean,true) FROM pg_auth_members m WHERE roleid=(SELECT oid FROM pg_roles WHERE rolname='access_migrator')")
@@ -74,7 +77,7 @@ def verify_prerequisites(connection):
     if rows(connection, "SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'") != [(OWNER,)]:
         raise BaselineError('access_schema_owner_mismatch')
     require_equal(acl(connection, "'access'::regnamespace", 'n'),
-                  owner_acl(['USAGE','CREATE']) + [(OWNER,'access_runtime','USAGE',False)] + ([(OWNER,r,'USAGE',False) for r in ('access_operator','access_operator_authority_owner','access_command_owner')] if operator_installed(connection) else []) + ([(OWNER,'access_check_reader','USAGE',False)] if organization_check_installed(connection) else []) + ([(OWNER,r,'USAGE',False) for r in ('access_studies_owner','access_studies_runtime')] if connection.execute(text("SELECT to_regprocedure('access.enroll_studies_account(uuid,uuid)') IS NOT NULL")).scalar_one() else []))
+                  owner_acl(['USAGE','CREATE']) + [(OWNER,'access_runtime','USAGE',False)] + ([(OWNER,r,'USAGE',False) for r in ('access_operator','access_operator_authority_owner','access_command_owner')] if operator_installed(connection) else []) + ([(OWNER,'access_check_reader','USAGE',False)] if organization_check_installed(connection) else []) + ([(OWNER,r,'USAGE',False) for r in ('access_studies_owner','access_studies_runtime')] if connection.execute(text("SELECT to_regprocedure('access.enroll_studies_account(uuid,uuid)') IS NOT NULL")).scalar_one() else []) + ([(OWNER,'access_capability_reader','USAGE',False)] if rows(connection, "SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_account_capability'") else []) + ([(OWNER,'access_discovery_owner','USAGE',False)] if rows(connection, "SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='discover_applications'") else []))
     if rows(connection, "SELECT 1 FROM pg_default_acl d LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace WHERE n.nspname='access' OR d.defaclrole=(SELECT oid FROM pg_roles WHERE rolname='access_migrator')"):
         raise BaselineError('access_default_privileges_mismatch')
     if rows(connection, "SELECT 1 FROM pg_namespace WHERE nspname='identity' AND has_schema_privilege(current_user,oid,'CREATE')"):
@@ -171,6 +174,18 @@ def verify_table(connection, name, revision):
 
 
 def verify_catalog(connection, revision):
+    if revision == 'access_0019':
+        from access_discovery_catalog import verify_discovery_catalog
+        verify_discovery_catalog(connection)
+        return
+    if revision == 'access_0018':
+        from access_capability_catalog import verify_capability_catalog
+        verify_capability_catalog(connection)
+        return
+    if revision == 'access_0017':
+        from access_account_grant_catalog import verify_account_grant_catalog
+        verify_account_grant_catalog(connection)
+        return
     studies = revision == STUDIES_HEAD
     if studies: revision=HEAD
     names = [] if revision is None else ['grants','grants_pkey','grants_org_id_user_id_permission_key','alembic_version','alembic_version_pkc']
@@ -251,6 +266,9 @@ def preflight(connection):
         verify_table(connection, 'alembic_version', None)
         revision = validate_revision([row[0] for row in rows(connection, 'SELECT version_num FROM access.alembic_version')])
     verify_catalog(connection, revision)
+    if revision == 'access_0019':
+        from access_discovery_catalog import verify_configuration
+        verify_configuration(connection)
     return revision
 
 
@@ -259,6 +277,9 @@ def verify_postcondition(connection):
     verify_prerequisites(connection)
     revision = validate_revision([row[0] for row in rows(connection, 'SELECT version_num FROM access.alembic_version')])
     verify_catalog(connection, revision)
+    if revision == 'access_0019':
+        from access_discovery_catalog import verify_configuration
+        verify_configuration(connection)
 
 
 REGISTRY_TABLES = ('applications', 'permissions', 'entry_permissions')
@@ -355,6 +376,10 @@ def verify_operator_roles(connection):
 # Existing Identity/bootstrap routines remain separately owned. Only these exact
 # definitions/ACLs may confer foreign definer execution on a restricted Access role.
 _FOREIGN_FUNCTIONS = {
+ # Independently observed rollback-only Identity24 rehearsal, retaining23+16
+ # compatibility while the coordinated additive owner release is staged.
+ ('identity','account_grant_target','p_account uuid'):('identity_account_verification_owner',frozenset(('64cdb1e12e6f68238e5351358d899066d4495d0b987abfcdf940ef6ea9fa0d3b',)),
+  '{identity_account_verification_owner=X/identity_account_verification_owner,access_command_owner=X/identity_account_verification_owner}'),
  ('identity','organization_target','p_org uuid'):('identity_target_projection_owner',frozenset(('cfeb0eda750962feb7e914e388d8c566bb9ae5f0a492395b3e73a25cd14b65b0',)),
   '{identity_target_projection_owner=X/identity_target_projection_owner,access_command_owner=X/identity_target_projection_owner}'),
  ('public','get_user_roles',''):('identity_migrator',frozenset((

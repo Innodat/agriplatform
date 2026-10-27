@@ -60,6 +60,192 @@
         "title": "AccountScope",
         "type": "object"
       },
+      "ApplicationsDiscovery": {
+        "additionalProperties": false,
+        "properties": {
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryApplication"
+            },
+            "maxItems": 128,
+            "title": "Applications",
+            "type": "array"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "applications",
+          "checked_at"
+        ],
+        "title": "ApplicationsDiscovery",
+        "type": "object"
+      },
+      "CapabilityAccountDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "authorization_scope": {
+            "$ref": "#/components/schemas/CapabilityAccountScope"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id",
+          "actor_id",
+          "permission",
+          "authorization_scope",
+          "decision_id",
+          "checked_at"
+        ],
+        "title": "CapabilityAccountDecision",
+        "type": "object"
+      },
+      "CapabilityAccountScope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "account",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "CapabilityAccountScope",
+        "type": "object"
+      },
+      "CapabilityError": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/Closed"
+          },
+          "error": {
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "enum": [
+              "authentication_required",
+              "service_access_denied",
+              "access_denied",
+              "validation_failed",
+              "identity.actor_setup_required",
+              "identity.person_link_required",
+              "identity.verification_required",
+              "authorization_unavailable"
+            ],
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error_id"
+        ],
+        "title": "CapabilityError",
+        "type": "object"
+      },
+      "CapabilityOrganizationDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "authorization_scope": {
+            "$ref": "#/components/schemas/CapabilityOrganizationScope"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "membership_id": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Membership Id",
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "string"
+          },
+          "resource_scope": {
+            "$ref": "#/components/schemas/CapabilityOrganizationScope"
+          }
+        },
+        "required": [
+          "account_id",
+          "actor_id",
+          "permission",
+          "authorization_scope",
+          "decision_id",
+          "checked_at",
+          "membership_id",
+          "resource_scope"
+        ],
+        "title": "CapabilityOrganizationDecision",
+        "type": "object"
+      },
+      "CapabilityOrganizationScope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "organization",
+            "title": "Kind",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid",
+            "title": "Org Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "org_id"
+        ],
+        "title": "CapabilityOrganizationScope",
+        "type": "object"
+      },
       "Check": {
         "properties": {
           "org_id": {
@@ -92,6 +278,12 @@
         "title": "CheckError",
         "type": "object"
       },
+      "Closed": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Closed",
+        "type": "object"
+      },
       "Decision": {
         "properties": {
           "actor_id": {
@@ -110,6 +302,91 @@
           "actor_id"
         ],
         "title": "Decision",
+        "type": "object"
+      },
+      "DiscoveryApplication": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "App Id",
+            "type": "string"
+          },
+          "eligible_scope_kinds": {
+            "items": {
+              "enum": [
+                "account",
+                "organization"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Eligible Scope Kinds",
+            "type": "array"
+          }
+        },
+        "required": [
+          "app_id",
+          "eligible_scope_kinds"
+        ],
+        "title": "DiscoveryApplication",
+        "type": "object"
+      },
+      "DiscoveryError": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/Closed"
+          },
+          "error": {
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "enum": [
+              "authentication_required",
+              "service_access_denied",
+              "access_denied",
+              "validation_failed",
+              "authorization_unavailable",
+              "internal_error"
+            ],
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error_id"
+        ],
+        "title": "DiscoveryError",
+        "type": "object"
+      },
+      "DiscoveryOrganization": {
+        "additionalProperties": false,
+        "properties": {
+          "membership_id": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Membership Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid",
+            "title": "Org Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "name",
+          "membership_id"
+        ],
+        "title": "DiscoveryOrganization",
         "type": "object"
       },
       "EnrollmentAck": {
@@ -202,6 +479,87 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "LanguagePreference": {
+        "properties": {
+          "preferred_locale": {
+            "enum": [
+              "en",
+              "pt"
+            ],
+            "title": "Preferred Locale",
+            "type": "string"
+          },
+          "revision": {
+            "pattern": "^(0|[1-9][0-9]{0,18})$",
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preferred_locale",
+          "revision"
+        ],
+        "title": "LanguagePreference",
+        "type": "object"
+      },
+      "OrganizationContext": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "membership_id": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Membership Id",
+            "type": "string"
+          },
+          "observation_id": {
+            "format": "uuid",
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid",
+            "title": "Org Id",
+            "type": "string"
+          },
+          "person_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Person Id"
+          }
+        },
+        "required": [
+          "account_id",
+          "actor_id",
+          "org_id",
+          "membership_id",
+          "person_id",
+          "observation_id",
+          "checked_at"
+        ],
+        "title": "OrganizationContext",
+        "type": "object"
+      },
       "OrganizationDecision": {
         "additionalProperties": false,
         "properties": {
@@ -290,6 +648,36 @@
         "title": "OrganizationScope",
         "type": "object"
       },
+      "OrganizationsDiscovery": {
+        "additionalProperties": false,
+        "properties": {
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryOrganization"
+            },
+            "maxItems": 100,
+            "title": "Organizations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "organizations",
+          "next_cursor"
+        ],
+        "title": "OrganizationsDiscovery",
+        "type": "object"
+      },
       "OwnAccountScope": {
         "additionalProperties": false,
         "properties": {
@@ -309,6 +697,119 @@
           "account_id"
         ],
         "title": "OwnAccountScope",
+        "type": "object"
+      },
+      "OwnDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "authorization_scope": {
+            "$ref": "#/components/schemas/CapabilityOrganizationScope"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "membership_id": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Membership Id",
+            "type": "string"
+          },
+          "permission": {
+            "title": "Permission",
+            "type": "string"
+          },
+          "person_id": {
+            "format": "uuid",
+            "title": "Person Id",
+            "type": "string"
+          },
+          "resource_scope": {
+            "$ref": "#/components/schemas/OwnResource"
+          }
+        },
+        "required": [
+          "account_id",
+          "actor_id",
+          "permission",
+          "authorization_scope",
+          "decision_id",
+          "checked_at",
+          "person_id",
+          "membership_id",
+          "resource_scope"
+        ],
+        "title": "OwnDecision",
+        "type": "object"
+      },
+      "OwnResource": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "own",
+            "title": "Kind",
+            "type": "string"
+          },
+          "person_id": {
+            "format": "uuid",
+            "title": "Person Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "person_id"
+        ],
+        "title": "OwnResource",
+        "type": "object"
+      },
+      "PreferenceErrorDetails": {
+        "properties": {
+          "code": {
+            "enum": [
+              "authentication_required",
+              "access_denied",
+              "identity.actor_setup_required",
+              "identity.preference_revision_conflict",
+              "identity.preference_operation_conflict",
+              "identity.preference_invalid",
+              "identity.preference_unavailable"
+            ],
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "PreferenceErrorDetails",
+        "type": "object"
+      },
+      "PreferenceErrorResponse": {
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/PreferenceErrorDetails"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PreferenceErrorResponse",
         "type": "object"
       },
       "StudiesError": {
@@ -389,6 +890,15 @@
       }
     },
     "securitySchemes": {
+      "IdentityPreferenceBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "IdentityPreferenceServiceKey": {
+        "in": "header",
+        "name": "X-Service-Key",
+        "type": "apiKey"
+      },
       "KdgBearer": {
         "scheme": "bearer",
         "type": "http"
@@ -482,6 +992,102 @@
         "summary": "Check"
       }
     },
+    "/v2/applications": {
+      "get": {
+        "operationId": "discover_applications_v2_applications_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-service-key",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "X-Service-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationsDiscovery"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "KdgBearer": [],
+            "KdgServiceKey": []
+          }
+        ],
+        "summary": "Discover Applications"
+      }
+    },
     "/v2/check": {
       "post": {
         "operationId": "check_v2_check_post",
@@ -537,6 +1143,17 @@
                         "type": "object"
                       },
                       "permission": {
+                        "enum": [
+                          "kdg_capture.assignment.manage",
+                          "kdg_capture.capture.create.all",
+                          "kdg_capture.capture.create.assigned",
+                          "kdg_capture.capture.edit.all",
+                          "kdg_capture.capture.edit.own",
+                          "kdg_capture.capture.read.all",
+                          "kdg_capture.capture.read.own",
+                          "kdg_capture.child.manage",
+                          "kdg_capture.questionnaire.manage"
+                        ],
                         "maxLength": 200,
                         "minLength": 1,
                         "title": "Permission",
@@ -580,6 +1197,81 @@
                     ],
                     "title": "AccountCheck",
                     "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "authorization_scope": {
+                        "discriminator": {
+                          "mapping": {
+                            "account": "#/$defs/CapabilityAccountScope",
+                            "organization": "#/$defs/CapabilityOrganizationScope"
+                          },
+                          "propertyName": "kind"
+                        },
+                        "oneOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "kind": {
+                                "const": "account",
+                                "title": "Kind",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "title": "CapabilityAccountScope",
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "kind": {
+                                "const": "organization",
+                                "title": "Kind",
+                                "type": "string"
+                              },
+                              "org_id": {
+                                "format": "uuid",
+                                "title": "Org Id",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "org_id"
+                            ],
+                            "title": "CapabilityOrganizationScope",
+                            "type": "object"
+                          }
+                        ],
+                        "title": "Authorization Scope"
+                      },
+                      "permission": {
+                        "enum": [
+                          "leave.request.own.manage",
+                          "leave.request.own.read",
+                          "pts.poetry.documents",
+                          "pts.poetry.export",
+                          "pts.poetry.read",
+                          "reference.account.read",
+                          "reference.record.create",
+                          "reference.record.read"
+                        ],
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "title": "Permission",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "permission",
+                      "authorization_scope"
+                    ],
+                    "title": "CapabilityCheck",
+                    "type": "object"
                   }
                 ]
               }
@@ -598,6 +1290,15 @@
                     },
                     {
                       "$ref": "#/components/schemas/AccountDecision"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityAccountDecision"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OwnDecision"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityOrganizationDecision"
                     }
                   ],
                   "title": "Response Check V2 Check Post"
@@ -616,6 +1317,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/StudiesError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityError"
                     }
                   ],
                   "title": "Response 401 Check V2 Check Post"
@@ -634,6 +1338,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/StudiesError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityError"
                     }
                   ],
                   "title": "Response 403 Check V2 Check Post"
@@ -652,6 +1359,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/StudiesError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityError"
                     }
                   ],
                   "title": "Response 409 Check V2 Check Post"
@@ -670,6 +1380,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/StudiesError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityError"
                     }
                   ],
                   "title": "Response 422 Check V2 Check Post"
@@ -688,6 +1401,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/StudiesError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CapabilityError"
                     }
                   ],
                   "title": "Response 503 Check V2 Check Post"
@@ -812,6 +1528,432 @@
           }
         ],
         "summary": "Enroll"
+      }
+    },
+    "/v2/identity/organization-context": {
+      "post": {
+        "operationId": "context_v2_identity_organization_context_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-service-key",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "X-Service-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "org_id": {
+                    "format": "uuid",
+                    "title": "Org Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "org_id"
+                ],
+                "title": "ContextInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationContext"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "KdgBearer": [],
+            "KdgServiceKey": []
+          }
+        ],
+        "summary": "Context"
+      }
+    },
+    "/v2/me/preferences/language": {
+      "get": {
+        "operationId": "read_v2_me_preferences_language_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguagePreference"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "IdentityPreferenceBearer": [],
+            "IdentityPreferenceServiceKey": []
+          }
+        ],
+        "summary": "Read"
+      },
+      "put": {
+        "operationId": "write_v2_me_preferences_language_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected_revision": {
+                    "pattern": "^(0|[1-9][0-9]{0,18})$",
+                    "type": "string"
+                  },
+                  "operation_id": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "preferred_locale": {
+                    "enum": [
+                      "en",
+                      "pt"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "expected_revision",
+                  "preferred_locale"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguagePreference"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "IdentityPreferenceBearer": [],
+            "IdentityPreferenceServiceKey": []
+          }
+        ],
+        "summary": "Write"
+      }
+    },
+    "/v2/organizations": {
+      "get": {
+        "operationId": "discover_organizations_v2_organizations_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-service-key",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "X-Service-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "application",
+            "required": true,
+            "schema": {
+              "enum": [
+                "leave",
+                "reference"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "maxLength": 48,
+              "pattern": "^[A-Za-z0-9_-]{48}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationsDiscovery"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "KdgBearer": [],
+            "KdgServiceKey": []
+          }
+        ],
+        "summary": "Discover Organizations"
       }
     }
   }

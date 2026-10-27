@@ -127,6 +127,7 @@ class AsyncConnection:
 class AsyncRows:
     def __init__(self,rows):self.rows=rows
     def mappings(self):return self
+    def all(self):return self.rows
     def one_or_none(self):
         if len(self.rows)>1:raise ValueError('owner_row_count')
         return self.rows[0] if self.rows else None

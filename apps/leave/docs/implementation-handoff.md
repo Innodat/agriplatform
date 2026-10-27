@@ -51,3 +51,26 @@ Sources: [completion](../../../_bmad-output/planning-artifacts/leave-planning-co
 [readiness](../../../_bmad-output/planning-artifacts/implementation-readiness.md),
 [tracking](../../../_bmad-output/implementation-artifacts/leave-sprint-status.yaml),
 [original ID mapping](../../../_bmad-output/implementation-artifacts/leave-sprint-source-map.json).
+
+
+## Access commit baseline — authorized 2026-10-27
+
+The user authorized scoped local commits of completed Identity, Access and Discovery
+work plus required qualification dependencies so Scribeswell can extend a recorded
+baseline before E1-PEOPLE. This supersedes the earlier no-commit restriction for this
+scope; production activation, live adoption and push remain separately gated.
+
+Identity26/Access19, person links/preferences, explicit account grants, current typed
+capability/context checks and private organization/application discovery are complete.
+All review findings are resolved; none deferred. Final Access/PtS regression:2,223passed.
+Native constraints/roles, current HTTP, migration/recovery, previous clients, generated
+contracts and hardened image proofs are recorded in the linked owner evidence.
+See [Identity](testing/e1-identity-links-preferences-evidence.md),
+[current access](testing/e1-current-access-evidence.md) and
+[Discovery](testing/e1-discovery-evidence.md). This is a source checkpoint, not a
+production-ready Scribeswell consumer/activation claim. E1-PEOPLE remains unimplemented;
+its future narrow Access setup-reference addition is separate from the closed work.
+
+Preserve unrelated Scribeswell/Content/platform changes and fixture state. Continue
+Scribeswell from the recorded Access baseline; requalify affected contracts and its
+source-bound consumer readiness after further Access changes.

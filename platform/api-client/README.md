@@ -59,3 +59,10 @@ this runbook and consuming owner guidance. ADRs: existing0001/0031/0059 apply, a
 decisions unchanged. Public generation, Auth/Access candidates and readiness remain
 unpromoted. No business endpoint, database, release or application authorization is
 implemented by this health-only proof.
+
+The 2026-10-27 Discovery increment adds the neutral
+`tests/fixtures/discovery.openapi.json` generation fixture and executable
+`tests/discovery.test.mjs`: string bigint references, nullable cursor positions and
+scope arrays survive actual local generation and drift checking. Access owns its
+discovery DTOs and semantic adapter validation; this fixture adds no authorization
+policy or runtime SDK and does not promote the authenticated scaffold candidate.

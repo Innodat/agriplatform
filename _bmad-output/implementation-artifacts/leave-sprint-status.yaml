@@ -39,12 +39,12 @@ development_status:
   1-1-e1-env-reproduce-an-isolated-development-and-acceptance-envi: in-progress
   1-2-e1-p1-generate-a-runnable-application-foundation-safely: backlog
   1-3-e1-service-generate-an-independently-owned-internal-service: backlog
-  1-4-e1-id-a-establish-a-verified-identity-migration-baseline: backlog
-  1-5-e1-id-b-link-accounts-to-people-and-preserve-membership-hist: backlog
-  1-6-e1-access-a-configure-application-admission-and-grants-safel: backlog
-  1-7-e1-access-b-enforce-current-application-and-user-access: backlog
+  1-4-e1-id-a-establish-a-verified-identity-migration-baseline: review
+  1-5-e1-id-b-link-accounts-to-people-and-preserve-membership-hist: review
+  1-6-e1-access-a-configure-application-admission-and-grants-safel: review
+  1-7-e1-access-b-enforce-current-application-and-user-access: review
   1-8-e1-content-read-protect-owned-files-and-stream-private-reads: backlog
-  1-9-e1-discovery-discover-only-currently-accessible-organization: backlog
+  1-9-e1-discovery-discover-only-currently-accessible-organization: review
   1-10-e1-people-resolve-my-shared-employment-for-the-selected-orga: backlog
   1-11-e1-write-prove-safe-owned-writes-for-generated-backends: backlog
   1-12-e1-launcher-show-accessible-apps-with-honest-discovery-state: backlog

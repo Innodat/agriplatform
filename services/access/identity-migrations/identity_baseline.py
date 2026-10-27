@@ -26,6 +26,11 @@ MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION = 'identity_0015'
 ORGANIZATION_TARGET_REVISION = 'identity_0019'
 CHECK_READER_BRIDGE_REVISION = 'identity_0020'
 STUDIES_SETUP_REVISION = 'identity_0021'
+PERSON_LINKS_REVISION = 'identity_0022'
+PREFERENCES_REVISION = 'identity_0023'
+ACCOUNT_GRANT_TARGET_REVISION = 'identity_0024'
+CAPABILITY_REVISION = 'identity_0025'
+DISCOVERY_REVISION = 'identity_0026'
 CHECK_READER_BRIDGE_REFERENCE_SHA256 = '154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7'
 CHECK_READER = 'access_check_reader'
 ORGANIZATION_TARGET_REFERENCE_SHA256 = 'ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235'
@@ -203,6 +208,10 @@ def catalog_snapshot(connection):
         rows = [list(row) for row in connection.execute(text(sql))]
         # Stable serialization also normalizes float/numeric representations.
         result[key] = sorted(json.loads(json.dumps(rows, default=str)), key=lambda row: json.dumps(row, sort_keys=True))
+    if connection.execute(text("SELECT to_regrole('identity_discovery_owner') IS NOT NULL")).scalar_one():
+        from identity_discovery_catalog import verify_role
+        verify_role(connection)
+        result['role_memberships']=[row for row in result['role_memberships'] if row!=['identity_discovery_owner','identity_migrator',False,'false','true']]
     # A verified, still staged Studies SET-only edge is not an old owner change.
     if connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='identity_studies_owner')")).scalar_one() and not connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='identity' AND p.proname='prepare_studies_account')")).scalar_one():
         from studies_migration_support import verify_roles
@@ -221,6 +230,26 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'discovery':
+        from identity_discovery_catalog import verify_discovery_catalog
+        verify_discovery_catalog(connection)
+        return
+    if kind == 'capability_reader':
+        from identity_capability_catalog import verify_capability_catalog
+        verify_capability_catalog(connection)
+        return
+    if kind == 'account_grant_target':
+        from identity_account_grant_catalog import verify_account_grant_catalog
+        verify_account_grant_catalog(connection)
+        return
+    if kind == 'language_preferences':
+        from identity_preferences_catalog import verify_preferences_catalog
+        verify_preferences_catalog(connection)
+        return
+    if kind == 'person_links':
+        from identity_person_catalog import verify_person_catalog
+        verify_person_catalog(connection)
+        return
     if kind == 'studies_setup':
         from identity_studies_catalog import verify_studies_catalog
         verify_studies_catalog(connection)
@@ -439,15 +468,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != STUDIES_SETUP_REVISION:
+    if require_head and revision != DISCOVERY_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target', CHECK_READER_BRIDGE_REVISION: 'check_reader_bridge', STUDIES_SETUP_REVISION:'studies_setup'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target', CHECK_READER_BRIDGE_REVISION: 'check_reader_bridge', STUDIES_SETUP_REVISION:'studies_setup', PERSON_LINKS_REVISION:'person_links', PREFERENCES_REVISION:'language_preferences', ACCOUNT_GRANT_TARGET_REVISION:'account_grant_target', CAPABILITY_REVISION:'capability_reader', DISCOVERY_REVISION:'discovery'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION], [CHECK_READER_BRIDGE_REVISION], [STUDIES_SETUP_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION], [CHECK_READER_BRIDGE_REVISION], [STUDIES_SETUP_REVISION], [PERSON_LINKS_REVISION], [PREFERENCES_REVISION], [ACCOUNT_GRANT_TARGET_REVISION], [CAPABILITY_REVISION], [DISCOVERY_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -766,10 +795,13 @@ def verified_access_command_extension(connection):
             grant_revoke_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='revoke_organization_grant')")).scalar_one())
             reader_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_organization_permission')")).scalar_one())
             studies_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='enroll_studies_account')")).scalar_one())
-            access_catalog.verify_catalog(connection,'access_0016' if studies_installed else 'access_0015' if reader_installed else 'access_0014' if grant_revoke_installed else 'access_0013' if grant_assign_installed else 'access_0012' if grant_strict_installed else 'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
+            account_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='change_account_grant')")).scalar_one())
+            capability_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_account_capability')")).scalar_one())
+            discovery_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='discover_applications')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0019' if discovery_installed else 'access_0018' if capability_installed else 'access_0017' if account_installed else 'access_0016' if studies_installed else 'access_0015' if reader_installed else 'access_0014' if grant_revoke_installed else 'access_0013' if grant_assign_installed else 'access_0012' if grant_strict_installed else 'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
-                access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')]+([('access_migrator','access_check_reader','USAGE',False)] if reader_installed else [])+([('access_migrator',r,'USAGE',False) for r in ('access_studies_owner','access_studies_runtime')] if studies_installed else []))
+                access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')]+([('access_migrator','access_check_reader','USAGE',False)] if reader_installed else [])+([('access_migrator',r,'USAGE',False) for r in ('access_studies_owner','access_studies_runtime')] if studies_installed else [])+([('access_migrator','access_capability_reader','USAGE',False)] if capability_installed else [])+([('access_migrator','access_discovery_owner','USAGE',False)] if discovery_installed else []))
         return True,installed
     except access_catalog.BaselineError:
         raise BaselineError('identity_target_role_unsafe') from None
@@ -1163,7 +1195,10 @@ def verified_access_reader_extension(connection):
         # Installed state must validate every Access object/ACL, not just a routine.
         if installed:
             studies=connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='enroll_studies_account')")).scalar_one()
-            access_catalog.verify_catalog(connection,'access_0016' if studies else 'access_0015')
+            account_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='change_account_grant')")).scalar_one())
+            capability_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_account_capability')")).scalar_one())
+            discovery_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='discover_applications')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0019' if discovery_installed else 'access_0018' if capability_installed else 'access_0017' if account_installed else 'access_0016' if studies else 'access_0015')
         return installed
     except access_catalog.BaselineError:
         raise BaselineError('identity_check_reader_extension_unsafe') from None

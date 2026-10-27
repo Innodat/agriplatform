@@ -1,0 +1,16 @@
+[
+  {
+    "location": "services/access/deployment/verify_runtime.py:8",
+    "trigger_condition": "Production starts with configured Studies database URLs and a valid readiness artifact",
+    "guard_snippet": "Include studies_readiness.py in SOURCES and the Docker context allowlist.",
+    "potential_consequence": "Startup raises ModuleNotFoundError before serving existing Studies or organization endpoints.",
+    "kind": "deletion",
+    "confidence": "high"
+  },
+  {
+    "location": "services/access/tests/qualify_account_grants.py:161",
+    "trigger_condition": "Fresh proof output has an existing sibling command file or symlink",
+    "guard_snippet": "fd = os.open(command_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)",
+    "potential_consequence": "Qualification overwrites retained command evidence or the symlink target before executing the CLI."
+  }
+]

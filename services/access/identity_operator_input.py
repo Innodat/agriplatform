@@ -97,7 +97,36 @@ class RetireMembershipCommand(_Envelope):
     command: Literal['membership.retire'] = field(default='membership.retire', init=False)
 
 
-Command = RegisterSystemCommand | EnsureAccountActorCommand | JoinMembershipCommand | RetireMembershipCommand
+@dataclass(frozen=True, repr=False)
+class CreatePersonPayload:
+    person_id: str
+    expected_absent: Literal[True]
+
+
+@dataclass(frozen=True, repr=False)
+class LinkPersonPayload:
+    account_id: str
+    person_id: str
+    actor_id: str
+    expected_absent: Literal[True] | None = None
+    expected_revision: str | None = None
+
+
+@dataclass(frozen=True, repr=False)
+class CreatePersonCommand(_Envelope):
+    scope: PlatformScope
+    payload: CreatePersonPayload
+    command: Literal['person.create'] = field(default='person.create', init=False)
+
+
+@dataclass(frozen=True, repr=False)
+class LinkPersonCommand(_Envelope):
+    scope: PlatformScope
+    payload: LinkPersonPayload
+    command: Literal['account.link_person'] = field(default='account.link_person', init=False)
+
+
+Command = CreatePersonCommand | LinkPersonCommand | RegisterSystemCommand | EnsureAccountActorCommand | JoinMembershipCommand | RetireMembershipCommand
 _UUID = re.compile(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}')
 _DECIMAL = re.compile(r'[1-9][0-9]{0,18}')
 _ACTOR_KEY = re.compile(r'[a-z][a-z0-9_.:-]{0,127}')
@@ -199,6 +228,23 @@ def parse_command(body: bytes) -> Command:
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
     _require(type(name) is str)
+    if name in ('person.create', 'account.link_person'):
+        scope = _object(doc['scope'], {'kind'})
+        _require(scope['kind'] == 'platform')
+        scope = PlatformScope()
+        if name == 'person.create':
+            payload = _object(doc['payload'], {'person_id','expected_absent'})
+            _require(payload['expected_absent'] is True)
+            return CreatePersonCommand(**common, scope=scope, payload=CreatePersonPayload(_uuid(payload['person_id']),True))
+        payload = _object(doc['payload'], {'account_id','person_id','actor_id'}, {'expected_absent','expected_revision'})
+        _require(evidence is not None and (('expected_absent' in payload) != ('expected_revision' in payload)))
+        absent = payload.get('expected_absent')
+        revision = payload.get('expected_revision')
+        if 'expected_absent' in payload:
+            _require(absent is True)
+        else:
+            revision = _decimal(revision)
+        return LinkPersonCommand(**common, scope=scope, payload=LinkPersonPayload(_uuid(payload['account_id']),_uuid(payload['person_id']),_uuid(payload['actor_id']),absent,revision))
     if name in ('actor.register_system', 'account_actor.ensure'):
         scope = _object(doc['scope'], {'kind'})
         _require(scope['kind'] == 'platform')

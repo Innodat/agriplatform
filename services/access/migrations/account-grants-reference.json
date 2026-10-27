@@ -1,0 +1,59 @@
+{
+  "catalog": {
+    "columns": {
+      "rows": 139,
+      "sha256": "58cb94c803c153d0fa78929f581e0cf20fed3db6f42d6c58fad31281b3fd6c04"
+    },
+    "constraints": {
+      "rows": 138,
+      "sha256": "e4719f7a5c8346c12bd792152d2713e3376c1ba4da3de457a174f4a93a465289"
+    },
+    "effective_tables": {
+      "rows": 686,
+      "sha256": "bd199fe0ddd9eaaca8daaab130b866e30d78b37c8769504f72e8e93df9656de7"
+    },
+    "functions": {
+      "rows": 50,
+      "sha256": "5bcdbcb91e6c6a215a420be4701d30bf1557b2ad41e2b18efff55d22130ba981"
+    },
+    "indexes": {
+      "rows": 22,
+      "sha256": "e356a988aab28b4735bcdeb7e881b85c60b2830645fc0e219dd06481773ea6a8"
+    },
+    "policies": {
+      "rows": 17,
+      "sha256": "4e6f1b6ea2f00b877a7dd55db4f4a355187e4be6fa5af86ef7bf73ce02b362a2"
+    },
+    "relations": {
+      "rows": 36,
+      "sha256": "26f7601d25b081eb5a19e10de76660f82a2af7cfe19f1d898ec089adcbbd73fc"
+    },
+    "schema": {
+      "rows": 1,
+      "sha256": "65b5d7562abe41fc70fac56b47b24058a8a3d7c33b87e545df571112a3be2fb5"
+    },
+    "triggers": {
+      "rows": 39,
+      "sha256": "9bad327bb348d5dd6cc1eaab59f21d2948b645cdf75848e30e5fab43fdca09ac"
+    }
+  },
+  "migration_sha256": "dcf42c08b3100fb30708c8adeff598a821f848647d8895b27c65d3a8081b7123",
+  "predecessor_sources": {
+    "0001_initial.py": "438611104dcb30e8e04d729c0047003487f93e889fa66093aca14a77612e409b",
+    "0002_membership_binding.py": "781e6e0c80700ab35b2f819891288fedde5137175547eb045651d8ef6c9d222d",
+    "0003_registry_storage.py": "889eec9bf64fd92f121987916441f56185aa613b069030869a74a1fde3cd1ae2",
+    "0004_application_register.py": "14d6e70b8142936700eb96d5e44cc6580be8c2e9bb06a00db841b529bf824807",
+    "0005_permission_register.py": "0841c8f32e8b0ec5cc887788c679f2bf06ffd21dc2208c3c2579b0e6c4502b30",
+    "0006_entry_permission_register.py": "2afdc4af475f030be8ec29c1b86ee32fd6d8a8f65474aad522975cc62c8dc346",
+    "0007_application_set_enabled.py": "ae0d5d993be92146fe19af2e335ce25fc440ea8b10c3689281bfde19c3ba8839",
+    "0008_organization_application_storage.py": "f72b9c1f19fc4aa78475bcebdddb3f3a78fe7014c86e9af17f620541877a808a",
+    "0009_organization_application_configure.py": "dbfabebe629ebef3048adbf86fa6a59d4422de8d60d1a6c597492babef71ac80",
+    "0010_grant_lifecycle_storage.py": "4641eec984f7320f8c22a1c129201b61b929c1a502a79088fb37227cabf4e510",
+    "0011_grant_registry_bridge.py": "ebe79ed6af35252e61a351bce5bc718e5ae8487a6ddbb961a01b54c9d9307152",
+    "0012_strict_grant_integrity.py": "ec36e083ac2c02191086171dcecb8ecc63d2b748eedc120b67354ee161604354",
+    "0013_grant_assign.py": "5d489e545e58d8b2887ad139875b5453c1ab62f408ae1cddd16beaa0f561cef3",
+    "0014_grant_revoke.py": "8b080c399796598505c658e96c8e1a993089f7bd80c3ab4f7068c3dd86991206",
+    "0015_organization_check.py": "8665495b7ee7ccffa9f684ca3fb57891704738e71a33dd76d6bd520cf30633f3",
+    "0016_studies_account_enrollment.py": "d6c7af76e4ea129f6cd17fdd4f608241e368692d07b1a89eb119037a1ef40560"
+  }
+}

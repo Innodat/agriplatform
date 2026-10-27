@@ -1,0 +1,764 @@
+{
+  "auth_port": 55581,
+  "baseline_commit": "6926cb527e319e1842c105c06fcd5d5fabac4a45",
+  "database_port": 55582,
+  "date": "2026-10-26",
+  "excluded_concurrent_owner_files": [
+    "services/access/deployment/Dockerfile",
+    "services/access/deployment/Dockerfile.dockerignore",
+    "services/access/deployment/runtime.env.example",
+    "services/access/tests/studies_types.test.ts"
+  ],
+  "installed_packages": {
+    "Mako": "1.4.3",
+    "MarkupSafe": "3.0.4",
+    "Pygments": "2.21.0",
+    "SQLAlchemy": "2.1.4",
+    "alembic": "1.20.0",
+    "annotated-doc": "0.0.5",
+    "annotated-types": "0.8.0",
+    "anyio": "4.15.1",
+    "certifi": "2026.7.22",
+    "click": "8.5.0",
+    "fastapi": "0.143.0",
+    "h11": "0.16.0",
+    "httpcore": "1.0.9",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "opentelemetry-api": "1.45.1",
+    "packaging": "26.3",
+    "pluggy": "1.7.0",
+    "psycopg": "3.3.6",
+    "psycopg-binary": "3.3.6",
+    "pydantic": "2.14.1",
+    "pydantic_core": "2.50.1",
+    "pytest": "9.1.1",
+    "rfc8785": "0.1.4",
+    "starlette": "1.8.0",
+    "typing-inspection": "0.4.4",
+    "typing_extensions": "4.16.0",
+    "uvicorn": "0.54.0"
+  },
+  "lifecycle": {
+    "normal_stop_exit_code": 0,
+    "runtime_ready_after_stop": false,
+    "volumes_preserved": true
+  },
+  "limits": [
+    "Synthetic disposable Leave only; no KDG mutation or live migration/activation.",
+    "No Access grant effectiveness, People/Leave integration or translation/UI proof.",
+    "Provider deletion not performed; explicit synthetic manual replacement mapping preserves old attribution.",
+    "No production user profiles, tokens, passwords, email addresses or documents are published.",
+    "Private drivers/fixtures and failed frames remain local; pinned receipts reference their exact bytes."
+  ],
+  "operation_journals": {
+    "language-native-proof.json.attempts.jsonl": "720cf8e9b57d5026393a72a5204eed0e0cff4ffdd121d5ea101f03a68cc9de98",
+    "person-native-final-proof.json.attempts.jsonl": "c50e1b76233c761be48a5088b6e83cf58d5d397bd97b985cd6582a89d7daa83a",
+    "supplement-attempts.jsonl": "e50a070ec69f9b0e4351e2217d245e16ce8d08c0645386f19ddf724d34738abc",
+    "transition-native-proof.json.attempts.jsonl": "9c25f45c21376200a8c33eb2d88b49692034f4f81ce543d05030441557d26e13"
+  },
+  "preexisting_identity_files_preserved": {
+    "services/access/identity-migrations/account-actor-ensure-reference.json": "9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50",
+    "services/access/identity-migrations/active-membership-index-reference.json": "b710b943ecb95e4b7cbce9eb77debad8f1ad181c40a2532ff87cd85be317033b",
+    "services/access/identity-migrations/actor-reference.json": "c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a",
+    "services/access/identity-migrations/authority-reference.json": "2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e",
+    "services/access/identity-migrations/check-reader-bridge-reference.json": "154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7",
+    "services/access/identity-migrations/command-reference.json": "ebe11f9cd4dbed35496488e6eb21b5c6af4c3c8f767447fd1e1ad7fb2c2c1188",
+    "services/access/identity-migrations/env.py": "0ddde18b0594e24318afc857a52f6a503f84510c2556e8d0a10b5b70201198de",
+    "services/access/identity-migrations/identity_studies_catalog.py": "1ae89cafe1aa9d4cd1556a4127c50c34588b2322a357d32e3bb8f0184587ff15",
+    "services/access/identity-migrations/legacy-role-reference.json": "983d00ac73bfc9d86188ce166cece3c246926f169b9993af0141a527d8bbd0aa",
+    "services/access/identity-migrations/membership-actor-attribution-reference.json": "2204a3ca4323bf9693aacc5f4202d2aab1516ac395e71516df2d8f702298a715",
+    "services/access/identity-migrations/membership-binding-reference.json": "43bf6d868efb7234ebd8199d884f7cafcca018a2fd274df6329187381a6827f3",
+    "services/access/identity-migrations/membership-join-command-reference.json": "8e6a0b7f61535e0c541b7e80836e1431331ddb37a5ad57432a800b02e4ebd5df",
+    "services/access/identity-migrations/membership-retention-reference.json": "6476b2210402434fd4fa732a7ab882dc8ca02cdbc694c94955647f43d696cf81",
+    "services/access/identity-migrations/membership-retire-command-reference.json": "71bd766de85d53269c7f972851442eacdfea45f4d785589d42abb3d2a38ec488",
+    "services/access/identity-migrations/membership-retirement-reference.json": "63543e9abe478ddc277cb00f8f241b181dd3e88c8eb29be827fc17835c3cfab0",
+    "services/access/identity-migrations/organization-reference.json": "5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae",
+    "services/access/identity-migrations/organization-target-reference.json": "ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235",
+    "services/access/identity-migrations/profile-reference.json": "05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868",
+    "services/access/identity-migrations/projection-reference.json": "6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9",
+    "services/access/identity-migrations/pyproject.toml": "94f9ad951f5b918d284025821374d4aa4d777ee915811c0d32a411144faae434",
+    "services/access/identity-migrations/reference.json": "ae183b435b2659efbe1a9f2ffdf3eaf1b8d64b2f9256ea72927b6f78453beb00",
+    "services/access/identity-migrations/source-pins.json": "0f28f5840356dfb04a9209cf56e8f693028e1873d1ef18392cd7bb478713804f",
+    "services/access/identity-migrations/studies-setup-reference.json": "87a95ea22f9d2314fc81eaf7ac9f9f1150b1ee169d83078900d37fb9235b2f6d",
+    "services/access/identity-migrations/studies_migration_support.py": "2d92f0ec27003fdbdbc1dd4d68888471aa645b895bb7f6d37945a95b6b88766a",
+    "services/access/identity-migrations/target-reference.json": "7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae",
+    "services/access/identity-migrations/token-hook-reference.json": "f227a7839ba8e04fe1626254e91678c73cf3fc2aa5e38fdb0a5b1ec6a3633263",
+    "services/access/identity-migrations/uv.lock": "74d94dbb7b89d8f75d887dcab613c12fb4980ab90a5c0ad52e2b7ba9e88dbf4e",
+    "services/access/identity-migrations/versions/0001_baseline.py": "4b33bc6021e217fd96e5ef786ac2481e614932ee1c15a249c24bbfb55a40ef9f",
+    "services/access/identity-migrations/versions/0002_actor_registry.py": "77c77c8f5db450c48b5a667368254ee8d521e453950e8b5dd5d27c0efbc7c4d5",
+    "services/access/identity-migrations/versions/0003_current_account_actor.py": "31925c2e52ed62d48a4b2bea1b034b8146ecbe41f4e4b93b58db26a5c708b780",
+    "services/access/identity-migrations/versions/0004_current_account_organization.py": "fd016959f0fe2cdb733b0024b866ceeb96c123a87df18090ca1e1195ce859abf",
+    "services/access/identity-migrations/versions/0005_operator_authority.py": "be31c3d4e83837faf4e6f05c5a599e1e50e795ed94149da5180aa070d5dcac9b",
+    "services/access/identity-migrations/versions/0006_actor_command.py": "7da9c22b372729985df6614c2d7dd01555c1c2c2ac7ddd808ab2fdc6c2e75273",
+    "services/access/identity-migrations/versions/0007_organization_targets.py": "4b33697b0dc527c50cfa2d8b91d8d69e6f54af102b955b7384afa09842771727",
+    "services/access/identity-migrations/versions/0008_profile_fields.py": "25b1c51480aef40fad8a415d7dfd02f84a390e349bb38f1014fd3662e195a7c7",
+    "services/access/identity-migrations/versions/0009_legacy_roles.py": "50407446f35645e2a239ef7aa0b41f1d2668c30c6396a1cfd4bb9d0d719cab63",
+    "services/access/identity-migrations/versions/0010_token_hook.py": "6f748bb499f53ed72e03eb18982e086ab7603a57b27c2539bb8659a01c544595",
+    "services/access/identity-migrations/versions/0011_membership_binding.py": "44072efb27ac625f2452ded35be12514ffdbe4de3192bb7e1e6c94a49cbb61e3",
+    "services/access/identity-migrations/versions/0012_membership_retention.py": "d150cec639791529494cbb7857093358bd2243ec43533561046a56c2344c4dab",
+    "services/access/identity-migrations/versions/0013_membership_retirement.py": "4dbefed1d54829eaefcbd6f1f9f6bb27d4a41cdbde23f3ad771d6dea166385e0",
+    "services/access/identity-migrations/versions/0014_active_membership_index.py": "1df16b4b819b2bcff0145d6f1bada7779336b56101a06bfc325c272622c8e637",
+    "services/access/identity-migrations/versions/0015_membership_actor_attribution.py": "70be70971e7f06475e2fe365dfaed9c8e8e5d96d11edc0375e4b114696126742",
+    "services/access/identity-migrations/versions/0016_membership_retire_command.py": "3962b69ff0136d7cbae40c265f633b172a831a8958712d4c939a8365b5437ded",
+    "services/access/identity-migrations/versions/0017_membership_join_command.py": "4b600f96f3cfe7327eea09d7635f1aa9ab0e1d099c535d36e96786f72fd9117c",
+    "services/access/identity-migrations/versions/0018_account_actor_ensure.py": "909751f004f90dcee50a1408123c629ad5262a52158c9989ac2e8e197834935f",
+    "services/access/identity-migrations/versions/0019_organization_target.py": "beca1f2caacdf420cfa8d0dee8af00173beab8cc50fab02dd5bcae217d05dc9c",
+    "services/access/identity-migrations/versions/0020_check_reader_bridge.py": "c9563431b70ffe73edd57deb264fefee4e64a063647c9a8583c09dd2e8b0f0e7",
+    "services/access/identity-migrations/versions/0021_studies_account_setup.py": "5f5aba7996c879775582ea2d08d625968366cb95629ed314ec340846840f014c"
+  },
+  "private_driver_sha256": {
+    "current_clean.py": "d9c4862485d640176cf41d050160b6ac241fb50be5a6bb66d3262f7ddc602da3",
+    "legacy_adopt.py": "b7ddc05f164dc4054e81e6a4953c27ffe3b7b6109d6f8f6b4e42e47e9329082f",
+    "prepare_cohorts-initial-source.py": "46f89e5b8de82746ea986d053e3c3dd50961ed3009b625abca95b0902dad24a6",
+    "prepare_cohorts.py": "f286e79030b98ec310923a9eb93183699867c4515f5f708d074ed98876932a58",
+    "prepare_native.py": "19226279ba4fb1563fe4ba15581177aa6bd28dff564894098613c366919d923c",
+    "qualify_migrations.py": "3defb69171c804121f7f2fd684c6322bebd97dc78c74615bf69ff3e05d0692f6",
+    "record_delivery.py": "e5618ad8842824bbb8d1afa650d464d472dc4ac7b42cf183720ecbe8c6c8a4a5",
+    "rehearse22.py": "dd60a8409993852bd94c5c2e82331e95f938ea4cc288b56338115d1585a518b5",
+    "rehearse23.py": "2781b051be91c55161b632e8ab6ec958b1e76de770e75579cb910d9de292ed0c",
+    "release_gate.py": "806a1e1aac7ce103eeb7d9409009ee587c3b25bbbeb30a471c4dce0240ef5df3",
+    "stage_review.py": "e9cc427dde0748b890ae0fe173726322e3d70b24d46eb0712a32dead79d5a2e2",
+    "supplement.py": "a01bfaa0bdd4150081bcb0a3bcf471b8eec9ed867669751d0c4c5ee06ee19a15"
+  },
+  "proofs": {
+    "current-clean-proof.json": {
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "alembic",
+        "-c",
+        "services/access/identity-alembic.ini",
+        "upgrade",
+        "head"
+      ],
+      "database": "idb_88a737ddad7b_a9b16a02_current_clean",
+      "empty_business_tables": true,
+      "head": "identity_0023",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed"
+    },
+    "language-native-proof.json": {
+      "checks": [
+        "actual-local-auth-and-known-preference-absence",
+        "desired-portuguese-retry-conflict-account-isolation-and-org-independence",
+        "concurrent-same-revision-one-write",
+        "required-outcome-failure-rolls-back-preference-write",
+        "lost-response-original-outcome-and-current-authentication",
+        "restricted-runtime-denials-and-forged-jwt-cannot-switch-account",
+        "no-implicit-person-actor-employment-membership-or-grants"
+      ],
+      "database": "idb_88a737ddad7b_a9b16a02_current_clean",
+      "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+      "source_sha256": {
+        "services/access/identity-migrations/versions/0023_language_preferences.py": "f1666f0cebb236fdc90d2d305ea0e9d607c0c77dd0a8ce82be3c88ee6df4b0aa",
+        "services/access/identity_preferences.py": "e8d367c4d80eef56c6ee29929d009d0860d6b783326244931eecbd50c77edca8",
+        "services/access/main.py": "8c4040039c92c7337821a8f9e10d7e39af4f7865061e8624e3f923a85ca8fd43",
+        "services/access/tests/qualify_language_preferences.py": "d524368dea174c428d5d6032242437d7cb83cd13ae53ff4b37566ff81c8c11dd"
+      },
+      "status": "passed"
+    },
+    "legacy-adopt-preservation.json": {
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "alembic",
+        "-c",
+        "services/access/identity-alembic.ini",
+        "upgrade",
+        "head"
+      ],
+      "database": "idb_88a737ddad7b_legacy_22aa901e",
+      "head": "identity_0023",
+      "legacy_baseline_sources": {
+        "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql": "cad9d5f3e5be38efdcf39ab338c06ecc693758f965234b0e5782c00480a61992",
+        "platform/supabase/migrations/20250815150000_platform_auth-hook.sql": "3286922124a974349691fe88ede59a595409df86a94654b713bb82a68cbf828d",
+        "platform/supabase/migrations/20250815160000_platform_create_audit_log_tbl.sql": "32cc49339c0ec9029261528c71e65246fd430498c7b693f31794489235c67b35",
+        "platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql": "853882974e29bba54c40de0ccb47d17362fd33e2ce2c4b940353388f364c1e01",
+        "platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql": "d3683ac1cba6b78ba4cad7086a2f6868a44aa116b3c3f76de77572a3d1066ace",
+        "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql": "f7a1f2bf26f5f72807d1451de441f53291562b4c41e3ae75e03957c11b0c8d20",
+        "services/access/tools/identity_bridge.sql": "e4063529f1dd589a7269bdcff3ec5695ed599ab1e1df6ecfc3f9042765fa90fc"
+      },
+      "migration_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_business_row_hashes": {
+        "memberships": "5b80ff10ec5f1a5e743646a06b18b0b0fafd5d48e76ae219e804e14497020746",
+        "organizations": "e8a66cc31897c0898c306eeafa9299817878593b7de01dba3bdc40aae152cfeb",
+        "profiles": "21c74d27a9c1d01b3362976884beeec65232a373002085ebe27c6331361f1b40",
+        "roles": "45a8594b5f7ce3e4ddea6fb83b39a7076019c2d7ab849a03948e7542cc23719f"
+      },
+      "same_rows_after_adoption": true,
+      "status": "passed"
+    },
+    "native-migration-matrix.json": {
+      "limits": "Existing21 substrate upgraded to23; current full clean bootstrap and release gate remain separate checks.",
+      "results": [
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-c",
+            "import sys;sys.path.insert(0,'services/access/identity-migrations');import identity_baseline as b\noriginal=b.verify_owned_postcondition\ndef verify(c,require_head=False):\n original(c,require_head=require_head)\n if require_head:\n  assert c.exec_driver_sql(\"SELECT to_regclass('identity.account_language_preference') IS NOT NULL\").scalar_one()\n  print('postcondition23_checked_then_injected',flush=True)\n  raise b.BaselineError('identity_test_postcondition_failure')\nb.verify_owned_postcondition=verify\nfrom alembic.config import Config\nfrom alembic import command\ncommand.upgrade(Config('services/access/identity-alembic.ini'),'head')\n"
+          ],
+          "case": "failure",
+          "elapsed_seconds": 1.194,
+          "exit_code": 1,
+          "label": "migration-postcondition-failure",
+          "log": "migration-postcondition-failure-56751b9e.log",
+          "sha256": "2828b33626ab61f54c7d6641d6caa5fbd2aafd7123837bb3b3bcd319251156b8",
+          "state": {
+            "head": "identity_0021",
+            "person": null,
+            "preferences": null
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "failure",
+          "elapsed_seconds": 1.193,
+          "exit_code": 0,
+          "label": "migration-forward-retry",
+          "log": "migration-forward-retry-db8275f6.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "reference",
+          "elapsed_seconds": 1.153,
+          "exit_code": 0,
+          "label": "migration-upgrade-reference",
+          "log": "migration-upgrade-reference-7348847f.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "reference",
+          "elapsed_seconds": 0.799,
+          "exit_code": 0,
+          "label": "migration-repeat-reference",
+          "log": "migration-repeat-reference-0e497ea3.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "upgrade",
+          "elapsed_seconds": 1.365,
+          "exit_code": 0,
+          "label": "migration-upgrade-upgrade",
+          "log": "migration-upgrade-upgrade-0f3951fd.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "upgrade",
+          "elapsed_seconds": 0.889,
+          "exit_code": 0,
+          "label": "migration-repeat-upgrade",
+          "log": "migration-repeat-upgrade-6b000319.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "clean",
+          "elapsed_seconds": 1.708,
+          "exit_code": 0,
+          "label": "migration-upgrade-clean",
+          "log": "migration-upgrade-clean-c926771a.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        },
+        {
+          "argv": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+            "-I",
+            "-B",
+            "-m",
+            "alembic",
+            "-c",
+            "/home/ck/repos/innodat/agriplatform/services/access/identity-alembic.ini",
+            "upgrade",
+            "head"
+          ],
+          "case": "clean",
+          "elapsed_seconds": 0.947,
+          "exit_code": 0,
+          "label": "migration-repeat-clean",
+          "log": "migration-repeat-clean-ee6a08ee.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "state": {
+            "head": "identity_0023",
+            "person": "identity.person",
+            "preferences": "identity.account_language_preference"
+          }
+        }
+      ],
+      "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+      "source_hashes": {
+        "services/access/identity-migrations/account-actor-ensure-reference.json": "9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50",
+        "services/access/identity-migrations/active-membership-index-reference.json": "b710b943ecb95e4b7cbce9eb77debad8f1ad181c40a2532ff87cd85be317033b",
+        "services/access/identity-migrations/actor-reference.json": "c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a",
+        "services/access/identity-migrations/authority-reference.json": "2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e",
+        "services/access/identity-migrations/check-reader-bridge-reference.json": "154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7",
+        "services/access/identity-migrations/command-reference.json": "ebe11f9cd4dbed35496488e6eb21b5c6af4c3c8f767447fd1e1ad7fb2c2c1188",
+        "services/access/identity-migrations/env.py": "0ddde18b0594e24318afc857a52f6a503f84510c2556e8d0a10b5b70201198de",
+        "services/access/identity-migrations/identity_baseline.py": "7b746bf03fbe0171f52e160a1573350de1462d553a1365af79640e9bb6233bd6",
+        "services/access/identity-migrations/identity_person_catalog.py": "46358a57e838fd226da0ff2c0c58864facc3c6335d35a0e5d21d0ecb31db5bbf",
+        "services/access/identity-migrations/identity_preferences_catalog.py": "91c34ca69326be2097462a84863aca1f7546d05789f730ad5696cbcb1b0731f4",
+        "services/access/identity-migrations/identity_studies_catalog.py": "1ae89cafe1aa9d4cd1556a4127c50c34588b2322a357d32e3bb8f0184587ff15",
+        "services/access/identity-migrations/language-preferences-reference.json": "08bcb562cae058c970b35e30676770e5572d9b6ba0edf17377a0570341c3321a",
+        "services/access/identity-migrations/legacy-role-reference.json": "983d00ac73bfc9d86188ce166cece3c246926f169b9993af0141a527d8bbd0aa",
+        "services/access/identity-migrations/membership-actor-attribution-reference.json": "2204a3ca4323bf9693aacc5f4202d2aab1516ac395e71516df2d8f702298a715",
+        "services/access/identity-migrations/membership-binding-reference.json": "43bf6d868efb7234ebd8199d884f7cafcca018a2fd274df6329187381a6827f3",
+        "services/access/identity-migrations/membership-join-command-reference.json": "8e6a0b7f61535e0c541b7e80836e1431331ddb37a5ad57432a800b02e4ebd5df",
+        "services/access/identity-migrations/membership-retention-reference.json": "6476b2210402434fd4fa732a7ab882dc8ca02cdbc694c94955647f43d696cf81",
+        "services/access/identity-migrations/membership-retire-command-reference.json": "71bd766de85d53269c7f972851442eacdfea45f4d785589d42abb3d2a38ec488",
+        "services/access/identity-migrations/membership-retirement-reference.json": "63543e9abe478ddc277cb00f8f241b181dd3e88c8eb29be827fc17835c3cfab0",
+        "services/access/identity-migrations/organization-reference.json": "5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae",
+        "services/access/identity-migrations/organization-target-reference.json": "ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235",
+        "services/access/identity-migrations/person-links-reference.json": "440d93b513ee0f19a6311cd628e2e67b0f72b28a36c836dcbbfbbadf8a5eb989",
+        "services/access/identity-migrations/profile-reference.json": "05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868",
+        "services/access/identity-migrations/projection-reference.json": "6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9",
+        "services/access/identity-migrations/reference.json": "ae183b435b2659efbe1a9f2ffdf3eaf1b8d64b2f9256ea72927b6f78453beb00",
+        "services/access/identity-migrations/source-pins.json": "0f28f5840356dfb04a9209cf56e8f693028e1873d1ef18392cd7bb478713804f",
+        "services/access/identity-migrations/studies-setup-reference.json": "87a95ea22f9d2314fc81eaf7ac9f9f1150b1ee169d83078900d37fb9235b2f6d",
+        "services/access/identity-migrations/studies_migration_support.py": "2d92f0ec27003fdbdbc1dd4d68888471aa645b895bb7f6d37945a95b6b88766a",
+        "services/access/identity-migrations/target-reference.json": "7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae",
+        "services/access/identity-migrations/token-hook-reference.json": "f227a7839ba8e04fe1626254e91678c73cf3fc2aa5e38fdb0a5b1ec6a3633263",
+        "services/access/identity-migrations/versions/0001_baseline.py": "4b33bc6021e217fd96e5ef786ac2481e614932ee1c15a249c24bbfb55a40ef9f",
+        "services/access/identity-migrations/versions/0002_actor_registry.py": "77c77c8f5db450c48b5a667368254ee8d521e453950e8b5dd5d27c0efbc7c4d5",
+        "services/access/identity-migrations/versions/0003_current_account_actor.py": "31925c2e52ed62d48a4b2bea1b034b8146ecbe41f4e4b93b58db26a5c708b780",
+        "services/access/identity-migrations/versions/0004_current_account_organization.py": "fd016959f0fe2cdb733b0024b866ceeb96c123a87df18090ca1e1195ce859abf",
+        "services/access/identity-migrations/versions/0005_operator_authority.py": "be31c3d4e83837faf4e6f05c5a599e1e50e795ed94149da5180aa070d5dcac9b",
+        "services/access/identity-migrations/versions/0006_actor_command.py": "7da9c22b372729985df6614c2d7dd01555c1c2c2ac7ddd808ab2fdc6c2e75273",
+        "services/access/identity-migrations/versions/0007_organization_targets.py": "4b33697b0dc527c50cfa2d8b91d8d69e6f54af102b955b7384afa09842771727",
+        "services/access/identity-migrations/versions/0008_profile_fields.py": "25b1c51480aef40fad8a415d7dfd02f84a390e349bb38f1014fd3662e195a7c7",
+        "services/access/identity-migrations/versions/0009_legacy_roles.py": "50407446f35645e2a239ef7aa0b41f1d2668c30c6396a1cfd4bb9d0d719cab63",
+        "services/access/identity-migrations/versions/0010_token_hook.py": "6f748bb499f53ed72e03eb18982e086ab7603a57b27c2539bb8659a01c544595",
+        "services/access/identity-migrations/versions/0011_membership_binding.py": "44072efb27ac625f2452ded35be12514ffdbe4de3192bb7e1e6c94a49cbb61e3",
+        "services/access/identity-migrations/versions/0012_membership_retention.py": "d150cec639791529494cbb7857093358bd2243ec43533561046a56c2344c4dab",
+        "services/access/identity-migrations/versions/0013_membership_retirement.py": "4dbefed1d54829eaefcbd6f1f9f6bb27d4a41cdbde23f3ad771d6dea166385e0",
+        "services/access/identity-migrations/versions/0014_active_membership_index.py": "1df16b4b819b2bcff0145d6f1bada7779336b56101a06bfc325c272622c8e637",
+        "services/access/identity-migrations/versions/0015_membership_actor_attribution.py": "70be70971e7f06475e2fe365dfaed9c8e8e5d96d11edc0375e4b114696126742",
+        "services/access/identity-migrations/versions/0016_membership_retire_command.py": "3962b69ff0136d7cbae40c265f633b172a831a8958712d4c939a8365b5437ded",
+        "services/access/identity-migrations/versions/0017_membership_join_command.py": "4b600f96f3cfe7327eea09d7635f1aa9ab0e1d099c535d36e96786f72fd9117c",
+        "services/access/identity-migrations/versions/0018_account_actor_ensure.py": "909751f004f90dcee50a1408123c629ad5262a52158c9989ac2e8e197834935f",
+        "services/access/identity-migrations/versions/0019_organization_target.py": "beca1f2caacdf420cfa8d0dee8af00173beab8cc50fab02dd5bcae217d05dc9c",
+        "services/access/identity-migrations/versions/0020_check_reader_bridge.py": "c9563431b70ffe73edd57deb264fefee4e64a063647c9a8583c09dd2e8b0f0e7",
+        "services/access/identity-migrations/versions/0021_studies_account_setup.py": "5f5aba7996c879775582ea2d08d625968366cb95629ed314ec340846840f014c",
+        "services/access/identity-migrations/versions/0022_person_links.py": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+        "services/access/identity-migrations/versions/0023_language_preferences.py": "f1666f0cebb236fdc90d2d305ea0e9d607c0c77dd0a8ce82be3c88ee6df4b0aa"
+      },
+      "status": "passed"
+    },
+    "native-supplement-proof.json": {
+      "checks": [
+        "person-required-business-event-failure-rolls-back-person-and-outcome",
+        "explicit-same-operation-forward-retry-after-trigger-restoration",
+        "unmapped-account-known-absence-en0-and-PUT409-no-implicit-setup",
+        "preference-server-account-attribution-and-timestamp-order"
+      ],
+      "limits": "Unmapped account uses scratch Auth table substrate, not provider login. Provider deletion not performed or needed for the manual replacement rehearsal.",
+      "source_sha256": {
+        "services/access/identity-migrations/versions/0022_person_links.py": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+        "services/access/identity_preferences.py": "e8d367c4d80eef56c6ee29929d009d0860d6b783326244931eecbd50c77edca8"
+      },
+      "status": "passed"
+    },
+    "person-native-final-proof.json": {
+      "checks": [
+        "person-create-independent-exact-retry-changed-retry-and-targeted-outcome",
+        "same-person-separate-account-actors-retained-history-and-no-conflicting-relink",
+        "inactive-account-and-runtime-command-and-outcome-denied",
+        "concurrent-identical-command-one-outcome-event",
+        "no-actor-member-or-other-owner-effects",
+        "restricted-runtime-no-raw-rows-ledger-or-ddl-and-own-person-projection"
+      ],
+      "database": "idb_88a737ddad7b_a9b16a02_current_clean",
+      "receipts": [
+        {
+          "command_version": 1,
+          "committed_at": "2026-10-26 18:54:31.364393+00:00",
+          "operation_id": "85fb8b6e-bd06-4c38-94e1-0f012a658b33",
+          "result": {
+            "command": "account.link_person",
+            "disposition": "created",
+            "event_id": "25333e55-dfd2-4cc0-9872-0eaa65a55c31",
+            "revision": "1",
+            "target": {
+              "account_id": "ce106179-1b00-4c1a-90e1-30c5f996741e",
+              "actor_id": "ce106179-1b00-4c1a-90e1-30c5f996741e",
+              "person_id": "36cf7f9c-af64-443a-8f3f-e3569a5a643e"
+            }
+          },
+          "result_version": 1,
+          "status": "committed"
+        },
+        {
+          "command_version": 1,
+          "committed_at": "2026-10-26 18:54:32.092118+00:00",
+          "operation_id": "fc843a3e-9796-4dbb-ba84-df6e18de47f4",
+          "result": {
+            "command": "account.link_person",
+            "disposition": "created",
+            "event_id": "a335ff31-74d9-4749-8ae4-818ccbb9a684",
+            "revision": "1",
+            "target": {
+              "account_id": "e669b51d-ae29-44d8-846e-a5435cbca59d",
+              "actor_id": "e669b51d-ae29-44d8-846e-a5435cbca59d",
+              "person_id": "36cf7f9c-af64-443a-8f3f-e3569a5a643e"
+            }
+          },
+          "result_version": 1,
+          "status": "committed"
+        },
+        {
+          "command_version": 1,
+          "committed_at": "2026-10-26 18:54:32.888644+00:00",
+          "operation_id": "466d3dd9-28af-46bd-b8c0-09d6cc13b771",
+          "result": {
+            "command": "account.link_person",
+            "disposition": "created",
+            "event_id": "406cbac3-0948-44df-977c-0b94a90ea48e",
+            "revision": "1",
+            "target": {
+              "account_id": "aa44ea66-c36b-4d7b-bb43-339618031651",
+              "actor_id": "aa44ea66-c36b-4d7b-bb43-339618031651",
+              "person_id": "36cf7f9c-af64-443a-8f3f-e3569a5a643e"
+            }
+          },
+          "result_version": 1,
+          "status": "committed"
+        }
+      ],
+      "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+      "source_sha256": {
+        "identity-migrations/versions/0022_person_links.py": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+        "identity_operator.py": "add8ac967ff6829e902180cf28a7f953144876b5bc4cfe6fcf1502b61bd0511a",
+        "identity_operator_input.py": "92393a72b45ec584eec19bc566e8f369ce7dd4e4cd6c6005e1fd7503e664662b",
+        "operator_cli.py": "75cb5473695476c154075ac5eccf421029366869d7fbd6438d271d2cb8eedfc6",
+        "tests/qualify_person_links.py": "969a6e94e3b45d7da50ca8ec7867495a74a50ac7435acf2cff5597c9b5292fa6"
+      },
+      "status": "passed"
+    },
+    "person-native-initial-reconciliation.json": {
+      "error_code": "person_qualification_failed_requires_reconciliation",
+      "failed_command": "qualify_person_links.py --fixture .local/leave-id-b-20261026/person-native-private.json --run-id 88a737dd-ad7b-429a-a83c-5d103716d659 --port 55582 --output .local/leave-id-b-20261026/person-native-proof.json",
+      "read_only_observation": {
+        "account_person_links": 3,
+        "outcomes": {
+          "account.link_person": 6,
+          "account_actor.ensure": 4,
+          "person.create": 2
+        },
+        "persons": 1
+      },
+      "resolution": "Unexpected42501->operation_unavailable classification fixed. Original random operations predated attempt journaling; original rows/receipts retained. Final source is requalified on fresh current-clean case with durable attempt journal.",
+      "tool_session": 72625
+    },
+    "reference22-rehearsal.json": {
+      "categories": 86,
+      "migration_sha256": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+      "prior_head_restored": "identity_0021",
+      "reference_sha256": "440d93b513ee0f19a6311cd628e2e67b0f72b28a36c836dcbbfbbadf8a5eb989",
+      "status": "rollback-only-rehearsal-passed"
+    },
+    "reference23-rehearsal.json": {
+      "prior_head_restored": "identity_0021",
+      "reference_sha256": "08bcb562cae058c970b35e30676770e5572d9b6ba0edf17377a0570341c3321a",
+      "source_hashes": {
+        "services/access/identity-migrations/person-links-reference.json": "440d93b513ee0f19a6311cd628e2e67b0f72b28a36c836dcbbfbbadf8a5eb989",
+        "services/access/identity-migrations/versions/0022_person_links.py": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+        "services/access/identity-migrations/versions/0023_language_preferences.py": "f1666f0cebb236fdc90d2d305ea0e9d607c0c77dd0a8ce82be3c88ee6df4b0aa"
+      },
+      "status": "rollback-only-rehearsal-passed"
+    },
+    "release-failure-gate-proof.json": {
+      "activation_allowed": false,
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "tools/py/deploy_pts.py",
+        "--identity",
+        "--release-id",
+        "leave-id-b-failure-gate-20261026",
+        "--evidence",
+        "/home/ck/repos/innodat/agriplatform/.local/leave-id-b-20261026/release-failure-gate.json"
+      ],
+      "exit_code": 1,
+      "failure": "explicit invalid Identity mode before writes",
+      "head_preserved": "identity_0023",
+      "later_owners_not_attempted": true,
+      "limit": "Failure ordering only; no downstream owner readiness or release activation.",
+      "log_sha256": "35db7bce28f04aeb51445f49512609562c358ef8dd715e3b964b6baa7a0262c0",
+      "status": "passed"
+    },
+    "release-failure-gate.json": {
+      "activation_allowed": false,
+      "code": "migration_failed",
+      "code_revision": "cd41aea6b72593c9352e3cd67845df7e2fdce70f",
+      "finished_at": "2026-10-26T19:04:34.639676+00:00",
+      "migrations_complete": false,
+      "owners": {
+        "access": {
+          "status": "not_attempted"
+        },
+        "content": {
+          "status": "not_attempted"
+        },
+        "identity": {
+          "after": [
+            "identity_0023"
+          ],
+          "before": [
+            "identity_0023"
+          ],
+          "finished_at": "2026-10-26T19:04:34.589457+00:00",
+          "started_at": "2026-10-26T19:04:33.329022+00:00",
+          "status": "failed"
+        },
+        "pts": {
+          "status": "not_attempted"
+        }
+      },
+      "release_id": "leave-id-b-failure-gate-20261026",
+      "started_at": "2026-10-26T19:04:32.978744+00:00",
+      "working_tree_dirty": true
+    },
+    "transition-native-proof.json": {
+      "activation_gate": "Access permission consumers and later People/Leave integration remain unqualified and gated",
+      "checks": [
+        "three-independent-retained-people-and-explicit-replacement-link-distinct-actors",
+        "retire-rejoin-retained-history-old-role-hook-denial-and-delayed-command-replay",
+        "concurrent-second-organization-join-one-active-membership",
+        "current-authority-revoke-outcome-denial-and-explicit-restoration",
+        "retained-account-actor-role-and-profile-identifiers-preserved-no-replacement-access-inheritance"
+      ],
+      "database": "idb_88a737ddad7b_legacy_22aa901e",
+      "limits": [
+        "Root separately proves pre-adoption bootstrap, release failure/retry and provider account deletion.",
+        "No Access/PtS grant effectiveness or production qualification is inferred."
+      ],
+      "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+      "status": "passed"
+    }
+  },
+  "python_version": "3.15.0 (main, Oct 14 2026, 01:05:07) [Clang 23.1.3 ]",
+  "retained_artifacts": {
+    "current-clean-proof.json": {
+      "path": ".local/leave-id-b-20261026/current-clean-proof.json",
+      "sha256": "43ef17015c4eb93cb57afc7f29a169a1c463338602ba377d903a30c8a1b7dac5"
+    },
+    "language-native-proof.json": {
+      "path": ".local/leave-id-b-20261026/language-native-proof.json",
+      "sha256": "89cfeb7bd0ce4f1f282ae0dd1c1bb3f31aa8cd1bc3bb71c47ef8a3a02ed87cb2"
+    },
+    "legacy-adopt-preservation.json": {
+      "path": ".local/leave-id-b-20261026/legacy-adopt-preservation.json",
+      "sha256": "5d493ac52b7859326cadb0132ee18f24edd945036b421d3fdbf34c08a3275b7a"
+    },
+    "native-migration-matrix.json": {
+      "path": ".local/leave-id-b-20261026/native-migration-matrix.json",
+      "sha256": "6c7a860581288bf64b0ea3c28dfb1d778a42ffe0056d08201240139d85144281"
+    },
+    "native-supplement-proof.json": {
+      "path": ".local/leave-id-b-20261026/native-supplement-proof.json",
+      "sha256": "6c9ee23c0dabb1bd2f35923013ce0d8fb5832321089c3a94b59039e2fc49b6ac"
+    },
+    "owner-regression-final.log": {
+      "path": ".local/leave-id-b-20261026/owner-regression-final.log",
+      "sha256": "651dc41370053c5a7c17ccbca0c5654215e4090335f094ae12e698eabee66031"
+    },
+    "owner-regression-initial.log": {
+      "path": ".local/leave-id-b-20261026/owner-regression-initial.log",
+      "sha256": "d4ce1d00e693e25e3df5a42ebe74f9c430f9d9f5133b07a9e51c95269b6d726b"
+    },
+    "person-links-unit-red.log": {
+      "path": ".local/leave-id-b-20261026/person-links-unit-red.log",
+      "sha256": "c58af3e89184ecfd43908c7b9f3653b8d7aa2910a778b598bbc6a23459b3e2aa"
+    },
+    "person-native-final-proof.json": {
+      "path": ".local/leave-id-b-20261026/person-native-final-proof.json",
+      "sha256": "4f4edaa3f2776050d3029b79458f6f311ffc71ba3ed2f5559d22a33adee2afbb"
+    },
+    "person-native-initial-reconciliation.json": {
+      "path": ".local/leave-id-b-20261026/person-native-initial-reconciliation.json",
+      "sha256": "ade56e63e64cfb4942bfd4135c8a7aa4e9334b61b32ee2ad1549d487ef2670df"
+    },
+    "preferences-unit-red.log": {
+      "path": ".local/leave-id-b-20261026/preferences-unit-red.log",
+      "sha256": "eca24a6cd78833d82c09c952ecd774f310e9f2bb326e91bc48f14510c087082d"
+    },
+    "red.json": {
+      "path": ".local/leave-id-b-20261026/red.json",
+      "sha256": "344f76fceca9795b5b34c77880a1b1de62bed66499479794e64c03da40231e9b"
+    },
+    "reference22-rehearsal.json": {
+      "path": ".local/leave-id-b-20261026/reference22-rehearsal.json",
+      "sha256": "f9e9a821a1eeef6c0f048000918283f28ecbfc241e85b19a0647584903b8bffb"
+    },
+    "reference23-rehearsal.json": {
+      "path": ".local/leave-id-b-20261026/reference23-rehearsal.json",
+      "sha256": "65a55433ad018a66e4d829464c1fb8a2a89d8014f1201c699c04dca599ddcb2c"
+    },
+    "release-failure-gate-proof.json": {
+      "path": ".local/leave-id-b-20261026/release-failure-gate-proof.json",
+      "sha256": "66a8e8bce654a74e906e927bb33d3b71295ac6731919e18bd777cc73d9fffb1e"
+    },
+    "release-failure-gate.json": {
+      "path": ".local/leave-id-b-20261026/release-failure-gate.json",
+      "sha256": "6855305f433e487a317efc6f974f811770d2a5d9f8449375e4abc3db63924a72"
+    },
+    "transition-native-proof.json": {
+      "path": ".local/leave-id-b-20261026/transition-native-proof.json",
+      "sha256": "d6a9f7a751a1025a132bfea102ed765eac85fc5a9884e14fd389591623de0048"
+    }
+  },
+  "review": {
+    "blind": "Started then interrupted; no completed review or triage claimed.",
+    "reason": "Runtime agent thread limit rejected edge and verification reviewer launches; no complete independent review or triage is claimed.",
+    "status": "pending"
+  },
+  "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+  "selected_python": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+  "selected_python_sha256": "610b28e9e2a4c0dc26e80c0f2b4f9601c379b955cce23755a75212fa984d36ce",
+  "source_sha256": {
+    "services/access/IDENTITY-MIGRATIONS.md": "e7077ab059157ada47d4589f984805f051b9f6d4fe547ea3fdcebc0201943aed",
+    "services/access/contracts/generated/.generated-files.json": "76680774d2c2ecb56ab5cac2bf8c3589e34455d97be5745c0d1c4af1fb690d45",
+    "services/access/contracts/generated/index.ts": "d3a5ba3613a12f85556c85aeccb2b3632be1325cfe0e9699c1e2c9c39d7d28e3",
+    "services/access/contracts/generated/types.gen.ts": "6f68b26f823cbaea5bf09ee6e11f7a004f78c682ee9c23fbbde9d31c8252dedb",
+    "services/access/identity-migrations/identity_baseline.py": "7b746bf03fbe0171f52e160a1573350de1462d553a1365af79640e9bb6233bd6",
+    "services/access/identity-migrations/identity_person_catalog.py": "46358a57e838fd226da0ff2c0c58864facc3c6335d35a0e5d21d0ecb31db5bbf",
+    "services/access/identity-migrations/identity_preferences_catalog.py": "91c34ca69326be2097462a84863aca1f7546d05789f730ad5696cbcb1b0731f4",
+    "services/access/identity-migrations/language-preferences-reference.json": "08bcb562cae058c970b35e30676770e5572d9b6ba0edf17377a0570341c3321a",
+    "services/access/identity-migrations/person-links-reference.json": "440d93b513ee0f19a6311cd628e2e67b0f72b28a36c836dcbbfbbadf8a5eb989",
+    "services/access/identity-migrations/versions/0022_person_links.py": "ac99048ae97a15755909c7aba21b7092fb16c6684345bf7f2002035bb0e4babf",
+    "services/access/identity-migrations/versions/0023_language_preferences.py": "f1666f0cebb236fdc90d2d305ea0e9d607c0c77dd0a8ce82be3c88ee6df4b0aa",
+    "services/access/identity_operator.py": "add8ac967ff6829e902180cf28a7f953144876b5bc4cfe6fcf1502b61bd0511a",
+    "services/access/identity_operator_input.py": "92393a72b45ec584eec19bc566e8f369ce7dd4e4cd6c6005e1fd7503e664662b",
+    "services/access/identity_preferences.py": "e8d367c4d80eef56c6ee29929d009d0860d6b783326244931eecbd50c77edca8",
+    "services/access/main.py": "8c4040039c92c7337821a8f9e10d7e39af4f7865061e8624e3f923a85ca8fd43",
+    "services/access/openapi.json": "75e6bb4fc1838e2533bc63ad236b178c202f7794cba13219cc8734c01c99b83e",
+    "services/access/operator_cli.py": "75cb5473695476c154075ac5eccf421029366869d7fbd6438d271d2cb8eedfc6",
+    "services/access/tests/language_types.test.ts": "3602db912e5fd95aa672aa8070bc4070eb99cc21e465e5cc763102a8aefe951c",
+    "services/access/tests/qualify_identity_transition.py": "4d02730ae32d1681ebadba234105f7c5a72b1a567cc301a3289318098af0369d",
+    "services/access/tests/qualify_language_preferences.py": "d524368dea174c428d5d6032242437d7cb83cd13ae53ff4b37566ff81c8c11dd",
+    "services/access/tests/qualify_person_links.py": "969a6e94e3b45d7da50ca8ec7867495a74a50ac7435acf2cff5597c9b5292fa6",
+    "services/access/tests/test_check_reader_bridge.py": "aa5ba8e9bf674bbe75b7fa0cf34d8587ed08a771f77bbe7d8d1d7476218fcb61",
+    "services/access/tests/test_identity_operator.py": "22233968d84267937c8f5b3806ff11fcedd3775a766a48f1908ec27197dd6539",
+    "services/access/tests/test_identity_transition.py": "cd86d02b2f47811c2dcf4b4b0ff5767968fa72520e6e4ac50c07a6abb8368236",
+    "services/access/tests/test_language_preferences.py": "423b82925b10e6b6669ad6f978fcf11630c63eadd44915598fcb421540f08c3e",
+    "services/access/tests/test_person_links.py": "e2071fd0b16049fef9572df662062df86826786a731971598dae9a6cebd7fba4",
+    "services/access/tools/prepare_identity_preferences_role.sql": "0da555ee5d3bf52f677572f83d55c96a0501b41816bbef56816b78517dcdd3b9"
+  },
+  "status": "implemented; independent review pending",
+  "story": "E1-ID-B",
+  "verification": {
+    "api_client_generated_check": "passed; pinned local tool source matches all4 owner files",
+    "composition_legacy": "passed",
+    "composition_owned_no_seeds": "passed",
+    "consumer_types": "passed; generated language and existing Studies types compile under unchanged TypeScript7.0.2 / Node26.11.1",
+    "openapi_export_check": "passed",
+    "owner_regression": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider",
+      "passed": 1938,
+      "seconds": 66.91,
+      "warnings": 1
+    }
+  },
+  "working_tree_dirty": true
+}

@@ -42,7 +42,7 @@ def test_identity_selects_fourteen_using_schema_metadata(monkeypatch):
     class Result:
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
         def __init__(self,sql):self.sql=sql
-        def scalar_one(self):return 'check_organization_permission' not in self.sql and 'enroll_studies_account' not in self.sql
+        def scalar_one(self):return 'discover_applications' not in self.sql and 'check_account_capability' not in self.sql and 'change_account_grant' not in self.sql and 'check_organization_permission' not in self.sql and 'enroll_studies_account' not in self.sql
     class Connection:
         def execute(self,sql):calls.append(str(sql));return Result(str(sql))
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None);monkeypatch.setattr(baseline,'verify_catalog',lambda c,r:selected.append(r));monkeypatch.setattr(baseline,'require_equal',lambda *args:None);monkeypatch.setattr(baseline,'rows',lambda *args:[]);monkeypatch.setattr(baseline,'acl',lambda *args:[])

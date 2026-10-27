@@ -1,0 +1,42 @@
+{
+  "catalog": {
+    "columns": {
+      "rows": 139,
+      "sha256": "af9920562f0cda1ed85e49943cb6f593ebf8b8308b621cedee9ff53f2f57584b"
+    },
+    "constraints": {
+      "rows": 138,
+      "sha256": "e4719f7a5c8346c12bd792152d2713e3376c1ba4da3de457a174f4a93a465289"
+    },
+    "effective_tables": {
+      "rows": 686,
+      "sha256": "bd199fe0ddd9eaaca8daaab130b866e30d78b37c8769504f72e8e93df9656de7"
+    },
+    "functions": {
+      "rows": 53,
+      "sha256": "1188c6af28a1e5857241dcac6acc62e99930e30025ad5b64f7f7ef6ba3a54017"
+    },
+    "indexes": {
+      "rows": 22,
+      "sha256": "e356a988aab28b4735bcdeb7e881b85c60b2830645fc0e219dd06481773ea6a8"
+    },
+    "policies": {
+      "rows": 23,
+      "sha256": "9b8c6166799a281c85c6b0c2fbe5ea0f722ae586e3a7cf7fa5417ddac3d25d39"
+    },
+    "relations": {
+      "rows": 36,
+      "sha256": "26f7601d25b081eb5a19e10de76660f82a2af7cfe19f1d898ec089adcbbd73fc"
+    },
+    "schema": {
+      "rows": 1,
+      "sha256": "e14d26016646b967b91c8370271e24b9ce450766d0981723c97fed5b59eb5f74"
+    },
+    "triggers": {
+      "rows": 39,
+      "sha256": "9bad327bb348d5dd6cc1eaab59f21d2948b645cdf75848e30e5fab43fdca09ac"
+    }
+  },
+  "migration_sha256": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+  "predecessor_reference_sha256": "7bfa0b7d8057b9004fd6ffa97478b2101427caa3985e4b0c9ad5c2934058c7c3"
+}

@@ -43,7 +43,7 @@ def test_identity_selects_eight_using_only_metadata(monkeypatch):
     class Result:
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
-        def scalar_one(self):return 'check_organization_permission' not in self.sql and 'enroll_studies_account' not in self.sql and 'revoke_organization_grant' not in self.sql and 'assign_organization_grant' not in self.sql and 'configure_organization_application' not in self.sql and 'pg_attribute' not in self.sql and 'grants_permission_scope_fkey' not in self.sql
+        def scalar_one(self):return 'discover_applications' not in self.sql and 'check_account_capability' not in self.sql and 'change_account_grant' not in self.sql and 'check_organization_permission' not in self.sql and 'enroll_studies_account' not in self.sql and 'revoke_organization_grant' not in self.sql and 'assign_organization_grant' not in self.sql and 'configure_organization_application' not in self.sql and 'pg_attribute' not in self.sql and 'grants_permission_scope_fkey' not in self.sql
     class Connection:
         def execute(self,sql):calls.append(str(sql));return Result(str(sql))
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None)

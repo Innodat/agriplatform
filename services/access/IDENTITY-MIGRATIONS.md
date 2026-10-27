@@ -1,10 +1,35 @@
 # Identity baseline and durable actor foundation (ID-A / ID-B)
 
+**Leave acceptance update — 2026-10-26:** The user approved reuse of this existing
+hardened sequential history as Leave's ID-A foundation. The earlier independent-ID-B
+acceptance question below is resolved; no separate pre-ID-B history is required.
+ID-B behavior, fresh current-head/provider qualification and live activation remain
+separate delivery obligations. Historical migration/reference bytes are unchanged.
+
 Identity retains its own migration history under the existing Access maintainer.
 `identity-alembic.ini` uses `identity-migrations/`, `identity.alembic_version`, the
 actual `identity_migrator` login and `IDENTITY_MIGRATION_DATABASE_URL`. Access's
 `alembic.ini` and `access.alembic_version` remain separate. No process startup runs
 these migrations. This recipe is owner-local and has not been promoted to scaffolding.
+
+**Current-state qualification — 2026-10-26:** The supported owner history now ends at
+`identity_0021`. The introductory revision1–3 setup and compatibility descriptions
+below retain their historical scope. Revision0001 alone retained unsafe legacy
+profile writes and callable helper grants; it does not meet Leave's privilege-safety
+acceptance. Later0008 restricts authenticated profile columns,0009 binds role lookup
+to the exact active account/organization/member,0010 filters retired membership/org
+claims, and0020 narrows six sensitive callable routine ACLs while preserving tested
+Auth/Expense callers. These are existing delivered owner changes, not proof of an
+ID-B-independent hardened baseline. See [Leave's criterion mapping and open acceptance
+disposition](../../apps/leave/docs/testing/e1-identity-baseline-evidence.md), the linked
+owner evidence there, and the later revision sections below. Historical database
+qualification is distinct from current CPU checks and does not qualify current-head
+database execution, live adoption, provider sign-in or activation.
+
+Current owned composition requires `--identity-authority owned --no-seeds` and no
+stale generated seed SQL. See the existing [revision 17 maintenance guidance](#protected-membership-join-and-rejoin--revision17)
+for refusal and compatibility constraints. Default composition remains legacy. Both
+supported read-only checks are shown below.
 
 ## Toolchain and verification
 
@@ -16,7 +41,7 @@ selection is unchanged. Install with the prepared pinned uv executable:
 uv sync --locked --project services/access/identity-migrations --group dev
 services/access/identity-migrations/.venv/bin/python -m pytest services/access/tests apps/pts/tests/test_release.py -q
 python3 tools/py/run_compose_supabase.py --check-only
-python3 tools/py/run_compose_supabase.py --identity-authority owned --check-only
+python3 tools/py/run_compose_supabase.py --identity-authority owned --no-seeds --check-only
 ```
 
 Actual database qualification is root-controlled and uses explicitly synthetic native
@@ -1736,3 +1761,153 @@ verification use catalogs only, without Access history/business reads or new cro
 grants. Historical Identity migrations and references remain unchanged. See the
 [enablement runbook](APPLICATION-SET-ENABLED.md) and
 [evidence](APPLICATION_SET_ENABLED_EVIDENCE.md).
+
+### E1-ID-B independent people and verified account links (Identity0022)
+
+Identity0022 adds `identity.person` independently of Auth and one permanent
+`account_person` mapping per retained account. Person IDs do not replace account,
+actor, membership or employment IDs. Several separately authorized accounts can
+share one person while retaining distinct actors and grants. No email matching,
+relink, deletion or correction command is included. Immutable mapping rows plus the
+existing compact outcome/event records retain the original verification reference.
+
+Use the existing protected Identity operator target descriptor and login. Prepare
+exact current authority for `person.create` at platform scope and
+`account.link_person` at platform scope with the intended target-account bound where
+required. Authority preparation remains controlled Identity maintenance; possession
+of a UUID, service credential or person link is never authority. Both commands use
+schema version 1 and the existing operation/reason/evidence envelope:
+
+- `person.create`: payload `{person_id, expected_absent: true}`.
+- `account.link_person`: payload `{account_id, person_id, actor_id,
+  expected_absent: true}` or the same mapping with `expected_revision: "1"`.
+  Exactly one expected-state field is permitted; `evidence_ref` is required.
+
+Run `operator_cli.py execute --owner identity --target <private descriptor>
+--command-file <explicit command file>` with the existing isolated Python. Recover
+uncertain results using the same operation ID and current authority:
+`operator_cli.py outcome --owner identity --target <private descriptor> --command
+person.create --operation-id <UUID> --person-id <UUID>`; for `account.link_person`
+include `--account-id <UUID>` as well. Lookup is exact to command and target and
+returns the original compact receipt; unresolved is not proof of failed execution.
+Conflicting retries or mappings fail without replacing history. No fresh blind retry,
+startup migration, automatic downgrade or automatic repair is authorized.
+
+`current_account_person()` is a restricted own-context projection for verified
+service adapters. A present live profile can return a missing actor/person mapping;
+that is setup-needed, whereas database failure is unavailable. Runtime resolution
+creates nothing. It must be consumed only after current authentication and relevant
+capability checks; it does not authorize arbitrary account selectors.
+
+The independently rehearsed `person-links-reference.json` and its source pin are
+required before the controlled migration route accepts Identity0022. Root records
+that reference from the new disposable Leave rehearsal; an absent reference fails
+closed. Existing references are not regenerated. Root separately proves clean and
+previous-head upgrade/repeat, real restricted permission checks, failed migration
+rollback/activation block, explicit forward retry, retained/recreated cohorts and
+previous consumer compatibility. Source tests do not establish those native results.
+
+Focused failing-first evidence: `/tmp/person-links-red.log` initially recorded five
+failures and six passes before source implementation. Root's earlier parser/API
+acceptance evidence remains `.local/leave-id-b-20261026/red.json`. Focused source
+verification used the frozen environment (no installs):
+
+```sh
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest -p no:cacheprovider services/access/tests/test_person_links.py services/access/tests/test_identity_operator_input.py services/access/tests/test_identity_operator.py services/access/tests/test_operator_cli.py services/access/tests/test_identity_baseline.py services/access/tests/test_identity_composition.py services/access/tests/test_identity_organization_target.py services/access/tests/test_identity_pregrant_target.py -q
+```
+
+Result at the person/link checkpoint: **319 passed**. Requirement mapping:
+closed input/revision/UUID/no-override cases, typed compact receipts, canonical retry
+identity, exact command dispatch/outcome targets and CLI transport are in
+`test_person_links.py`; retained commands and migration dispatch remain covered by
+the affected existing operator/CLI/baseline suites. Native-only behavior is exercised
+by the root's prepared fixture and `tests/qualify_person_links.py`:
+
+```sh
+platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B services/access/tests/qualify_person_links.py --fixture <private-person-fixture> --run-id 88a737dd-ad7b-429a-a83c-5d103716d659 --port 55582 --output <fresh-private-proof-file>
+```
+
+The qualifier accepts only a caller-selected mode0600 synthetic fixture with exact
+loopback/database/login binding. It creates no Auth accounts, roles, databases,
+services or catalogue references and does not inspect historical KDG fixtures.
+It tests independent person creation; protected link creation; separate actors for
+three accounts sharing a person; exact same/changed/stale retries and lookup;
+concurrent identical commands; inactive-account and runtime denial; no actor/member
+side effects; own-person projection and raw data/ledger/DDL denials. Root must run
+and record the remaining release/lifecycle/failure stages separately. No production
+qualification is inferred.
+
+Impact decisions for this checkpoint: scaffold uses the proven existing owner-local
+command/evidence boundary; no generator change or unproven person engine. Shared UI
+has no consuming surface in this story. Agent context already covers the ownership,
+ATDD and release safeguards. Documentation is this owner runbook plus root-owned
+Leave evidence/tracking. Existing accepted ADRs remain unchanged; no new decision is
+needed for the account/person distinction already approved.
+
+### Own-account language preferences (Identity0023)
+
+Prepare `identity_preferences_runtime` on the explicitly authorized target with
+`tools/prepare_identity_preferences_role.sql`, using the true administrator through
+protected deployment tooling. The script refuses an existing role and creates a
+restricted LOGIN without a default password, memberships or application authority.
+Provision its credential separately through protected tooling; do not put it in
+source or command logs. Identity0023 verifies the role has no elevated attributes or
+membership edges and grants only schema usage plus the two preference functions.
+Runtime receives no raw preference/outcome-table or migration-ledger access.
+
+Apply Identity0023 through the existing controlled Identity upgrade route after
+Identity0022 and the independently recorded references verify. Configure the existing
+Access service with `IDENTITY_PREFERENCES_DATABASE_URL` using that restricted login
+and `IDENTITY_PREFERENCES_SERVICE_KEY`. Database URL query options are rejected.
+Requests require the verified user's bearer token and the configured `X-Service-Key`;
+authentication completes before database coordination locks. The bearer determines
+the account; query parameters and body account/organization overrides are rejected.
+
+`GET /v2/me/preferences/language` returns
+`{"preferred_locale":"en","revision":"0"}` only for known preference absence.
+Unavailable configuration/storage returns 503 `identity.preference_unavailable`.
+A live profile without a stable actor can read the default; PUT returns 409
+`identity.actor_setup_required` until controlled actor setup supplies attribution.
+Neither reading nor writing creates a person, actor, membership, employment or grant.
+No person link, organization membership or application grant is a preference prerequisite.
+
+PUT accepts exactly `operation_id` (nonzero UUID), `expected_revision` (decimal
+string, including `"0"` for absence) and `preferred_locale` (`"en"` or `"pt"`). It
+atomically commits the desired locale, next revision, server-resolved actor/UTC
+attribution and compact immutable outcome. An accepted new operation advances the
+revision even when the desired locale is unchanged. The identical operation retry
+returns its original locale/revision; changed input returns 409
+`identity.preference_operation_conflict`, and a fresh stale revision returns 409
+`identity.preference_revision_conflict`. Invalid input returns 422
+`identity.preference_invalid`. Portuguese remains the desired account preference
+across organization switches even where presentation falls back to English; this
+story supplies no translation or UI implementation. Responses use private/no-store
+cache controls.
+
+After an uncertain PUT, retry the same operation with the identical body to recover
+its original outcome; a GET shows current state and cannot prove which operation
+committed. Resolve conflicts with current state before deliberately issuing a new
+operation. Preference/outcome failure rolls back the whole local write. Migration
+failure blocks activation: reconcile actual state, retain evidence, and explicitly
+retry forward through the controlled route. Never migrate at service startup,
+automatically downgrade, repair mappings or replace uncertain operations blindly.
+Disposable native proofs do not establish production activation.
+
+Leave acceptance CLI targets are explicitly bounded to the approved disposable run
+`88a737dd-ad7b-429a-a83c-5d103716d659`. Root prepares the existing operator credential
+in that run's private `secrets/identity-operator.env` (literal
+`IDENTITY_OPERATOR_PASSWORD`, mode0600; no rotation or creation by the adapter).
+`prepare_target(leave_target, run_id, namespace=<eight lowercase hex digits>)`
+creates a private `identity-operator-<namespace>.json` descriptor for exactly
+`idb_88a737ddad7b_<namespace>`. Loading it rechecks the manifest hash, private run
+marker, actual running container, loopback port and network before connection.
+This acceptance-only binding does not change KDG targets or manifest secret handling.
+
+Review qualification (2026-10-26) additionally proves composite account/actor foreign
+keys for preference creation/update attribution and outcome attribution; mismatched
+accounts/actors fail23503 even through alternate owner writes. Both head22/23 retain
+the inherited Studies role-membership guard, and head22 also pins revision21 source.
+The existing stable preference error envelopes are declared in owner OpenAPI and
+installer-generated wire types, including typed conflict recovery. See the
+[Leave review evidence](../../apps/leave/docs/testing/e1-identity-links-preferences-evidence.md)
+for the corrected reference, fresh native frames and preserved earlier attempts.

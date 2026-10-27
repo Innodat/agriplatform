@@ -13,6 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from studies_contract import AccountCheck, AccountDecision, StudiesError, inline_schema
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+from capability_contract import CapabilityAccountDecision as CanonicalAccountDecision, OwnDecision, CapabilityOrganizationDecision as CanonicalOrganizationDecision, CapabilityError, CapabilityCheck
+from caller_policy import POLICIES
 
 OWN_PERMISSIONS = frozenset('kdg_capture.' + suffix for suffix in (
     'capture.create.assigned', 'capture.create.all', 'capture.read.own', 'capture.edit.own'))
@@ -62,7 +64,7 @@ def _closed_object(pairs):
     return result
 
 
-def router(db, authenticate, environment, studies=None):
+def router(db, authenticate, environment, studies=None, capabilities=None):
     routes = APIRouter()
     key, org = environment.get('KDG_SERVICE_KEY', ''), environment.get('KDG_ORG_ID', '')
     configured_org = None
@@ -76,13 +78,15 @@ def router(db, authenticate, environment, studies=None):
         if key in (environment.get('PTS_SERVICE_KEY'), environment.get('CONTENT_SERVICE_KEY')):
             raise RuntimeError('kdg_check_configuration_invalid')
 
-    @routes.post('/v2/check', response_model=OrganizationDecision | AccountDecision,
+    @routes.post('/v2/check', response_model=OrganizationDecision | AccountDecision | CanonicalAccountDecision | OwnDecision | CanonicalOrganizationDecision,
         dependencies=[Security(HTTPBearer(scheme_name='KdgBearer', auto_error=False)),
                       Security(APIKeyHeader(name='X-Service-Key', scheme_name='KdgServiceKey', auto_error=False))],
-        responses={status: {'model': CheckError | StudiesError} for status in (401, 403, 409, 422, 503)})
+        responses={status: {'model': CheckError | StudiesError | CapabilityError} for status in (401, 403, 409, 422, 503)})
     async def check(request: Request, authorization: str = Header(default=''), x_service_key: str = Header(default='')):
         if studies is not None and studies.matches(x_service_key):
             return await studies.handle(request, authorization, x_service_key)
+        if capabilities is not None and capabilities.matches(x_service_key):
+            return await capabilities.handle(request, authorization, x_service_key)
         if not key or not x_service_key or not secrets.compare_digest(key.encode('utf-8'), x_service_key.encode('utf-8')):
             raise HTTPException(403, {'code': 'service_access_denied'})
         try:
@@ -147,7 +151,13 @@ def router(db, authenticate, environment, studies=None):
             return [inline(item) for item in value]
         return value
     request_schema=inline(schema)
+    request_schema['properties']['permission']['enum']=sorted(PERMISSIONS)
     if studies is not None:
         request_schema={'oneOf':[request_schema,inline_schema(AccountCheck)]}
+    if capabilities is not None:
+        canonical=inline_schema(CapabilityCheck)
+        canonical['properties']['permission']['enum']=sorted(permission for policy in POLICIES.values() for permission in policy)
+        if 'oneOf' not in request_schema:request_schema={'oneOf':[request_schema]}
+        request_schema['oneOf'].append(canonical)
     routes.routes[0].openapi_extra = {'requestBody': {'required': True, 'content': {'application/json': {'schema': request_schema}}}}
     return routes

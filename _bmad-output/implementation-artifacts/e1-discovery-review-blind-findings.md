@@ -1,0 +1,1 @@
+- No supported findings. Traced the discovery routes, caller restrictions, current-account SQL projections, membership-bound eligibility, pagination, error handling, generated contract adapters, migration verification and runtime packaging.

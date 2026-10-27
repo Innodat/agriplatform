@@ -12,20 +12,23 @@
   },
   "required_env": [
     "ACCESS_DATABASE_URL",
+    "CAPABILITY_ACCESS_DATABASE_URL",
     "SUPABASE_URL",
     "SUPABASE_ANON_KEY",
     "PTS_SERVICE_KEY",
     "CONTENT_SERVICE_KEY"
   ],
   "database_roles": {
-    "ACCESS_DATABASE_URL": "access_runtime"
+    "ACCESS_DATABASE_URL": "access_runtime",
+    "CAPABILITY_ACCESS_DATABASE_URL": "access_runtime"
   },
   "smoke_env": {
     "ACCESS_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
     "SUPABASE_URL": "https://fixture.supabase.co",
     "SUPABASE_ANON_KEY": "fixture-public",
     "PTS_SERVICE_KEY": "fixture-pts",
-    "CONTENT_SERVICE_KEY": "fixture-content"
+    "CONTENT_SERVICE_KEY": "fixture-content",
+    "CAPABILITY_ACCESS_DATABASE_URL": "postgresql://access_runtime:fixture@127.0.0.1:9/fixture"
   },
   "smoke_artifacts": [],
   "studies_enrollment": {

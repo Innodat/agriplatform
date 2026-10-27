@@ -1,0 +1,860 @@
+{
+  "status": "verified_review_complete",
+  "date": "2026-10-27",
+  "baseline_commit": "2586a22e0e97f39f2742b4d73c2d6a130d744c98",
+  "private_frame": ".local/leave-access-b-20261027",
+  "source_sha256": {
+    ".gitignore": "58b42c26a7e04a68ac2e3ccedca7ba3666d014e51a63efd70c25335ff979012b",
+    "_bmad-output/implementation-artifacts/leave-sprint-status.yaml": "11d44064b68c9bc64898c188b9f80592fe1feea15379b10ecf3018d50423fd1d",
+    "apps/leave/docs/implementation-handoff.md": "4556450a54bb0faa3a37a2b9701d236cf4ff310135650fd28faad335d29fc7be",
+    "apps/leave/docs/implementation-plan.md": "0bd5392fd351af23295c7f0b5f3a83c0ed5dd8eb1d2b29ea432763c13b2de52e",
+    "services/access/CURRENT-ACCESS.md": "8f9be368ddf1241dbc6518383d3847ddd333fd7ef28042ea162e1138ce5e5f6f",
+    "services/access/caller_policy.py": "f36caa508b1ba0869ebacb494d00898c680ef6269257f459cd88f39c293a8c44",
+    "services/access/capability_check.py": "21f398cd9d04bfd99f430637ce97b0003de81c4e7743999cda890bb1f60df55d",
+    "services/access/capability_contract.py": "1d1781f2652b8edf7a527e1b8c87f53773f4898ab7691120446acec2febff153",
+    "services/access/contracts/adapter.ts": "ce9eacec95c962af03a975ef4233694122f55134157d4ac2a49d9241180200ed",
+    "services/access/contracts/generated/.generated-files.json": "979397c4c3c3c0eb16b6790648e9ed696db22a5c7bc373c6fa721ad6877c40e4",
+    "services/access/contracts/generated/index.ts": "5f47dd18b5a3a7eff0e12953def9f6a6b3fef7c35dfa5f985ee0af5d5bae1172",
+    "services/access/contracts/generated/types.gen.ts": "9d3cd7bcdb1728bd473da05f2e8581ec31387e5703e8f97c7e662a29d18de5c5",
+    "services/access/deployment/Dockerfile.dockerignore": "f6db83d26f7004d465b68c441bf3a0506f966cc9a7ca6ec5020c20eec6aac12e",
+    "services/access/deployment/manifest.json": "1caa0a5900a8417ea2780f4573f9c429952d4d2a29c4c619c6bc1841eaee7f90",
+    "services/access/deployment/runtime.env.example": "61ad38fbe4ae44bd614c9439b9ae8728dec285a1e41a3b40721f6119477d3a91",
+    "services/access/deployment/verify_runtime.py": "90928661151565a8b1f95d4e1573a6848ca463b5eeaa453574d5937365aa7b1b",
+    "services/access/identity-migrations/capability-reader-reference.json": "ddfefbeb1ea8fa5933a0bddbd4f1265bd38d1c0dd3b171453fb7512f9012ba24",
+    "services/access/identity-migrations/identity_baseline.py": "1858b6cb0d7c43575cd34eac482c2c94cab3a06303078b605e4337d561b75cf2",
+    "services/access/identity-migrations/identity_capability_catalog.py": "0ac9f1077e7ab6fdd99a09edbb47aedd1408fc7fb83f355b3c45747df959c9a8",
+    "services/access/identity-migrations/versions/0025_capability_reader.py": "3a6dc4c23ec478d48ac0fa5eab3f79f46d280bf72017cad8cac01d75698f2004",
+    "services/access/identity_context.py": "cae3eb65751341794f4940810c1c33d4bcc8084cf741c7bcc34cc6b2597ead13",
+    "services/access/main.py": "89a3858cadcab7780e57b6170659d0cc27e13c1464ba6fc3e5d912973e4287e8",
+    "services/access/migrations/access_baseline.py": "915609554174e0b80b954083fde899a22b1768f36cf109ea2803f143be31f0ee",
+    "services/access/migrations/access_capability_catalog.py": "a4464272e694ff80cf0868b88cfa339f1209340a4634b5489b8856d5e66dcf3f",
+    "services/access/migrations/current-capabilities-reference.json": "b6ee32aeb585f9ac5c0ad19ca278644a207a56692a9c3847e465f98252faac40",
+    "services/access/migrations/versions/0018_current_capabilities.py": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+    "services/access/openapi.json": "36e6e9aaea75db0dcea1c3b7ebed815e4e14aceacb10e03dc599919fe3bc0a3e",
+    "services/access/organization_check.py": "293be2c0c25ec67e48092cb1d30db84762e1fe336701a3c4756ed961a1cdfe13",
+    "services/access/tests/capability_types.test.ts": "f600bd58a161ade5faf774a7ff0b70042d34f87e02c50b87a1ddf1e840341861",
+    "services/access/tests/qualify_capabilities.py": "9d09ef29d9bb046f22853d049be3190373db8b6a872000e671fc17cd88873be3",
+    "services/access/tests/test_access_membership_binding.py": "70e9cfb7e819a88bc5051f205d21c5129c7d67d83a08ea1b3da788303364ced2",
+    "services/access/tests/test_capability_catalog.py": "dee41d85f7d9b271eb55931bda78e765c80402b7b0ea98d864d1acd22b86a0f0",
+    "services/access/tests/test_capability_check.py": "127c421dbb4df97cb2a3533f1c5fa15fd2f8141f03b7b70483a7c1320291c5ff",
+    "services/access/tests/test_capability_qualification.py": "42d1e212b13546b31fd1f2c4ddee84de751454a3d2d1a722d953b32726641f24",
+    "services/access/tests/test_check_reader_bridge.py": "3f6f372d8500ab96981db179a003cbbd9d829dedbf28db8fd25a9ece853b32ad",
+    "services/access/tests/test_deployment_package.py": "c068b6779f8d455ca2bd259d6c59bcdf780bbe83938ce350c677d14889671f53",
+    "services/access/tests/test_grant_assign.py": "529432b26b8f441c37d0e0a5bebb46000255800bd5118e3b0e10e01c450db08f",
+    "services/access/tests/test_grant_lifecycle_storage.py": "4f954b1e0698dcf9a0ffb4490a9f71b435946863179626079700854957a96e6a",
+    "services/access/tests/test_grant_registry_bridge.py": "96903b76d4b4f42f6129eab19f55ac7f50a29299afd0d62501cc48c7462a9edc",
+    "services/access/tests/test_grant_revoke.py": "750d0ee99efc6bc9a0fbfa14a9c6b82c74be114cd22bffd5e7cb8b8ef2b94ee0",
+    "services/access/tests/test_organization_application_configure.py": "f76f9fe3617a798e2877c37381fbc1e5b3827dd341f4173966675df92c64e277",
+    "services/access/tests/test_organization_application_storage.py": "1f8a96ba2f6780c2a9272fcea75cd1a83d259a05418457a6924ff4d8cfd98a1b",
+    "services/access/tests/test_strict_grant_integrity.py": "5d9fa2bcf2f0e6819c322ac9aa7b8214d090a5dac3afde1330f06e144839d3e4"
+  },
+  "regression": {
+    "passed": 2154,
+    "seconds": 93.42,
+    "warnings": 1,
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest -p no:cacheprovider services/access/tests apps/pts/tests/test_release.py -q",
+    "separate_platform_release": {
+      "passed": 9,
+      "subtests": 11,
+      "seconds": 0.1
+    }
+  },
+  "review": {
+    "layers": [
+      "blind",
+      "edge",
+      "verification"
+    ],
+    "reported": 11,
+    "additional_root_findings": 2,
+    "fixed": 13,
+    "deferred": 0,
+    "triage": "_bmad-output/implementation-artifacts/spec-1-7-e1-access-b-current-enforcement.md"
+  },
+  "proofs": {
+    "identity25-reference-rehearsal.json": {
+      "sha256": "0110d7a30f48b7e3af1c8163e9df0bdb8018c472c13314319310f2c1905308e3",
+      "result": {
+        "status": "passed",
+        "migration_sha256": "3a6dc4c23ec478d48ac0fa5eab3f79f46d280bf72017cad8cac01d75698f2004",
+        "reference_sha256": "ddfefbeb1ea8fa5933a0bddbd4f1265bd38d1c0dd3b171453fb7512f9012ba24",
+        "prior24_exactly_restored": true,
+        "prior_access_head": "access_0017",
+        "categories": 93
+      }
+    },
+    "access18-reference-rehearsal.json": {
+      "sha256": "c4ae871b0ee77707b9e594a6a593b388019566c13bed391ec7aece81cce05752",
+      "result": {
+        "status": "passed",
+        "migration_sha256": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+        "reference_sha256": "b6ee32aeb585f9ac5c0ad19ca278644a207a56692a9c3847e465f98252faac40",
+        "prior17_exactly_restored": true,
+        "identity_head": "identity_0025",
+        "categories": 9
+      }
+    },
+    "native-proof.json": {
+      "sha256": "e71e7e7636c8d0062d449aba2d4f3eb0328a5bd45dcc6b479386cead46f9e17a",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "account-current",
+          "account-zero-membership",
+          "leave-own-linked",
+          "no-person-union",
+          "wrong-caller",
+          "wrong-scope",
+          "deny-before-setup",
+          "people-current",
+          "people-no-admission-needed",
+          "people-wrong-service",
+          "account-without-person",
+          "actor-setup",
+          "revoke-immediate",
+          "same-person-independent",
+          "explicit-regrant",
+          "disable-current",
+          "reenable-current",
+          "retired-member",
+          "account-independent-of-membership",
+          "rejoin-no-resurrection",
+          "people-rejoin-new-member",
+          "concurrent-current-1",
+          "concurrent-current-0",
+          "reused-context",
+          "restricted-runtime"
+        ],
+        "real_provider": true,
+        "restricted_login": "access_runtime",
+        "journal_sha256": "ec1480c1d1898eebb07c1152421ceb416649beac8c48562172c7dcabdfc1bdff"
+      }
+    },
+    "supplement-proof.json": {
+      "sha256": "b200b60e62dbe82044cfb58c5807677df895bdc4affe86d6d59856f508c81581",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "people-null-person",
+          "authorized-person-setup",
+          "reference-org-no-person",
+          "mixed-org-does-not-imply-account",
+          "invalid-provider-token",
+          "provider-unavailable",
+          "concurrent-revoke-committed-denial",
+          "concurrent-independent-account",
+          "no-cross-scope-union"
+        ],
+        "actual_provider_outage": true,
+        "journal_sha256": "6524c19b6a90a8172161c9ecf533fd1663213e8617182497f6fde6d10249dda1"
+      }
+    },
+    "qualifier-native-proof-final.json": {
+      "sha256": "4abe3d2707be407e5a4fad6487acf598e258297f48533db6a7b24f46100fc98d",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "account-zero-membership",
+          "mixed-account",
+          "mixed-organization",
+          "no-cross-scope",
+          "no-person-union",
+          "deny-before-setup",
+          "wrong-caller",
+          "revoked-current",
+          "people-new-membership",
+          "people-null-person",
+          "actor-setup",
+          "person-setup",
+          "disable-pts",
+          "disabled-current",
+          "reenable-pts",
+          "reenabled-current",
+          "concurrent-current",
+          "reused-context",
+          "restricted-runtime-0",
+          "restricted-runtime-1",
+          "restricted-runtime-2",
+          "request-provider-pause",
+          "wait-provider-paused",
+          "provider-unavailable",
+          "request-provider-resume",
+          "wait-provider-resumed",
+          "provider-restored"
+        ],
+        "fixture_sha256": "39319516a7dcacd8e6c2b7f39fc3bb6eaf264c7506968019eacb2343f6e9701e",
+        "journal_sha256": "09d0e41671f871936cccea3418767a134dc6bec7f704963686a89e49d5ed6a6b",
+        "sources": {
+          "services/access/caller_policy.py": "f36caa508b1ba0869ebacb494d00898c680ef6269257f459cd88f39c293a8c44",
+          "services/access/capability_check.py": "21f398cd9d04bfd99f430637ce97b0003de81c4e7743999cda890bb1f60df55d",
+          "services/access/capability_contract.py": "1d1781f2652b8edf7a527e1b8c87f53773f4898ab7691120446acec2febff153",
+          "services/access/deployment/verify_runtime.py": "90928661151565a8b1f95d4e1573a6848ca463b5eeaa453574d5937365aa7b1b",
+          "services/access/identity-migrations/versions/0025_capability_reader.py": "3a6dc4c23ec478d48ac0fa5eab3f79f46d280bf72017cad8cac01d75698f2004",
+          "services/access/identity_context.py": "cae3eb65751341794f4940810c1c33d4bcc8084cf741c7bcc34cc6b2597ead13",
+          "services/access/identity_preferences.py": "52e7c449e7c379ef7c5490ddce4db585958fbb9f62c267dc8238a58737b45e4d",
+          "services/access/main.py": "89a3858cadcab7780e57b6170659d0cc27e13c1464ba6fc3e5d912973e4287e8",
+          "services/access/migrations/versions/0018_current_capabilities.py": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+          "services/access/organization_check.py": "293be2c0c25ec67e48092cb1d30db84762e1fe336701a3c4756ed961a1cdfe13",
+          "services/access/pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+          "services/access/studies_access.py": "84eae38b91eba6183bf12d8ad7235db45dbe60fc03e6cfd19379e6df7790b360",
+          "services/access/studies_contract.py": "9712442d1ecbf650221c88a07bc3476846032d4b57cc4b635265c50a8ed048c5",
+          "services/access/studies_identity.py": "0bc386809513328ac34170174a136f02e69daa11f9d2c9c9616e3de08d5e43cb",
+          "services/access/studies_readiness.py": "a202d9791a61d4a6d766e388e9d4835d5a4ac8ce7c2714e797ccfa07843b2bce",
+          "services/access/tests/qualify_capabilities.py": "9d09ef29d9bb046f22853d049be3190373db8b6a872000e671fc17cd88873be3",
+          "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+        }
+      }
+    },
+    "controlled-race-proof-final.json": {
+      "sha256": "8bb4d1827e5bd401bc184a859315f299ac785f209d163ca12cd173c28d9e320e",
+      "result": {
+        "status": "passed",
+        "operation_id": "6ad414a3-d518-4b2f-989b-ea0694125df4",
+        "uncommitted_revoke_http": 200,
+        "after_committed_revoke_http": 403,
+        "after_error_id": "access_denied"
+      }
+    },
+    "final-boundaries-proof.json": {
+      "sha256": "efc0c032382011903a86fc200821b091bf79d0aabcf15db2489b282c19f380fa",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "reference-org-current",
+          "org-disable-denies-current-grant",
+          "people-independent-of-org-admission",
+          "org-reenable-retains-current-grant",
+          "other-org-isolated",
+          "actual-sql-unavailable",
+          "unexpected-runtime-reader-edge-rejected-and-rolled-back"
+        ]
+      }
+    },
+    "previous-client-proof.json": {
+      "sha256": "a14705a6c2a8b9b934584d0c17f4d1e24b20c854042a6391c17ce23e61abcdf0",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "populated-organization-grant-identities-attribution-and-timestamps-preserved",
+          "all-captured-previous-client-exact-operations-replayed",
+          "previous-client-application-enable-disable-commands",
+          "membership-retire-rejoin-explicit-revision-rebind-delayed-old-revoke-preserves-current-binding"
+        ],
+        "replayed": 32
+      }
+    },
+    "catalog-review-proof.json": {
+      "sha256": "b8d60ffd5754d87dc93fbb69a7a48aeda282a24a131948a08ad3cc6fee3afc56",
+      "result": {
+        "status": "passed",
+        "checks": [
+          "reference:identity",
+          "reference:access",
+          "native:identity",
+          "native:access",
+          "previous:identity",
+          "previous:access",
+          "failure:identity",
+          "failure:access",
+          "clean:identity",
+          "clean:access"
+        ],
+        "historical_sources_preserved": [
+          "services/access/identity-migrations/projection-reference.json",
+          "services/access/identity-migrations/token-hook-reference.json",
+          "services/access/identity-migrations/organization-target-reference.json",
+          "services/access/identity-migrations/target-reference.json",
+          "services/access/identity-migrations/membership-binding-reference.json",
+          "services/access/identity-migrations/check-reader-bridge-reference.json",
+          "services/access/identity-migrations/legacy-role-reference.json",
+          "services/access/identity-migrations/organization-reference.json",
+          "services/access/identity-migrations/studies-setup-reference.json",
+          "services/access/identity-migrations/person-links-reference.json",
+          "services/access/identity-migrations/membership-join-command-reference.json",
+          "services/access/identity-migrations/account-actor-ensure-reference.json",
+          "services/access/identity-migrations/active-membership-index-reference.json",
+          "services/access/identity-migrations/authority-reference.json",
+          "services/access/identity-migrations/command-reference.json",
+          "services/access/identity-migrations/profile-reference.json",
+          "services/access/identity-migrations/language-preferences-reference.json",
+          "services/access/identity-migrations/membership-retention-reference.json",
+          "services/access/identity-migrations/membership-retire-command-reference.json",
+          "services/access/identity-migrations/reference.json",
+          "services/access/identity-migrations/account-grant-target-reference.json",
+          "services/access/identity-migrations/membership-retirement-reference.json",
+          "services/access/identity-migrations/membership-actor-attribution-reference.json",
+          "services/access/identity-migrations/actor-reference.json",
+          "services/access/migrations/account-grants-reference.json",
+          "services/access/identity-migrations/versions/0018_account_actor_ensure.py",
+          "services/access/identity-migrations/versions/0016_membership_retire_command.py",
+          "services/access/identity-migrations/versions/0017_membership_join_command.py",
+          "services/access/identity-migrations/versions/0024_account_grant_target.py",
+          "services/access/identity-migrations/versions/0022_person_links.py",
+          "services/access/identity-migrations/versions/0004_current_account_organization.py",
+          "services/access/identity-migrations/versions/0014_active_membership_index.py",
+          "services/access/identity-migrations/versions/0002_actor_registry.py",
+          "services/access/identity-migrations/versions/0015_membership_actor_attribution.py",
+          "services/access/identity-migrations/versions/0009_legacy_roles.py",
+          "services/access/identity-migrations/versions/0021_studies_account_setup.py",
+          "services/access/identity-migrations/versions/0020_check_reader_bridge.py",
+          "services/access/identity-migrations/versions/0001_baseline.py",
+          "services/access/identity-migrations/versions/0006_actor_command.py",
+          "services/access/identity-migrations/versions/0019_organization_target.py",
+          "services/access/identity-migrations/versions/0013_membership_retirement.py",
+          "services/access/identity-migrations/versions/0008_profile_fields.py",
+          "services/access/identity-migrations/versions/0003_current_account_actor.py",
+          "services/access/identity-migrations/versions/0010_token_hook.py",
+          "services/access/identity-migrations/versions/0023_language_preferences.py",
+          "services/access/identity-migrations/versions/0007_organization_targets.py",
+          "services/access/identity-migrations/versions/0011_membership_binding.py",
+          "services/access/identity-migrations/versions/0005_operator_authority.py",
+          "services/access/identity-migrations/versions/0012_membership_retention.py",
+          "services/access/migrations/versions/0017_account_grants.py",
+          "services/access/migrations/versions/0011_grant_registry_bridge.py",
+          "services/access/migrations/versions/0007_application_set_enabled.py",
+          "services/access/migrations/versions/0016_studies_account_enrollment.py",
+          "services/access/migrations/versions/0012_strict_grant_integrity.py",
+          "services/access/migrations/versions/0002_membership_binding.py",
+          "services/access/migrations/versions/0003_registry_storage.py",
+          "services/access/migrations/versions/0010_grant_lifecycle_storage.py",
+          "services/access/migrations/versions/0008_organization_application_storage.py",
+          "services/access/migrations/versions/0015_organization_check.py",
+          "services/access/migrations/versions/0009_organization_application_configure.py",
+          "services/access/migrations/versions/0004_application_register.py",
+          "services/access/migrations/versions/0005_permission_register.py",
+          "services/access/migrations/versions/0006_entry_permission_register.py",
+          "services/access/migrations/versions/0014_grant_revoke.py",
+          "services/access/migrations/versions/0001_initial.py",
+          "services/access/migrations/versions/0013_grant_assign.py"
+        ]
+      }
+    },
+    "coordinated-release-review-proof.json": {
+      "sha256": "4fc18f704727d05ab2d8ba426b69a8be29c1f02e6a7f92621ddae25c748ec93c",
+      "result": {
+        "status": "passed",
+        "failed": {
+          "owners": {
+            "identity": {
+              "status": "failed",
+              "outcome_requires_reconciliation": true
+            },
+            "access": {
+              "status": "not_attempted"
+            }
+          },
+          "activated": false,
+          "code": "migration_failed"
+        },
+        "explicit_forward_retry": {
+          "owners": {
+            "identity": {
+              "status": "succeeded",
+              "detail": {
+                "exit_code": 0
+              }
+            },
+            "access": {
+              "status": "succeeded",
+              "detail": {
+                "exit_code": 0
+              }
+            }
+          },
+          "activated": true
+        },
+        "limits": "Real controlled owner migration commands. Activation callback is a recorded dry boundary, no service/consumer cutover."
+      }
+    },
+    "image-review-proof.json": {
+      "sha256": "e9deeb139eb0babceddaf77361c3c4b3e32414d94bc52070151d94a796c31682",
+      "result": {
+        "status": "passed",
+        "image": "agri-access-b-api:cd555993c8",
+        "container": "agri-access-b-api-cd555993c8-canonical",
+        "commands": [
+          {
+            "label": "image-build",
+            "argv": [
+              "docker",
+              "build",
+              "--network",
+              "none",
+              "--pull=false",
+              "-t",
+              "agri-access-b-api:cd555993c8",
+              "-f",
+              "/home/ck/repos/innodat/agriplatform/services/access/deployment/Dockerfile",
+              "/home/ck/repos/innodat/agriplatform"
+            ],
+            "exit_code": 0,
+            "seconds": 16.398,
+            "log": "image-build-cd555993c8.log",
+            "log_sha256": "aab95eb2cde55351110bd191c8d9139f1c4e9ac93a771b16291b8407649a849c"
+          },
+          {
+            "label": "image-start",
+            "argv": [
+              "docker",
+              "run",
+              "--detach",
+              "--name",
+              "agri-access-b-api-cd555993c8",
+              "--network",
+              "none",
+              "--read-only",
+              "--cap-drop",
+              "ALL",
+              "--security-opt",
+              "no-new-privileges",
+              "--tmpfs",
+              "/tmp:rw,noexec,nosuid,size=16m",
+              "--pids-limit",
+              "64",
+              "--memory",
+              "256m",
+              "agri-access-b-api:cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.908,
+            "log": "image-start-cd555993c8.log",
+            "log_sha256": "80b879e2a4283128d52653f8388b070e9c5491729d76bc3a51d935a52a1afd89"
+          },
+          {
+            "label": "image-health-hardening",
+            "argv": [
+              "docker",
+              "exec",
+              "agri-access-b-api-cd555993c8",
+              "/opt/python/bin/python3.15",
+              "-B",
+              "-c",
+              "import os,sys,time,json,urllib.request,importlib.util,platform\nassert platform.python_version()=='3.15.0' and os.getuid()==65532\nassert importlib.util.find_spec('pytest') is None\nassert not any('MIGRATION' in k for k in os.environ)\nfor attempt in range(40):\n try:\n  with urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=1) as r:assert r.status==200\n  break\n except OSError:time.sleep(.25)\nelse:raise RuntimeError('health_not_ready')\nwith urllib.request.urlopen('http://127.0.0.1:8000/openapi.json',timeout=2) as r:s=json.load(r)\nassert 'CapabilityError' in s['components']['schemas']\nassert '/v2/identity/organization-context' in s['paths']\nassert '/v2/me/preferences/language' in s['paths']\ntry:open('/srv/forbidden-proof','w')\nexcept OSError as e:assert e.errno==30\nelse:raise RuntimeError('root_not_read_only')\nprint(json.dumps({'python':'3.15.0','uid':os.getuid(),'health':200,'read_only':True,'pytest_absent':True,'migration_configuration_absent':True}))\n"
+            ],
+            "exit_code": 0,
+            "seconds": 4.443,
+            "log": "image-health-hardening-cd555993c8.log",
+            "log_sha256": "ccbe20f3443707a84d1989ce179ac41de0bb162fedb35120a962df76104cb3ec"
+          },
+          {
+            "label": "image-inspect",
+            "argv": [
+              "docker",
+              "inspect",
+              "agri-access-b-api-cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.045,
+            "log": "image-inspect-cd555993c8.log",
+            "log_sha256": "60700087d32e6f401a4893c9d51523e4ca283b56ae9a241951c9fb2db807a0cf"
+          },
+          {
+            "label": "image-stop",
+            "argv": [
+              "docker",
+              "stop",
+              "--time",
+              "20",
+              "agri-access-b-api-cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.712,
+            "log": "image-stop-cd555993c8.log",
+            "log_sha256": "5dcea3de0af76a04d32704d3f3a56bdca61676fc77a583c59a21b9073afa2118"
+          },
+          {
+            "label": "image-stopped-state",
+            "argv": [
+              "docker",
+              "inspect",
+              "agri-access-b-api-cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.071,
+            "log": "image-stopped-state-cd555993c8.log",
+            "log_sha256": "d0216953ee6ea4ab5bd3e551ef77d650e97d50902d69919db50ffa36d6ab32a6"
+          },
+          {
+            "label": "image-studies-start",
+            "argv": [
+              "docker",
+              "run",
+              "--detach",
+              "--name",
+              "agri-access-b-api-cd555993c8-studies",
+              "--network",
+              "none",
+              "--read-only",
+              "--cap-drop",
+              "ALL",
+              "--security-opt",
+              "no-new-privileges",
+              "--tmpfs",
+              "/tmp:rw,noexec,nosuid,size=16m",
+              "--pids-limit",
+              "64",
+              "--memory",
+              "256m",
+              "--env-file",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-studies-synthetic-cd555993c8.env",
+              "agri-access-b-api:cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.699,
+            "log": "image-studies-start-cd555993c8.log",
+            "log_sha256": "939f60e390b149a319ad66c52cec93f38cdd8ac98f010c8124692b36e4c3179e"
+          },
+          {
+            "label": "image-studies-health-hardening",
+            "argv": [
+              "docker",
+              "exec",
+              "agri-access-b-api-cd555993c8-studies",
+              "/opt/python/bin/python3.15",
+              "-B",
+              "-c",
+              "import os,sys,time,json,urllib.request,importlib.util,platform\nassert platform.python_version()=='3.15.0' and os.getuid()==65532\nassert importlib.util.find_spec('pytest') is None\nassert not any('MIGRATION' in k for k in os.environ)\nfor attempt in range(40):\n try:\n  with urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=1) as r:assert r.status==200\n  break\n except OSError:time.sleep(.25)\nelse:raise RuntimeError('health_not_ready')\nwith urllib.request.urlopen('http://127.0.0.1:8000/openapi.json',timeout=2) as r:s=json.load(r)\nassert 'CapabilityError' in s['components']['schemas']\nassert '/v2/identity/organization-context' in s['paths']\nassert '/v2/me/preferences/language' in s['paths']\ntry:open('/srv/forbidden-proof','w')\nexcept OSError as e:assert e.errno==30\nelse:raise RuntimeError('root_not_read_only')\nprint(json.dumps({'python':'3.15.0','uid':os.getuid(),'health':200,'read_only':True,'pytest_absent':True,'migration_configuration_absent':True}))\n"
+            ],
+            "exit_code": 0,
+            "seconds": 4.561,
+            "log": "image-studies-health-hardening-cd555993c8.log",
+            "log_sha256": "ccbe20f3443707a84d1989ce179ac41de0bb162fedb35120a962df76104cb3ec"
+          },
+          {
+            "label": "image-studies-stop",
+            "argv": [
+              "docker",
+              "stop",
+              "--time",
+              "20",
+              "agri-access-b-api-cd555993c8-studies"
+            ],
+            "exit_code": 0,
+            "seconds": 0.659,
+            "log": "image-studies-stop-cd555993c8.log",
+            "log_sha256": "e2c421f1ff26c58e2303ecee168b3b4f836f98e38b6421e9b9d85114f4610f13"
+          },
+          {
+            "label": "image-canonical-start",
+            "argv": [
+              "docker",
+              "run",
+              "--detach",
+              "--name",
+              "agri-access-b-api-cd555993c8-canonical",
+              "--network",
+              "none",
+              "--read-only",
+              "--cap-drop",
+              "ALL",
+              "--security-opt",
+              "no-new-privileges",
+              "--tmpfs",
+              "/tmp:rw,noexec,nosuid,size=16m",
+              "--pids-limit",
+              "64",
+              "--memory",
+              "256m",
+              "--env-file",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-canonical-synthetic-cd555993c8.env",
+              "agri-access-b-api:cd555993c8"
+            ],
+            "exit_code": 0,
+            "seconds": 0.495,
+            "log": "image-canonical-start-cd555993c8.log",
+            "log_sha256": "cb7a1e78991d4dc0f3a4a08374190cf0864013dcb70ac30ca748618b8188a17e"
+          },
+          {
+            "label": "image-canonical-health-hardening",
+            "argv": [
+              "docker",
+              "exec",
+              "agri-access-b-api-cd555993c8-canonical",
+              "/opt/python/bin/python3.15",
+              "-B",
+              "-c",
+              "import os,sys,time,json,urllib.request,importlib.util,platform\nassert platform.python_version()=='3.15.0' and os.getuid()==65532\nassert importlib.util.find_spec('pytest') is None\nassert not any('MIGRATION' in k for k in os.environ)\nfor attempt in range(40):\n try:\n  with urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=1) as r:assert r.status==200\n  break\n except OSError:time.sleep(.25)\nelse:raise RuntimeError('health_not_ready')\nwith urllib.request.urlopen('http://127.0.0.1:8000/openapi.json',timeout=2) as r:s=json.load(r)\nassert 'CapabilityError' in s['components']['schemas']\nassert '/v2/identity/organization-context' in s['paths']\nassert '/v2/me/preferences/language' in s['paths']\ntry:open('/srv/forbidden-proof','w')\nexcept OSError as e:assert e.errno==30\nelse:raise RuntimeError('root_not_read_only')\nprint(json.dumps({'python':'3.15.0','uid':os.getuid(),'health':200,'read_only':True,'pytest_absent':True,'migration_configuration_absent':True}))\n"
+            ],
+            "exit_code": 0,
+            "seconds": 4.552,
+            "log": "image-canonical-health-hardening-cd555993c8.log",
+            "log_sha256": "ccbe20f3443707a84d1989ce179ac41de0bb162fedb35120a962df76104cb3ec"
+          },
+          {
+            "label": "image-canonical-stop",
+            "argv": [
+              "docker",
+              "stop",
+              "--time",
+              "20",
+              "agri-access-b-api-cd555993c8-canonical"
+            ],
+            "exit_code": 0,
+            "seconds": 1.148,
+            "log": "image-canonical-stop-cd555993c8.log",
+            "log_sha256": "1348187d9368478132d915861c94fa9bd824f94f967f954f4524f93344b10df1"
+          },
+          {
+            "label": "image-stale-lock-refused",
+            "argv": [
+              "docker",
+              "build",
+              "--target",
+              "verified",
+              "--network",
+              "none",
+              "--pull=false",
+              "-f",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8/services/access/deployment/Dockerfile",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8"
+            ],
+            "exit_code": 1,
+            "seconds": 20.568,
+            "log": "image-stale-lock-refused-cd555993c8.log",
+            "log_sha256": "24b6d7d064c874f504f1eb09b2bfbb0123b29a9e6978012cf6850c91846f9d44"
+          },
+          {
+            "label": "image-foreign-payload-refused",
+            "argv": [
+              "docker",
+              "build",
+              "--target",
+              "verified",
+              "--network",
+              "none",
+              "--pull=false",
+              "-f",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8/services/access/deployment/Dockerfile",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8"
+            ],
+            "exit_code": 1,
+            "seconds": 5.172,
+            "log": "image-foreign-payload-refused-cd555993c8.log",
+            "log_sha256": "705911df81769d2bb483b80b2107970fc0dfabf86a458c61eafeeb55f477ec92"
+          },
+          {
+            "label": "image-reinventoried-owner-source-refused",
+            "argv": [
+              "docker",
+              "build",
+              "--target",
+              "verified",
+              "--network",
+              "none",
+              "--pull=false",
+              "-f",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8/services/access/deployment/Dockerfile",
+              "/home/ck/repos/innodat/agriplatform/.local/leave-access-b-20261027/image-negative-context-cd555993c8"
+            ],
+            "exit_code": 1,
+            "seconds": 14.805,
+            "log": "image-reinventoried-owner-source-refused-cd555993c8.log",
+            "log_sha256": "7b78f738c5d3461a5b3bc4d6c62e71784435ab647b13cd9f3af7a4f844af194d"
+          }
+        ],
+        "runtime_bundle_manifest_sha256": "c37cfafbb98269516c12acce88b8619a7edb151d77749df55413c94758ce8c90",
+        "source_inputs": {
+          "caller_policy.py": "f36caa508b1ba0869ebacb494d00898c680ef6269257f459cd88f39c293a8c44",
+          "capability_check.py": "21f398cd9d04bfd99f430637ce97b0003de81c4e7743999cda890bb1f60df55d",
+          "capability_contract.py": "1d1781f2652b8edf7a527e1b8c87f53773f4898ab7691120446acec2febff153",
+          "deployment/Dockerfile": "81eefcd81e0ca85192d2480dca3be1167435d1950157c10c94f70df14e427474",
+          "deployment/Dockerfile.dockerignore": "f6db83d26f7004d465b68c441bf3a0506f966cc9a7ca6ec5020c20eec6aac12e",
+          "deployment/package_runtime.py": "af16d61c6cac622391882f1655d3fc987ceb4fffc5577a7f58b776069a600ab9",
+          "deployment/verify_runtime.py": "90928661151565a8b1f95d4e1573a6848ca463b5eeaa453574d5937365aa7b1b",
+          "identity_context.py": "cae3eb65751341794f4940810c1c33d4bcc8084cf741c7bcc34cc6b2597ead13",
+          "identity_preferences.py": "52e7c449e7c379ef7c5490ddce4db585958fbb9f62c267dc8238a58737b45e4d",
+          "main.py": "89a3858cadcab7780e57b6170659d0cc27e13c1464ba6fc3e5d912973e4287e8",
+          "organization_check.py": "293be2c0c25ec67e48092cb1d30db84762e1fe336701a3c4756ed961a1cdfe13",
+          "pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+          "studies_access.py": "84eae38b91eba6183bf12d8ad7235db45dbe60fc03e6cfd19379e6df7790b360",
+          "studies_contract.py": "9712442d1ecbf650221c88a07bc3476846032d4b57cc4b635265c50a8ed048c5",
+          "studies_identity.py": "0bc386809513328ac34170174a136f02e69daa11f9d2c9c9616e3de08d5e43cb",
+          "studies_readiness.py": "a202d9791a61d4a6d766e388e9d4835d5a4ac8ce7c2714e797ccfa07843b2bce",
+          "uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+        },
+        "studies_opt_in_synthetic_startup": true,
+        "limits": "Synthetic Studies contract startup only, without DB/provider requests. Health/runtime isolation and static bundle contract only; no database/Auth/consumer activation. Stopped image/container and negative contexts retained."
+      }
+    }
+  },
+  "retained_files": {
+    "clean-access18-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/clean-access18-a-receipt.json",
+      "sha256": "8cc16d7c253045b7b4833d573594eac5b6567678f8a936e057921d95aabb0509"
+    },
+    "clean-identity25-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/clean-identity25-a-receipt.json",
+      "sha256": "ee207e0dcc6b8bb5da9712c353dc6cd8cfc322510376676a1e3a7549b7879e7e"
+    },
+    "final-boundaries-journal.jsonl": {
+      "path": ".local/leave-access-b-20261027/final-boundaries-journal.jsonl",
+      "sha256": "7f47de4a115aa96bb433c4d40b678f0920f169f81a5539a3dc029a47a3f88a8b"
+    },
+    "native-access18-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/native-access18-a-receipt.json",
+      "sha256": "717708aa1ea8bfb78c0b78311595a655dc00896033e252714fd6f8108ce99387"
+    },
+    "native-identity25-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/native-identity25-a-receipt.json",
+      "sha256": "255c052c930f6dfae1f2be4047537066ffab4ed55dad9d18bf0a6e8777f3da85"
+    },
+    "prepare_clean.py": {
+      "path": ".local/leave-access-b-20261027/prepare_clean.py",
+      "sha256": "33dabd32196fc29e1fefb806a5601e4080712e2ce5592ef38b32da400db4a947"
+    },
+    "prepare_clones.py": {
+      "path": ".local/leave-access-b-20261027/prepare_clones.py",
+      "sha256": "4d64edfbb2740a0aafbbb80cfea4d0c5bc6290e38e8f5cf8de1b13d6e57a623a"
+    },
+    "prepare_cohorts.py": {
+      "path": ".local/leave-access-b-20261027/prepare_cohorts.py",
+      "sha256": "0ee567606cf680febe452d49c22dca59e9baa0d60beeaa0508a533493d026118"
+    },
+    "previous-access18-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/previous-access18-a-receipt.json",
+      "sha256": "d775105c752b6066f8099bf9f9d24b14327940274ef40d213b58c5237e39b464"
+    },
+    "previous-identity25-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/previous-identity25-a-receipt.json",
+      "sha256": "1dcad31e393049fb076d883e5e4a9e8d98737055a8f32c4a5581788f8a3da3a3"
+    },
+    "prove_catalogs.py": {
+      "path": ".local/leave-access-b-20261027/prove_catalogs.py",
+      "sha256": "a3705cff8460ba8e4c7029e2599edcfbc1399669da2a7bf28c22288e9f2e7e4f"
+    },
+    "prove_catalogs_review.py": {
+      "path": ".local/leave-access-b-20261027/prove_catalogs_review.py",
+      "sha256": "57fed8f0c2e07a8bc92bce9cae5b9f6c96e845c233c0ed8293260592604f99e8"
+    },
+    "prove_final_boundaries.py": {
+      "path": ".local/leave-access-b-20261027/prove_final_boundaries.py",
+      "sha256": "111358df4b4fa5a48f57e6f7b8825d0e331b9180558ab867c1aaf162d55741d8"
+    },
+    "prove_image.py": {
+      "path": ".local/leave-access-b-20261027/prove_image.py",
+      "sha256": "76193a35cc06bb9a2ae718258dc7bae6fefd8d6566ff13582e14dce00b9fb52b"
+    },
+    "prove_native.py": {
+      "path": ".local/leave-access-b-20261027/prove_native.py",
+      "sha256": "0c55a91f6e95570562007bb052389275ffe0c0e3f2582ff8cb3bd31d29139ed1"
+    },
+    "prove_native_resume.py": {
+      "path": ".local/leave-access-b-20261027/prove_native_resume.py",
+      "sha256": "551737fffd708022b96d2c0086ad532e48b37382cee05d391d5e390a6da02b4c"
+    },
+    "prove_previous_clients.py": {
+      "path": ".local/leave-access-b-20261027/prove_previous_clients.py",
+      "sha256": "127385fa2a8faaa755c30e9ed2b3444e9f05831902363c2e7007eb7a646f4c9a"
+    },
+    "prove_release_failure.py": {
+      "path": ".local/leave-access-b-20261027/prove_release_failure.py",
+      "sha256": "7287056d98d1b468d652015c936289093cb4e3eef17d2715b743faf7c48c1c58"
+    },
+    "prove_supplement.py": {
+      "path": ".local/leave-access-b-20261027/prove_supplement.py",
+      "sha256": "31c8762437fc039446079753bedff54268bdaeb7de533ea4426b8feaf13e7917"
+    },
+    "publish_evidence.py": {
+      "path": ".local/leave-access-b-20261027/publish_evidence.py",
+      "sha256": "aec62bcb58d6ebde8dda4ee0311ff625ba486264897c06b130da7811466dba73"
+    },
+    "publish_final.py": {
+      "path": ".local/leave-access-b-20261027/publish_final.py",
+      "sha256": "7ba12e417675998dbb950117310a5c1490d94a84c244a2a6de88ca1f04e8d2b8"
+    },
+    "qualifier-native-proof-final.journal.jsonl": {
+      "path": ".local/leave-access-b-20261027/qualifier-native-proof-final.journal.jsonl",
+      "sha256": "09d0e41671f871936cccea3418767a134dc6bec7f704963686a89e49d5ed6a6b"
+    },
+    "reference-access18-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/reference-access18-a-receipt.json",
+      "sha256": "4ddb2cf79a30ee0d4caef32fc527269be4007f9521f1afce32a357f5e815726c"
+    },
+    "reference-identity25-a-receipt.json": {
+      "path": ".local/leave-access-b-20261027/reference-identity25-a-receipt.json",
+      "sha256": "58115a011ecc1a92089f1d926d746c26ea4776db55ba2e1b1bd76351601ba0f5"
+    },
+    "regression-final.log": {
+      "path": ".local/leave-access-b-20261027/regression-final.log",
+      "sha256": "fa75ee2b53143793d5f0ec9f26dd96b23eb1b5ec29c8db67028940760d1ee8ad"
+    },
+    "rehearse_access18.py": {
+      "path": ".local/leave-access-b-20261027/rehearse_access18.py",
+      "sha256": "b5c3941ff8c63607ab96f62fb8c2d25933853488504836e2cec0cedc8eea9bdb"
+    },
+    "rehearse_identity25.py": {
+      "path": ".local/leave-access-b-20261027/rehearse_identity25.py",
+      "sha256": "25179ff4958ab5aa8ec9f7961cf035de27d7ef8a5bfa3ce5c0cfe13027271097"
+    },
+    "review-release-0-identity-receipt.json": {
+      "path": ".local/leave-access-b-20261027/review-release-0-identity-receipt.json",
+      "sha256": "a8e05eeb3d41652550f4e77a9ddb47efd1d222f1ba13d0e4f0f9095d22219fc0"
+    },
+    "review-release-1-access-receipt.json": {
+      "path": ".local/leave-access-b-20261027/review-release-1-access-receipt.json",
+      "sha256": "28c7c43cfc5dd9eca9751ef2bda266dcf0d3695b6d1f69c835ab73ee12e10257"
+    },
+    "review-release-1-identity-receipt.json": {
+      "path": ".local/leave-access-b-20261027/review-release-1-identity-receipt.json",
+      "sha256": "40b0571aad460c769165543aa15bb9bed902b9fcc58237d915869104311b88df"
+    },
+    "run_qualifier.py": {
+      "path": ".local/leave-access-b-20261027/run_qualifier.py",
+      "sha256": "b5d6b7aaed7eaf47a50ba79f9b36c9babb799d1603c8288193f2fdf9ce8e7c7a"
+    },
+    "run_qualifier_final.py": {
+      "path": ".local/leave-access-b-20261027/run_qualifier_final.py",
+      "sha256": "98de11cde67c1b0c5c5924d97cdee30e896ee4c60a973ee209ac6ff2f77db2fb"
+    },
+    "run_qualifier_review.py": {
+      "path": ".local/leave-access-b-20261027/run_qualifier_review.py",
+      "sha256": "bda179503232ef6ebddd5c0cde56f254343fa2abfc6783667ac234a114003d42"
+    },
+    "upgrade.py": {
+      "path": ".local/leave-access-b-20261027/upgrade.py",
+      "sha256": "f69c8b2ab377153e70bc93b99cae6c84ad425bd1ee86fb33acb901ae2087fdb8"
+    }
+  },
+  "checks": {
+    "openapi_export": "passed",
+    "generated_types_drift": "passed",
+    "capability_language_studies_types": "compiled; capability adapter executed; pinned TypeScript6.0.3",
+    "legacy_composer": "passed",
+    "owned_composer_no_seeds": "passed",
+    "deployment_manifest": "passed",
+    "private_frame_git_ignored": true
+  },
+  "limits": [
+    "Only isolated Leave scratch DBs and synthetic local Auth users were mutated; KDG environment/data retained untouched.",
+    "Actual PtS adoption/cutover, discovery, People management and Leave business journeys remain later deliveries.",
+    "Activation callback is a dry coordinated boundary; no production deployment/migration or consumer activation claimed.",
+    "Actorless grant case uses explicit root legacy-state preparation with existing guards restored before runtime proof.",
+    "Frozen image proves runtime packaging, hardened startup and configured Studies/canonical smoke compatibility; real provider/SQL proof is the separate native qualifier.",
+    "Failed private fixture/barrier attempts and the initial duplicate test-module collection failure are retained; final source-bound proofs passed."
+  ],
+  "environment": {
+    "run_id": "88a737dd-ad7b-429a-a83c-5d103716d659",
+    "api_port": 55581,
+    "database_port": 55582,
+    "normal_stop": {
+      "command": [
+        "/usr/bin/python3",
+        "platform/deployment/dev.py",
+        "stop",
+        "--target",
+        "platform/deployment/environments/leave-local.json",
+        "--run-id",
+        "88a737dd-ad7b-429a-a83c-5d103716d659",
+        "--supabase",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+      ],
+      "exit_code": 0,
+      "start": "2026-10-27T04:01:59.887917+00:00",
+      "elapsed_seconds": 2.478164,
+      "stdout_file": "v5-stop-040159887917.stdout",
+      "stderr_file": "v5-stop-040159887917.stderr"
+    },
+    "normal_stop_receipt_sha256": "ea750b69270542a0fa6225a35a78583222108356f5dbb3723489d2041a02e3f2",
+    "volumes_retained": true
+  }
+}

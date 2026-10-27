@@ -91,6 +91,7 @@ def role_guard_connection(monkeypatch, *, flags=None, incoming=None, administrat
     original=baseline.rows
     safe_flags=[(role,True,False,False,False,False,False) for role in ('access_migrator','access_runtime')]
     def query(connection,sql):
+        if "FROM pg_roles WHERE rolname='access_capability_reader'" in sql:return []
         if sql=='SELECT session_user,current_user':return [('access_migrator','access_migrator')]
         if 'SELECT rolname,rolcanlogin' in sql and "'access_runtime'" in sql:return safe_flags if flags is None else flags
         if 'SELECT rolname,rolcanlogin' in sql and "'supabase_admin'" in sql:return administrator_flags
@@ -148,6 +149,7 @@ def test_nonpermanent_or_inherited_table_refuses_before_column_work(monkeypatch,
     import access_baseline as baseline
     ledger=table=='alembic_version'
     def query(connection,sql):
+        if "FROM pg_roles WHERE rolname='access_capability_reader'" in sql:return []
         if 'FROM pg_class WHERE oid=' in sql:
             return [('access_migrator','r',not ledger,not ledger,None,False,'d',{'unlogged':'u','temporary':'t'}.get(drift,'p'))]
         if 'FROM pg_inherits' in sql:return [(1,)]

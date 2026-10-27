@@ -1,5 +1,45 @@
 # E1 identity and migration ownership inventory
 
+**Leave acceptance update — 2026-10-26:** The user approved reuse of this existing
+hardened sequential history as Leave's ID-A foundation. The earlier independent-ID-B
+acceptance question below is resolved; no separate pre-ID-B history is required.
+ID-B behavior, fresh current-head/provider qualification and live activation remain
+separate delivery obligations. Historical migration/reference bytes are unchanged.
+
+**ID-B review closure — 2026-10-26:** All17 review findings corrected. Revisions22/23
+retain inherited Studies role/source checks; preferences structurally bind account/actor
+attribution and expose typed existing error contracts. Fresh native proofs and1,996
+source-bound tests pass; earlier candidate frames remain evidence. No downstream Access
+grant integration or live activation is implied.
+
+**ID-B delivery — 2026-10-26:** Additive revisions22/23 now supply independent
+person links and own-account language persistence. Fresh synthetic Leave-local native
+proof covers current clean bootstrap, supported legacy adoption preserving original rows,
+previous21 upgrade/repeat, exact rollback/forward retry, restricted roles, membership
+transitions and release failure gating. See [ID-B evidence](../../../../apps/leave/docs/testing/e1-identity-links-preferences-evidence.md).
+Historical statements below describe their original frames. Current live-target/provider
+qualification, Access grant integration and activation remain gated.
+
+**Current-state qualification — 2026-10-26:** The original inventory/design below is
+historical. Existing owner delivery now supplies the separate Identity history through
+`identity_0021`, guarded clean/adopt/reference checks, explicit composer handover and
+Identity-first coordinated failure gating. Revision0001 alone retained unsafe legacy
+profile/helper behavior; delivered0008/0009/0010/0020 subsequently narrow profile writes,
+bind legacy role lookup, filter current membership/organization claims and restrict
+six sensitive callable routine ACLs. See the [owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md)
+and [Leave criterion/evidence mapping](../../../../apps/leave/docs/testing/e1-identity-baseline-evidence.md).
+Their retained synthetic database proofs do not establish live-target equivalence or
+fresh current-head database qualification. Leave's strict independent-of-ID-B acceptance
+remains open; no ID-B completion or application activation follows from this inventory.
+
+Default composition remains legacy; the supported owned check is
+`python3 tools/py/run_compose_supabase.py --identity-authority owned --no-seeds --check-only`.
+Owned composition excludes exactly the six inventoried Identity DDL sources, retains
+other owners and refuses legacy/stale seed execution. The existing coordinator's
+`--identity` option orders Identity before Access/Content/PtS and blocks dependents on
+failure. Later dated delivery entries supersede original statements below that these
+routes or privilege corrections are only proposed; historical evidence is retained.
+
 KDG execution closure, 2026-10-14: [Identity/Access substrate](identity-access-execution-substrate.md)
 selects KDG-relevant physical actor/member/registry/grant constraints, current/target
 projections, restricted role/command schema and owner CLI/adoption matrix. These refine

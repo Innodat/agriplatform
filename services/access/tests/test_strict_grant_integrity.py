@@ -38,7 +38,7 @@ def test_identity_selects_schema_resolved_direct_fk_before_full_verification(mon
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
         def scalar_one(self):
-            if ('enroll_studies_account' in self.sql or 'check_organization_permission' in self.sql or 'revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
+            if ('discover_applications' in self.sql or 'check_account_capability' in self.sql or 'change_account_grant' in self.sql or 'enroll_studies_account' in self.sql or 'check_organization_permission' in self.sql or 'revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
             if 'grants_permission_scope_fkey' in self.sql:return strict
             if 'pg_attribute' in self.sql:return bridge if 'registry_permission' in self.sql else True
             return True

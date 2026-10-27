@@ -135,7 +135,33 @@ class RevokeGrantCommand(_Envelope):
     command: Literal['grant.revoke'] = field(default='grant.revoke', init=False)
 
 
-Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand | AssignGrantCommand | RevokeGrantCommand
+@dataclass(frozen=True, repr=False)
+class CreateAccountGrantPayload:
+    account_id: str
+    permission: str
+    expected_absent: Literal[True]
+
+@dataclass(frozen=True, repr=False)
+class ExistingAccountGrantPayload:
+    account_id: str
+    permission: str
+    grant_id: str
+    expected_revision: str
+
+@dataclass(frozen=True, repr=False)
+class AssignAccountGrantCommand(_Envelope):
+    scope: PlatformScope
+    payload: CreateAccountGrantPayload | ExistingAccountGrantPayload
+    command: Literal['account_grant.assign'] = field(default='account_grant.assign', init=False)
+
+@dataclass(frozen=True, repr=False)
+class RevokeAccountGrantCommand(_Envelope):
+    scope: PlatformScope
+    payload: ExistingAccountGrantPayload
+    command: Literal['account_grant.revoke'] = field(default='account_grant.revoke', init=False)
+
+
+Command = AssignAccountGrantCommand | RevokeAccountGrantCommand | RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand | AssignGrantCommand | RevokeGrantCommand
 _APP_ID = re.compile(r'[a-z][a-z0-9_]{1,63}')
 
 
@@ -150,7 +176,21 @@ def _parse(body: bytes) -> Command:
         _require(type(evidence) is str and _EVIDENCE.fullmatch(evidence) is not None and '://' not in evidence)
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
-    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure', 'grant.assign', 'grant.revoke'))
+    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure', 'grant.assign', 'grant.revoke', 'account_grant.assign', 'account_grant.revoke'))
+    if name in ('account_grant.assign','account_grant.revoke'):
+        scope = _object(doc['scope'], {'kind'})
+        _require(scope['kind'] == 'platform')
+        payload = _object(doc['payload'], {'account_id','permission'}, {'expected_absent','grant_id','expected_revision'})
+        account = _uuid(payload['account_id'])
+        permission = payload['permission']
+        _require(type(permission) is str and permission.isascii() and 1 <= len(permission) <= 200 and '\x00' not in permission)
+        if name == 'account_grant.assign' and set(payload) == {'account_id','permission','expected_absent'}:
+            _require(payload['expected_absent'] is True)
+            typed = CreateAccountGrantPayload(account,permission,True)
+        else:
+            _require(set(payload) == {'account_id','permission','grant_id','expected_revision'})
+            typed = ExistingAccountGrantPayload(account,permission,_uuid(payload['grant_id']),_decimal(payload['expected_revision']))
+        return (AssignAccountGrantCommand if name == 'account_grant.assign' else RevokeAccountGrantCommand)(**common,scope=PlatformScope(),payload=typed)
     if name == 'grant.revoke':
         scope = _object(doc['scope'], {'kind', 'org_id'})
         _require(scope['kind'] == 'organization')

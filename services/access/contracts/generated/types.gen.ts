@@ -42,6 +42,118 @@ export type AccountScope = {
 };
 
 /**
+ * ApplicationsDiscovery
+ */
+export type ApplicationsDiscovery = {
+    /**
+     * Applications
+     */
+    applications: Array<DiscoveryApplication>;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+};
+
+/**
+ * CapabilityAccountDecision
+ */
+export type CapabilityAccountDecision = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    authorization_scope: CapabilityAccountScope;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+    /**
+     * Decision Id
+     */
+    decision_id: string;
+    /**
+     * Permission
+     */
+    permission: string;
+};
+
+/**
+ * CapabilityAccountScope
+ */
+export type CapabilityAccountScope = {
+    /**
+     * Kind
+     */
+    kind: 'account';
+};
+
+/**
+ * CapabilityError
+ */
+export type CapabilityError = {
+    details?: Closed;
+    /**
+     * Error
+     */
+    error?: string;
+    /**
+     * Error Id
+     */
+    error_id: 'authentication_required' | 'service_access_denied' | 'access_denied' | 'validation_failed' | 'identity.actor_setup_required' | 'identity.person_link_required' | 'identity.verification_required' | 'authorization_unavailable';
+};
+
+/**
+ * CapabilityOrganizationDecision
+ */
+export type CapabilityOrganizationDecision = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    authorization_scope: CapabilityOrganizationScope;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+    /**
+     * Decision Id
+     */
+    decision_id: string;
+    /**
+     * Membership Id
+     */
+    membership_id: string;
+    /**
+     * Permission
+     */
+    permission: string;
+    resource_scope: CapabilityOrganizationScope;
+};
+
+/**
+ * CapabilityOrganizationScope
+ */
+export type CapabilityOrganizationScope = {
+    /**
+     * Kind
+     */
+    kind: 'organization';
+    /**
+     * Org Id
+     */
+    org_id: string;
+};
+
+/**
  * Check
  */
 export type Check = {
@@ -63,6 +175,13 @@ export type CheckError = {
 };
 
 /**
+ * Closed
+ */
+export type Closed = {
+    [key: string]: never;
+};
+
+/**
  * Decision
  */
 export type Decision = {
@@ -70,6 +189,53 @@ export type Decision = {
      * Actor Id
      */
     actor_id: string;
+    /**
+     * Org Id
+     */
+    org_id: string;
+};
+
+/**
+ * DiscoveryApplication
+ */
+export type DiscoveryApplication = {
+    /**
+     * App Id
+     */
+    app_id: string;
+    /**
+     * Eligible Scope Kinds
+     */
+    eligible_scope_kinds: Array<'account' | 'organization'>;
+};
+
+/**
+ * DiscoveryError
+ */
+export type DiscoveryError = {
+    details?: Closed;
+    /**
+     * Error
+     */
+    error?: string;
+    /**
+     * Error Id
+     */
+    error_id: 'authentication_required' | 'service_access_denied' | 'access_denied' | 'validation_failed' | 'authorization_unavailable' | 'internal_error';
+};
+
+/**
+ * DiscoveryOrganization
+ */
+export type DiscoveryOrganization = {
+    /**
+     * Membership Id
+     */
+    membership_id: string;
+    /**
+     * Name
+     */
+    name: string;
     /**
      * Org Id
      */
@@ -134,6 +300,54 @@ export type HttpValidationError = {
 };
 
 /**
+ * LanguagePreference
+ */
+export type LanguagePreference = {
+    /**
+     * Preferred Locale
+     */
+    preferred_locale: 'en' | 'pt';
+    /**
+     * Revision
+     */
+    revision: string;
+};
+
+/**
+ * OrganizationContext
+ */
+export type OrganizationContext = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+    /**
+     * Membership Id
+     */
+    membership_id: string;
+    /**
+     * Observation Id
+     */
+    observation_id: string;
+    /**
+     * Org Id
+     */
+    org_id: string;
+    /**
+     * Person Id
+     */
+    person_id: string | null;
+};
+
+/**
  * OrganizationDecision
  */
 export type OrganizationDecision = {
@@ -187,6 +401,20 @@ export type OrganizationScope = {
 };
 
 /**
+ * OrganizationsDiscovery
+ */
+export type OrganizationsDiscovery = {
+    /**
+     * Next Cursor
+     */
+    next_cursor: string | null;
+    /**
+     * Organizations
+     */
+    organizations: Array<DiscoveryOrganization>;
+};
+
+/**
  * OwnAccountScope
  */
 export type OwnAccountScope = {
@@ -198,6 +426,73 @@ export type OwnAccountScope = {
      * Kind
      */
     kind: 'own_account';
+};
+
+/**
+ * OwnDecision
+ */
+export type OwnDecision = {
+    /**
+     * Account Id
+     */
+    account_id: string;
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    authorization_scope: CapabilityOrganizationScope;
+    /**
+     * Checked At
+     */
+    checked_at: string;
+    /**
+     * Decision Id
+     */
+    decision_id: string;
+    /**
+     * Membership Id
+     */
+    membership_id: string;
+    /**
+     * Permission
+     */
+    permission: string;
+    /**
+     * Person Id
+     */
+    person_id: string;
+    resource_scope: OwnResource;
+};
+
+/**
+ * OwnResource
+ */
+export type OwnResource = {
+    /**
+     * Kind
+     */
+    kind: 'own';
+    /**
+     * Person Id
+     */
+    person_id: string;
+};
+
+/**
+ * PreferenceErrorDetails
+ */
+export type PreferenceErrorDetails = {
+    /**
+     * Code
+     */
+    code: 'authentication_required' | 'access_denied' | 'identity.actor_setup_required' | 'identity.preference_revision_conflict' | 'identity.preference_operation_conflict' | 'identity.preference_invalid' | 'identity.preference_unavailable';
+};
+
+/**
+ * PreferenceErrorResponse
+ */
+export type PreferenceErrorResponse = {
+    detail: PreferenceErrorDetails;
 };
 
 /**
@@ -295,6 +590,57 @@ export type CheckV1CheckPostResponses = {
 
 export type CheckV1CheckPostResponse = CheckV1CheckPostResponses[keyof CheckV1CheckPostResponses];
 
+export type DiscoverApplicationsV2ApplicationsGetData = {
+    body?: never;
+    headers?: {
+        /**
+         * Authorization
+         */
+        authorization?: string;
+        /**
+         * X-Service-Key
+         */
+        'x-service-key'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v2/applications';
+};
+
+export type DiscoverApplicationsV2ApplicationsGetErrors = {
+    /**
+     * Unauthorized
+     */
+    401: DiscoveryError;
+    /**
+     * Forbidden
+     */
+    403: DiscoveryError;
+    /**
+     * Unprocessable Content
+     */
+    422: DiscoveryError;
+    /**
+     * Internal Server Error
+     */
+    500: DiscoveryError;
+    /**
+     * Service Unavailable
+     */
+    503: DiscoveryError;
+};
+
+export type DiscoverApplicationsV2ApplicationsGetError = DiscoverApplicationsV2ApplicationsGetErrors[keyof DiscoverApplicationsV2ApplicationsGetErrors];
+
+export type DiscoverApplicationsV2ApplicationsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ApplicationsDiscovery;
+};
+
+export type DiscoverApplicationsV2ApplicationsGetResponse = DiscoverApplicationsV2ApplicationsGetResponses[keyof DiscoverApplicationsV2ApplicationsGetResponses];
+
 export type CheckV2CheckPostData = {
     body: {
         /**
@@ -313,7 +659,7 @@ export type CheckV2CheckPostData = {
         /**
          * Permission
          */
-        permission: string;
+        permission: 'kdg_capture.assignment.manage' | 'kdg_capture.capture.create.all' | 'kdg_capture.capture.create.assigned' | 'kdg_capture.capture.edit.all' | 'kdg_capture.capture.edit.own' | 'kdg_capture.capture.read.all' | 'kdg_capture.capture.read.own' | 'kdg_capture.child.manage' | 'kdg_capture.questionnaire.manage';
     } | {
         /**
          * AccountScope
@@ -328,6 +674,29 @@ export type CheckV2CheckPostData = {
          * Permission
          */
         permission: 'scribeswell.studies.use';
+    } | {
+        /**
+         * Authorization Scope
+         */
+        authorization_scope: {
+            /**
+             * Kind
+             */
+            kind: 'account';
+        } | {
+            /**
+             * Kind
+             */
+            kind: 'organization';
+            /**
+             * Org Id
+             */
+            org_id: string;
+        };
+        /**
+         * Permission
+         */
+        permission: 'leave.request.own.manage' | 'leave.request.own.read' | 'pts.poetry.documents' | 'pts.poetry.export' | 'pts.poetry.read' | 'reference.account.read' | 'reference.record.create' | 'reference.record.read';
     };
     headers?: {
         /**
@@ -350,31 +719,31 @@ export type CheckV2CheckPostErrors = {
      *
      * Unauthorized
      */
-    401: CheckError | StudiesError;
+    401: CheckError | StudiesError | CapabilityError;
     /**
      * Response 403 Check V2 Check Post
      *
      * Forbidden
      */
-    403: CheckError | StudiesError;
+    403: CheckError | StudiesError | CapabilityError;
     /**
      * Response 409 Check V2 Check Post
      *
      * Conflict
      */
-    409: CheckError | StudiesError;
+    409: CheckError | StudiesError | CapabilityError;
     /**
      * Response 422 Check V2 Check Post
      *
      * Unprocessable Content
      */
-    422: CheckError | StudiesError;
+    422: CheckError | StudiesError | CapabilityError;
     /**
      * Response 503 Check V2 Check Post
      *
      * Service Unavailable
      */
-    503: CheckError | StudiesError;
+    503: CheckError | StudiesError | CapabilityError;
 };
 
 export type CheckV2CheckPostError = CheckV2CheckPostErrors[keyof CheckV2CheckPostErrors];
@@ -385,7 +754,7 @@ export type CheckV2CheckPostResponses = {
      *
      * Successful Response
      */
-    200: OrganizationDecision | AccountDecision;
+    200: OrganizationDecision | AccountDecision | CapabilityAccountDecision | OwnDecision | CapabilityOrganizationDecision;
 };
 
 export type CheckV2CheckPostResponse = CheckV2CheckPostResponses[keyof CheckV2CheckPostResponses];
@@ -444,3 +813,203 @@ export type EnrollV2EnrollmentsScribeswellStudiesPostResponses = {
 };
 
 export type EnrollV2EnrollmentsScribeswellStudiesPostResponse = EnrollV2EnrollmentsScribeswellStudiesPostResponses[keyof EnrollV2EnrollmentsScribeswellStudiesPostResponses];
+
+export type ContextV2IdentityOrganizationContextPostData = {
+    /**
+     * ContextInput
+     */
+    body: {
+        /**
+         * Org Id
+         */
+        org_id: string;
+    };
+    headers?: {
+        /**
+         * Authorization
+         */
+        authorization?: string;
+        /**
+         * X-Service-Key
+         */
+        'x-service-key'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v2/identity/organization-context';
+};
+
+export type ContextV2IdentityOrganizationContextPostErrors = {
+    /**
+     * Unauthorized
+     */
+    401: CapabilityError;
+    /**
+     * Forbidden
+     */
+    403: CapabilityError;
+    /**
+     * Conflict
+     */
+    409: CapabilityError;
+    /**
+     * Unprocessable Content
+     */
+    422: CapabilityError;
+    /**
+     * Service Unavailable
+     */
+    503: CapabilityError;
+};
+
+export type ContextV2IdentityOrganizationContextPostError = ContextV2IdentityOrganizationContextPostErrors[keyof ContextV2IdentityOrganizationContextPostErrors];
+
+export type ContextV2IdentityOrganizationContextPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrganizationContext;
+};
+
+export type ContextV2IdentityOrganizationContextPostResponse = ContextV2IdentityOrganizationContextPostResponses[keyof ContextV2IdentityOrganizationContextPostResponses];
+
+export type ReadV2MePreferencesLanguageGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v2/me/preferences/language';
+};
+
+export type ReadV2MePreferencesLanguageGetErrors = {
+    /**
+     * Unauthorized
+     */
+    401: PreferenceErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: PreferenceErrorResponse;
+    /**
+     * Conflict
+     */
+    409: PreferenceErrorResponse;
+    /**
+     * Unprocessable Content
+     */
+    422: PreferenceErrorResponse;
+    /**
+     * Service Unavailable
+     */
+    503: PreferenceErrorResponse;
+};
+
+export type ReadV2MePreferencesLanguageGetError = ReadV2MePreferencesLanguageGetErrors[keyof ReadV2MePreferencesLanguageGetErrors];
+
+export type ReadV2MePreferencesLanguageGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: LanguagePreference;
+};
+
+export type ReadV2MePreferencesLanguageGetResponse = ReadV2MePreferencesLanguageGetResponses[keyof ReadV2MePreferencesLanguageGetResponses];
+
+export type WriteV2MePreferencesLanguagePutData = {
+    body: {
+        expected_revision: string;
+        operation_id: string;
+        preferred_locale: 'en' | 'pt';
+    };
+    path?: never;
+    query?: never;
+    url: '/v2/me/preferences/language';
+};
+
+export type WriteV2MePreferencesLanguagePutErrors = {
+    /**
+     * Unauthorized
+     */
+    401: PreferenceErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: PreferenceErrorResponse;
+    /**
+     * Conflict
+     */
+    409: PreferenceErrorResponse;
+    /**
+     * Unprocessable Content
+     */
+    422: PreferenceErrorResponse;
+    /**
+     * Service Unavailable
+     */
+    503: PreferenceErrorResponse;
+};
+
+export type WriteV2MePreferencesLanguagePutError = WriteV2MePreferencesLanguagePutErrors[keyof WriteV2MePreferencesLanguagePutErrors];
+
+export type WriteV2MePreferencesLanguagePutResponses = {
+    /**
+     * Successful Response
+     */
+    200: LanguagePreference;
+};
+
+export type WriteV2MePreferencesLanguagePutResponse = WriteV2MePreferencesLanguagePutResponses[keyof WriteV2MePreferencesLanguagePutResponses];
+
+export type DiscoverOrganizationsV2OrganizationsGetData = {
+    body?: never;
+    headers?: {
+        /**
+         * Authorization
+         */
+        authorization?: string;
+        /**
+         * X-Service-Key
+         */
+        'x-service-key'?: string;
+    };
+    path?: never;
+    query: {
+        application: 'leave' | 'reference';
+        cursor?: string;
+        page_size?: number;
+    };
+    url: '/v2/organizations';
+};
+
+export type DiscoverOrganizationsV2OrganizationsGetErrors = {
+    /**
+     * Unauthorized
+     */
+    401: DiscoveryError;
+    /**
+     * Forbidden
+     */
+    403: DiscoveryError;
+    /**
+     * Unprocessable Content
+     */
+    422: DiscoveryError;
+    /**
+     * Internal Server Error
+     */
+    500: DiscoveryError;
+    /**
+     * Service Unavailable
+     */
+    503: DiscoveryError;
+};
+
+export type DiscoverOrganizationsV2OrganizationsGetError = DiscoverOrganizationsV2OrganizationsGetErrors[keyof DiscoverOrganizationsV2OrganizationsGetErrors];
+
+export type DiscoverOrganizationsV2OrganizationsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrganizationsDiscovery;
+};
+
+export type DiscoverOrganizationsV2OrganizationsGetResponse = DiscoverOrganizationsV2OrganizationsGetResponses[keyof DiscoverOrganizationsV2OrganizationsGetResponses];

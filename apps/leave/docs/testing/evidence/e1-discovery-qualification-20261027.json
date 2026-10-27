@@ -1,0 +1,332 @@
+{
+  "status": "verified_review_complete",
+  "date": "2026-10-27",
+  "baseline_commit": "e2b3445f09e93827199ef06b504d03c10b605a46",
+  "private_frame": ".local/leave-discovery-20261027/qualified-v3",
+  "source_sha256": {
+    "services/access/caller_policy.py": "7a7bf60f811577e1e2d9514d7e805eed96289fd6c5f23827d5e8d8614da683d5",
+    "services/access/capability_check.py": "9c49ab5a55136c4b034e00a0babb50086bd92859b6ac749cbf320f0e0902c7c1",
+    "services/access/capability_contract.py": "1d1781f2652b8edf7a527e1b8c87f53773f4898ab7691120446acec2febff153",
+    "services/access/deployment/verify_runtime.py": "a1183a23403963b12fad74a4e0c718898f0326d883bc61d07f989210fe23ae04",
+    "services/access/discovery.py": "9ce2eaf0174ab4099b18548cef9d2a0cbfa866bd53ee14a8a311fdd67ba04015",
+    "services/access/discovery_contract.py": "7f830513d75316b579ec0f8afc2d526082de58d4cf60d41b81583fbfb59bd824",
+    "services/access/discovery_query.py": "9657bce6f879530736cffad703d11912a6ee74411e4c7e66d4c665068b03df97",
+    "services/access/identity-migrations/versions/0025_capability_reader.py": "3a6dc4c23ec478d48ac0fa5eab3f79f46d280bf72017cad8cac01d75698f2004",
+    "services/access/identity_context.py": "cae3eb65751341794f4940810c1c33d4bcc8084cf741c7bcc34cc6b2597ead13",
+    "services/access/identity_preferences.py": "52e7c449e7c379ef7c5490ddce4db585958fbb9f62c267dc8238a58737b45e4d",
+    "services/access/main.py": "4f4060bdc5f2a2c2a1f8a09883f348a672f1d61c21d9c56886c2d2890828f161",
+    "services/access/migrations/versions/0018_current_capabilities.py": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+    "services/access/organization_check.py": "293be2c0c25ec67e48092cb1d30db84762e1fe336701a3c4756ed961a1cdfe13",
+    "services/access/pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+    "services/access/studies_access.py": "84eae38b91eba6183bf12d8ad7235db45dbe60fc03e6cfd19379e6df7790b360",
+    "services/access/studies_contract.py": "9712442d1ecbf650221c88a07bc3476846032d4b57cc4b635265c50a8ed048c5",
+    "services/access/studies_identity.py": "579d1b479c5f14562ed3b7d881b900fe537db3a29d0a16e33ff55b3fd5aa826c",
+    "services/access/studies_readiness.py": "a202d9791a61d4a6d766e388e9d4835d5a4ac8ce7c2714e797ccfa07843b2bce",
+    "services/access/tests/qualify_capabilities.py": "9d09ef29d9bb046f22853d049be3190373db8b6a872000e671fc17cd88873be3",
+    "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468",
+    "services/access/tests/qualify_discovery.py": "5b1d4a47c5a3b6efc850643410572c3ad04fecb82ff918c7a123463306fdc513",
+    "services/access/openapi.json": "c050a7a8955bef7f774d1edbdfd94c00cb23a2e2b9f7c3925d3299dbfd913e20",
+    "services/access/contracts/adapter.ts": "8f19bd8f2f9570602f103456eba1d1082c33728672906d9c87be841bb2f4d2f9",
+    "services/access/identity-migrations/versions/0026_discovery.py": "75829ddc74510a21b64f4ad1c7a87d2e4382eaaa7da4a9d298f4fb5563000e56",
+    "services/access/identity-migrations/identity_discovery_catalog.py": "e1fa999b3f8f3c82b39ec7843d46aaa2bc20c72d6482c8ec8182cf6459783262",
+    "services/access/identity-migrations/identity_baseline.py": "a48c521e801f6b7cb838eb1583c7cb09b1a35c2f18c5a92c21762bedb4575801",
+    "services/access/identity-migrations/discovery-reference.json": "3878dbe7761b1067f01491171336d96d86dd21e2aede985ec107b50bdedcb475",
+    "services/access/migrations/versions/0019_discovery.py": "ba6ca82cfb0bbddb7ba5c9ab58ffc4d2d63283adcd413cdc69acdac754f68818",
+    "services/access/migrations/access_discovery_catalog.py": "81cdb45e446f2c5cce9be64941395f1fe317c8ae78dd21938e9f829d8de6a637",
+    "services/access/migrations/access_baseline.py": "aecaaa8e539467b6dc78aa6b9a13c9abd82d93bad772f9430a7a7e67c60bb4d3",
+    "services/access/migrations/discovery-reference.json": "7f75626830545a173cd3417a8080f2a201bf373cd1fc4d55575402682df28bf4"
+  },
+  "regression": {
+    "passed": 2223,
+    "warnings": 1,
+    "seconds": 52.74,
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 timeout 180 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest -p no:cacheprovider services/access/tests apps/pts/tests/test_release.py -q --tb=short",
+    "platform_release": {
+      "passed": 9,
+      "subtests": 11,
+      "seconds": 0.15
+    }
+  },
+  "native": {
+    "checks": 76,
+    "coverage": [
+      "account-zero-membership",
+      "caller-isolation",
+      "catalogue-overflow",
+      "context-isolation",
+      "disabled-account",
+      "entry-not-admin",
+      "mixed-scope",
+      "over-100",
+      "provider-unavailable",
+      "public-execute-denied",
+      "rejoin",
+      "restricted-runtime",
+      "revocation",
+      "shared-person-accounts",
+      "sparse-pagination",
+      "spoofed-input",
+      "temp-shadowing"
+    ],
+    "http_checks": 36,
+    "actual_browser_invocation_denials": 10,
+    "provider_outage_seconds": 2.013684,
+    "provider_resumed": true,
+    "profile_restored": true,
+    "rejoined_membership_retained": true,
+    "intentional_catalogue_final_count": 129,
+    "original_cursor_page_lengths": [
+      7,
+      6,
+      7
+    ],
+    "fixture_sha256": "b67f224ab451cafeac2fc71b9ac37e4b90386a21f00bcfe081ae0cdd14896959",
+    "oracles": "e1-discovery-oracles-20261027.json"
+  },
+  "migrations": {
+    "all_five_final_pairs_verified": [
+      "reference:identity",
+      "reference:access",
+      "native:identity",
+      "native:access",
+      "previous:identity",
+      "previous:access",
+      "failure:identity",
+      "failure:access",
+      "clean:identity",
+      "clean:access"
+    ],
+    "immutable_historical_sources": 71,
+    "independent_rollback_rehearsal": true,
+    "coordinated_repeats": true,
+    "failure_blocks_activation_and_forward_retry": true,
+    "previous_command_receipts_replayed": 32
+  },
+  "budget": {
+    "queries": [
+      {
+        "actual_rows": 3,
+        "seconds": 0.014861985000607092
+      },
+      {
+        "actual_rows": 101,
+        "seconds": 0.005216036999627249
+      }
+    ],
+    "http_lock_and_recovery": [
+      {
+        "path": "/v2/applications",
+        "status": 503,
+        "seconds": 1.1740029089996824
+      },
+      {
+        "path": "/v2/organizations?application=leave",
+        "status": 503,
+        "seconds": 1.1731214780011214
+      },
+      {
+        "path": "/v2/applications",
+        "status": 200,
+        "seconds": 0.09036645000014687
+      },
+      {
+        "path": "/v2/organizations?application=leave",
+        "status": 200,
+        "seconds": 0.07632960100090713
+      }
+    ]
+  },
+  "image": {
+    "status": "passed",
+    "image": "agri-access-discovery-api:cdf8c337a4",
+    "image_id": "sha256:59f4606461287dd29a22c6277c35b68202774e1318463fd564dc168e0e2a642e",
+    "container": "agri-discovery-http-acd24ab729",
+    "network": "agri-leave-iKc33a17QpqoPF0QNxbWWQ-network",
+    "normal_stop_exit_code": 0,
+    "hardening_and_runtime_environment_verified": true,
+    "http_exact_cases": 8,
+    "runtime_manifest_sha256": "417d91d8ff0ff740c0131ce9ed22b898dd3f7ee1f044e31275d44172f06ea51a",
+    "commands": [
+      {
+        "command": [
+          "run",
+          "--detach"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "exec",
+          "agri-discovery-http-acd24ab729"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "inspect",
+          "agri-discovery-http-acd24ab729"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "image",
+          "inspect"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "stop",
+          "--time"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "inspect",
+          "agri-discovery-http-acd24ab729"
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "checks": {
+    "legacy_composer": "passed",
+    "owned_composer_no_seeds": "passed",
+    "manifest": "passed",
+    "openapi_export": "passed",
+    "generated_drift": "passed",
+    "four_typed_suites": "compiled and executed",
+    "neutral_generation_fixture": "passed"
+  },
+  "retained_proofs": {
+    "identity-reference-rehearsal-rlsv3.json": {
+      "sha256": "a1889c89b9d6a341e8904dacf33bad112291f141e22b5cb842d5dd66441b6ba9"
+    },
+    "reference-identity26-v3-receipt.json": {
+      "sha256": "6b5a3807434499b2894004292384e0727c73d72a42f52d5f0c52b0d007c32f7a"
+    },
+    "reference-access19-v3-receipt.json": {
+      "sha256": "09983fe033e28434e5addb9b6d3d70d0b354037ce687fbd5c36eed4dde48cd01"
+    },
+    "reference-identity26-v3-repeat-receipt.json": {
+      "sha256": "db81fec44bade2d10e3ad2ea202f3e5b96de2530ad84760454d3190d69d67734"
+    },
+    "reference-access19-v3-repeat-receipt.json": {
+      "sha256": "7876ec876d1930bb20cd454f67eb3d0001bb53efea841d0014d7f29ac7b61530"
+    },
+    "catalog-review-proof.json": {
+      "sha256": "ab28bed35b64df9b2ca85c9cccf67074ffbe8ccb16c9464f9ff639a8fdb9ba55"
+    },
+    "coordinated-release-review-proof.json": {
+      "sha256": "4fc18f704727d05ab2d8ba426b69a8be29c1f02e6a7f92621ddae25c748ec93c"
+    },
+    "previous-client-proof.json": {
+      "sha256": "a14705a6c2a8b9b934584d0c17f4d1e24b20c854042a6391c17ce23e61abcdf0"
+    },
+    "initial-http-evidence.json": {
+      "sha256": "36601247d5d2cfd3f2b4bc97656cb02965ad62c5efc6cbc9dc4865e0cdafabbf"
+    },
+    "query-budget-proof.json": {
+      "sha256": "e12c2d1359fabf596a4e714c9d83b6986ebfbdf384518f5365b562a41780eb22"
+    },
+    "cursor-current-authority-proof.json": {
+      "sha256": "f0a4f493895f80d848741fc0964a940ed9db01f491929bb80f24f80843ac7359"
+    },
+    "image-review-proof.json": {
+      "sha256": "3ab35d3e3292495024e2a50a47bc657fe6fd0ca7889b18988669ea1169e8a1d2"
+    },
+    "image-http-proof.json": {
+      "sha256": "08734e27f1418cd47b1e4067ca4c5b590d739ff757d47a1970204ac23d2537d9"
+    },
+    "image-http-cases.json": {
+      "sha256": "36601247d5d2cfd3f2b4bc97656cb02965ad62c5efc6cbc9dc4865e0cdafabbf"
+    },
+    "native-conductor-evidence.json": {
+      "sha256": "cf5ce647d58679085ec624ca28aaea0e9f22a0b4f559d4c91f1243826ccab36a"
+    },
+    "qualifier-native-proof.json": {
+      "sha256": "81fad6cf2e0de1fd5f7892c8e3d697c160b65c90981769753fcdf0cf78ed01cb"
+    },
+    "regression-final.txt": {
+      "sha256": "2334978750694be2a656996a043ec5dd91ce30748374b668ef146e3d7197df86"
+    },
+    "native-identity26-v3-receipt.json": {
+      "sha256": "4e235459e4585f5f39904de36c4c8721135e14ded2ec9485d1ff9a97545dbdc6"
+    },
+    "native-access19-v3-receipt.json": {
+      "sha256": "a63458e0556c5a250bbcc2c0810e07d6a037a1091e5823c160fca76a39e6e02c"
+    },
+    "previous-identity26-v3-receipt.json": {
+      "sha256": "79e06d3f1d785be98f67a8ca3a4e91ad90111836c12ea15b0604010fe61c0ec0"
+    },
+    "previous-access19-v3-receipt.json": {
+      "sha256": "50493f30dff80f311e2ade5a9f06d6c325ec96154042ec728a95330dba7afde7"
+    },
+    "failure-identity26-v3-receipt.json": {
+      "sha256": "b3cd7cae832bac828278fd129a4102b47abce724eee3d756984b7ac5d9e62472"
+    },
+    "failure-access19-v3-receipt.json": {
+      "sha256": "26b0874d83ff565a44366e682e77c1199f93eb9be42be42448298b57bcf65813"
+    },
+    "clean-identity26-v3-receipt.json": {
+      "sha256": "97140c01688ed95dd37b198c527863be5a6acce472aec3cdbb22cb0396eb1100"
+    },
+    "clean-access19-v3-receipt.json": {
+      "sha256": "10e2874c1cdb975abc4dd2e2eff7dc9572667d2968d6d7ca1cf2c7bf3c8fcfca"
+    },
+    "review-v1-positive/reference-http-proof.json": {
+      "sha256": "a5f4e79ec72f48366b5491b75b251307f74bff35d061a26eb42aa4dfaacd67e6"
+    },
+    "review-v1-positive/reference-http-proof.json.journal": {
+      "sha256": "b26c63a65bc67f9dc58d08116476912b0656a8a89773761bcadf42e51ac690d7"
+    },
+    "review-v1-positive/reference-command-receipts-private.json": {
+      "sha256": "cfc53e0dc2a8b61c9c79c265ad7afa115f47faa1a92baf5acf8694fc50843aff"
+    },
+    "regression-reviewed.txt": {
+      "sha256": "a83900bcd4e6ff6b64f1c356671c31ba3fdf159664027ee9f4ed31ed33428fc5"
+    },
+    "api-stop-evidence.json": {
+      "sha256": "30757565ad6d29ce5e6900dd876bad8a7f9e8a8c3cc05313dbf012d7698dd581"
+    },
+    "native-stop.json": {
+      "sha256": "3ee958d772ddf9be63ed000d71fd9250f3356f7750dbf3a77f1cfc677a99baf8"
+    }
+  },
+  "limits": [
+    "All mutations restricted to new guarded synthetic Leave scratch fixtures; KDG and unrelated state preserved.",
+    "Earlier source variants and two failed native qualification attempts are retained and are not final passing evidence.",
+    "Final native catalogue deliberately retains129registered apps as the invalid-configuration case; other positive cases and image proof predate that final transition and remain source bound.",
+    "Auth/profile restoration and no stale-grant revival verified; no fixture reset or history deletion.",
+    "Dry release activation boundary only; no production deployment, live user adoption or grants, commit or push.",
+    "Directory/launcher and People consumer adoption remain later approved delivery items.",
+    "Positive reference review fixture is a fresh clone; the original129-app fixture remains unchanged. Expired-token failure and refresh proof retained."
+  ],
+  "review": {
+    "layers": [
+      "blind",
+      "edge",
+      "verification"
+    ],
+    "reported": 1,
+    "fixed": 1,
+    "deferred": 0,
+    "loop_iteration": 0,
+    "triage": "_bmad-output/implementation-artifacts/spec-1-9-e1-discovery-current-organizations-and-apps.md",
+    "reference_patch": {
+      "successful_native_requests": 2,
+      "same_account_leave_count": 2,
+      "same_account_reference_count": 1,
+      "reference_test": "services/access/tests/test_discovery.py::test_reference_organizations_are_current_and_app_specific"
+    }
+  },
+  "custody": {
+    "host_apis": "both bound APIs confirmed stopped by SIGTERM; exit codes unavailable, no forced kill",
+    "leave_cli_run": "stopped normally through supported CLI; fixtures retained",
+    "image_containers": "normal stop exit0; retained",
+    "kdg": "untouched"
+  },
+  "review_test_sha256": "0abacceb7455fb0e3ef114861a175a4575b3d40cfc1f22f23d45189a3781c8db"
+}
