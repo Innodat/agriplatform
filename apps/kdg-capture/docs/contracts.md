@@ -1796,3 +1796,15 @@ See [native evidence](NATIVE_ADMIN_API_EVIDENCE.md). This remains an inert candi
 real Access/Identity, listener/network, native contention/cancellation, mounted portal/
 session/device and release activation remain separate gates. Existing migration/release,
 least privilege, ownership and recovery safeguards remain binding.
+
+## Native administrator history qualification — 2026-10-27
+
+The existing `GET /api/v1/admin/captures` contract now has retained PostgreSQL evidence
+for current all-read across owners, inclusive dates and descending creation-time/ID
+keyset pagination through genuine server-stamped ties. Caller/organization/date/limit
+and own/all cursor bindings, current role loss and exact safe errors are verified.
+Independent complete DTOs agree with committed native rows; read requests change no
+business rows and use restricted read-only sessions with released leases.
+No wire/schema/permission scope or activation contract changed. See
+[native history evidence](NATIVE_ADMIN_HISTORY_EVIDENCE.md). Real authority, UI/session/
+device and controlled release qualification remain open.

@@ -1,3 +1,35 @@
+## Completed delivery — native administrator history qualification, 2026-10-27
+
+The approved native list/pagination proof is complete:31 PostgreSQL cases,173 affected
+tests (17 new) and five scaffold code/test parities pass. Three review layers complete:
+eight individual findings addressed in seven groups,three low refinements rejected,
+no new deferrals. Read [native history evidence](NATIVE_ADMIN_HISTORY_EVIDENCE.md),
+[current contracts](contracts.md#native-administrator-history-qualification--2026-10-27)
+and [delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-native-admin-history.md).
+
+Actual restricted read-only SQL proves two-owner lists, inclusive dates, genuine
+server-stamped creation-time ties and exact descending creation/ID keyset traversal.
+Current authority and caller/org/date/limit/own-all cursor bindings are verified.
+Complete business rows remain unchanged after every read; all candidate connections
+closed. Access/account/actor evidence remains synthetic. No application/schema/type
+change was needed. Both journaled native attempts/datasets/source capsules are retained.
+Final counts:parents17 each/captures50/history80/outcomes86. Prior rows, applied0002
+provenance, restricted identities, sentinel, network/volume and four initially running
+containers remain preserved; no lifecycle call ran.
+
+Continue ready authorized synthetic local/CI work without routine approval stops.
+Native administrator backend Save/recovery and list pagination evidence now exist;
+full Story3.1/3.2 still need portal/session/device and real authority/release evidence.
+No UI/editor/Leave, real accounts/services, startup/browser/worker/queue activation,
+provisioning/migrations/privilege expansion/cleanup, dependencies or deployment/production/
+pilot/push. Preserve concurrent/historical work/resources and TypeScript7.0.2;
+fingerprints/HMAC deferred. Never read/run/copy/hash migrations/tests/schema_fixture.py.
+Scribeswell should use its own isolated fixture on different ports;55491/55492 were
+unoccupied when checked (recheck before binding). KDG retains55481/55482 unchanged.
+Historical handoffs follow unchanged.
+
+---
+
 ## Completed delivery — native administrator API qualification, 2026-10-27
 
 The user approved retained synthetic PostgreSQL qualification. It is complete: 38 native

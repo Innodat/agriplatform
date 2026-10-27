@@ -1,0 +1,492 @@
+{
+  "delivery": "Native KDG administrator history qualification",
+  "date": "2026-10-27",
+  "baseline_commit": "02ffd98c7568158be50b8ed3c2f86d0488ef0c52",
+  "status": "qualified",
+  "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+  "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+  "head": "0002_kdg_capture_storage",
+  "native_case_count": 31,
+  "native_cases": [
+    "ties_0",
+    "ties_1",
+    "ties_2",
+    "ties_3",
+    "ties_4",
+    "ties_5",
+    "full_0",
+    "default_0",
+    "empty_0",
+    "single_date_0",
+    "single_date_1",
+    "another_account_cursor",
+    "another_org_cursor",
+    "foreign_own_org_0",
+    "foreign_own_org_1",
+    "foreign_own_org_2",
+    "changed_from_date",
+    "changed_to_date",
+    "changed_limit",
+    "all_cursor_in_own",
+    "own_ties_0",
+    "own_ties_1",
+    "own_ties_2",
+    "own_cursor_in_all",
+    "role_lost_between_pages",
+    "malformed_scope",
+    "malformed_cursor",
+    "invalid_limit",
+    "reversed_dates",
+    "unknown_query",
+    "duplicate_query"
+  ],
+  "native_report": {
+    "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-admin-history-4f916304ed2b4272a949915d3e88c20b.json",
+    "sha256": "59be18dbc1769e520570351eeebbb273e1370b85bcd1f89481941c8cfaf9ed73"
+  },
+  "intent_report": {
+    "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-admin-history-start-47b32d145c264a5ebad361de866fdff2.json",
+    "sha256": "99c613499083e1732e9d39f5e5485239d7ab537b1a39d5ea84873cf6dd90feab"
+  },
+  "native_source_capsule": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/review-fixed-source.json",
+    "sha256": "683c9fd3ba2b4e8913d698acc7da248c8be1c63c5e91720d10de98beca7845d6"
+  },
+  "native_sources": {
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+    "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+    "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+    "apps/kdg-capture/migrations/tests/qualify_admin_api.py": "b91abf60eadde57b92fa7b713c1328687ff41e8e6813b58045b0b13690a95fdf",
+    "apps/kdg-capture/migrations/tests/qualify_admin_history.py": "4719a7106b72b8123cab04d72fb6da70d9dad8a0b1cf04a97435c107cbe19e58",
+    "apps/kdg-capture/migrations/tests/qualify_capture_commit.py": "c3f7490e74147b44d2a3f7cc8851655946520d7d1edd5c23daf4daf2d4663833",
+    "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+    "apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py": "8af1ccb00690c8edd9fb5f128c6ee8bff27310a21cb30da3c7d125fa9ceec2db",
+    "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+    "apps/kdg-capture/migrations/tests/qualify_own_edit.py": "fc108c4231c9b186d71e162c3a6e137dc9896451b0890214f1fe56d5b09ae328",
+    "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "cd8e20e48ec5b131b7d637787c193ec71238495e241213ead7ae1549633b88f3",
+    "apps/kdg-capture/write-candidate/admin_edit.py": "52e369f69564662d0198f1ae999e5973f30d7d277f41796c3c4f26fa039a58bc",
+    "apps/kdg-capture/write-candidate/admin_edit_context.py": "6289f0b5ccff3c4507fdc579188323cb14b3cec5303d9d6c0b39aa38731a5932",
+    "apps/kdg-capture/write-candidate/admin_edit_context_http.py": "a85acc8f3c005a15bce6a0c43b453c9c5354ca7c89218424a78f579b3614c135",
+    "apps/kdg-capture/write-candidate/admin_edit_context_openapi.py": "eea2f2d316b5e7f516e2c77502ef289fda01a75275738920e922400e4fea300f",
+    "apps/kdg-capture/write-candidate/admin_edit_http.py": "dafcf30229ad1d4b7cc52d1b940b5a660bfdb0eceb393be28e8ff860823bd275",
+    "apps/kdg-capture/write-candidate/admin_edit_openapi.py": "88774096c576e4f7e3844e5bfcdfc208b235820d9ece4d49837efacc357ce09a",
+    "apps/kdg-capture/write-candidate/admin_http.py": "8e4a85328d93d8dac475b880f6da77fdeb3c9c3609571700dfcc9e6fe5393185",
+    "apps/kdg-capture/write-candidate/admin_openapi.py": "db6b0ec07e3e4d37141325e2b5495f87ed40e96f4bac3293b5c803c9c75303a1",
+    "apps/kdg-capture/write-candidate/admin_read.py": "04eff5389ce2e11ff630aed721cf827f148e8aea494955ec7f3f12a1002513cd",
+    "apps/kdg-capture/write-candidate/audit_http.py": "6fa5d51cdd7e20ac9c865148c7b0b93e1a03434c00735a3c6e68934b6d393001",
+    "apps/kdg-capture/write-candidate/audit_openapi.py": "accce7ec892b648440e82266d9fc3287b484f56f53539e2801d50cd96f7f1f2c",
+    "apps/kdg-capture/write-candidate/audit_read.py": "ec0978cd48fa68d21fd553041813659f3c397421b51d1c3f73237e47d79a216f",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "59884691141ee1406c416bec28c4da09fcfaebc50a4dbc853a5ce3a45e982240",
+    "apps/kdg-capture/write-candidate/capture_edit.py": "3997cdd6525c8e60b12b7e3de9a1848a51d435b5de31d798355180f45c834171",
+    "apps/kdg-capture/write-candidate/capture_edit_handler.py": "d449e2d5ccd068518e6957ae2259af6ff6cd49435ba3310afe3e0446434560b4",
+    "apps/kdg-capture/write-candidate/capture_history.py": "583741b6c64773606175bfe2071e7879b7a6466613bfcd2bf74e3a440abdee19",
+    "apps/kdg-capture/write-candidate/capture_read.py": "f4c2ba4b3458b6cd450c8526ae0b157d3a4cd655d7779ee5aba9610b76dcc980",
+    "apps/kdg-capture/write-candidate/create_http.py": "691104785a4940dc2f8c89e25df01fa60c33ec189b06479ce0f049875ca1e563",
+    "apps/kdg-capture/write-candidate/create_openapi.py": "a302a966f8e83cd2357358bb2a6c5807950da6f4f9ecdd991098343679a9e3a6",
+    "apps/kdg-capture/write-candidate/edit_context.py": "73d275944cec4ad0ccfa0df282dcf80a1c1af8eeede2154f79c472f764535a10",
+    "apps/kdg-capture/write-candidate/edit_context_http.py": "d8cff62c0f20070ef5da4f7756227277e74eb93fa35ce72c9bf88e3ce6d7b44a",
+    "apps/kdg-capture/write-candidate/edit_context_openapi.py": "2de4d3970d38599cd0396e7c6de076120653d7da4c69e42156fbe7af91deba56",
+    "apps/kdg-capture/write-candidate/edit_http.py": "ef5fa3c69ba44188e61cdb9c04cd86c75070de3d8aac5bb82ba9d5280bc64173",
+    "apps/kdg-capture/write-candidate/edit_openapi.py": "6b9e3f62cb30a380883fa23119e52ecd70e0f27675c48925eb6ea18eafb66a25",
+    "apps/kdg-capture/write-candidate/export_admin_edit_context_openapi.py": "9304eaf345931ff337dee6faf284b63090c49cb93e3fb7e6f42ad62fcb096099",
+    "apps/kdg-capture/write-candidate/export_admin_edit_openapi.py": "08b2aef64d9e0f63d6c8b61d79e6d0673d92ad8d1e2abade9c408919fb42e2b4",
+    "apps/kdg-capture/write-candidate/export_admin_openapi.py": "39f2d05f0b81a7aa85a1a437f5fa241395470a261fc8d01dc1bfb17d8a8dc9af",
+    "apps/kdg-capture/write-candidate/export_audit_openapi.py": "bb8e0268626c602f4db235849d46f045e53a63c90b27df2ee83e1e313bfb5017",
+    "apps/kdg-capture/write-candidate/export_create_openapi.py": "176135b353a2dbd0118e01a649c927ed65670615e7e3e5661d9ed03f408d80ae",
+    "apps/kdg-capture/write-candidate/export_edit_context_openapi.py": "50803357394023d9e6fc1bb79c389f9275da7cb3790171d45b47916453ca7fbc",
+    "apps/kdg-capture/write-candidate/export_edit_openapi.py": "8a7e6f721fd6c9a5d4ee9c08ac9dd5e1843ce86e1a9f63204c5f8a2ead4be442",
+    "apps/kdg-capture/write-candidate/export_history_openapi.py": "639229d9314e630cd5c4a100e6edc50af8dbb2770d60d6db845a9c19eeed215d",
+    "apps/kdg-capture/write-candidate/export_provision_openapi.py": "51f3f938690cc3dfb1a99a9bf375f5acb94f85867e3d2243ecc154b0d981bd4e",
+    "apps/kdg-capture/write-candidate/export_read_openapi.py": "f39f86b94add7e146d3af3c2a869d3112971f23b10519197114842b01b0ef3be",
+    "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+    "apps/kdg-capture/write-candidate/history_http.py": "f776d085ad60e080d43a407697306de5857ed3ba966d713f139c120654b4f0c1",
+    "apps/kdg-capture/write-candidate/history_openapi.py": "e3b4ff04967d234a427104eb4989b15f615ad96d253be973aebc49485729de04",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/own_observation_openapi.py": "6b3924a97d0412be6614240afd7e32a974bd268af1566426126f5033b3656432",
+    "apps/kdg-capture/write-candidate/provision.py": "aefa42e29c6e0c720f7bdaaf8a8a3a311145887e2f163aba5c80fdf8751601d6",
+    "apps/kdg-capture/write-candidate/provision_http.py": "fbfda652715f7173f9ac04f70a170c61be25dbd29b5d26a0e049871a25f1c467",
+    "apps/kdg-capture/write-candidate/provision_openapi.py": "a963a53520e98d0e2baf3a20a55372e1915549f3cb671e43a32ac5c6f27b7103",
+    "apps/kdg-capture/write-candidate/read_http.py": "e2b3a51768a2ffa229e96e0cae1262e33b6372e7ea18b8534d688b57f7551a98",
+    "apps/kdg-capture/write-candidate/read_openapi.py": "e44d96cf344b73cc2010ef4f57651f4fd441166347caec5911d491f5f33fde37",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "044dfbbc2a2cf92c2c55bfb8f089a5c2406ae12127ae8322d4f61c3ad30dfdcf",
+    "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/deployment/dev.py": "031ad34d08b9d533c81690c9653e0d3ab51cb7488f00463d8dbdeb9465f90b4a",
+    "platform/deployment/environments/kdg-local.json": "dd5f8230096dd67e7c66a0dfab5aec92b363fa8c8957045f4f5ae1978373715b",
+    "platform/deployment/native_cli.py": "21b521ca8610feb7cac64af08dbebe78cce261af3d812dc0f05ffeb12b736f87"
+  },
+  "focused_tests": 17,
+  "affected_tests": 173,
+  "five_scaffold_parities": true,
+  "command_record": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed.json.results.json",
+    "sha256": "542536eb342ef99aa56a681c4ae0f044ea6b9b3fe1a6337f18e2d1e59a450709"
+  },
+  "commands": [
+    {
+      "name": "review-fixed-history-focused",
+      "cwd": "apps/kdg-capture/write-tests",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "test_native_admin_api",
+        "test_native_edit_http",
+        "test_native_own_edit",
+        "test_native_edit_recovery",
+        "test_native_admin_history",
+        "test_admin_read",
+        "test_admin_http",
+        "test_admin_contract",
+        "test_history_cursor",
+        "test_history_handler",
+        "test_history_http",
+        "test_history_contract",
+        "-v"
+      ],
+      "timeout": 120,
+      "exit_code": 0,
+      "seconds": 12.029,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-focused.log",
+      "log_sha256": "624896fe306b2406b281151624a3ffe4e519a72ff399fb70e9df00e611330ee6",
+      "source_unchanged": true
+    },
+    {
+      "name": "review-fixed-history-auth-parity",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-auth.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.204,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-auth-parity.log",
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8",
+      "source_unchanged": true
+    },
+    {
+      "name": "review-fixed-history-write-parity",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.178,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-write-parity.log",
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8",
+      "source_unchanged": true
+    },
+    {
+      "name": "review-fixed-history-database-parity",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-database.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.204,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-database-parity.log",
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b",
+      "source_unchanged": true
+    },
+    {
+      "name": "review-fixed-history-native-database-parity",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-native-database.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.197,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-native-database-parity.log",
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3",
+      "source_unchanged": true
+    },
+    {
+      "name": "review-fixed-history-offline-parity",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-offline.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.213,
+      "log": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/review-fixed-history-offline-parity.log",
+      "log_sha256": "31f3deb69fdb9d4cae781d7ed37dad32083c5b26c0e1252878ab90dd863a97f2",
+      "source_unchanged": true
+    }
+  ],
+  "qualified_source_count": 326,
+  "atdd_red": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/child-atdd/behavior-red.log",
+    "sha256": "55e864eb62642a115a3ba16d94989a6b320219505aa4df44d653c2f61f74fcdd"
+  },
+  "atdd_green": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/child-atdd/green-final.log",
+    "sha256": "a376e45c9a5933dab98bf901e8339a557504944c7d1bc05a5ec9cde967c738c8"
+  },
+  "preflight": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/preflight.json",
+    "sha256": "64f6b07be980dc50ebbc6ddec66eca26fff9f18954fa4e72f753666f10c2738a"
+  },
+  "postflight": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/postflight-review.json",
+    "sha256": "fda84ac2ba77bf4d0e87c29e053debc59e11ae39675b49eb913db2471257c989"
+  },
+  "passing_native_log": {
+    "path": "platform/deployment/.local/kdg-native-admin-history-20261027/native-review-fixed.log",
+    "sha256": "b463b80ae9f960da7d58af979bdba87b874530ba9b50c8b043571f6adfc84f63"
+  },
+  "native_execution_command": {
+    "argv": [
+      "timeout",
+      "240s",
+      "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+      "-I",
+      "-B",
+      "apps/kdg-capture/migrations/tests/qualify_admin_history.py",
+      "--qualify-retained"
+    ],
+    "exit_code": 0
+  },
+  "counts_before": {
+    "capture": 35,
+    "capture_revision": 65,
+    "child": 14,
+    "child_assignment": 14,
+    "child_eligibility": 14,
+    "operation_outcome": 71,
+    "questionnaire": 14,
+    "questionnaire_version": 14
+  },
+  "counts_after": {
+    "capture": 50,
+    "capture_revision": 80,
+    "child": 17,
+    "child_assignment": 17,
+    "child_eligibility": 17,
+    "operation_outcome": 86,
+    "questionnaire": 17,
+    "questionnaire_version": 17
+  },
+  "http": {
+    "leases_released": true,
+    "physical_connections": 3,
+    "physical_connections_closed": true
+  },
+  "preservation": {
+    "prior_rows_unchanged": true,
+    "read_requests_leave_complete_rows_unchanged": true,
+    "sentinel_unchanged": true,
+    "ordinary_head_unchanged": true,
+    "protected_files": 197,
+    "prior_sources": 324,
+    "initial_and_final_containers_running": 4,
+    "lifecycle_calls": 0,
+    "network_id": "4ab79f8eceb6dd0b6fe6486b77528c8e85cdd3a406b186b7c438c59d6d815a68",
+    "database_volume": "supabase_db_agriplatform-kdg-mbcjHApbS9uY6DMpVkxSag",
+    "no_cleanup_migrations_provisioning_privilege_change": true,
+    "dependency_baseline": "TypeScript7.0.2 preserved; no dependency changes",
+    "concurrent_deployment_source": "Concurrent native_cli.py changes preserved; each native attempt binds its executed custody-source bytes separately. No lifecycle function called."
+  },
+  "previous_native_admin": {
+    "path": "apps/kdg-capture/docs/evidence/native-admin-api-20261027.json",
+    "sha256": "b78adf78ad0f95fe1525f1db9d27f0e02efe15e1ad27257dd35025e253b50cee"
+  },
+  "impact_decisions": {
+    "scaffold": "Reuse existing neutral primitives; five adopted code/test parities pass; KDG-specific permission/fixture/oracle stays local.",
+    "shared_ui": "Unchanged: no UI delivery.",
+    "agent_context": "Unchanged: existing scope/parity instructions suffice.",
+    "documentation": "Contracts appended, current handoff prepended, dedicated native history evidence added; historical bytes retained.",
+    "adr": "No new decision or accepted ADR change; existing permission, provenance, release and migration safeguards remain."
+  },
+  "traceability": {
+    "tied_ordering_and_multiple_owners": "verify_seed genuine timestamp groups; ties_0..5 native exact independent DTO/order traversal; focused ordering/corruption tests",
+    "dates_scope": "full/default/empty/single_date/foreign_own_org cases and independently scoped read-only oracle",
+    "cursor_current_authority": "another_account/org_cursor; changed_from/to_date/limit; own/all cross-mode; role_lost_between_pages; malformed_scope",
+    "safe_errors": "Exact envelopes/no-store/Access sequence/zero checkout for invalid query/cursor/authority",
+    "preservation": "Complete eight-table snapshots/counts after every response; physical runtime read-only identity/lease checks and final disposal; independent postflight"
+  },
+  "review": {
+    "status": "complete",
+    "layers": 3,
+    "individual_findings": 11,
+    "individual_addressed": 8,
+    "addressed_groups": 7,
+    "rejected_low": 3,
+    "deferred": 0,
+    "triage": {
+      "path": "platform/deployment/.local/kdg-native-admin-history-20261027/review-triage.json",
+      "sha256": "c03d801b2d06bcca2382ed4e5a8756a6c36487e90b8bb2d38f1e1fc0d15a07a0"
+    },
+    "methodology": {
+      "blind": "fresh context-free reviewer",
+      "edge": "fresh context-free reviewer",
+      "verification": "prior reviewer re-engaged after fresh spawn rejected by runtime thread cap; not involved in implementation",
+      "all_launched_before_collection": true
+    }
+  },
+  "limitations": [
+    "Actual PostgreSQL/driver/read-only worker SQL with synthetic Access/account/actor evidence and ASGITransport; no real Identity/Access/listener/network proof.",
+    "Fixtures use restricted own_write multi-row SQL plus normal outcome/history inserts, not create API proof; triggers unchanged; genuine server statement_timestamp ties.",
+    "No native contention/cancellation, UI/session/device/actor-name or full Story3.1/release activation proof.",
+    "No new dependencies, provisioning, migrations, cleanup, privilege expansion, real accounts, Leave/editor, activation, deployment/production/pilot; fingerprints/HMAC deferred."
+  ],
+  "earlier_passing_attempt": {
+    "native_report": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-admin-history-70c3992ebe024cf49a1607baeff88be0.json",
+      "sha256": "c765d13beb296d733b64ae8da4e5ae6e1ae51ceee64a04c34cf25cecd1eb36e9"
+    },
+    "intent_report": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-admin-history-start-c13d2d8d1e694556826dfc987198903d.json",
+      "sha256": "95e1a3625b3656919584b734ec8783961e1e0b3e109cc748c6655d700bfa4d7c"
+    },
+    "native_source_capsule": {
+      "path": "platform/deployment/.local/kdg-native-admin-history-20261027/candidate-source.json",
+      "sha256": "96c25b9f32804580ab1dffcdbb12f00c41d8d106f7d59b3fae3ff59a339b955f"
+    },
+    "passing_native_log": {
+      "path": "platform/deployment/.local/kdg-native-admin-history-20261027/native-candidate.log",
+      "sha256": "54f005b376ae453ef05cca9a8b29581b83222eb1851374efdee92fda1c52f58c"
+    },
+    "counts_before": {
+      "capture": 20,
+      "capture_revision": 50,
+      "child": 11,
+      "child_assignment": 11,
+      "child_eligibility": 11,
+      "operation_outcome": 56,
+      "questionnaire": 11,
+      "questionnaire_version": 11
+    },
+    "counts_after": {
+      "capture": 35,
+      "capture_revision": 65,
+      "child": 14,
+      "child_assignment": 14,
+      "child_eligibility": 14,
+      "operation_outcome": 71,
+      "questionnaire": 14,
+      "questionnaire_version": 14
+    },
+    "postflight": {
+      "path": "platform/deployment/.local/kdg-native-admin-history-20261027/postflight-native.json",
+      "sha256": "648829328821d2dd62297a414f6aea6e7bf43a2b2a789fa8aec2d36d0a5e426a"
+    },
+    "command_record": {
+      "path": "platform/deployment/.local/kdg-native-admin-history-20261027/root-verify/candidate.json.results.json",
+      "sha256": "24ccc1c5a50cfb7764b0f7c614a37009695d2896a6463c9b38348751337190f5"
+    }
+  },
+  "per_request_preservation": {
+    "all_cursor_in_own": {
+      "passed": true
+    },
+    "another_account_cursor": {
+      "passed": true
+    },
+    "another_org_cursor": {
+      "passed": true
+    },
+    "changed_from_date": {
+      "passed": true
+    },
+    "changed_limit": {
+      "passed": true
+    },
+    "changed_to_date": {
+      "passed": true
+    },
+    "default_0": {
+      "passed": true
+    },
+    "duplicate_query": {
+      "passed": true
+    },
+    "empty_0": {
+      "passed": true
+    },
+    "foreign_own_org_0": {
+      "passed": true
+    },
+    "foreign_own_org_1": {
+      "passed": true
+    },
+    "foreign_own_org_2": {
+      "passed": true
+    },
+    "full_0": {
+      "passed": true
+    },
+    "invalid_limit": {
+      "passed": true
+    },
+    "malformed_cursor": {
+      "passed": true
+    },
+    "malformed_scope": {
+      "passed": true
+    },
+    "own_cursor_in_all": {
+      "passed": true
+    },
+    "own_ties_0": {
+      "passed": true
+    },
+    "own_ties_1": {
+      "passed": true
+    },
+    "own_ties_2": {
+      "passed": true
+    },
+    "reversed_dates": {
+      "passed": true
+    },
+    "role_lost_between_pages": {
+      "passed": true
+    },
+    "single_date_0": {
+      "passed": true
+    },
+    "single_date_1": {
+      "passed": true
+    },
+    "ties_0": {
+      "passed": true
+    },
+    "ties_1": {
+      "passed": true
+    },
+    "ties_2": {
+      "passed": true
+    },
+    "ties_3": {
+      "passed": true
+    },
+    "ties_4": {
+      "passed": true
+    },
+    "ties_5": {
+      "passed": true
+    },
+    "unknown_query": {
+      "passed": true
+    }
+  }
+}
