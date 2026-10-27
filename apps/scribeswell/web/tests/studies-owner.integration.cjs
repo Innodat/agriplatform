@@ -12,6 +12,17 @@ async function checkpoint(name){
  const deadline=Date.now()+30000;
  while(!fs.existsSync(path.join(proof,name+'-observed.json'))){if(Date.now()>deadline)throw Error('Independent SQL observation unavailable');await new Promise(resolve=>setTimeout(resolve,50));}
 }
+// Reload restores the selected study/note. Open its outline explicitly rather
+// than activating a same-named workspace button, which can reveal its editor.
+async function reloadStudyOutline(page,title,label){
+ stage(label+'-reload-start');await page.reload();stage(label+'-reload-complete');
+ const studies=page.getByRole('button',{name:'Studies',exact:true});
+ stage(label+'-study-activation-start');await expect(studies).toBeVisible();
+ if(await studies.getAttribute('aria-pressed')!=='true')await studies.click();
+ await expect(studies).toHaveAttribute('aria-pressed','true');stage(label+'-studies-tool-active');
+ await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();stage(label+'-restored-study-confirmed');
+ await expect(page.getByRole('list',{name:'Notes',exact:true})).toBeAttached();stage(label+'-outline-reopened');
+}
 function inspection(){return credentialInspection([fixture.service_key_sentinel,fixture.provider_service_sentinel]);}
 async function request(page,route,method='GET',body){
  const response=await page.evaluate(async({route,method,body})=>{
@@ -20,7 +31,7 @@ async function request(page,route,method='GET',body){
   return {status:response.status,body:await response.json(),cache:response.headers.get('cache-control')};
  },{route,method,body});
  const known=['authentication_required','studies_access_denied','studies_access_unavailable','resource_unavailable','note_revision_conflict','operation_payload_mismatch','operation_unresolved','studies_storage_unavailable','request_deadline_exceeded','scribeswell_personal_notes_input_invalid'];
- fs.appendFileSync(path.join(proof,'http-observations.jsonl'),JSON.stringify({path:new URL(route,'http://localhost:5188').pathname,method,status:response.status,code:known.includes(response.body.code)?response.body.code:null})+'\n',{mode:0o600});
+ fs.appendFileSync(path.join(proof,'http-observations.jsonl'),JSON.stringify({path:new URL(route,'http://localhost:5192').pathname,method,status:response.status,code:known.includes(response.body.code)?response.body.code:null})+'\n',{mode:0o600});
  return response;
 }
 async function login(page,account){
@@ -69,15 +80,14 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(page,'/api/studies','POST',create)).status).toBe(200);
   const retried=await request(page,'/api/studies','POST',create);expect(retried.status).toBe(200);
   expect(retried.body.operation_id).toBe(create.operation_id);const retryStudy=retried.body.study_id;expect(retryStudy===study).toBe(false);
-  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();
-  await page.getByRole('button',{name:'UI study',exact:true}).click();
+  await reloadStudyOutline(page,'UI study','before-note');
   await page.getByRole('button',{name:'Add note',exact:true}).click();
   stage('editor-autosave');const editor=page.getByLabel('Note text',{exact:true});await editor.fill(text);
   await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
   const notes=await request(page,`/api/studies/${study}/notes`);expect(notes.status).toBe(200);expect(notes.body.items.length===1).toBe(true);
   let note=notes.body.items[0];expect(JSON.stringify(note.value).includes(text)).toBe(true);
-  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'UI study',exact:true}).click();
-  await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
+  await reloadStudyOutline(page,'UI study','saved-note');
+  stage('saved-note-explicit-reopen-start');await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button',{name:text,exact:true}).click();stage('saved-note-explicit-reopen-complete');expect(await editor.textContent()===text).toBe(true);stage('saved-note-content-confirmed');
   stage('rename-preserves-note');await checkpoint('rename-before');
   await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Rename',exact:true}).click();
   await page.getByLabel('Title',{exact:true}).fill('Renamed English שָׁלוֹם');
@@ -86,8 +96,8 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await expect(page.getByRole('heading',{name:'Renamed English שָׁלוֹם',exact:true})).toBeVisible();
   const afterRename=await request(page,`/api/studies/${study}/notes/${note.id}`);expect(JSON.stringify(afterRename.body)===JSON.stringify(note)).toBe(true);
   fs.writeFileSync(path.join(proof,'rename-result.json'),JSON.stringify({study,title:'Renamed English שָׁלוֹם',operation:renameAck.operation_id}),{flag:'wx',mode:0o600});await checkpoint('rename-after');
-  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();
-  await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
+  await reloadStudyOutline(page,'Renamed English שָׁלוֹם','renamed-note');
+  stage('renamed-note-explicit-reopen-start');await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button',{name:text,exact:true}).click();stage('renamed-note-explicit-reopen-complete');expect(await editor.textContent()===text).toBe(true);stage('renamed-note-content-confirmed');
   stage('collect-reopen-remove-passages');await checkpoint('passages-before');
   await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
   const passageOperations=[];
@@ -101,7 +111,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await expect(page.getByRole('list',{name:'Passages',exact:true}).locator('li')).toHaveCount(1);
   const collected=await request(page,`/api/studies/${study}/passages`);expect(collected.status).toBe(200);expect(collected.body.revision).toBe('4');const passageItem=collected.body.items[0];
   fs.writeFileSync(path.join(proof,'passages-result.json'),JSON.stringify({study,operations:passageOperations,item:passageItem}),{flag:'wx',mode:0o600});await checkpoint('passages-after');
-  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Matthew 26:63–64');
+  await reloadStudyOutline(page,'Renamed English שָׁלוֹם','collected-passages');await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Matthew 26:63–64');
   await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText('Matthew 26:63–64 — Text unavailable',{exact:true})).toBeVisible();
   expect((await request(page,`/api/studies/${study}/notes/${note.id}`)).body).toEqual(note);
   stage('note-passage-link');await checkpoint('note-links-before');
@@ -111,8 +121,11 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   const linkReply=page.waitForResponse(reply=>new URL(reply.url()).pathname===`/api/studies/${study}/notes/${note.id}`&&reply.request().method()==='PUT');await page.getByLabel('Passage reference',{exact:true}).press('Enter');const linkAck=await(await linkReply).json();
   await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
   note=(await request(page,`/api/studies/${study}/notes/${note.id}`)).body;expect(note.value.document.version).toBe(2);expect(note.revision).toBe('3');
-  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').click();await expect(editor.locator('[data-note-passage]')).toHaveText('Genesis 1:31–2:3');
-  await page.getByRole('button',{name:'Read note',exact:true}).click();await editor.locator('[data-note-passage]').click();expect(new URL(page.url()).searchParams.get('book')).toBe('Gen');await page.getByRole('button',{name:'Edit note',exact:true}).click();
+  await reloadStudyOutline(page,'Renamed English שָׁלוֹם','linked-note');stage('linked-note-explicit-reopen-start');await page.getByRole('list',{name:'Notes',exact:true}).locator('li > button:first-child').click();stage('linked-note-explicit-reopen-complete');await expect(editor.locator('[data-note-passage]')).toHaveText('Genesis 1:31–2:3');stage('linked-note-content-confirmed');
+  stage('linked-note-read-mode-start');await page.getByRole('button',{name:'Read note',exact:true}).click();stage('linked-note-read-mode-complete');
+  stage('linked-note-passage-click-start');await editor.locator('[data-note-passage]').click();stage('linked-note-passage-click-complete');
+  stage('linked-note-url-check-start');const openedPassage=await page.evaluate(async()=>{const {parseReaderURL}=await import('/src/lib/reader-layout.ts');const parsed=parseReaderURL(new URLSearchParams(location.search));return {invalid:parsed.invalid,active:parsed.refs[parsed.active]};});expect(openedPassage.invalid).toBe(false);expect(openedPassage.active.book_id).toBe('Gen');expect(openedPassage.active.target).toEqual({kind:'verse_range',start:{chapter:1,verse:31},end:{chapter:2,verse:3}});stage('linked-note-url-check-complete');
+  stage('linked-note-edit-mode-start');await page.getByRole('button',{name:'Edit note',exact:true}).click();stage('linked-note-edit-mode-complete');
   const legacy={document:{version:1,blocks:[]},connections:[],highlights:[]};const downgrade=await request(page,`/api/studies/${study}/notes/${note.id}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:note.revision,value:legacy});expect(downgrade.status).toBe(409);expect(downgrade.body).toEqual({error:'Request could not be completed',code:'note_format_unsupported',details:null});
   fs.writeFileSync(path.join(proof,'note-links-result.json'),JSON.stringify({study,note:note.id,operation:linkAck.operation_id,value:note.value}),{flag:'wx',mode:0o600});await checkpoint('note-links-after');
   stage('saved-library-search');await checkpoint('search-before');

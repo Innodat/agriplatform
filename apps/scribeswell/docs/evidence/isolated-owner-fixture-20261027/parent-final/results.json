@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/owner-integration-20261027/python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "platform/deployment/tests/test_native_cli.py",
+    "apps/scribeswell/tests/test_studies_owner_integration.py"
+  ],
+  "environment": {
+    "PYTHONPATH": "/home/ck/repos/innodat/agriplatform/platform/deployment",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 21.89,
+  "sources_unchanged": true,
+  "before": {
+    "platform/deployment/native_cli.py": "ec7661f623186f246d6f1a2f0527c62b188ccb7d6f9b6e5cd35ed2bd69890f38",
+    "platform/deployment/tests/test_native_cli.py": "9840e642578cb3224285ba809c1bd098517d5819e3e8747fbb6689f3a576226b",
+    "platform/deployment/environments/scribeswell-local.json": "82dd55d2f43544e75472c9fcc2dba6f557fc014ffa00e8f9b0f34f078b0975fc",
+    "platform/deployment/schema/scribeswell-development-target-v1.json": "1c61585e4f37bcf95603ed17138d6c9b383ece1f225e83f55622af0460ea5af8",
+    "apps/scribeswell/tests/studies_owner_fixture.py": "95488fd95f3b2be14fe21ff6ab8860f15db4311010aace0913020cf652b38c2f",
+    "apps/scribeswell/tests/test_studies_owner_integration.py": "03c1e564bdce2cf01ae247c7f8295204f7f413b77a3903d445a27004311fcabf",
+    "apps/scribeswell/web/playwright.owner-integration.config.cjs": "f5475bc1ad5e5acfb76d86d72739efdd99f1939513ca7ba716b3e71bb661acc9",
+    "apps/scribeswell/web/tests/studies-owner.integration.cjs": "d96372f3b2489c39a9ce0889adcee053b480149603ff923d4926cfc7d95f5aad",
+    "apps/scribeswell/web/tests/studies-owner-reporter.cjs": "75cb80c9811785c43d2ec85eb5333badcc1a612fe2ee78719ccc0c76f62d4570",
+    "apps/scribeswell/web/tests/studies-owner-reporter.oracle.cjs": "957a1ab5a878f20f0e45609f6c19d3b897c742172e711d2b630b6dc7b3553d86"
+  },
+  "after": {
+    "platform/deployment/native_cli.py": "ec7661f623186f246d6f1a2f0527c62b188ccb7d6f9b6e5cd35ed2bd69890f38",
+    "platform/deployment/tests/test_native_cli.py": "9840e642578cb3224285ba809c1bd098517d5819e3e8747fbb6689f3a576226b",
+    "platform/deployment/environments/scribeswell-local.json": "82dd55d2f43544e75472c9fcc2dba6f557fc014ffa00e8f9b0f34f078b0975fc",
+    "platform/deployment/schema/scribeswell-development-target-v1.json": "1c61585e4f37bcf95603ed17138d6c9b383ece1f225e83f55622af0460ea5af8",
+    "apps/scribeswell/tests/studies_owner_fixture.py": "95488fd95f3b2be14fe21ff6ab8860f15db4311010aace0913020cf652b38c2f",
+    "apps/scribeswell/tests/test_studies_owner_integration.py": "03c1e564bdce2cf01ae247c7f8295204f7f413b77a3903d445a27004311fcabf",
+    "apps/scribeswell/web/playwright.owner-integration.config.cjs": "f5475bc1ad5e5acfb76d86d72739efdd99f1939513ca7ba716b3e71bb661acc9",
+    "apps/scribeswell/web/tests/studies-owner.integration.cjs": "d96372f3b2489c39a9ce0889adcee053b480149603ff923d4926cfc7d95f5aad",
+    "apps/scribeswell/web/tests/studies-owner-reporter.cjs": "75cb80c9811785c43d2ec85eb5333badcc1a612fe2ee78719ccc0c76f62d4570",
+    "apps/scribeswell/web/tests/studies-owner-reporter.oracle.cjs": "957a1ab5a878f20f0e45609f6c19d3b897c742172e711d2b630b6dc7b3553d86"
+  }
+}

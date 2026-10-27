@@ -1,0 +1,37 @@
+[
+  {
+    "package": "psycopg",
+    "metadata": "psycopg-3.3.6.dist-info",
+    "verified_files": 89
+  },
+  {
+    "package": "rfc8785",
+    "metadata": "rfc8785-0.1.4.dist-info",
+    "verified_files": 6
+  },
+  {
+    "package": "psycopg_pool",
+    "metadata": "psycopg_pool-3.3.3.dist-info",
+    "verified_files": 20
+  },
+  {
+    "package": "jose",
+    "metadata": "python_jose-3.5.0.dist-info",
+    "verified_files": 19
+  },
+  {
+    "package": "ecdsa",
+    "metadata": "ecdsa-0.19.2.dist-info",
+    "verified_files": 34
+  },
+  {
+    "package": "rsa",
+    "metadata": "rsa-4.9.1.dist-info",
+    "verified_files": 19
+  },
+  {
+    "package": "pyasn1",
+    "metadata": "pyasn1-0.6.4.dist-info",
+    "verified_files": 39
+  }
+]

@@ -1,0 +1,218 @@
+--- a/platform/deployment/native_cli.py
++++ b/platform/deployment/native_cli.py
+@@ -1,6 +1,6 @@
+ """Thin, explicitly selected Supabase CLI lifecycle for disposable local targets.
+ 
+-No historical qualifier receipts, service interception, migrations or cleanup.
++No historical qualifier receipts, service interception, migrations or broad cleanup.
+ """
+ import fcntl
+ import http.client
+@@ -154,7 +154,7 @@
+         fail('docker_28_required', 'docker')
+ 
+ 
+-def network(target, run_id, create, path, allow_absent=False):
++def network(target, run_id, create, path, allow_absent=False, require_empty=False):
+     project = dev.project_identity(target, run_id)
+     name = project + '-network'
+     labels = {LABEL_PREFIX + 'owner': 'platform/deployment', LABEL_PREFIX + 'target': target['target_id'],
+@@ -163,7 +163,7 @@
+     raw = docker(inspect, path, missing=True)
+     if raw is None and create:
+         arguments = ['network', 'create', '--driver', 'bridge', '--opt', BINDING + '=127.0.0.1']
+-        if namespace(target) == 'leave':
++        if namespace(target) in ('leave', 'scribeswell'):
+             arguments += ['--subnet', target['docker_subnet']]
+         for key, value in labels.items():
+             arguments += ['--label', key + '=' + value]
+@@ -176,17 +176,27 @@
+     value = dev.decode(raw)
+     if (type(value) is not dict or value.get('Name') != name or value.get('Driver') != 'bridge'
+             or type(value.get('Options')) is not dict or value['Options'].get(BINDING) != '127.0.0.1'
+-            or (namespace(target) == 'leave' and (type(value.get('IPAM')) is not dict
++            or (namespace(target) in ('leave', 'scribeswell') and (type(value.get('IPAM')) is not dict
+                 or type(value['IPAM'].get('Config')) is not list or len(value['IPAM']['Config']) != 1
+                 or type(value['IPAM']['Config'][0]) is not dict
+                 or value['IPAM']['Config'][0].get('Subnet') != target['docker_subnet']))
+             or type(value.get('Labels')) is not dict
+             or any(value['Labels'].get(key) != item for key, item in labels.items())):
+         fail('network_not_run_owned')
++    if require_empty and value.get('Containers') != {}:
++        fail('network_not_empty')
+     identity = value.get('Id')
+     if type(identity) is not str or re.fullmatch('[0-9a-f]{64}', identity) is None:
+         fail('network_id_invalid')
+     return identity
++
++
++def remove_stopped_network(target, run_id, path, expected_id):
++    # Reinspect ownership after the vendor stop; never remove a name by inference.
++    identity = network(target, run_id, False, path, require_empty=True)
++    if identity != expected_id:
++        fail('network_not_run_owned')
++    docker(['network', 'rm', identity], path)
+ 
+ 
+ def reachability(target):
+@@ -206,14 +216,16 @@
+ 
+ 
+ def namespace(target):
+-    return 'leave' if target.get('target_id') == 'leave-local' else 'kdg'
++    return {'leave-local': 'leave', 'scribeswell-local': 'scribeswell'}.get(target.get('target_id'), 'kdg')
+ 
+ 
+ def validate_target(target):
+     if type(target) is not dict:
+         fail('schema_mismatch', 'input')
+-    schema = ('platform/deployment/schema/leave-development-target-v1.json'
+-              if target.get('target_id') == 'leave-local' else dev.SCHEMA)
++    schema = {
++        'leave-local': 'platform/deployment/schema/leave-development-target-v1.json',
++        'scribeswell-local': 'platform/deployment/schema/scribeswell-development-target-v1.json',
++    }.get(target.get('target_id'), dev.SCHEMA)
+     dev.validate(target, dev.decode(dev.read(dev.ROOT / schema)))
+ 
+ 
+@@ -286,6 +298,8 @@
+                                 'reset': ['db', 'reset', '--local', '--no-seed', '--yes']}
+                     vendor(str(executable), ['--workdir', str(path), '--network-id', network_id,
+                                             *commands[args.command]], path, args.command)
++                    if args.command == 'stop' and target['target_id'] == 'scribeswell-local':
++                        remove_stopped_network(target, args.run_id, path, network_id)
+                     if args.command == 'verify':
+                         reachability(target)
+             finally:
+--- a/platform/deployment/tests/test_native_cli.py
++++ b/platform/deployment/tests/test_native_cli.py
+@@ -414,5 +414,129 @@
+                 self.assertEqual(failure.exception.code, 'network_not_run_owned')
+ 
+ 
++
++class ScribeswellNativeAcceptance(NativeAcceptance):
++    test_shared_local_readable_parent_allowed_writable_parent_refused = None
++
++    def setUp(self):
++        super().setUp()
++        schema = 'schema/scribeswell-development-target-v1.json'
++        source = ROOT / 'platform/deployment' / schema
++        if source.exists():
++            shutil.copyfile(source, self.root / 'platform/deployment' / schema)
++        self.target = json.loads((ROOT / 'platform/deployment/environments/scribeswell-local.json').read_text())
++        self.target['workspace_root'] = str(self.root)
++        self.target_path.write_text(json.dumps(self.target))
++        self.run = self.root / 'platform/deployment/.local/scribeswell' / self.run_id
++
++    def test_sequential_fresh_networks_are_removed_only_after_stop(self):
++        networks = {}
++        removed = []
++        stages = []
++        def docker(arguments, path, missing=False):
++            action = arguments[1]
++            if action == 'create':
++                self.assertFalse(networks, 'Prior subnet must have been released')
++                labels = {}
++                for index, argument in enumerate(arguments):
++                    if argument == '--label':
++                        key, value = arguments[index + 1].split('=', 1)
++                        labels[key] = value
++                networks[arguments[-1]] = dict(Name=arguments[-1], Driver='bridge',
++                    Id=('%064x' % (len(removed) + 1)), Labels=labels,
++                    Options={native_cli.BINDING: '127.0.0.1'},
++                    IPAM={'Config': [{'Subnet': self.target['docker_subnet']}]}, Containers={})
++                return b'created'
++            if action == 'inspect':
++                value = networks.get(arguments[-1])
++                return json.dumps(value).encode() if value else None
++            self.assertEqual(action, 'rm')
++            self.assertEqual(stages[-1], 'stop')
++            name, value = next(iter(networks.items()))
++            self.assertEqual(arguments[-1], value['Id'])
++            removed.append(value['Id'])
++            del networks[name]
++            return b'removed'
++        with patch.object(dev, 'ROOT', self.root), patch.object(native_cli, 'docker', side_effect=docker), \
++                patch.object(native_cli, 'docker_prerequisite'), \
++                patch.object(native_cli, 'vendor', side_effect=lambda executable, args, path, stage: stages.append(stage)):
++            for _ in range(2):
++                self.run_id = str(uuid.uuid4())
++                self.run = self.root / 'platform/deployment/.local/scribeswell' / self.run_id
++                native_cli.prepare(self.run, self.target, self.target_path.read_bytes(), self.run_id)
++                native_cli.network(self.target, self.run_id, True, self.run)
++                with contextlib.redirect_stdout(io.StringIO()):
++                    status = native_cli.main(['stop', '--target', str(self.target_path),
++                        '--run-id', self.run_id, '--supabase', str(self.vendor)])
++                self.assertEqual(status, 0)
++                self.assertFalse(networks)
++        self.assertEqual(len(set(removed)), 2)
++
++    def test_scribeswell_ancestor_permissions(self):
++        local = self.root / 'platform/deployment/.local'
++        local.mkdir(mode=0o755)
++        local.chmod(0o755)
++        self.assertEqual(self.invoke().returncode, 0)
++        self.assertEqual((local / 'scribeswell').stat().st_mode & 0o777, 0o700)
++        self.assertEqual(self.run.stat().st_mode & 0o777, 0o700)
++        for mode in (0o775, 0o777):
++            local.chmod(mode)
++            self.run_id = str(uuid.uuid4())
++            self.assertNotEqual(self.invoke().returncode, 0)
++            self.assertFalse((local / 'scribeswell' / self.run_id).exists())
++        local.chmod(0o755)
++        (local / 'scribeswell').chmod(0o755)
++        self.run_id = str(uuid.uuid4())
++        self.assertNotEqual(self.invoke().returncode, 0)
++        self.assertFalse((local / 'scribeswell' / self.run_id).exists())
++
++    def test_scribeswell_namespace_fixed_ports_and_configuration(self):
++        result = self.invoke()
++        self.assertEqual(result.returncode, 0, result.stdout)
++        self.assertTrue((self.run / 'native.json').is_file())
++        self.assertFalse((self.run.parent.parent / 'kdg').exists())
++        self.assertFalse((self.run.parent.parent / 'leave').exists())
++        config = tomllib.loads((self.run / 'supabase/config.toml').read_text())
++        self.assertEqual(config['db']['port'], 55492)
++        self.assertEqual(config['api']['port'], 55491)
++        self.assertFalse(config['auth']['enable_signup'])
++        self.assertFalse(config['auth']['email']['enable_signup'])
++        self.assertEqual(len(dev.project_identity(self.target, self.run_id)), 39)
++        self.target['ports']['database'] = 55482
++        self.target_path.write_text(json.dumps(self.target))
++        self.assertNotEqual(self.invoke().returncode, 0)
++
++
++class ScribeswellNetworkAcceptance(unittest.TestCase):
++    def test_exact_run_subnet_and_foreign_network_refused(self):
++        target = json.loads((ROOT / 'platform/deployment/environments/scribeswell-local.json').read_text())
++        run_id = str(uuid.uuid4())
++        project = dev.project_identity(target, run_id)
++        valid = dict(Name=project + '-network', Driver='bridge', Id='a'*64,
++            Options={native_cli.BINDING: '127.0.0.1'},
++            IPAM={'Config': [{'Subnet': target['docker_subnet']}]},
++            Labels={native_cli.LABEL_PREFIX + key: value for key, value in
++                dict(owner='platform/deployment', target=target['target_id'], run=run_id, project=project).items()})
++        with patch.object(native_cli, 'docker', side_effect=[None, b'created', json.dumps(valid).encode()]) as docker:
++            native_cli.network(target, run_id, True, ROOT)
++        create = docker.call_args_list[1].args[0]
++        self.assertEqual(create[create.index('--subnet') + 1], '10.254.27.0/24')
++        valid['Containers'] = {}
++        with patch.object(native_cli, 'docker', return_value=json.dumps(valid).encode()) as docker:
++            native_cli.remove_stopped_network(target, run_id, ROOT, valid['Id'])
++            self.assertEqual(docker.call_args.args[0], ['network', 'rm', valid['Id']])
++        for wrong in (dict(valid, Containers={'foreign': {}}),
++                      dict(valid, Containers=None),
++                      dict(valid, Id='b'*64),
++                      dict(valid, Options={native_cli.BINDING: '0.0.0.0'}),
++                      dict(valid, IPAM={'Config': [{'Subnet': '10.254.26.0/24'}]}),
++                      dict(valid, Labels={**valid['Labels'], native_cli.LABEL_PREFIX + 'target': 'kdg-local'})):
++            with patch.object(native_cli, 'docker', return_value=json.dumps(wrong).encode()):
++                with self.assertRaises(dev.Refusal) as failure:
++                    native_cli.remove_stopped_network(target, run_id, ROOT, valid['Id'])
++                self.assertIn(failure.exception.code, ('network_not_run_owned', 'network_not_empty'))
++                self.assertFalse(any(call.args[0][:2] == ['network', 'rm'] for call in native_cli.docker.call_args_list))
++
++
+ if __name__ == '__main__':
+     unittest.main()

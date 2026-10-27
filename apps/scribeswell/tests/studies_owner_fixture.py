@@ -20,8 +20,15 @@ from uuid import UUID,uuid4
 ROOT=Path(__file__).resolve().parents[3]
 APP=ROOT/'apps/scribeswell'
 ACCESS=ROOT/'services/access'
-TARGET=ROOT/'platform/deployment/environments/kdg-local.json'
-PORTS=(5188,8188,8189,55480,55481,55482,55483,15484,8443)
+TARGET=ROOT/'platform/deployment/environments/scribeswell-local.json'
+sys.path.insert(0,str(ROOT/'platform/deployment'))
+import dev,native_cli
+TARGET_CONFIG=dev.decode(dev.read(TARGET))
+native_cli.validate_target(TARGET_CONFIG)
+PORTS=tuple(TARGET_CONFIG['ports'].values())
+WEB_URL=TARGET_CONFIG['origins'][0]
+API_URL='http://127.0.0.1:'+str(TARGET_CONFIG['ports']['api'])
+OWNER_URL='http://127.0.0.1:'+str(TARGET_CONFIG['ports']['access_http'])
 RESERVATIONS=ROOT/'platform/deployment/.local/scribeswell-owner-reservations'
 
 def private(path,value):
@@ -134,7 +141,7 @@ class Qualification:
     def __init__(self,run_id,cli,proof):
         if str(UUID(run_id))!=run_id or UUID(run_id).int==0:raise ValueError('canonical_new_run_required')
         self.run_id=run_id;self.cli=Path(cli).resolve();self.proof=Path(proof).absolute()
-        self.run=ROOT/'platform/deployment/.local/kdg'/run_id
+        self.run=native_cli.run_path(TARGET_CONFIG,run_id)
         if self.run.exists():raise FileExistsError('existing_run_refused')
         self.proof.mkdir(mode=0o700,parents=True,exist_ok=False)
         self.events=[];self.processes=[];self.owned=False
@@ -181,9 +188,18 @@ class Qualification:
             finally:self.stop_process(process)
             if code:raise RuntimeError('qualification_status_capture_failed')
         self.status={k.lower():v for k,v in json.loads((self.proof/'status-private.json').read_text()).items()}
+        self.select_database(self.status)
+
+    def select_database(self,status):
         from sqlalchemy.engine import make_url
-        self.admin=make_url(self.status['db_url']).set(username='supabase_admin')
-        if self.admin.host not in ('127.0.0.1','localhost') or self.admin.port!=55482 or self.admin.database!='postgres':raise ValueError('unexpected_native_database')
+        self.admin=make_url(status['db_url']).set(username='supabase_admin')
+        if self.admin.host not in ('127.0.0.1','localhost') or self.admin.port!=TARGET_CONFIG['ports']['database'] or self.admin.database!='postgres':raise ValueError('unexpected_native_database')
+        from urllib.parse import urlsplit
+        auth=urlsplit(status.get('api_url',''))
+        if (auth.scheme!='http' or auth.hostname not in ('127.0.0.1','localhost')
+                or auth.port!=TARGET_CONFIG['ports']['supabase_api'] or auth.username is not None
+                or auth.password is not None or auth.path not in ('','/') or auth.query or auth.fragment):
+            raise ValueError('unexpected_native_auth')
         self.urls={}
 
     def connect(self,role=None):
@@ -216,8 +232,12 @@ class Qualification:
             c.execute('CREATE SCHEMA identity AUTHORIZATION identity_migrator;CREATE SCHEMA access AUTHORIZATION access_migrator')
             c.execute('SET ROLE access_migrator;GRANT USAGE ON SCHEMA access TO access_runtime;RESET ROLE')
             c.execute('GRANT USAGE ON SCHEMA auth TO identity_migrator WITH GRANT OPTION;GRANT USAGE ON SCHEMA extensions TO identity_migrator;GRANT SELECT(id),REFERENCES(id),TRIGGER ON auth.users TO identity_migrator;GRANT CREATE,USAGE ON SCHEMA public TO identity_migrator')
-            for helper in ('prepare_identity_projection_role.sql','prepare_identity_operator_roles.sql','prepare_identity_command_role.sql','prepare_identity_target_roles.sql','prepare_identity_account_verification_role.sql','prepare_identity_account_verification_auth.sql','prepare_access_operator_roles.sql','prepare_access_check_reader.sql','prepare_studies_runtime_roles.sql','prepare_studies_auth_evidence.sql'):
+            for helper in ('prepare_identity_projection_role.sql','prepare_identity_operator_roles.sql','prepare_identity_command_role.sql','prepare_identity_target_roles.sql','prepare_identity_account_verification_role.sql','prepare_identity_account_verification_auth.sql','prepare_identity_preferences_role.sql','prepare_access_operator_roles.sql','prepare_access_check_reader.sql','prepare_studies_runtime_roles.sql','prepare_studies_auth_evidence.sql'):
                 c.execute((ACCESS/'tools'/helper).read_text())
+            # CURRENT-ACCESS bootstrap: Identity25 requires this private reader
+            # and its sole SET-only migrator edge before Access18.
+            c.execute('CREATE ROLE access_capability_reader NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS')
+            c.execute('GRANT access_capability_reader TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
             # Access reader preparation predates Studies and requires its exact
             # two existing owner edges. Stage the later Access edge afterwards.
             c.execute('REVOKE access_studies_owner FROM access_migrator')
@@ -233,7 +253,10 @@ class Qualification:
         for owner,config in (('identity','identity-alembic.ini'),):
             self.migrate(owner,ACCESS/config)
         with self.connect() as c:
+            # The historical helper accepts only its two original outgoing edges.
+            c.execute('REVOKE access_capability_reader FROM access_migrator')
             c.execute((ACCESS/'tools/prepare_access_check_reader_execution.sql').read_text())
+            c.execute('GRANT access_capability_reader TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
             c.execute('GRANT access_studies_owner TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
         self.migrate('access',ACCESS/'alembic.ini')
         self.migrate('scribeswell_studies',APP/'studies-alembic.ini')
@@ -286,7 +309,7 @@ class Qualification:
                 response=client.post(api+'/auth/v1/admin/users',headers=headers,json={'email':email,'email_confirm':True})
                 if response.status_code!=200:raise RuntimeError('provider_account_creation_failed')
                 account=response.json()['id']
-                response=client.post(api+'/auth/v1/admin/generate_link',headers=headers,params={'redirect_to':'http://localhost:5188/'},json={'type':'magiclink','email':email})
+                response=client.post(api+'/auth/v1/admin/generate_link',headers=headers,params={'redirect_to':WEB_URL+'/'},json={'type':'magiclink','email':email})
                 if response.status_code!=200:raise RuntimeError('provider_magic_link_failed')
                 body=response.json();properties=body.get('properties',body)
                 self.accounts.append({'account_id':account,'link':properties['action_link']})
@@ -368,16 +391,16 @@ class Qualification:
         self.processes.append(process);return process
 
     def start_apps(self):
-        owner_code="import os;from main import create_app;os.environ['SCRIBESWELL_SERVICE_KEY']=os.environ['FIXTURE_SERVICE_KEY'];from studies_identity import AsyncDatabase;app=create_app(object(),studies_db=AsyncDatabase(os.environ['FIXTURE_ACCESS_URL']),studies_identity_db=AsyncDatabase(os.environ['FIXTURE_IDENTITY_URL']),studies_setup_db=AsyncDatabase(os.environ['FIXTURE_SETUP_URL']));import uvicorn;uvicorn.run(app,host='127.0.0.1',port=8189,access_log=False,log_level='error')"
-        env={**self.environment,'FIXTURE_SERVICE_KEY':self.service_key,'SUPABASE_URL':self.status['api_url'],'SUPABASE_ANON_KEY':self.status['anon_key'],'FIXTURE_ACCESS_URL':self.urls['access_studies_runtime'].render_as_string(hide_password=False),'FIXTURE_IDENTITY_URL':self.urls['identity_studies_reader_runtime'].render_as_string(hide_password=False),'FIXTURE_SETUP_URL':self.urls['identity_studies_setup_runtime'].render_as_string(hide_password=False)}
+        owner_code="import os;from main import create_app;os.environ['SCRIBESWELL_SERVICE_KEY']=os.environ['FIXTURE_SERVICE_KEY'];from studies_identity import AsyncDatabase;app=create_app(object(),studies_db=AsyncDatabase(os.environ['FIXTURE_ACCESS_URL']),studies_identity_db=AsyncDatabase(os.environ['FIXTURE_IDENTITY_URL']),studies_setup_db=AsyncDatabase(os.environ['FIXTURE_SETUP_URL']));import uvicorn;uvicorn.run(app,host='127.0.0.1',port=int(os.environ['FIXTURE_ACCESS_PORT']),access_log=False,log_level='error')"
+        env={**self.environment,'FIXTURE_ACCESS_PORT':str(TARGET_CONFIG['ports']['access_http']),'FIXTURE_SERVICE_KEY':self.service_key,'SUPABASE_URL':self.status['api_url'],'SUPABASE_ANON_KEY':self.status['anon_key'],'FIXTURE_ACCESS_URL':self.urls['access_studies_runtime'].render_as_string(hide_password=False),'FIXTURE_IDENTITY_URL':self.urls['identity_studies_reader_runtime'].render_as_string(hide_password=False),'FIXTURE_SETUP_URL':self.urls['identity_studies_setup_runtime'].render_as_string(hide_password=False)}
         owner=self.spawn('access-http',[sys.executable,'-c',owner_code],env,ACCESS)
-        wait_http('http://127.0.0.1:8189/health',owner)
-        env={**self.environment,'SCRIBESWELL_DATABASE_URL':self.urls['scribeswell_runtime'].render_as_string(hide_password=False),'SCRIBESWELL_STUDIES_ENABLED':'true','SCRIBESWELL_STUDIES_DATABASE_URL':self.urls['scribeswell_studies_runtime'].render_as_string(hide_password=False),'SCRIBESWELL_STUDIES_ACCESS_URL':'http://127.0.0.1:8189','SCRIBESWELL_STUDIES_SERVICE_KEY':self.service_key,'SUPABASE_URL':self.status['api_url'],'SUPABASE_SECRET_KEY':'','SUPABASE_SERVICE_ROLE_KEY':''}
-        app=self.spawn('scribeswell-http',[sys.executable,'-m','uvicorn','main:app','--host','127.0.0.1','--port','8188','--no-access-log','--log-level','error'],env,APP/'backend')
-        wait_http('http://127.0.0.1:8188/health',app)
-        env={**self.environment,'VITE_STUDIES_ENABLED':'true','VITE_APP_BASE':'/','VITE_PLATFORM_ORIGIN':'','VITE_SUPABASE_URL':self.status['api_url'],'VITE_SUPABASE_ANON_KEY':self.status['anon_key'],'VITE_API_BASE_URL':'http://127.0.0.1:8188','VITE_APP_DIRECTORY_URL':'http://127.0.0.1:8189'}
-        web=self.spawn('vite',['npm','run','dev','--','--host','localhost','--port','5188','--strictPort'],env,APP/'web')
-        wait_http('http://localhost:5188',web)
+        wait_http(OWNER_URL+'/health',owner)
+        env={**self.environment,'SCRIBESWELL_DATABASE_URL':self.urls['scribeswell_runtime'].render_as_string(hide_password=False),'SCRIBESWELL_STUDIES_ENABLED':'true','SCRIBESWELL_STUDIES_DATABASE_URL':self.urls['scribeswell_studies_runtime'].render_as_string(hide_password=False),'SCRIBESWELL_STUDIES_ACCESS_URL':OWNER_URL,'SCRIBESWELL_STUDIES_SERVICE_KEY':self.service_key,'SUPABASE_URL':self.status['api_url'],'SUPABASE_SECRET_KEY':'','SUPABASE_SERVICE_ROLE_KEY':''}
+        app=self.spawn('scribeswell-http',[sys.executable,'-m','uvicorn','main:app','--host','127.0.0.1','--port',str(TARGET_CONFIG['ports']['api']),'--no-access-log','--log-level','error'],env,APP/'backend')
+        wait_http(API_URL+'/health',app)
+        env={**self.environment,'VITE_STUDIES_ENABLED':'true','VITE_APP_BASE':'/','VITE_PLATFORM_ORIGIN':'','VITE_SUPABASE_URL':self.status['api_url'],'VITE_SUPABASE_ANON_KEY':self.status['anon_key'],'VITE_API_BASE_URL':API_URL,'VITE_APP_DIRECTORY_URL':OWNER_URL}
+        web=self.spawn('vite',['npm','run','dev','--','--host','localhost','--port',str(TARGET_CONFIG['ports']['web']),'--strictPort'],env,APP/'web')
+        wait_http(WEB_URL,web)
 
     def browser(self):
         def checkpoints(process):

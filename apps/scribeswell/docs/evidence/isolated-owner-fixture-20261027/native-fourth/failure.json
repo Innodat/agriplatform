@@ -1,0 +1,27 @@
+{
+  "type": "RuntimeError",
+  "code": "qualification_stage_failed:migrate-identity",
+  "sqlstate": null,
+  "frames": [
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 514,
+      "function": "execute"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 254,
+      "function": "prepare_owners"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 271,
+      "function": "migrate"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 173,
+      "function": "command"
+    }
+  ]
+}

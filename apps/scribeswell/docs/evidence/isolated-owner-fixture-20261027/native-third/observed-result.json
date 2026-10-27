@@ -1,0 +1,10 @@
+{
+  "run_id": "13e40711-a77d-43ec-b1cd-7882b74de1c9",
+  "exit_code": 1,
+  "elapsed_seconds": 45.15,
+  "stage": "migrate-identity",
+  "observed_error": "capability_reader_role_unsafe",
+  "source": "parent tool output observed before session continuation",
+  "raw_tmp_evidence_available": false,
+  "limitation": "Session continuation lost /tmp; do not treat this summary as retained raw logs or a browser pass."
+}

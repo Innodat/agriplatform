@@ -1,0 +1,26 @@
+{
+  "run_id": "d32a2c3b-715a-4783-b356-8a46356499a7",
+  "ports": {
+    "5192": "available",
+    "8192": "available",
+    "8193": "available",
+    "55490": "available",
+    "55491": "available",
+    "55492": "available",
+    "55493": "available",
+    "15494": "available",
+    "8447": "available",
+    "55481": "occupied",
+    "55482": "occupied",
+    "55581": "available",
+    "55582": "available"
+  },
+  "exact_network_removed": true,
+  "foreign_observation_window": "during sixth isolated run to final cleanup",
+  "foreign_container_count": 21,
+  "foreign_containers_still_running": 15,
+  "foreign_target_files_unchanged": {
+    "platform/deployment/environments/kdg-local.json": true,
+    "platform/deployment/environments/leave-local.json": true
+  }
+}

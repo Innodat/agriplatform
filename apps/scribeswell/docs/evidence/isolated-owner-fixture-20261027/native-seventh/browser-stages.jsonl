@@ -1,0 +1,12 @@
+{"stage":"first-provider-callback"}
+{"stage":"provider-callback-confirmed"}
+{"stage":"public-reader"}
+{"stage":"before-enrollment-denial"}
+{"stage":"ui-enrollment-create"}
+{"stage":"enrollment-completed-reply-retry"}
+{"stage":"create-completed-reply-retry"}
+{"stage":"before-note-reload-start"}
+{"stage":"before-note-reload-complete"}
+{"stage":"before-note-study-activation-start"}
+{"stage":"before-note-studies-tool-active"}
+{"stage":"before-note-restored-study-confirmed"}

@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+________ ERROR collecting platform/deployment/tests/test_native_cli.py _________
+ImportError while importing test module '/home/ck/repos/innodat/agriplatform/platform/deployment/tests/test_native_cli.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+platform/deployment/tests/test_native_cli.py:18: in <module>
+    import dev
+E   ModuleNotFoundError: No module named 'dev'
+=========================== short test summary info ============================
+ERROR platform/deployment/tests/test_native_cli.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.60s

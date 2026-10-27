@@ -1,0 +1,140 @@
+{
+  "command": [
+    "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/owner-integration-20261027/python/bin/python",
+    "apps/scribeswell/tools/py/qualify_studies_owner_integration.py",
+    "--run-id",
+    "58b5a59b-e392-4c65-ae07-ef7512531d71",
+    "--supabase",
+    "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+    "--proof",
+    "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/owner-integration-20261027/proof-58b5a59b-e392-4c65-ae07-ef7512531d71"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 100.67,
+  "proof": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/owner-integration-20261027/proof-58b5a59b-e392-4c65-ae07-ef7512531d71",
+  "run_id": "58b5a59b-e392-4c65-ae07-ef7512531d71",
+  "events": [
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-prepare",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-up",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-verify",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "migrate-identity",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "migrate-access",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "migrate-scribeswell_studies",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "operator-00e278a4-c3a2-4898-9064-852b8b96eddf",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "operator-c00d24e9-2a70-48b3-8ad9-932e5c99dc20",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "operator-8810e685-9442-4eb0-aeb6-85dc38764e6c",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "browser",
+      "outcome": "interrupted-or-timed-out"
+    },
+    {
+      "stage": "failed"
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-stop",
+      "exit_code": 0
+    }
+  ]
+}

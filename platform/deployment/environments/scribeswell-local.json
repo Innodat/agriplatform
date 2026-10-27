@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "target_id": "scribeswell-local",
+  "environment_kind": "local_disposable",
+  "owner_ids": [
+    "identity",
+    "access",
+    "scribeswell"
+  ],
+  "workspace_root": "/home/ck/repos/innodat/agriplatform",
+  "project_id_prefix": "agri-scribeswell",
+  "ports": {
+    "web": 5192,
+    "api": 8192,
+    "access_http": 8193,
+    "shadow": 55490,
+    "supabase_api": 55491,
+    "database": 55492,
+    "studio": 55493,
+    "mail": 15494,
+    "device_tls": 8447
+  },
+  "origins": [
+    "http://localhost:5192",
+    "http://localhost:55491"
+  ],
+  "callback_urls": [
+    "http://localhost:55491/auth/v1/callback",
+    "http://localhost:5192/auth/callback"
+  ],
+  "fixture_ref": "apps/scribeswell/tests/studies_owner_fixture.py",
+  "secret_refs": [],
+  "release_registry_ref": "platform/deployment/registry.json",
+  "docker_subnet": "10.254.27.0/24"
+}

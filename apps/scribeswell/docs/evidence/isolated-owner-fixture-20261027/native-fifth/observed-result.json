@@ -1,0 +1,10 @@
+{
+  "run_id": "2a495ad3-10ce-419d-b7ff-cfc28ec91aef",
+  "exit_code": 1,
+  "elapsed_seconds": 52.8,
+  "stage": "start_apps",
+  "observed_error": "ModuleNotFoundError: psycopg_pool",
+  "owner_migrations": "Identity,Access,Studies migrated before failure",
+  "raw_tmp_evidence_available": false,
+  "limitation": "Summary from parent observations before session continuation, not recreated raw logs or browser pass."
+}

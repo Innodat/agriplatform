@@ -1,0 +1,72 @@
+{
+  "command": [
+    "/tmp/scribeswell-implementation-python/bin/python",
+    "apps/scribeswell/tools/py/qualify_studies_owner_integration.py",
+    "--run-id",
+    "1dfa63ed-7477-4250-ac95-33c16d1e671e",
+    "--supabase",
+    "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+    "--proof",
+    "/tmp/scribeswell-isolated-native-1dfa63ed-7477-4250-ac95-33c16d1e671e"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 32.32,
+  "proof": "/tmp/scribeswell-isolated-native-1dfa63ed-7477-4250-ac95-33c16d1e671e",
+  "run_id": "1dfa63ed-7477-4250-ac95-33c16d1e671e",
+  "events": [
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-prepare",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-up",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-verify",
+      "exit_code": 0
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "migrate-identity",
+      "exit_code": 1
+    },
+    {
+      "stage": "failed"
+    },
+    {
+      "stage": "process-stopped",
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "wrapper-stop",
+      "exit_code": 0
+    }
+  ],
+  "private_evidence_retained": true
+}

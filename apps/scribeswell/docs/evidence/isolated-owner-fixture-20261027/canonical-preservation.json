@@ -1,0 +1,22 @@
+{
+  "preserved_prefix_boundary": "all bytes before ## Bounded runtime status, including frontmatter, five-field kernel and open questions",
+  "preserved_prefix_sha256": "a2f5191a5b712dbbdff5ed759fc6992ce54424a06936aff612687de8b52f9b13",
+  "prefix_unchanged": true,
+  "companions": 36,
+  "capability_ids": [
+    "CAP-1",
+    "CAP-2",
+    "CAP-3",
+    "CAP-4",
+    "CAP-5",
+    "CAP-6",
+    "CAP-7",
+    "CAP-8",
+    "CAP-9",
+    "CAP-10",
+    "CAP-11"
+  ],
+  "acceptance_rows_unchanged": true,
+  "acceptance_rows": 38,
+  "wrapper_only_drops": []
+}

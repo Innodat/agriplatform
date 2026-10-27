@@ -154,3 +154,99 @@ Complete rows from all Identity, Access and private Studies tables are compared 
 Child final focused verification passed37 tests9.93s; parent affected app command above passed170 tests11.26s. Owner characterization passed56 tests3.38s; app build passed8.99s with the existing bundle warning. Generated contract/helper/composition checks passed. Default-sandbox focused execution first passed29 and failed one real-socket test with PermissionError; unchanged socket-enabled execution passed30, then final37. A parent sandboxed owner characterization stalled at TestClient and was interrupted; the unchanged socket-enabled rerun passed56. These environment failures remain disclosed. No broader browser regression was rerun after the fixture-only corrections; its original203/3 and unchanged isolated successes remain the stated limit.
 
 Final parent retained-session rerun:12 passed20.7s using the exact session command above.
+
+## Dedicated isolated owner fixture — 2026-10-27
+
+Implementation follows
+[spec-scribeswell-isolated-owner-fixture.md](../../../_bmad-output/implementation-artifacts/spec-scribeswell-isolated-owner-fixture.md).
+Both frontmatter context files were loaded before changes. The selected closed target
+is now `scribeswell-local`, with owners Identity/Access/Scribeswell, independent
+`.local/scribeswell/<new canonical UUID>` state, project prefix `agri-scribeswell`
+and exact-run network labels. Its fixed ports are web5192, API8192, AccessHTTP8193,
+shadow55490, Auth55491, DB55492, Studio55493, mail15494 and TLS8447; its explicit
+subnet is `10.254.27.0/24`. Existing full-UUID encoding makes the project identity
+**39 characters**, rather than the spec's arithmetic description of38; the required
+prefix and existing UUID-preserving encoding are retained within the vendor's40
+character limit.
+
+The fixture derives its run path, ports, server URLs and Auth redirect from the
+validated target. Browser references use the selected web5192 origin. A wrong
+status database (including KDG55482) raises fixed `unexpected_native_database`
+before owner preparation; collision refusal still precedes wrapper preparation.
+Actual HTTP/browser/SQL assertions and exact-run cleanup are unchanged. This is
+fixture isolation, with no signup, sharing, device or release acceptance claim.
+
+Acceptance was observed red before implementation:
+
+```sh
+/tmp/scribeswell-implementation-python/bin/python -m pytest apps/scribeswell/tests/test_studies_owner_integration.py -q -k 'dedicated_target or wrong_database'
+PYTHONPATH=platform/deployment /tmp/scribeswell-implementation-python/bin/python -m pytest platform/deployment/tests/test_native_cli.py -q -k scribeswell_namespace
+```
+
+Results: app **2 failed / 68 deselected** (KDG target still selected; dedicated
+wrong-database guard seam absent); platform **1 failed / 29 deselected** (dedicated
+target absent). An initial platform invocation without `PYTHONPATH` failed collection
+with missing `dev`; the exact corrected command above reached acceptance. The first
+combined green attempt exposed the38/39 character arithmetic mismatch; the assertion
+was corrected to39 after checking the unchanged full-UUID encoding.
+
+Final focused command:
+
+```sh
+PYTHONPATH=platform/deployment /tmp/scribeswell-implementation-python/bin/python -m pytest platform/deployment/tests/test_native_cli.py apps/scribeswell/tests/test_studies_owner_integration.py -q
+node --check apps/scribeswell/web/playwright.owner-integration.config.cjs
+node --check apps/scribeswell/web/tests/studies-owner.integration.cjs
+```
+
+Socket-enabled result: **102 passed in16.09s**; both syntax checks exited0. The first
+sandboxed combined run had99 passed and one real-listener `PermissionError`; no test
+or expected result was weakened. The unchanged real-socket collision test passed in
+the host-enabled rerun. Traceability: dedicated target/namespace/configuration and
+fixed DB port refusal → `ScribeswellNativeAcceptance`; exact subnet and foreign
+owner labels → `ScribeswellNetworkAcceptance`; owner port separation →
+`test_dedicated_target_and_namespace_are_isolated` and
+`test_port_preflight_ignores_running_kdg_and_leave`; wrong DB before owner writes →
+`test_wrong_database_refuses_before_owner_writes`; real collision and exact cleanup →
+retained fixture acceptance tests. Concurrent-owner preflight coverage uses a socket
+double; actual native/provider qualification remains a separate parent execution.
+
+The deployment renderer is byte-identical to the preexisting dirty baseline in
+`/tmp/scribeswell-isolated-before`; KDG's configuration hash assertion and existing
+Leave lifecycle cases pass. Shared native changes extend only target/schema
+selection, namespace and explicit subnet checks. Source inventory covers the new
+target, all deployment Python and schema inputs, and existing consumed owner/app
+sources. No unrelated working-tree hunks were changed or checkpointed here.
+
+Impact decisions: scaffold reuses the existing native lifecycle with one closed
+owner target/schema; no generator/factory work. Shared UI unchanged. Agent context
+unchanged. Documentation updated here. ADRs unchanged; disposable fixture isolation
+does not change product or owner contracts. Parent owns immediate host port/subnet
+preflight, fresh actual integration and scoped checkpoint; those are not established
+by the102 focused tests. No full browser regression was repeated for this fixture
+change.
+
+Fixture assertion correction: run `03b7fb1b-25cd-4d4f-a50c-25ef751e2fbe` reached
+`before-note-restored-study-confirmed` after confirming the Studies tool active.
+The newly added Notes-list visibility assertion then timed out before any notes
+existed: the empty list has no visible height. It now checks attachment; selected
+study heading visibility, Studies pressed state and original action/content checks
+remain. This introduced fixture assertion failure is distinct from the earlier
+unexplained navigation timeout. The changed browser scenario passes `node --check`;
+fresh actual qualification remains separate.
+
+
+### Final isolated real-owner result
+
+**Passed2026-10-27**, fresh run `d32a2c3b-715a-4783-b356-8a46356499a7`, exit0 in94.52s. [Exact command, selected events and result](evidence/isolated-owner-fixture-20261027/native-final/result.json), [source comparison](evidence/isolated-owner-fixture-20261027/native-final/source-comparison.json), browser logs/stages, wrapper logs and exact parent runner are retained. All284source hashes still matched at completion. The full real-provider/browser workflow passed34045ms and disabled-access denial passed4927ms, with original HTTP, retry, privacy, actor/ownership, isolation, saved content, rename, passage, deletion and independent SQL assertions. This remains HTTP/domain integration through the owner's existing injected database seam, not default Access deployment readiness.
+
+The fixture consumes current Identity25→Access18 preparation: the existing preferences role helper and documented private capability-reader role/sole SET-only edge. The later edge is temporarily removed/restored around the historical reader helper's exact prior-membership check. No Access/Identity implementation or migration was edited. Browser navigation follows actual workspace restoration; linked-note preview is scoped separately from reference buttons. The URL oracle now uses the existing reader parser and proves the full valid Genesis1:31–2:3 target rather than the superseded legacy book query field. All original data checks remain.
+
+Parent final focused regression: **113passed20.59s**, runner21.89s, [command/source pair/log](evidence/isolated-owner-fixture-20261027/parent-final/results.json); all10selected source hashes unchanged. Safe diagnostic JS oracle and both browser CJS syntax checks passed. The reporter forwards only closed, bounded source/name/line/column events; no arbitrary worker output, messages, signed URLs, DOM or private payloads.
+
+[Cleanup/coexistence observation](evidence/isolated-owner-fixture-20261027/native-final/cleanup-coexistence.json) confirms all nine Scribeswell ports released, its exact empty network removed and no forced termination. KDG55481/55482 remained occupied at final check; KDG and Leave target files are byte-identical across the observation window. Other owners were active:21foreign containers were observed during an earlier isolated run and15of those still ran at final observation. This does **not** claim every foreign process remained running or attribute their changes; our commands target only new Scribeswell run identities.
+
+The failed attempts remain separate: first local Alembic visibility; second safe generic Identity migration refusal; third explicit capability-reader preparation refusal; fourth restored Python missing distribution metadata; fifth missing API pool dependency; sixth old reload navigation timeout; seventh newly introduced empty-list visibility assertion; eighth/ninth legacy URL expectation. First/second/fourth/sixth/seventh/eighth/ninth selected raw evidence is retained under the dated evidence directory. Third/fifth lost their raw `/tmp` proofs on session continuation and are clearly labelled observed summaries, not reconstructed raw logs. The sixth timeout's exact earlier cause remains unproved; current explicit navigation passes. No failures were relabelled green or expected data weakened.
+
+Persistent private Python/fixture evidence now lives under ignored `apps/scribeswell/.local/owner-integration-20261027/`; offline dependency packages/metadata were RECORD-verified, and full API imports passed before the final run. [Provisioning summary](evidence/isolated-owner-fixture-20261027/offline-provision.json) contains no credentials. Account/session/database snapshots remain private there. The test environment is stopped: `http://localhost:5192` is the selected web address, **not a currently running manual-test link**. Signup/confirmation, recipients/Notification, physical devices and coordinated release-report/activation remain separate gates.
+
+Shared native lifecycle files already contained foreign Leave/platform edits. The [additive Scribeswell platform patch](evidence/isolated-owner-fixture-20261027/shared-platform-changes.patch) records only this slice's extension for their owner's coordinated checkpoint; whole foreign files are not staged into the Scribeswell checkpoint. Root README, canonical derivation and unrelated owner edits remain preserved. No Content-service implementation changed; the separately pasted Content review awaits routing clarification.

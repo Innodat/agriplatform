@@ -1,0 +1,27 @@
+{
+  "type": "RuntimeError",
+  "code": "qualification_checkpoint_missing:rename-before",
+  "sqlstate": null,
+  "frames": [
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 514,
+      "function": "execute"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 486,
+      "function": "browser"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 164,
+      "function": "command"
+    },
+    {
+      "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+      "line": 410,
+      "function": "checkpoints"
+    }
+  ]
+}

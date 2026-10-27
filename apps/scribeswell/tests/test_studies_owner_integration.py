@@ -116,7 +116,9 @@ def test_callback_failure_never_writes_signed_url_diagnostics(tmp_path):
     test_file=module.APP/'web/tests'/('owner-safety-'+uuid.uuid4().hex+'.cjs')
     config=tmp_path/'playwright.config.cjs'
     config.write_text('module.exports='+json.dumps({'testDir':str(test_file.parent),'testMatch':test_file.name,'reporter':[[str(reporter)]],'outputDir':str(tmp_path/'results')})+';')
-    test_file.write_text("const {test}=require('@playwright/test');const {safeCall}=require('./studies-owner-reporter.cjs');test('callback failure',async()=>safeCall(async()=>{throw new Error("+json.dumps(sentinel)+");}));")
+    source=str(module.APP/'web/tests/studies-owner.integration.cjs')
+    stack='Error: '+sentinel+'\n    at scenario ('+source+':125:87)'
+    test_file.write_text("const {test}=require('@playwright/test');const {safeCall}=require('./studies-owner-reporter.cjs');test('callback failure',async()=>safeCall(async()=>{process.stdout.write("+json.dumps(sentinel+'\n')+");const error=new Error("+json.dumps(sentinel)+");error.stack="+json.dumps(stack)+";throw error;}));")
     try:
         result=subprocess.run(['node',str(module.ROOT/'node_modules/@playwright/test/cli.js'),'test','--config',str(config)],capture_output=True,text=True,timeout=30,env={**module.os.environ,'PLAYWRIGHT_NO_COPY_PROMPT':'1'})
         assert result.returncode==1
@@ -124,6 +126,8 @@ def test_callback_failure_never_writes_signed_url_diagnostics(tmp_path):
         assert sentinel not in diagnostics
         assert 'private-synthetic-token' not in diagnostics
         assert 'browser-case' in result.stdout
+        source_failure=next(json.loads(line) for line in result.stdout.splitlines() if 'browser-source-failure' in line)
+        assert source_failure=={'event':'browser-source-failure','name':'Error','source':'studies-owner.integration.cjs','line':125,'column':87}
     finally:test_file.unlink(missing_ok=True)
 
 @pytest.mark.parametrize('interrupt',[False,True])
@@ -316,3 +320,112 @@ def test_whole_study_erasure_independent_oracle_retains_other_scope_and_old_tomb
     if tamper:
         with pytest.raises(AssertionError):module.assert_study_erasure(before,after,expected)
     else:module.assert_study_erasure(before,after,expected)
+
+def test_dedicated_target_and_namespace_are_isolated(tmp_path):
+    import json
+    module=fixture_module()
+    assert module.TARGET.name=='scribeswell-local.json'
+    target=json.loads(module.TARGET.read_text())
+    assert target['owner_ids']==['identity','access','scribeswell']
+    assert target['ports']==dict(web=5192,api=8192,access_http=8193,shadow=55490,supabase_api=55491,database=55492,studio=55493,mail=15494,device_tls=8447)
+    assert set(module.PORTS)==set(target['ports'].values())
+    for owner in ('kdg','leave'):
+        other=json.loads((module.ROOT/f'platform/deployment/environments/{owner}-local.json').read_text())
+        assert not set(module.PORTS)&set(other['ports'].values())
+    run=module.Qualification(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+    assert run.run.parent.name=='scribeswell'
+
+
+def test_wrong_database_refuses_before_owner_writes(tmp_path,monkeypatch):
+    module=fixture_module();events=[]
+    class WrongDatabase(module.Qualification):
+        def wrapper(self,action):events.append(action)
+        def capture_status(self):self.select_database({'db_url':'postgresql://synthetic:synthetic@127.0.0.1:55482/postgres'})
+        def prepare_owners(self):events.append('owners')
+    run=WrongDatabase(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+    with pytest.raises(ValueError,match='unexpected_native_database'):run.execute()
+    assert events==['prepare','up','verify','stop']
+
+
+def test_port_preflight_ignores_running_kdg_and_leave(monkeypatch,free_ports):
+    module=fixture_module();bound=[]
+    class Listener:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def bind(self,address):
+            if address[1] in (55481,55482,55581,55582):raise OSError('foreign owner listener')
+            bound.append(address)
+    monkeypatch.setattr(module.socket,'socket',Listener)
+    free_ports()
+    assert {port for host,port in bound}==set(module.PORTS)
+
+@pytest.mark.parametrize('origin',['http://localhost:55491','http://127.0.0.1:55491','http://localhost:55481','http://foreign.invalid:55491','https://localhost:55491','http://localhost:55491/foreign','http://user@localhost:55491'])
+def test_selected_auth_origin_before_owner_writes(tmp_path,origin):
+    module=fixture_module();events=[]
+    class SelectedStatus(module.Qualification):
+        def wrapper(self,action):events.append(action)
+        def capture_status(self):self.select_database({'db_url':'postgresql://synthetic:synthetic@127.0.0.1:55492/postgres','api_url':origin})
+        def prepare_owners(self):events.append('owners');raise RuntimeError('reached_owner_preparation')
+    run=SelectedStatus(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+    valid=origin in ('http://localhost:55491','http://127.0.0.1:55491')
+    with pytest.raises(RuntimeError if valid else ValueError,match='reached_owner_preparation' if valid else 'unexpected_native_auth'):run.execute()
+    assert events==(['prepare','up','verify','owners','stop'] if valid else ['prepare','up','verify','stop'])
+
+
+def test_identity_preferences_prepared_before_current_owner_migration(tmp_path):
+    from sqlalchemy.engine import make_url
+    module=fixture_module();executed=[]
+    required=(module.ACCESS/'tools/prepare_identity_preferences_role.sql').read_text()
+    class Connection:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def execute(self,statement,*args):executed.append(statement);return self
+        def fetchone(self):return None
+        def fetchall(self):return []
+    run=module.Qualification(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+    run.admin=make_url('postgresql://synthetic:synthetic@127.0.0.1:55492/postgres')
+    run.urls={};run.connect=lambda:Connection()
+    def migrate(owner,config):
+        assert owner=='identity'
+        assert required in executed,'Current Identity bootstrap helper must execute before migration'
+        raise RuntimeError('preparation_boundary_observed')
+    run.migrate=migrate
+    with pytest.raises(RuntimeError,match='preparation_boundary_observed'):run.prepare_owners()
+
+
+def test_capability_reader_bootstrap_and_legacy_edge_staging(tmp_path):
+    from sqlalchemy.engine import make_url
+    module=fixture_module();executed=[];edges=set();role_flags=None
+    legacy=(module.ACCESS/'tools/prepare_access_check_reader_execution.sql').read_text()
+    create='CREATE ROLE access_capability_reader NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS'
+    grant='GRANT access_capability_reader TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE'
+    revoke='REVOKE access_capability_reader FROM access_migrator'
+    class Connection:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def execute(self,statement,*args):
+            nonlocal role_flags
+            executed.append(statement)
+            if statement==create:role_flags=statement.split()[3:]
+            if statement==grant:edges.add(('access_capability_reader','access_migrator',False,False,True))
+            if statement==revoke:edges.clear()
+            if statement==legacy:
+                assert not edges
+                assert executed[-2]==revoke
+            return self
+        def fetchone(self):return None
+        def fetchall(self):return []
+    run=module.Qualification(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+    run.admin=make_url('postgresql://synthetic:synthetic@127.0.0.1:55492/postgres')
+    run.urls={};run.connect=lambda:Connection()
+    def migrate(owner,config):
+        assert role_flags==['NOLOGIN','NOINHERIT','NOSUPERUSER','NOCREATEDB','NOCREATEROLE','NOREPLICATION','NOBYPASSRLS']
+        assert edges=={('access_capability_reader','access_migrator',False,False,True)}
+        if owner=='identity':assert legacy not in executed
+        if owner=='access':
+            index=executed.index(legacy)
+            assert executed[index+1]==grant
+            assert executed[index+2]=='GRANT access_studies_owner TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE'
+            raise RuntimeError('access_boundary_observed')
+    run.migrate=migrate
+    with pytest.raises(RuntimeError,match='access_boundary_observed'):run.prepare_owners()

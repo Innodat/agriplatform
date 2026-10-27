@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agriplatform.invalid/scribeswell-development-target-v1.json",
+  "title": "Scribeswell disposable native owner target v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "target_id",
+    "environment_kind",
+    "owner_ids",
+    "workspace_root",
+    "project_id_prefix",
+    "ports",
+    "origins",
+    "callback_urls",
+    "fixture_ref",
+    "secret_refs",
+    "release_registry_ref",
+    "docker_subnet"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "target_id": {
+      "const": "scribeswell-local"
+    },
+    "environment_kind": {
+      "const": "local_disposable"
+    },
+    "owner_ids": {
+      "const": [
+        "identity",
+        "access",
+        "scribeswell"
+      ]
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "project_id_prefix": {
+      "const": "agri-scribeswell"
+    },
+    "ports": {
+      "const": {
+        "web": 5192,
+        "api": 8192,
+        "access_http": 8193,
+        "shadow": 55490,
+        "supabase_api": 55491,
+        "database": 55492,
+        "studio": 55493,
+        "mail": 15494,
+        "device_tls": 8447
+      }
+    },
+    "origins": {
+      "const": [
+        "http://localhost:5192",
+        "http://localhost:55491"
+      ]
+    },
+    "callback_urls": {
+      "const": [
+        "http://localhost:55491/auth/v1/callback",
+        "http://localhost:5192/auth/callback"
+      ]
+    },
+    "fixture_ref": {
+      "const": "apps/scribeswell/tests/studies_owner_fixture.py"
+    },
+    "secret_refs": {
+      "const": []
+    },
+    "release_registry_ref": {
+      "const": "platform/deployment/registry.json"
+    },
+    "docker_subnet": {
+      "const": "10.254.27.0/24"
+    }
+  }
+}
