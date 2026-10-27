@@ -7,8 +7,10 @@ The [canonical spec](../../../_bmad-output/specs/spec-scribeswell-studies/SPEC.m
 [final integration evidence](FINAL_INTEGRATION_EVIDENCE.md) remain authoritative.
 
 Personal Studies and genuine standalone signup have passed the isolated real-owner
-qualification. Default Access startup now has isolated exact-head owner qualification as recorded
-below. Coordinated environment release/recovery evidence remains outstanding. Sharing remains
+qualification. Default Access startup now also passes the app's actual browser/signup
+consumer integration against the qualified exact owner pair; see
+[default-startup evidence](DEFAULT_STARTUP_INTEGRATION_EVIDENCE.md).
+Coordinated environment release/recovery evidence remains outstanding. Sharing remains
 separate; implementing a substitute Access or Notification path would cross ownership.
 
 ## Access/Identity owner: adopted exact-head readiness
@@ -33,7 +35,8 @@ fabricated readiness field establishes default-startup readiness.
 qualified in this Scribeswell session. The [adopted private report contract](PRIVATE_MIGRATION_REPORT.md)
 records actual before/committed after0009 and coordinated app/host validation.
 The quoted request is retained as history, not outstanding implementation. Actual
-environment release/recovery rehearsal and the Access readiness request above remain.
+environment release/recovery rehearsal remains. The default-startup consumer is now
+qualified against the adopted archived owner pair as linked above.
 
 
 `apps/scribeswell/deployment/studies_migrate.py:upgrade` upgrades Alembic `head` but
@@ -58,15 +61,35 @@ Request for the platform release owner, coordinated with this application sessio
 
 The report shape/version remains an owner decision. This handoff adopts no new wire.
 
-## Scribeswell continuation after owner delivery
+## Scribeswell consumer follow-through — 2026-10-27
 
-Consume the adopted artifacts in the existing isolated fixture (Auth55491/DB55492),
-with a fresh canonical run ID and immediate port/subnet checks. First observe the
-relevant failure on the current default-startup/release boundary; implement the app
-consumer against the published contract. Then prove default service startup with real
-restricted owner credentials and actual provider checks, followed by the existing
-browser/SQL/signup/privacy cases. Verify coordinated migration reports and refusal
-paths without production activation. Keep KDG55481/55482 and Leave environments alone.
+The new app-owned qualifier consumes the adopted artifacts on a fresh isolated
+fixture (Auth55491/DB55492), after the observed injected-launch acceptance failure.
+The final review-fixed run passed all inherited browser/SQL/signup/privacy and disabled
+authority oracles using real restricted owner credentials, live provider/local
+mail and unmodified `main:app`. Owner preparation produced a fresh version2 artifact
+bound to the new executor; no existing artifact or injected dependency was used.
+Ten unsafe startup variants refused. Independent post-shutdown inspection confirmed
+all 486 recorded hashes (171 app, 305 owner, nine qualification/proof and the binary),
+200 recursive owner module paths/digests and 24 SQL checkpoints; 31 process stops and exact fixture stop
+were normal. KDG55481/55482 and Leave environments were untouched.
+
+The app/host report-refusal suite passed 47 tests without skips; independent
+repetition passed in 3.15s. The parent separately qualified actual PostgreSQL17
+private reports: 6 passed in 8.25s, runner 9.291s, no skips, with all 86 source
+hashes unchanged. Its fresh exact container was stopped and retained, its volume
+retained, and loopback port 32770 released. Independent helper/signup repetition
+passed 92 tests in 1.01s after the late-module/package freeze repair (three initial
+negative failures, then 12 focused passes in 0.77s). The parent also confirmed all 486 integration hashes,
+13 retained private-proof digests, fresh actor binding, real expiry and normal
+shutdown; composition check-only passed 15 migrations without writes.
+Safe commands/results/hashes are linked in the default-startup evidence above;
+the private PostgreSQL connection is excluded. Final proof is
+`/tmp/scribeswell-default-integration-review-bbc64030`, run
+`bbc64030-9df1-4dc2-a7e2-ab35f7874fd6`, with actual expiry 122.000218s.
+The initial successful 377-hash run and artifact remain superseded history;
+the original 190-input owner qualification/archive is unchanged.
+Actual coordinated environment release/recovery remains outstanding.
 
 Production signup/SMTP requires the deployment owner's real environment and delivery
 verification. Local Mailpit proof is complete and must not be relabelled external mail
