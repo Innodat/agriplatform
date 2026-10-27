@@ -61,7 +61,7 @@ def check_run(path, target, raw, run_id):
 def prepare(path, target, raw, run_id):
     # Validate existing ancestors before adding a new run; never adopt old runs.
     ancestor = dev.ROOT / 'platform/deployment'
-    for name in ['.local', 'kdg']:
+    for name in ['.local', namespace(target)]:
         ancestor /= name
         if ancestor.exists() or ancestor.is_symlink():
             with dev.directory(ancestor) as fd:
@@ -163,6 +163,8 @@ def network(target, run_id, create, path, allow_absent=False):
     raw = docker(inspect, path, missing=True)
     if raw is None and create:
         arguments = ['network', 'create', '--driver', 'bridge', '--opt', BINDING + '=127.0.0.1']
+        if namespace(target) == 'leave':
+            arguments += ['--subnet', target['docker_subnet']]
         for key, value in labels.items():
             arguments += ['--label', key + '=' + value]
         docker(arguments + [name], path)
@@ -174,6 +176,10 @@ def network(target, run_id, create, path, allow_absent=False):
     value = dev.decode(raw)
     if (type(value) is not dict or value.get('Name') != name or value.get('Driver') != 'bridge'
             or type(value.get('Options')) is not dict or value['Options'].get(BINDING) != '127.0.0.1'
+            or (namespace(target) == 'leave' and (type(value.get('IPAM')) is not dict
+                or type(value['IPAM'].get('Config')) is not list or len(value['IPAM']['Config']) != 1
+                or type(value['IPAM']['Config'][0]) is not dict
+                or value['IPAM']['Config'][0].get('Subnet') != target['docker_subnet']))
             or type(value.get('Labels')) is not dict
             or any(value['Labels'].get(key) != item for key, item in labels.items())):
         fail('network_not_run_owned')
@@ -199,6 +205,22 @@ def reachability(target):
         fail('supabase_unreachable', 'verify')
 
 
+def namespace(target):
+    return 'leave' if target.get('target_id') == 'leave-local' else 'kdg'
+
+
+def validate_target(target):
+    if type(target) is not dict:
+        fail('schema_mismatch', 'input')
+    schema = ('platform/deployment/schema/leave-development-target-v1.json'
+              if target.get('target_id') == 'leave-local' else dev.SCHEMA)
+    dev.validate(target, dev.decode(dev.read(dev.ROOT / schema)))
+
+
+def run_path(target, run_id):
+    return dev.ROOT / 'platform/deployment/.local' / namespace(target) / run_id
+
+
 def main(argv=None):
     safe = {}
     try:
@@ -217,7 +239,7 @@ def main(argv=None):
         source = Path(os.path.abspath(source))
         raw = dev.read(source)
         target = dev.decode(raw)
-        dev.validate(target, dev.decode(dev.read(dev.ROOT / dev.SCHEMA)))
+        validate_target(target)
         if target['workspace_root'] != str(dev.ROOT):
             fail('workspace_mismatch', 'paths')
         if args.command == 'reset' and args.confirm_target != target['target_id']:
@@ -227,7 +249,7 @@ def main(argv=None):
         executable = Path(args.supabase)
         if not executable.is_absolute() or '..' in executable.parts or not executable.is_file() or not os.access(executable, os.X_OK):
             fail('explicit_executable_required', 'arguments')
-        path = dev.ROOT / 'platform/deployment/.local/kdg' / args.run_id
+        path = run_path(target, args.run_id)
         safe = {'run_id': args.run_id, 'project': dev.project_identity(target, args.run_id)}
         if args.command == 'prepare':
             prepare(path, target, raw, args.run_id)

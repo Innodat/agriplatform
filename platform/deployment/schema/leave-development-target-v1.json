@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agriplatform.invalid/leave-development-target-v1.json",
+  "title": "Leave disposable native foundation target v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "target_id",
+    "environment_kind",
+    "owner_ids",
+    "workspace_root",
+    "project_id_prefix",
+    "ports",
+    "origins",
+    "callback_urls",
+    "fixture_ref",
+    "secret_refs",
+    "release_registry_ref",
+    "docker_subnet"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "target_id": {
+      "const": "leave-local"
+    },
+    "environment_kind": {
+      "const": "local_disposable"
+    },
+    "owner_ids": {
+      "const": [
+        "leave_foundation"
+      ]
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "project_id_prefix": {
+      "const": "agri-leave"
+    },
+    "ports": {
+      "const": {
+        "web": 5190,
+        "api": 8190,
+        "supabase_api": 55581,
+        "database": 55582,
+        "shadow": 55580,
+        "studio": 55583,
+        "mail": 15584,
+        "device_tls": 8445
+      }
+    },
+    "origins": {
+      "const": [
+        "http://localhost:5190",
+        "http://localhost:55581"
+      ]
+    },
+    "callback_urls": {
+      "const": [
+        "http://localhost:55581/auth/v1/callback",
+        "http://localhost:5190/auth/callback"
+      ]
+    },
+    "fixture_ref": {
+      "const": "platform/deployment/leave_foundation.py"
+    },
+    "secret_refs": {
+      "const": []
+    },
+    "release_registry_ref": {
+      "const": "platform/deployment/registry.json"
+    },
+    "docker_subnet": {
+      "const": "10.254.26.0/24"
+    }
+  }
+}

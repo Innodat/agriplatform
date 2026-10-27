@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "target_id": "leave-local",
+  "environment_kind": "local_disposable",
+  "owner_ids": [
+    "leave_foundation"
+  ],
+  "workspace_root": "/home/ck/repos/innodat/agriplatform",
+  "project_id_prefix": "agri-leave",
+  "ports": {
+    "web": 5190,
+    "api": 8190,
+    "supabase_api": 55581,
+    "database": 55582,
+    "shadow": 55580,
+    "studio": 55583,
+    "mail": 15584,
+    "device_tls": 8445
+  },
+  "origins": [
+    "http://localhost:5190",
+    "http://localhost:55581"
+  ],
+  "callback_urls": [
+    "http://localhost:55581/auth/v1/callback",
+    "http://localhost:5190/auth/callback"
+  ],
+  "fixture_ref": "platform/deployment/leave_foundation.py",
+  "secret_refs": [],
+  "release_registry_ref": "platform/deployment/registry.json",
+  "docker_subnet": "10.254.26.0/24"
+}

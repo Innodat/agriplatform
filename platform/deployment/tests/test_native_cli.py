@@ -1,5 +1,6 @@
 """Native lifecycle acceptance with an isolated workspace and fake vendor process."""
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -9,6 +10,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 import uuid
 from unittest.mock import patch
@@ -55,6 +57,12 @@ class NativeAcceptance(unittest.TestCase):
         self.assertEqual(self.invoke().returncode, 0)
         self.assertEqual(marker.read_bytes(), original)
         self.assertFalse((self.run / 'inventory.json').exists())
+
+    def test_kdg_configuration_remains_byte_identical(self):
+        target = json.loads((ROOT / 'platform/deployment/environments/kdg-local.json').read_text())
+        config = dev.configuration(target, '00000000-0000-4000-8000-000000000001')
+        self.assertEqual(hashlib.sha256(config).hexdigest(),
+                         '089810f7b1a68042a4469dfd951a87f0a267b44d6e4bc8be31e9c6ee7122f2a3')
 
     def test_unsafe_targets_and_run_refused(self):
         for field, value in [('environment_kind', 'production'), ('workspace_root', '/foreign'), ('unknown', 'secret')]:
@@ -109,6 +117,49 @@ class NativeAcceptance(unittest.TestCase):
         result = self.invoke()
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('credential-sentinel', result.stdout + result.stderr)
+
+
+class LeaveNativeAcceptance(NativeAcceptance):
+    test_shared_local_readable_parent_allowed_writable_parent_refused = None
+    def setUp(self):
+        super().setUp()
+        schema = 'schema/leave-development-target-v1.json'
+        source = ROOT / 'platform/deployment' / schema
+        if source.exists():
+            shutil.copyfile(source, self.root / 'platform/deployment' / schema)
+        self.target = dict(self.target, target_id='leave-local', owner_ids=['leave_foundation'],
+            project_id_prefix='agri-leave',
+            ports=dict(web=5190, api=8190, supabase_api=55581, database=55582,
+                       shadow=55580, studio=55583, mail=15584, device_tls=8445),
+            origins=['http://localhost:5190', 'http://localhost:55581'],
+            callback_urls=['http://localhost:55581/auth/v1/callback', 'http://localhost:5190/auth/callback'],
+            fixture_ref='platform/deployment/leave_foundation.py', secret_refs=[], docker_subnet='10.254.26.0/24')
+        self.target_path.write_text(json.dumps(self.target))
+        self.run = self.root / 'platform/deployment/.local/leave' / self.run_id
+
+    def test_leave_namespace_and_configuration(self):
+        result = self.invoke()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertTrue((self.run / 'native.json').is_file())
+        self.assertFalse((self.run.parent.parent / 'kdg').exists())
+        config = (self.run / 'supabase/config.toml').read_text()
+        self.assertIn('port = 55582', config)
+        self.assertIn('agri-leave-', config)
+
+    def test_leave_email_provider_enabled_with_public_signup_disabled(self):
+        self.assertEqual(self.invoke().returncode, 0)
+        config = tomllib.loads((self.run / 'supabase/config.toml').read_text())
+        self.assertTrue(config['auth']['email']['enable_signup'])
+        self.assertFalse(config['auth']['enable_signup'])
+        self.assertFalse(config['auth']['enable_anonymous_sign_ins'])
+        self.assertFalse(config['auth']['sms']['enable_signup'])
+
+    def test_leave_project_identity_fits_vendor_without_truncation(self):
+        # Real CLI 2.120.0 truncated a 41-character Leave project identity,
+        # breaking exact container ownership lookup after successful startup.
+        project = dev.project_identity(self.target, self.run_id)
+        self.assertLessEqual(len(project), 40)
+        self.assertTrue(project.startswith(self.target['project_id_prefix'] + '-'))
 
 
 class LifecycleAcceptance(unittest.TestCase):
@@ -331,6 +382,36 @@ class LifecycleAcceptance(unittest.TestCase):
             native_cli.reachability(self.target)
             self.assertEqual(tcp.call_args.args[0], ('127.0.0.1', self.target['ports']['database']))
             http.return_value.request.assert_called_with('GET', '/auth/v1/health')
+
+
+class LeaveNetworkAcceptance(unittest.TestCase):
+    def test_leave_explicit_subnet_created_and_foreign_subnet_refused(self):
+        target = json.loads((ROOT / 'platform/deployment/environments/leave-local.json').read_text())
+        # Synthetic test subnet; production literal comes from the closed target schema.
+        target['docker_subnet'] = '192.0.2.0/24'
+        run_id = str(uuid.uuid4())
+        calls = []
+        def docker(arguments, path, missing=False):
+            calls.append(arguments)
+            if arguments[:2] == ['network', 'create']:
+                return b'created'
+            if len(calls) == 1:
+                return None
+            project = dev.project_identity(target, run_id)
+            return json.dumps(dict(Name=project + '-network', Driver='bridge', Id='a'*64,
+                Options={native_cli.BINDING: '127.0.0.1'}, IPAM={'Config': [{'Subnet': target['docker_subnet']}]},
+                Labels={native_cli.LABEL_PREFIX + key: value for key, value in
+                    dict(owner='platform/deployment', target=target['target_id'], run=run_id, project=project).items()})).encode()
+        with patch.object(native_cli, 'docker', side_effect=docker):
+            native_cli.network(target, run_id, True, ROOT)
+        create = calls[1]
+        self.assertEqual(create[create.index('--subnet') + 1], target['docker_subnet'])
+        valid = json.loads(docker(['network', 'inspect'], ROOT))
+        for ipam in [{}, {'Config': [{'Subnet': '198.51.100.0/24'}]}]:
+            with patch.object(native_cli, 'docker', return_value=json.dumps(dict(valid, IPAM=ipam)).encode()):
+                with self.assertRaises(dev.Refusal) as failure:
+                    native_cli.network(target, run_id, False, ROOT)
+                self.assertEqual(failure.exception.code, 'network_not_run_owned')
 
 
 if __name__ == '__main__':

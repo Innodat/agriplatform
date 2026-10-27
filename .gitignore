@@ -225,3 +225,6 @@ supabase/.composed-manifest.json
 !supabase/migrations/.gitkeep
 !supabase/seeds/.gitkeep
 !supabase/functions/.gitkeep
+
+# Private local qualification credentials, fixtures and retained runtime bundles
+/.local/
