@@ -1874,3 +1874,10 @@ TypeScript 7.0.2,259 existing client tests,114 backend tests, 37 synthetic HTTP 
 owner freshness and five scaffold parities. Three independent review layers completed
 without supported findings or verification gaps. Full Story 3.1/3.2, portal/session/device,
 historical actor-label HTTP, real authority and controlled release gates remain open.
+
+
+## Inert administrator edit-context request adapter — 2026-10-27
+
+`web/src/admin-edit-context.ts:loadAdminEditContext(session,pending,options)` consumes the existing generated administrator context through one explicit same-origin authenticated GET. Pin caller/bearer/org/capture before awaits; server current read.all AND edit.all remains authoritative. Validate exactly capture plus ordered observation_date/answers editable_fields. Complete original ownership, questionnaire/answers and actual executor are deeply immutable; reader need not equal owner. No own observations, offline lease, actor labels, retry or persistence.
+
+Strict JSON/UTF8, duplicate/unknown fields, private/no-store and redirects are checked for success/errors. Actual streamed context/error ceiling544KiB; semantic capture ceiling512KiB. One maximum10s deadline covers fetch/body/validation/publication. Current-generation/abort fences reject late results and best-effort cancel owned bodies. See [evidence](ADMIN_EDIT_CONTEXT_ADAPTER_EVIDENCE.md). No Auth/UI/storage/startup wiring, real authority or activation is claimed.
