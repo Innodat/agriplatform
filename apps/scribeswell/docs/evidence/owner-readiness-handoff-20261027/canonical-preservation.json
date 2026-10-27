@@ -1,0 +1,21 @@
+{
+  "prefix_sha256": "a2f5191a5b712dbbdff5ed759fc6992ce54424a06936aff612687de8b52f9b13",
+  "prefix_unchanged": true,
+  "acceptance_rows": 38,
+  "capability_ids": [
+    "CAP-1",
+    "CAP-2",
+    "CAP-3",
+    "CAP-4",
+    "CAP-5",
+    "CAP-6",
+    "CAP-7",
+    "CAP-8",
+    "CAP-9",
+    "CAP-10",
+    "CAP-11"
+  ],
+  "companions": 36,
+  "all_companions_resolve": true,
+  "wrapper_only_drops": []
+}

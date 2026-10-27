@@ -1,0 +1,31 @@
+{
+  "scope": "Read-only source/contract investigation; no native fixture, migration, readiness artifact or activation",
+  "command": "PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest services/access/tests/test_studies_readiness.py apps/scribeswell/tests/test_personal_notes_release.py -q",
+  "exit_code": 0,
+  "result": "7 passed in 0.43s",
+  "source_hashes_after_only": {
+    "services/access/studies_readiness.py": "a202d9791a61d4a6d766e388e9d4835d5a4ac8ce7c2714e797ccfa07843b2bce",
+    "services/access/tests/test_studies_readiness.py": "c146b9c82109e4e8152a218eb22ce472d4f4aebb32dbcd6d773c6ab7494e21d5",
+    "services/access/main.py": "89a3858cadcab7780e57b6170659d0cc27e13c1464ba6fc3e5d912973e4287e8",
+    "services/access/identity-migrations/versions/0025_capability_reader.py": "3a6dc4c23ec478d48ac0fa5eab3f79f46d280bf72017cad8cac01d75698f2004",
+    "services/access/migrations/versions/0018_current_capabilities.py": "c8d0fef642f2fe34366f43075c05edb6fda3a69e824566679b04add00b09019c",
+    "apps/scribeswell/deployment/studies_migrate.py": "ccc694d9d8faa6e17832182ac2e6c04908025be087009bc2db57a127f6cbbe35",
+    "apps/scribeswell/deployment/migrate.py": "b639406647a27ac9ae18fb5bc87eb451e4c296238f99bea0f15e4ba950871072",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "c12f8a169b5cad2d4a75755b09ec94b95a0480c7520f418ab89bdb53eb0d4bbd",
+    "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py": "e9b63b7d88448018fd04b127c8d1717891fe51818345fdf18b1dae70be7217c6",
+    "platform/deployment/host-release.py": "de9e49bd6bf1a9b6d06eaf42b16a9ef313dc94a54653a4db39056a523d322489",
+    "platform/docs/architecture/contracts/scribeswell-study-enrollment.md": "d5fda6f969a6ac77b1045288ab4249da7af181989372783dc1dc08fa0123cfe6",
+    "platform/docs/architecture/contracts/notification-delivery-and-account-inbox.md": "2a567dc96a69baac877b4b5dafa8b15eda6424db6fff697853a3faf350f6f050"
+  },
+  "declared_current_revisions": {
+    "services/access/identity-migrations/versions/0025_capability_reader.py": "identity_0025",
+    "services/access/migrations/versions/0018_current_capabilities.py": "access_0018",
+    "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py": "scribeswell_studies_0009"
+  },
+  "readiness_source_requires": [
+    "identity_0021",
+    "access_0016"
+  ],
+  "private_report_and_consumers_require": "scribeswell_studies_0001",
+  "limits": "Passing existing tests establish the old contract checks only; they do not qualify default startup at current heads or prove a coordinated release."
+}

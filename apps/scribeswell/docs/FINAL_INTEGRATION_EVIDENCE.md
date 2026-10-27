@@ -231,6 +231,8 @@ Exact implementation paths and freeze hashes: [implementation-source-sha256.json
 | Coordinated release evidence | Private migration helper upgrades the real head but reports `after:scribeswell_studies_0001`; platform host-release.py:206 requires that exact legacy marker. Coordinated owner adoption is required before activation. App-only marker changes would break the shared host contract. Actual native Alembic ledger assertions passed; no release activation occurred. |
 | Physical devices | Desktop/mobile Chromium viewport tests do not establish iOS Safari/Android Chrome native text handles, OS Copy, keyboard and selection behavior. Physical-device acceptance remains outstanding. |
 
+Next owner handoff: [current-head Access readiness and coordinated private migration reporting](OWNER_READINESS_HANDOFF.md). The read-only follow-up identifies the exact0021/0016 versus0025/0018 readiness mismatch and the0001 versus0009 private report mismatch; it does not qualify default startup or adopt a replacement contract.
+
 Production activation remains disabled. All native fixtures created in this work were stopped exactly; no retained database, production data or other session's environment was modified. Root repository-wide lint/typecheck/CI is not claimed.
 
 
