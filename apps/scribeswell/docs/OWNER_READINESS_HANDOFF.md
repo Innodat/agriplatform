@@ -7,39 +7,25 @@ The [canonical spec](../../../_bmad-output/specs/spec-scribeswell-studies/SPEC.m
 [final integration evidence](FINAL_INTEGRATION_EVIDENCE.md) remain authoritative.
 
 Personal Studies and genuine standalone signup have passed the isolated real-owner
-qualification. The next bounded delivery is **default Access startup and coordinated
-release evidence**, after the two owner contracts below are updated. Sharing remains
+qualification. Default Access startup now has isolated exact-head owner qualification as recorded
+below. Coordinated environment release/recovery evidence remains outstanding. Sharing remains
 separate; implementing a substitute Access or Notification path would cross ownership.
 
-## Access/Identity owner: current-head Studies readiness
+## Access/Identity owner: adopted exact-head readiness
 
-Evidence: `services/access/studies_readiness.py` requires exactly `identity_0021` /
-`access_0016` in both `prepare` and `validate_artifact`. Current migration heads and
-the successful app fixture use `identity_0025` / `access_0018`.
-`services/access/main.py:create_app` requires the validated artifact when constructing
-Studies database connections from environment settings. The app fixture intentionally
-injects those databases and therefore does not prove this default startup path.
-No current-head readiness artifact was generated or claimed by Scribeswell.
+The owning readiness delivery adopts artifact and qualification `schema_version: 2`
+for exactly Identity0026 / Access0019 from reviewed baseline `deb424b`. See
+[the adopted interface](../../../services/access/STUDIES-ENROLLMENT.md#exact-reviewed-current-owner-readiness--2026-10-27)
+and [the qualified owner evidence](../../../services/access/docs/testing/studies-current-readiness-20261027.md). Historical Identity25 / Access18 app
+integration remains retained; it is not default-startup proof for this pair.
 
-Copy this request to the owning Access/KDG session:
-
-> Continue the delivered personal Studies enrollment/check readiness contract for
-> current Identity/Access heads. Read Scribeswell's OWNER_READINESS_HANDOFF.md and
-> existing STUDIES-ENROLLMENT.md; preserve the working tree and KDG compatibility.
-> Reconcile studies_readiness.py prepare/validate with the owner-approved current
-> heads (currently identity_0025/access_0018) and refresh genuine source-bound owner
-> qualification. Preserve exact principal/service-executor binding, restricted roles,
-> source/catalogue verification, current Auth/profile evidence, migration ordering,
-> revocation, deadlines and refusal of stale/partial/unsafe evidence. Do not simply
-> accept arbitrary newer revision strings or synthesize successful proof fields.
-> Use BMAD with ATDD/TDD and actual native qualification. Return the adopted contract,
-> exact startup environment/artifact interface and source-bound evidence showing the
-> unmodified default create_app path starts on prepared current owners, while missing,
-> stale, mismatched and unsafe preparation still refuses. Keep recipient/invitation
-> delivery separate and explicitly undelivered unless you implement/qualify it.
-
-Owner chooses the compatible artifact/version policy. Scribeswell consumes that
-published policy; it does not relax the owner's validation or fabricate its artifact.
+Unrelated Identity0027 work appeared during implementation, so the current delivery
+qualifies an isolated `deb424b` source archive with its own synthetic run IDs and
+source hashes. This does not qualify the mixed live worktree or later heads. The
+artifact binds all packaged default runtime modules and the preparation evidence
+binds current migrations/catalogues/references plus actual stage proofs. Consumers
+must use the published environment and artifact verbatim; no injected database or
+fabricated readiness field establishes default-startup readiness.
 
 ## Application and platform release owners: truthful private-head reporting
 
@@ -98,21 +84,17 @@ qualified account-scoped notification acceptance/inbox/dedup/retry/retention beh
 Scribeswell then owns invitation/share transitions and its outbox under those contracts.
 Existing own copies do not establish shared-source/private-response delivery.
 
-## Checks and limits
+## Current owner qualification and limits
 
-Read-only focused verification:
+The [owner evidence](../../../services/access/docs/testing/studies-current-readiness-20261027.md)
+records successful isolated current-head readiness,190 source hashes/eight native
+proof stages,13 preparation refusals and unmodified default startup200 followed by
+current denial403. Its264-test archived compatibility run and native mutations use
+the actual handoff Python3.12.3 interpreter; this does not qualify the production
+Python3.15 bundle or unrelated Identity0027 working changes. Both new fixture runs
+stopped normally. Prior historical handoff and unsuccessful-attempt evidence remains
+retained; no production activation or coordinated release/recovery claim is made.
 
-```sh
-PYTHONDONTWRITEBYTECODE=1 apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest services/access/tests/test_studies_readiness.py apps/scribeswell/tests/test_personal_notes_release.py -q
-```
-
-**7 passed in0.43s**. These tests exercise the existing older contract and release
-refusals; they do not prove current-head default startup or a coordinated release.
-[Source references/hashes and result](evidence/owner-readiness-handoff-20261027/checks.json)
-are after-only observations, not a before/after source freeze. No new native fixture,
-migration, readiness artifact, provider request or activation ran for this handoff.
-
-Impacts: documentation only; no scaffold, shared UI, agent-context, ADR, runtime or
-owner implementation changes. Existing foreign changes are preserved. Coordinator
-model/effort inherited, actual model/usage/compute elapsed unavailable; no subagents
-or implementation retries. Test duration above is measured separately.
+Impacts: owner readiness/qualification, consumer artifact example and documentation;
+no shared UI, generator, agent-context or ADR changes. Recipient/invitation and
+Notification remain undelivered. Physical-device and external SMTP gates remain.

@@ -6,7 +6,10 @@ from pathlib import Path
 from uuid import UUID
 
 HERE=Path(__file__).resolve().parent
-RUNTIME_SOURCES=('main.py','organization_check.py','studies_access.py','studies_identity.py','studies_contract.py','studies_readiness.py')
+IDENTITY_HEAD='identity_0026'
+ACCESS_HEAD='access_0019'
+ARTIFACT_VERSION=2
+RUNTIME_SOURCES=('main.py','organization_check.py','studies_access.py','studies_identity.py','studies_contract.py','studies_readiness.py','identity_preferences.py','caller_policy.py','capability_contract.py','capability_check.py','identity_context.py','discovery.py','discovery_contract.py','discovery_query.py')
 DATABASE_ROLES={'STUDIES_ACCESS_DATABASE_URL':'access_studies_runtime',
  'STUDIES_IDENTITY_DATABASE_URL':'identity_studies_reader_runtime',
  'STUDIES_IDENTITY_SETUP_DATABASE_URL':'identity_studies_setup_runtime'}
@@ -15,11 +18,35 @@ def runtime_hashes():return {name:sha256((HERE/name).read_bytes()).hexdigest() f
 
 def source_hashes():
     ACCESS=HERE;ROOT=HERE.parent.parent
-    paths=[ACCESS/name for name in ('main.py','organization_check.py','studies_contract.py','studies_identity.py','studies_access.py','studies_readiness.py','export_openapi.py','openapi.json','STUDIES-ENROLLMENT.md')]
+    paths=[ACCESS/name for name in (*RUNTIME_SOURCES,'main.py','organization_check.py','studies_contract.py','studies_identity.py','studies_access.py','studies_readiness.py','export_openapi.py','openapi.json','STUDIES-ENROLLMENT.md')]
     paths += [ACCESS/name for name in ('identity-migrations/versions/0021_studies_account_setup.py','identity-migrations/identity_baseline.py','identity-migrations/identity_studies_catalog.py','identity-migrations/studies_migration_support.py','identity-migrations/studies-setup-reference.json','migrations/versions/0016_studies_account_enrollment.py','migrations/access_baseline.py','migrations/access_studies_catalog.py','migrations/studies_migration_support.py','deployment/manifest.json','tools/prepare_studies_runtime_roles.sql','tools/prepare_studies_auth_evidence.sql')]
     paths += [ACCESS/'tests/qualify_studies_enrollment.py',ACCESS/'tests/test_studies_access.py',ACCESS/'tests/test_studies_identity.py',ACCESS/'tests/studies_types.test.ts',ACCESS/'tests/inspect_studies_enrollment.py',ROOT/'platform/deployment/release.py',ROOT/'platform/deployment/host-release.py',ROOT/'platform/deployment/tests/test_release.py',ROOT/'platform/deployment/tests/test_host.py',ACCESS/'tests/test_studies_readiness.py',ROOT/'platform/docs/architecture/contracts/scribeswell-study-enrollment.md',ROOT/'apps/scribeswell/docs/PERSONAL_NOTES_V1.md']
+    # Current owner verification transitively relies on the complete immutable
+    # migration/catalogue/reference chain, including the Identity source pins.
+    for directory in ('identity-migrations','migrations'):
+        paths += [path for path in (ACCESS/directory).rglob('*') if path.is_file() and path.suffix in ('.py','.json','.ini')]
+    paths += [ROOT/name for name in json.loads((ACCESS/'identity-migrations/source-pins.json').read_bytes())]
+    paths += [ACCESS/'identity-alembic.ini',ACCESS/'alembic.ini',ACCESS/'tests/qualify_studies_current.py',ROOT/'apps/scribeswell/tests/studies_owner_fixture.py',ROOT/'platform/deployment/environments/scribeswell-local.json']
+    # The current native helper delegates fixture setup and verification to
+    # these sources; retain them as executed qualification inputs as well.
+    paths += list((ROOT/'platform/deployment').glob('*.py'))
+    paths += [ROOT/'platform/deployment/registry.json']
+    for directory in ('studies-migrations','tools/sql','supabase/migrations'):
+        paths += [path for path in (ROOT/'apps/scribeswell'/directory).rglob('*') if path.is_file() and path.suffix in ('.py','.sql','.json')]
+    paths += list((ROOT/'platform/deployment/schema').glob('*.json'))
+    paths += list((ACCESS/'tools').glob('*.sql'))
     paths += [path for path in (ACCESS/'contracts/generated').rglob('*') if path.is_file()]
     return {str(path.relative_to(ROOT)):sha256(path.read_bytes()).hexdigest() for path in sorted(paths)}
+
+
+def closed_json(raw):
+    def pairs(items):
+        value={}
+        for key,item in items:
+            if key in value:raise ValueError('duplicate_json_key')
+            value[key]=item
+        return value
+    return json.loads(raw,object_pairs_hook=pairs)
 
 
 def validate_sources(recorded):
@@ -66,6 +93,7 @@ def validate_stage_proofs(proofs,sources):
     return {name:True for name in ('first_use_race','actor_only_recovery','adopted_collision_current_denial','native_deadline','lost_response_revoked_replay','restricted_roles','clean_upgrade','populated_upgrade_failure_repeat','provider_profile_hook','current_auth_after_lock')}
 
 def validate_qualification(record,directory):
+    if record.get('schema_version')!=ARTIFACT_VERSION or type(record.get('schema_version')) is not int or record.get('identity_revision')!=IDENTITY_HEAD or record.get('access_revision')!=ACCESS_HEAD:raise ValueError('studies_qualification_missing_or_stale')
     validate_sources(record.get('sources'))
     if record.get('runtime_sources')!=runtime_hashes():raise ValueError('studies_qualification_missing_or_stale')
     if set(record.get('proof_sha256',{}))!=set(STAGE_FIELDS):raise ValueError('studies_qualification_cases_missing')
@@ -78,11 +106,11 @@ def validate_qualification(record,directory):
 
 def validate_artifact(raw):
     try:
-        value=json.loads(raw)
+        value=closed_json(raw)
         expected={'schema_version','release_id','identity_revision','access_revision','service_actor_id',
             'runtime_sources','qualification_sha256','profile_hook_qualified','live_provider_qualified'}
-        if set(value)!=expected or value['schema_version']!=1 or type(value['schema_version']) is not int:raise ValueError('schema')
-        if value['identity_revision']!='identity_0021' or value['access_revision']!='access_0016':raise ValueError('head')
+        if set(value)!=expected or value['schema_version']!=ARTIFACT_VERSION or type(value['schema_version']) is not int:raise ValueError('schema')
+        if value['identity_revision']!=IDENTITY_HEAD or value['access_revision']!=ACCESS_HEAD:raise ValueError('head')
         if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}',value['release_id']):raise ValueError('release')
         actor=UUID(value['service_actor_id'])
         if not actor.int or str(actor)!=value['service_actor_id']:raise ValueError('executor')
@@ -107,7 +135,7 @@ def prepare(identity_url,access_url,qualification_path,release_id):
                 c.exec_driver_sql('SET TRANSACTION READ ONLY')
                 c.exec_driver_sql("SET LOCAL statement_timeout='2s';SET LOCAL lock_timeout='1s'")
                 revision=c.exec_driver_sql('SELECT version_num FROM '+owner+'.alembic_version').scalar_one()
-                if revision!=('identity_0021' if owner=='identity' else 'access_0016'):raise ValueError('studies_owner_upgrade_required')
+                if revision!=(IDENTITY_HEAD if owner=='identity' else ACCESS_HEAD):raise ValueError('studies_owner_upgrade_required')
                 # Existing owner baselines verify actual routines, RLS, ACLs and
                 # immutable source history; the ledger alone is insufficient.
                 import sys
@@ -139,7 +167,7 @@ def prepare(identity_url,access_url,qualification_path,release_id):
                     if raw:raise ValueError('studies_runtime_raw_privileges_unsafe')
         finally:db.dispose()
     if observed['identity']!=observed['access']:raise ValueError('studies_executor_preparation_mismatch')
-    artifact={'schema_version':1,'release_id':release_id,'identity_revision':'identity_0021','access_revision':'access_0016',
+    artifact={'schema_version':ARTIFACT_VERSION,'release_id':release_id,'identity_revision':IDENTITY_HEAD,'access_revision':ACCESS_HEAD,
         'service_actor_id':observed['identity'],'runtime_sources':runtime_hashes(),
         'qualification_sha256':sha256(Path(qualification_path).read_bytes()).hexdigest(),
         'profile_hook_qualified':True,'live_provider_qualified':True}

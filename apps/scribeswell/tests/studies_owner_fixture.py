@@ -241,6 +241,9 @@ class Qualification:
             # and its sole SET-only migrator edge before Access18.
             c.execute('CREATE ROLE access_capability_reader NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS')
             c.execute('GRANT access_capability_reader TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
+            for role,owner in (('identity_discovery_owner','identity_migrator'),('access_discovery_owner','access_migrator')):
+                c.execute(sql.SQL('CREATE ROLE {} NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS').format(sql.Identifier(role)))
+                c.execute(sql.SQL('GRANT {} TO {} WITH ADMIN FALSE, INHERIT FALSE, SET TRUE').format(sql.Identifier(role),sql.Identifier(owner)))
             # Access reader preparation predates Studies and requires its exact
             # two existing owner edges. Stage the later Access edge afterwards.
             c.execute('REVOKE access_studies_owner FROM access_migrator')
@@ -253,12 +256,14 @@ class Qualification:
             memberships=c.execute("SELECT pg_get_userbyid(roleid),pg_get_userbyid(member),admin_option,to_jsonb(m)->>'inherit_option',to_jsonb(m)->>'set_option' FROM pg_auth_members m WHERE pg_get_userbyid(member) IN ('identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin') OR pg_get_userbyid(roleid)='identity_migrator' ORDER BY 1,2").fetchall()
             private(self.proof/'prepared-role-memberships.json',memberships)
         # Separate owner processes avoid name collisions and preserve real Alembic guards.
+        self.before_owner_migrations()
         for owner,config in (('identity','identity-alembic.ini'),):
             self.migrate(owner,ACCESS/config)
         with self.connect() as c:
             # The historical helper accepts only its two original outgoing edges.
-            c.execute('REVOKE access_capability_reader FROM access_migrator')
+            c.execute('REVOKE access_capability_reader,access_discovery_owner FROM access_migrator')
             c.execute((ACCESS/'tools/prepare_access_check_reader_execution.sql').read_text())
+            c.execute('GRANT access_discovery_owner TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
             c.execute('GRANT access_capability_reader TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
             c.execute('GRANT access_studies_owner TO access_migrator WITH ADMIN FALSE, INHERIT FALSE, SET TRUE')
         self.migrate('access',ACCESS/'alembic.ini')
@@ -268,6 +273,9 @@ class Qualification:
         self.create_accounts()
         private(self.proof/'credentials-private.json',{role:url.render_as_string(hide_password=False) for role,url in self.urls.items()})
         self.observe('before-enrollment',initial=True)
+
+    def before_owner_migrations(self):
+        pass
 
     def migrate(self,owner,config):
         env={**self.environment,owner.upper()+'_MIGRATION_DATABASE_URL':self.urls[owner+'_migrator'].set(drivername='postgresql+psycopg').render_as_string(hide_password=False)}

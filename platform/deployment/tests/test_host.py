@@ -36,7 +36,7 @@ class Host(unittest.TestCase):
   path=host.ROOT/'services/access/studies_readiness.py'
   spec=importlib.util.spec_from_file_location('host_studies_readiness_test',path)
   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-  artifact={'schema_version':1,'release_id':'synthetic-host-release','identity_revision':'identity_0021','access_revision':'access_0016','service_actor_id':'11111111-1111-4111-8111-111111111111','runtime_sources':module.runtime_hashes(),'qualification_sha256':'a'*64,'profile_hook_qualified':True,'live_provider_qualified':True}
+  artifact={'schema_version':2,'release_id':'synthetic-host-release','identity_revision':'identity_0026','access_revision':'access_0019','service_actor_id':'11111111-1111-4111-8111-111111111111','runtime_sources':module.runtime_hashes(),'qualification_sha256':'a'*64,'profile_hook_qualified':True,'live_provider_qualified':True}
   values=host.env_values(root/'env/access.env')
   values.update(SCRIBESWELL_SERVICE_KEY='synthetic-studies',STUDIES_READINESS_JSON=json.dumps(artifact))
   for field,role in access['studies_enrollment']['database_roles'].items():values[field]=f'postgresql+psycopg://{role}:fixture@db.stage.supabase.co/postgres?sslmode=require'

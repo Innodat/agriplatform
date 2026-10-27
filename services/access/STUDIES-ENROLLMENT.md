@@ -165,3 +165,58 @@ Its synthetic Access HTTP fixtures verify consuming bindings and SQL/browser beh
 they do not replace this owner's retained authorization/provider qualification.
 Production consumer activation remains refused pending coordinated integration/release
 qualification. Enrollment remains explicit and signup/public reading grants nothing.
+
+## Exact reviewed current-owner readiness — 2026-10-27
+
+The adopted readiness artifact and qualification record use `schema_version: 2` and
+exactly `identity_0026` / `access_0019`, the reviewed Discovery owner pair delivered
+in `deb424b0c4d29016917c9df39b540a468ca8e1cf`. Version1 artifacts and old, partial,
+mismatched or later heads refuse. An unrelated in-progress Identity0027 delivery
+is not qualified by this contract; preserve its work and qualify it separately.
+
+The artifact has exactly `schema_version`, `release_id`, `identity_revision`,
+`access_revision`, `service_actor_id`, `runtime_sources`, `qualification_sha256`,
+`profile_hook_qualified` and `live_provider_qualified`. Runtime hashes cover all
+14 packaged default-app Python modules, including Discovery/capability/preferences.
+Preparation checks the complete current owner migration/catalogue/reference chain,
+pinned legacy sources, fixture/helper and consumer tests, then verifies the eight
+native stage files against their actual retained SHA256 digests and source inventory.
+It does not infer missing positive stage observations. Historical qualifier/evidence
+files remain unchanged and cannot satisfy this current qualification record.
+
+Preparation input remains `IDENTITY_MIGRATION_DATABASE_URL` as `identity_migrator`
+and `ACCESS_MIGRATION_DATABASE_URL` as `access_migrator`, plus `--qualification`,
+`--release-id` and a new `--output` path. Output creation uses exclusive0600 mode.
+The compact JSON is supplied verbatim in `STUDIES_READINESS_JSON`. Default startup
+requires it together with `SCRIBESWELL_SERVICE_KEY`, the three exact-role database
+URLs listed above and live `SUPABASE_URL` / `SUPABASE_ANON_KEY`. No database/provider
+injection or migration credential is needed by runtime `create_app()`.
+
+Run the bounded native helper with the locked owner interpreter `P`:
+
+```sh
+P services/access/tests/qualify_studies_current.py --run-id NEW-CANONICAL-UUID \
+  --clean-run-id DIFFERENT-NEW-CANONICAL-UUID --supabase /verified/supabase \
+  --proof /new/private/proof-directory
+```
+
+The helper checks all fixture ports immediately and delegates subnet/resource
+checks to the existing native wrapper. It runs clean and populated synthetic
+clusters sequentially and stops only those new runs. A populated prior Identity25 /
+Access18 state upgrades using ordinary Alembic; deliberate postcondition failures
+must preserve prior ledgers/data and require explicit retry before any activation.
+Native fault setup may bypass an immutable guard in the synthetic database, restores
+it before preparation, and restores the original fixture state afterwards. These
+fault mutations are not provisioning or recovery instructions for real environments.
+Qualification retains race, actor-only/adopted/collision/current-denial, deadline,
+lost-response/revocation, restricted-role and eligibility-during-lock observations.
+Preparation refusals and unmodified environment-only startup run after the source-bound
+qualification bundle; independent read-only inspection revalidates sources/proofs and
+SQL attribution. Recipient/invitation and Notification remain undelivered.
+
+Where foreign in-progress owner sources coexist, qualification uses an isolated
+archive of `deb424b` carrying this delivery's changes. Its target `workspace_root`
+points to that archive; evidence records this local path adjustment. Such an artifact
+qualifies those archived runtime hashes only, and refuses the live mixed worktree.
+See `docs/testing/studies-current-readiness-20261027.md` for actual run evidence and
+remaining gates. No production activation or coordinated release rehearsal is claimed.
