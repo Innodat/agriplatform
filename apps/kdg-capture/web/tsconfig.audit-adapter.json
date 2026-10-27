@@ -1,0 +1,4 @@
+{
+ "extends":"./tsconfig.json",
+ "files":["src/audit.ts","tests/audit-adapter.types.ts"]
+}

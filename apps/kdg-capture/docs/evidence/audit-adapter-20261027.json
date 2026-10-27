@@ -1,0 +1,319 @@
+{
+  "delivery": "Inert KDG online audit request adapter",
+  "date": "2026-10-27",
+  "baseline_commit": "e2b3445f09e93827199ef06b504d03c10b605a46",
+  "status": "complete",
+  "toolchain": {
+    "node": "26.11.1",
+    "typescript": "7.0.2",
+    "dependency_changes": false
+  },
+  "parent_adapter_proof": {
+    "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-532a2175-6e24-4693-9560-3da0a2b267b2/result.json",
+    "sha256": "b88622a7d56a28e8622ffec532ab63915bd97eea25d190e45be9ccce603a2bef"
+  },
+  "selected_source_sha256": {
+    "apps/kdg-capture/web/src/audit.ts": "399aef7219710901d554f6ed11affdaa9f8a9da53ba801a985e687e48fc24fd3",
+    "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+    "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+    "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+    "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+    "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+    "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+    "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+    "apps/kdg-capture/web/tsconfig.audit-adapter.json": "97624fe54c087c92681def0769101e9fedb5e7c8c7c20be7ecb0062986dfa93f",
+    "apps/kdg-capture/web/tests/audit-adapter.types.ts": "4b9eb44c41b5118b485f5b960494076a71345dbcd91b12cffede462ee0955263",
+    "apps/kdg-capture/web/tests/audit.test.mjs": "6cce7b704f6603c9661cd825852460ba59a131e707a27f7661fc28fb82cd2931",
+    "apps/kdg-capture/web/tests/audit-adapter-proof.mjs": "370cee8d762ca8bbd8e1d3759e401807815dcd9ffab8b51097187994e5297233",
+    "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+  },
+  "commands": [
+    {
+      "name": "affected-backend",
+      "cwd": "apps/kdg-capture/write-tests",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "test_audit_read",
+        "test_audit_http",
+        "test_audit_contract",
+        "test_admin_read",
+        "test_admin_http",
+        "test_admin_contract",
+        "test_capture_create",
+        "test_capture_edit",
+        "test_capture_edit_handler",
+        "-v"
+      ],
+      "timeout": 120,
+      "exit_code": 0,
+      "seconds": 14.562,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-backend.log",
+      "log_sha256": "90892394b21546ffa295d521e79487fc35b7c3a0c7ee989efb8739c0c50c3b9f"
+    },
+    {
+      "name": "affected-network",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/audit-read-http-proof.mjs"
+      ],
+      "timeout": 90,
+      "exit_code": 0,
+      "seconds": 3.112,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-network.log",
+      "log_sha256": "9dcb2914dd06f2a6b9d650a96fa879602bcc3bf4d5efebcfe54109608ee4fb87"
+    },
+    {
+      "name": "affected-parity-auth",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-auth.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.076,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-parity-auth.log",
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8"
+    },
+    {
+      "name": "affected-parity-write",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.085,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-parity-write.log",
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    },
+    {
+      "name": "affected-parity-database",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-database.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.08,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-parity-database.log",
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+    },
+    {
+      "name": "affected-parity-native-database",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-native-database.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.078,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-parity-native-database.log",
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+    },
+    {
+      "name": "affected-parity-offline",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-offline.mjs",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.078,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-parity-offline.log",
+      "log_sha256": "31f3deb69fdb9d4cae781d7ed37dad32083c5b26c0e1252878ab90dd863a97f2"
+    },
+    {
+      "name": "affected-export-audit",
+      "cwd": ".",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-B",
+        "apps/kdg-capture/write-candidate/export_audit_openapi.py",
+        "--check"
+      ],
+      "timeout": 30,
+      "exit_code": 0,
+      "seconds": 0.594,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/affected-export-audit.log",
+      "log_sha256": "09486a3e2ccd8dce99c76856b211cdb781537092e0671f3845f44afd2377ed38"
+    },
+    {
+      "name": "existing-read-types",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/kdg-capture/web/tsconfig.read.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.681,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-read-types.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "existing-history-emit",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/kdg-capture/web/tsconfig.history.json",
+        "--noEmit",
+        "false",
+        "--outDir",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-clients/compiled",
+        "--rootDir",
+        "apps/kdg-capture"
+      ],
+      "exit_code": 0,
+      "seconds": 0.848,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-history-emit.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "existing-read-history-clients",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "--test",
+        "--test-isolation=none",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-clients/apps/kdg-capture/web/tests/read.test.mjs",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-clients/apps/kdg-capture/web/tests/history.test.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.495,
+      "log": "platform/deployment/.local/kdg-audit-adapter-20261027/review-final/existing-clients.log",
+      "log_sha256": "66a62f06ff944e3b7db3599dbbabcd54ecbe9cc2bff42e6d94c7c5a754dec12c"
+    }
+  ],
+  "existing_loopback_proof": {
+    "path": "platform/deployment/.local/kdg-online-audit-read-20261026/network-fecb1d04-7163-4ee1-96fb-6a94073cb37b/result.json",
+    "sha256": "cd55ed5a54ac45271b96129c30e4caabb8610d76edfa90fe67aae1024ad9fa37"
+  },
+  "tests": {
+    "adapter": 73,
+    "existing_read_history": 108,
+    "affected_backend": 115,
+    "existing_loopback_checks": 43,
+    "scaffold_parities": 5
+  },
+  "atdd_red": {
+    "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-f74076b5-4009-48fc-b198-8c012b3b13a4/result.json",
+    "sha256": "eef35b77b49b3807b567d81712d3c22cfa6e20a3ab9cb5e85e2d3f0f2631708c"
+  },
+  "focused_tdd_red": {
+    "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-9bfa360e-ba97-403d-bbbc-d4a092ac2130/result.json",
+    "sha256": "e148fbd66e9953f448a7735729969ab37c4781cdb170b6871752c39b0c0d2c68"
+  },
+  "focused_tdd_green": {
+    "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-9941d3ba-7f60-44b7-915a-5f092460aa95/result.json",
+    "sha256": "e3f825953ca2ce48544ccdee2f19f1ae6b1535d7bd8e5fece99e63c110920f43"
+  },
+  "tdd_limits": "Initial cross-owner acceptance was written and failed against stub before implementation. Expanded matrix tests followed first implementation. A concrete underfull-continuation regression then failed against real implementation before its minimal correction. Do not claim every matrix test preceded implementation.",
+  "attempts": {
+    "sandbox_backend_timeout": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/sandbox-attempt.json",
+      "sha256": "57ef33c8380723fa31858cf10b9c57ad48785b3eb6cc0aa0847fdf4ea3ec964c"
+    },
+    "retained_adapter_attempts": [
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-0646a3c4-aaa7-467e-9770-b85316c4278a/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-43334594-d08c-474e-97d3-400e9139a892/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-532a2175-6e24-4693-9560-3da0a2b267b2/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-5f8103e4-3674-4bf1-8634-cbf2f67bcccb/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-9941d3ba-7f60-44b7-915a-5f092460aa95/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-9bfa360e-ba97-403d-bbbc-d4a092ac2130/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-a09e876f-9b27-4aab-9e6e-9c1f89c1708e/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-ad1121d4-8868-42c7-b3d2-82bd5ba586d5/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-adf24df4-0e81-49c3-80b2-f1afda552609/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-b1f3dc7c-f582-418e-86c8-ad63e6396f0a/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-f74076b5-4009-48fc-b198-8c012b3b13a4/result.json",
+      "platform/deployment/.local/kdg-audit-adapter-20261027/run-f7fb3550-d351-4fd5-a7f7-94e27e7b63d5/result.json"
+    ]
+  },
+  "preservation": {
+    "baseline": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/baseline.json",
+      "sha256": "9620c2d1c56693a67450a9f3e12eda489d2621b3b19e946a3a40979a22ccf841"
+    },
+    "unchanged_existing_kdg_and_dependency_files": 558,
+    "concurrent_baseline": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/concurrent-tracked.json",
+      "sha256": "7d96e74fef5b9dbaa9f329979ed2a4720587ee5891f36bf5ef3dcbce6b06bf23"
+    },
+    "concurrent_observed": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/concurrent-observed.final.json",
+      "sha256": "8d1fc16f1c4e77029bff936168c4ec561f52dd396ae7eba635c0624d4fd87376"
+    },
+    "action": "No concurrent work restored/edited/staged; live Access changes observed separately",
+    "contracts_append_only": true,
+    "handoff_prepend_only": true,
+    "resources": "No Docker/native PostgreSQL/lifecycle/provisioning/migration/cleanup commands run",
+    "prohibited_fixture": "Never read/run/copied/hashed"
+  },
+  "requirement_traceability": {
+    "cross_owner_immutable_page": "authorized cross-owner audit returns one closed immutable metadata page",
+    "numeric_cursor_scope": "numeric bigint and bound cursor tests in audit.test.mjs",
+    "continuation_lookahead": "underfull audit page with continuation is refused",
+    "strict_closed_provenance": "malformed page/event/cursor matrix in audit.test.mjs",
+    "byte_limit": "exact 64KiB streamed byte limit and invalid JSON/UTF8 tests",
+    "safe_errors": "generated status/identifier matrix; raw errors never exposed",
+    "current_execution": "cancel/supersede/fetch/body/publication/deadline tests",
+    "backend_contract": "115 backend tests, source-bound existing synthetic loopback, owner export freshness",
+    "unchanged_helpers": "108 existing read/history tests and five scaffold parities"
+  },
+  "impacts": {
+    "scaffold": "Existing neutral strict validation/helpers reused; KDG audit/cursor semantics remain local; five adopted code/test parities pass",
+    "shared_ui": "No change",
+    "agent_context": "No change",
+    "documentation": "New evidence/spec, append contract and prepend handoff",
+    "adr": "No change"
+  },
+  "limitations": [
+    "Unmounted synthetic fetch/stream adapter only; no integrated portal/session/device proof",
+    "No historical actor-label resolution; separate Identity HTTP owner contract remains required",
+    "No new native database proof, real Identity/Access/accounts or controlled release activation",
+    "No UI/editor/Leave, storage, startup/browser/worker/queue activation, provisioning, deployment, cleanup or dependencies; fingerprints/HMAC deferred"
+  ],
+  "review": {
+    "status": "complete",
+    "layers": 3,
+    "individual_findings": 1,
+    "addressed": 1,
+    "deferred": 0,
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-audit-request-adapter.md",
+    "focused_red": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-43334594-d08c-474e-97d3-400e9139a892/result.json",
+      "sha256": "8b123ef90788eee53618f881bf31617aae11b13fc67eead1ec9ba9d624b38b06"
+    },
+    "focused_green": {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-f7fb3550-d351-4fd5-a7f7-94e27e7b63d5/result.json",
+      "sha256": "fc2f7f7fe79de10932820a5d0d25b4477726260091d9cd94f2effb85ef2ca874"
+    }
+  },
+  "previous_verification": [
+    {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/candidate-evidence.before-review.json",
+      "sha256": "931e179efabc63e727705d654bad0be593ce29387b83e011fe5e898ae3cdfe4b"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/results.json",
+      "sha256": "a72f9d47a8f896e6ddbe73caede4cdf877a01ff19f9b153dd998534b7252a36e"
+    },
+    {
+      "path": "platform/deployment/.local/kdg-audit-adapter-20261027/existing-client-results.json",
+      "sha256": "5146a334746b7df5f83bcde90aa5d3d8e8ed58239422698112dc9ccf675d83b9"
+    }
+  ]
+}

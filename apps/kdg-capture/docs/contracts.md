@@ -1808,3 +1808,23 @@ business rows and use restricted read-only sessions with released leases.
 No wire/schema/permission scope or activation contract changed. See
 [native history evidence](NATIVE_ADMIN_HISTORY_EVIDENCE.md). Real authority, UI/session/
 device and controlled release qualification remain open.
+
+## Inert online audit request adapter — 2026-10-27
+
+`web/src/audit.ts:auditEvents(session,pending,options)` consumes the existing generated
+AuditEvents contract through one explicit same-origin GET. Pending caller/org/capture,
+limit (default 30/max 100) and optional canonical cursor are pinned with the bearer before
+awaits. No owner selector, own fallback, offline observation, retry or persistence.
+The current server check remains authoritative; this adapter grants no access.
+
+Closed immutable pages preserve original/actual actor attribution and nullable initiator,
+numeric bigint revision ordering and caller/org/capture/read.all/limit cursor bindings.
+A next cursor matches the last included event and requires a full page under audit's
+limit+1 lookahead. No contiguous-history or statement-time monotonicity assumption.
+JSON/private/no-store, redirect refusal, strict UTF8/duplicate-key parsing and 64 KiB actual
+streamed bytes apply to successes/errors. One maximum 10s deadline covers fetch, body,
+validation and final publication; cancellation/current-generation guards discard late
+responses with best-effort stream cancellation. Safe typed outcomes expose no raw errors.
+
+See [adapter evidence](AUDIT_ADAPTER_EVIDENCE.md). No Auth entry, startup, UI, storage,
+historical actor names, native SQL or real authority qualification is introduced.

@@ -1,3 +1,31 @@
+## Completed delivery — inert online audit request adapter, 2026-10-27
+
+The next ready synthetic Story 3.1 subset consumes the existing closed audit contract
+without mounting it. Qualification passes 73 adapter tests, strict TypeScript 7.0.2,
+108 existing client tests, 115 affected backend tests, 43 synthetic loopback checks and
+five scaffold parities. Three review layers complete: one edge finding corrected, no new deferrals. Read [adapter evidence](AUDIT_ADAPTER_EVIDENCE.md),
+[current contract](contracts.md#inert-online-audit-request-adapter--2026-10-27) and
+[delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-audit-request-adapter.md).
+
+Caller/scope/cursor/provenance and 64 KiB response validation, immutable metadata and
+bounded cancellation/publication are implemented. No Auth entry/UI/storage/startup wiring.
+All 558 prior KDG/dependency bytes stay unchanged; live concurrent Access test changes
+remain untouched. No Docker/native database/resource lifecycle operation ran.
+
+Next assess inert administrator detail/history or edit/recovery request consumers against
+current owner contracts. Historical actor labels require their separate Identity HTTP
+contract; do not infer it from current-account/assignment-target names. Full Story 3.1/3.2,
+portal/session/device, real authority and release gates remain open.
+
+Continue authorized synthetic local/CI work without routine approval stops. No UI/editor/
+Leave, real accounts/services, startup/browser/worker/queue activation, provisioning/
+migrations/privilege expansion, dependencies, deployment/production/pilot/push or cleanup.
+Preserve concurrent/historical work, retained Docker resources and TypeScript 7.0.2;
+fingerprints/HMAC deferred. Never read/run/copy/hash migrations/tests/schema_fixture.py.
+Historical handoffs follow unchanged.
+
+---
+
 ## Completed delivery — native administrator history qualification, 2026-10-27
 
 The approved native list/pagination proof is complete:31 PostgreSQL cases,173 affected
