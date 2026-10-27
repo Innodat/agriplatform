@@ -1,0 +1,17 @@
+{"stage":"valid-ui-signup"}
+{"stage":"valid-created"}
+{"stage":"unconfirmed-ui-login"}
+{"stage":"valid-unconfirmed"}
+{"stage":"valid-mail-confirmation"}
+{"stage":"valid-confirmed"}
+{"stage":"explicit-ui-enrollment"}
+{"stage":"valid-enrolled"}
+{"stage":"separate-ui-study-creation"}
+{"stage":"valid-study-created"}
+{"stage":"consumed-mail-fresh-context"}
+{"stage":"reused-rejected"}
+{"stage":"expiry-ui-signup"}
+{"stage":"expired-created"}
+{"stage":"actual-provider-expiry-wait"}
+{"stage":"expiry-ready"}
+{"stage":"expired-rejected"}

@@ -1,0 +1,142 @@
+{
+  "run_id": "ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb",
+  "ports": {
+    "5192": "available",
+    "8192": "available",
+    "8193": "available",
+    "55490": "available",
+    "55491": "available",
+    "55492": "available",
+    "55493": "available",
+    "15494": "available",
+    "8447": "available",
+    "55481": "occupied",
+    "55482": "occupied"
+  },
+  "owned_networks_remaining": 0,
+  "unchanged_inputs": {
+    "platform/deployment/environments/kdg-local.json": true,
+    "platform/deployment/environments/leave-local.json": true,
+    "platform/deployment/native_cli.py": true,
+    "services/access/STUDIES-ENROLLMENT.md": true
+  },
+  "cleanup": [
+    {
+      "stage": "process-stopped",
+      "pid": 536161,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 536196,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 539797,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 540035,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 540240,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 540977,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541455,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541497,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541533,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541593,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541922,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 547616,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 547664,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 548451,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 548479,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541841,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541785,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 541727,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 554123,
+      "forced": false,
+      "termination_confirmed": true
+    }
+  ],
+  "wrapper_stop_exit": [
+    0
+  ]
+}

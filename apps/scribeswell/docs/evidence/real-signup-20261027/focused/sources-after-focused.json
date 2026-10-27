@@ -1,0 +1,12 @@
+{
+  "platform/deployment/dev.py": "3896c0b50f6415bf2c6b2174b0679138ffe905ec9091175a0a181f902c09d131",
+  "platform/deployment/tests/test_native_cli.py": "617e22819282761f88cabbdd83ce14eb84b77919c9d737dbf8a5828dae92b445",
+  "apps/scribeswell/tests/studies_owner_fixture.py": "7ec85cf2d573eb62e98b48739a286ba91bbda29c4ee906e595576243458a9114",
+  "apps/scribeswell/tests/studies_signup_fixture.py": "e5ef1e2ef392523d7660438903d691c8013495233f407a9a4aebd250cb49c393",
+  "apps/scribeswell/tests/test_studies_signup.py": "d32a99f2ce70b42820f7dee787498b9c62844346208cab55786d9d90239515f3",
+  "apps/scribeswell/tools/py/qualify_studies_signup.py": "5a356f5d8037205d8f1cd3781e1452623779d8903bcd01bcb0c46b29fe5f09d1",
+  "apps/scribeswell/web/playwright.signup.config.cjs": "d55b595ea9be1081cdae8cf4d0bed0c3a491e63b82324cb4b9c53d8145ecac70",
+  "apps/scribeswell/web/tests/studies-signup.integration.cjs": "894727b0a7f3adc384166446019dc7f4b19a185fd2166445d6251ecfba3fc3db",
+  "apps/scribeswell/web/tests/studies-signup-reporter.oracle.cjs": "c00ede27c6eaca4677f060996b68c608aaf8723305a1f2604736c4296007069f",
+  "apps/scribeswell/web/tests/studies-owner-reporter.cjs": "08a7d3064181431d7566edd54da20c75044676a296ac4aea5529f6c7a316b2c1"
+}

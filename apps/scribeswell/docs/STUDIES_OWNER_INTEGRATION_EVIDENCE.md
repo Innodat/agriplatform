@@ -250,3 +250,115 @@ The failed attempts remain separate: first local Alembic visibility; second safe
 Persistent private Python/fixture evidence now lives under ignored `apps/scribeswell/.local/owner-integration-20261027/`; offline dependency packages/metadata were RECORD-verified, and full API imports passed before the final run. [Provisioning summary](evidence/isolated-owner-fixture-20261027/offline-provision.json) contains no credentials. Account/session/database snapshots remain private there. The test environment is stopped: `http://localhost:5192` is the selected web address, **not a currently running manual-test link**. Signup/confirmation, recipients/Notification, physical devices and coordinated release-report/activation remain separate gates.
 
 Shared native lifecycle files already contained foreign Leave/platform edits. The [additive Scribeswell platform patch](evidence/isolated-owner-fixture-20261027/shared-platform-changes.patch) records only this slice's extension for their owner's coordinated checkpoint; whole foreign files are not staged into the Scribeswell checkpoint. Root README, canonical derivation and unrelated owner edits remain preserved. No Content-service implementation changed; the separately pasted Content review awaits routing clarification.
+
+## Real signup qualification implementation — 2026-10-27
+
+The [approved signup delivery record](../../../_bmad-output/implementation-artifacts/spec-scribeswell-real-signup-qualification.md)
+adds `tools/py/qualify_studies_signup.py` to the existing exact-run lifecycle. The
+original owner workflow and all two-account/disabled-state SQL oracles execute first.
+The added phase explicitly re-enables its disposable app, then uses actual browser
+signup and local captured confirmation mail. It independently checks profile-only
+effects before enrollment, required confirmation, durable actor/current permission,
+no organization/person/employment effects, a separate study creation action, consumed
+links and real elapsed120-second OTP expiry in fresh contexts. All existing business
+rows must remain unchanged outside the exact declared additions. Host mailbox reads
+use only bounded GET messages/message endpoints, exact synthetic recipient matching
+and validated local Auth/root-reader URLs. Private0600 files retain links/input and
+selected Auth confirmation observations; safe diagnostics exclude them.
+
+Profile acceptance was observed red before renderer changes: the command below with
+`-k 'signup_requires_confirmation or signup_change_preserves'` produced **1 failed /
+1 passed**, because Scribeswell global signup was disabled. The final affected run:
+
+```sh
+PYTHONPATH=platform/deployment apps/scribeswell/.local/owner-integration-20261027/python/bin/python -m pytest apps/scribeswell/tests/test_studies_signup.py apps/scribeswell/tests/test_studies_owner_integration.py platform/deployment/tests/test_native_cli.py -q
+```
+
+Host-enabled result: **180 passed in56.26s**. Its preceding restricted-sandbox run
+had **179 passed / 1 failed in45.35s**: the existing real-listener collision test
+could not create a socket (`PermissionError`). That unchanged test separately passed
+host-enabled (**1 passed / 79 deselected in2.41s**). No expected result was weakened.
+Private logs and after-only source hashes are under ignored
+`apps/scribeswell/.local/signup-qualification-20261027/implementation-focused/`.
+Both old/new safe-reporter oracles and new browser/config `node --check` passed.
+Tests cover malformed/foreign/ambiguous URLs and mail, missing-recipient/network
+deadlines, response size/stream bounds, exact GET-only access, baseline preservation,
+implicit-effect refusal, current grant/actor/initiator/executor attribution, lifecycle
+ordering and the elapsed-time checkpoint. The fixed KDG/Leave configuration byte
+hashes and existing owner tests pass. Pinned renderer lines356–369 and424–439 establish
+signup/confirmation inversion and Mailpit SMTP1025; Mailpit's official v1 docs/swagger
+define the read shapes. Actual pinned runtime shape/provider/browser proof remains
+the parent's fresh native execution; these focused doubles and syntax checks do not
+establish it. No native fixture was started by the implementation agent.
+
+Scaffold: one closed disposable profile using the existing lifecycle, no generator
+or competing owner implementation. Shared UI/agent context/ADRs: unchanged.
+Documentation: account-entry activation wording and this record updated. Production
+SMTP/delivery/default Access startup/device/release gates remain separate. Selected
+delegated model/effort: Sol High; actual model/usage and compute elapsed unavailable;
+test durations above exclude the future native OTP wait.
+
+
+## Real signup native proof — 2026-10-27
+
+The parent ran the complete original owner lifecycle and the new real signup flow
+against fresh run `ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb`: **passed, exit0,
+286.15 seconds**, including **289 unchanged source hashes**. The original owner
+browser case passed in56.153s, disabled-access denial in8.933s, and signup in129.621s.
+[Exact command/result and source comparison](evidence/real-signup-20261027/native-final/result.json)
+and [sanitized checkpoints](evidence/real-signup-20261027/native-final/signup-browser-stages.jsonl)
+retain the actual results. Private credentials, mail bodies, recipients, account
+snapshots and confirmation links remain in ignored0600 evidence files.
+
+Actual UI-created accounts, the pinned local Auth provider and Mailpit were used;
+no signup identity was admin-created and no response/session was intercepted.
+Unconfirmed password login was denied. Captured email confirmed the first account;
+confirmation alone created no actor binding, grant or study. Explicit enrollment
+then created the account actor and current personal permission with the expected
+initiator/service executor, without organization/person/employment prerequisites.
+Only a separate Create study action created a study. Every old business row stayed
+unchanged outside the exact declared additions. Fresh browser contexts rejected the
+consumed link and a second genuinely expired confirmation link. The expiry proof
+waited **122.000384 seconds** after the provider's sent timestamp, with no Auth-table
+writes by the fixture. Local mailbox GET shapes and strict link validation were
+therefore exercised against the actual pinned runtime. Credential inspection passed.
+
+The first native launch selected system Python through a resolved venv symlink and
+stopped at dependency preflight before starting a fixture. Two subsequent original
+owner cases timed out at60048/60071ms before signup; their evidence remains in
+[native-attempt2](evidence/real-signup-20261027/native-attempt2/result.json) and
+[native-attempt3](evidence/real-signup-20261027/native-attempt3/result.json).
+The local harness budget was raised from60to90seconds, with every assertion and all
+product/API deadlines preserved. Its next owner case passed in61.993s. That run then
+caught an incomplete new oracle: Identity's existing profile INSERT trigger also
+creates an audit row. Characterization reproduced the oracle failure; the corrected
+oracle requires the exact profile+audit pair and rejects foreign/mismatched changes.
+The [attempt4 evidence](evidence/real-signup-20261027/native-attempt4/result.json)
+is retained. These were qualification corrections, not service/runtime changes.
+The cause of slower owner-case execution remains unknown.
+
+After the corrections, parent independent focused verification passed **195 tests
+in31.38s** (runner32.65s), with all11 checked sources unchanged. The
+[command, source pair and log](evidence/real-signup-20261027/focused/parent-focused.json)
+are retained. Three context-free BMAD review layers returned no supported findings;
+parent reviewed the later bounded test-budget and exact owner-audit corrections.
+No review finding was deferred. Earlier180-pass and sandbox permission results remain
+historical, distinct from the final verification.
+
+[Final cleanup](evidence/real-signup-20261027/native-final/cleanup.json) confirms all
+nine Scribeswell ports available, no owned network remaining, exact wrapper stop,
+and no forced process termination. KDG55481/55482 remained occupied and untouched.
+KDG/Leave target files, native lifecycle source and the enrollment owner contract
+retained their starting hashes. Generated KDG/Leave profile-byte checks passed.
+The mixed-owner deployment renderer/tests stay uncommitted; their exact additive
+[patch](evidence/real-signup-20261027/shared-platform-changes.patch) accompanies this
+app checkpoint. This working-tree qualification is not a coordinated platform release.
+
+Scaffold impact: no app-factory generator change; the existing deployment renderer
+has a closed local qualification profile. Shared UI, agent context and accepted ADRs
+are unchanged. Documentation records local readiness separately from production.
+Selected implementation Sol High, reconnaissance Terra Medium; actual models/usage/
+compute elapsed unknown. Native elapsed above includes provider expiry wait. One
+runner correction, one unchanged-source retry and two focused harness/oracle repairs
+are retained. Production registration/SMTP delivery, default service startup,
+recipient/Notification delivery, physical devices and coordinated release remain gated.

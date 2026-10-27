@@ -1,0 +1,20 @@
+{
+  "runner": {
+    "command": [
+      "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/owner-integration-20261027/python/bin/python",
+      "apps/scribeswell/tools/py/qualify_studies_signup.py",
+      "--run-id",
+      "ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb",
+      "--supabase",
+      "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "--proof",
+      "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/signup-qualification-20261027/native-ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 286.15,
+    "proof": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/signup-qualification-20261027/native-ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb",
+    "run_id": "ed91e6ec-1e8d-417c-a8c6-a2bd10469cbb"
+  },
+  "scope": "Local signup/confirmation and owner HTTP/domain integration only; no production mail, default readiness, release or device claim",
+  "passed": true
+}

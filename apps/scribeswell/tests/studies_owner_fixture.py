@@ -62,7 +62,10 @@ def source_inventory():
     paths.update((APP/'data/reference-catalogue').glob('*.json'))
     paths.update((APP/'scripts').glob('hebrew.json'));paths.update((APP/'tools/py').glob('build_reference_catalogue.py'))
     paths.update((APP/'web/tests').glob('studies-owner*.cjs'))
+    paths.update((APP/'web/tests').glob('studies-signup*.cjs'))
+    paths.update((APP/'tests').glob('studies_signup*.py'))
     paths.update((APP/'tools/py').glob('qualify_studies_owner_integration.py'))
+    paths.update((APP/'tools/py').glob('qualify_studies_signup.py'))
     paths.update((APP/'web').glob('*config.*'))
     paths.update((APP/'web').glob('package*.json'))
     paths.update((ROOT/'platform/deployment').glob('*.py'))
@@ -504,6 +507,11 @@ class Qualification:
             time.sleep(.01)
         self.events.append({'stage':'process-stopped','pid':process.pid,'forced':forced,'termination_confirmed':True})
 
+    def extra_qualification(self):
+        """Optional app qualification after all original two-account oracles."""
+
+    qualification_scope='HTTP/domain integration only; no default readiness, signup, release or device claim'
+
     def execute(self):
         try:
             import importlib.util
@@ -517,6 +525,7 @@ class Qualification:
             self.command('browser-denied',['node',ROOT/'node_modules/@playwright/test/cli.js','test','--config',APP/'web/playwright.owner-integration.config.cjs','--grep','disabled'],env={**self.environment,'SCRIBESWELL_OWNER_FIXTURE':str(self.proof/'browser-private.json'),'SCRIBESWELL_OWNER_DENIED':'true'},cwd=APP/'web',timeout=90)
             self.snapshot('after-disabled-denial',previous='before-disabled-denial')
             self.observe('after-denial')
+            self.extra_qualification()
             self.verify_sources()
             self.events.append({'stage':'passed'})
         except BaseException as error:
@@ -533,7 +542,7 @@ class Qualification:
             if self.owned:
                 try:self.wrapper('stop')
                 except Exception:self.events.append({'stage':'stop-failed'});cleanup_failed=True
-            private(self.proof/'result.json',{'run_id':self.run_id,'events':self.events,'scope':'HTTP/domain integration only; no default readiness, signup, release or device claim'})
+            private(self.proof/'result.json',{'run_id':self.run_id,'events':self.events,'scope':self.qualification_scope})
             if cleanup_failed:raise RuntimeError('qualification_exact_run_stop_failed')
 
 def qualify():

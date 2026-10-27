@@ -1,0 +1,32 @@
+{
+  "run_id": "1386bbdc-5f0c-475a-a443-892a97a02097",
+  "runner": {
+    "command": [
+      "/usr/bin/python3.12",
+      "apps/scribeswell/tools/py/qualify_studies_signup.py",
+      "--run-id",
+      "1386bbdc-5f0c-475a-a443-892a97a02097",
+      "--supabase",
+      "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "--proof",
+      "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/signup-qualification-20261027/native-1386bbdc-5f0c-475a-a443-892a97a02097"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 0.38,
+    "proof": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/.local/signup-qualification-20261027/native-1386bbdc-5f0c-475a-a443-892a97a02097",
+    "run_id": "1386bbdc-5f0c-475a-a443-892a97a02097"
+  },
+  "failure": {
+    "type": "RuntimeError",
+    "code": "qualification_dependency_missing:psycopg",
+    "sqlstate": null,
+    "frames": [
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 519,
+        "function": "execute"
+      }
+    ]
+  },
+  "fixture_started": false
+}

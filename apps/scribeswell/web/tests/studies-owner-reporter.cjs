@@ -12,7 +12,7 @@ class SafeReporter {
     try{
      const value=JSON.parse(this.stdoutLine);
      const names=['Error','AssertionError','TimeoutError','TypeError','RangeError','ReferenceError','SyntaxError','AggregateError'];
-     const sources=['studies-owner.integration.cjs','studies-owner-privacy.cjs','studies-owner-reporter.oracle.cjs'];
+     const sources=['studies-owner.integration.cjs','studies-signup.integration.cjs','studies-owner-privacy.cjs','studies-owner-reporter.oracle.cjs'];
      const fields=Object.keys(value).sort().join(',');
      const location=fields==='column,event,line,name,source'&&sources.includes(value.source)&&
       [value.line,value.column].every(n=>Number.isInteger(n)&&n>0&&n<=9999999);
@@ -35,7 +35,7 @@ function safeDiagnostic(error){
  const diagnostic={event:'browser-source-failure',name:names.has(error?.name)?error.name:'Error'};
  // Never emit arbitrary filenames or any part of a message. Parse only bounded
  // stack frames pointing to these known local sources, after the message line.
- const sources=['studies-owner.integration.cjs','studies-owner-privacy.cjs','studies-owner-reporter.oracle.cjs'];
+ const sources=['studies-owner.integration.cjs','studies-signup.integration.cjs','studies-owner-privacy.cjs','studies-owner-reporter.oracle.cjs'];
  if(typeof error?.stack!=='string')return diagnostic;
  for(const frame of error.stack.slice(0,65536).split('\n').slice(1,65)){
   if(!/^\s+at /.test(frame))continue;

@@ -1,0 +1,56 @@
+{
+  "signup-valid-unconfirmed-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 0,
+    "unconfirmed": 1
+  },
+  "signup-expiry-ready-auth": {
+    "independent_sql": true,
+    "accounts": 2,
+    "confirmed": 1,
+    "unconfirmed": 1
+  },
+  "signup-valid-created-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 0,
+    "unconfirmed": 1
+  },
+  "signup-valid-enrolled-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 1,
+    "unconfirmed": 0
+  },
+  "signup-valid-confirmed-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 1,
+    "unconfirmed": 0
+  },
+  "signup-expired-rejected-auth": {
+    "independent_sql": true,
+    "accounts": 2,
+    "confirmed": 1,
+    "unconfirmed": 1
+  },
+  "signup-valid-study-created-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 1,
+    "unconfirmed": 0
+  },
+  "signup-reused-rejected-auth": {
+    "independent_sql": true,
+    "accounts": 1,
+    "confirmed": 1,
+    "unconfirmed": 0
+  },
+  "signup-expired-created-auth": {
+    "independent_sql": true,
+    "accounts": 2,
+    "confirmed": 1,
+    "unconfirmed": 1
+  }
+}

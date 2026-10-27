@@ -1,0 +1,126 @@
+{
+  "run_id": "11b6827a-9499-4888-8851-afcb72bdbea2",
+  "passed": false,
+  "failure": {
+    "type": "RuntimeError",
+    "code": "qualification_checkpoint_missing:search-after",
+    "sqlstate": null,
+    "frames": [
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 522,
+        "function": "execute"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 489,
+        "function": "browser"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 167,
+        "function": "command"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 413,
+        "function": "checkpoints"
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "stage": "process-stopped",
+      "pid": 503819,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 503858,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 507411,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 507683,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 507901,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508396,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508602,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508617,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508762,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508793,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 509208,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 509087,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 509001,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 508958,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 512644,
+      "forced": false,
+      "termination_confirmed": true
+    }
+  ],
+  "wrapper_stop_exit": [
+    0
+  ]
+}

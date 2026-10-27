@@ -34,10 +34,13 @@ have accessible busy/progress feedback.
 
 ## Activation remains gated
 
-Current owner configuration disables public signup. The checked-in
-[Supabase config](../../../supabase/config.toml) also has email confirmation off,
-and the [deployment profile generator](../../../platform/deployment/dev.py)
-intentionally disables signup. This slice changes neither file nor live settings.
+Live registration remains gated. The checked-in
+[Supabase config](../../../supabase/config.toml) has email confirmation off.
+The [deployment profile generator](../../../platform/deployment/dev.py) enables
+signup, required confirmation, a120-second local OTP and captured local SMTP only
+for the dedicated disposable `scribeswell-local` qualification target. KDG/Leave
+profiles remain byte-identical. This local profile does not enable a deployed
+project or define production OTP/mail policy.
 
 Before enabling live registration, the authentication/deployment owner must qualify
 signup enablement, required address confirmation, exact reader callback allowlist,
@@ -47,17 +50,35 @@ The separate KDG session owns Access contracts and implementation; account creat
 alone supplies no capability or resource authority. App-factory delivery belongs to
 its separate platform session.
 
-Browser tests intercept the provider HTTP boundary. They qualify the consumer UI,
+Earlier consumer browser tests intercept the provider HTTP boundary. They qualify the consumer UI,
 SDK integration and public return handling; they do not prove real mail delivery,
 Identity profile adoption, verified Studies access or full ST-36 completion. No
 provider request, migration or deployment is needed for those fixture tests.
 
+The separate [real-signup qualification](../../../_bmad-output/implementation-artifacts/spec-scribeswell-real-signup-qualification.md)
+adds an explicit local native entrypoint,
+`apps/scribeswell/tools/py/qualify_studies_signup.py`. It runs the entire existing
+owner qualification, then genuine browser signup, local mailbox confirmation,
+explicit enrollment and separate study creation, followed by consumed/elapsed
+expired-link checks in fresh contexts. Its focused helper tests are not actual
+provider/mail proof; the parent native execution and dated
+[evidence record](STUDIES_OWNER_INTEGRATION_EVIDENCE.md) report that separately.
+Only synthetic recipients are permitted; no external delivery/relay is configured.
+Confirmation alone supplies neither an actor binding nor a Studies capability.
+
 ## Reuse and ownership impacts
 
-- Scaffold: no generator change; keep the app-factory owner's work independent.
+- Scaffold: no application scaffolding change; the deployment renderer adds only the dedicated local qualification profile.
 - Shared UI: the existing dialog remains app-local. Reusable focus/error behavior
   needs another proven consumer before a shared authentication abstraction.
 - Agent context: existing owner/session rules suffice; no root instruction change.
 - Documentation: canonical Studies contract plus this runtime/activation record.
 - ADRs: existing authentication, API-boundary and session-recovery decisions apply;
   accepted decisions are unchanged. No schema migration is introduced.
+
+
+The [2026-10-27 real native signup proof](STUDIES_OWNER_INTEGRATION_EVIDENCE.md#real-signup-native-proof--2026-10-27)
+now passes using real UI-created accounts and captured local email, including valid,
+consumed and genuinely expired links, independent SQL and explicit enrollment.
+This closes the local signup qualification gate. Production email delivery and
+registration activation still require the owning deployment environment.

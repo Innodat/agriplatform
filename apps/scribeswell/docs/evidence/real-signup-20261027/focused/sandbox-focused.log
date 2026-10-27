@@ -1,0 +1,42 @@
+....................................................................F... [ 40%]
+........................................................................ [ 80%]
+....................................                                     [100%]
+=================================== FAILURES ===================================
+______________ test_collision_refuses_before_wrapper_or_adoption _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-26/test_collision_refuses_before_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x735c54a61e50>
+free_ports = <function check_ports at 0x735c54ab0d60>
+
+    def test_collision_refuses_before_wrapper_or_adoption(tmp_path,monkeypatch,free_ports):
+        import socket
+        module=fixture_module();run=module.Qualification(str(uuid.uuid4()),Path('/explicit/supabase'),tmp_path/'proof')
+>       with socket.socket() as listener:
+             ^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_studies_owner_integration.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.socket fd=-1, family=0, type=0, proto=0>
+family = <AddressFamily.AF_INET: 2>, type = <SocketKind.SOCK_STREAM: 1>
+proto = 0, fileno = None
+
+    def __init__(self, family=-1, type=-1, proto=-1, fileno=None):
+        # For user code address family and type values are IntEnum members, but
+        # for the underlying _socket.socket they're just integers. The
+        # constructor of _socket.socket converts the given argument to an
+        # integer automatically.
+        if fileno is None:
+            if family == -1:
+                family = AF_INET
+            if type == -1:
+                type = SOCK_STREAM
+            if proto == -1:
+                proto = 0
+>       _socket.socket.__init__(self, family, type, proto, fileno)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/lib/python3.12/socket.py:233: PermissionError
+=========================== short test summary info ============================
+FAILED apps/scribeswell/tests/test_studies_owner_integration.py::test_collision_refuses_before_wrapper_or_adoption
+1 failed, 179 passed in 45.35s

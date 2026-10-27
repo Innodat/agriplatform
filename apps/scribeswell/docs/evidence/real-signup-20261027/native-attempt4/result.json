@@ -1,0 +1,165 @@
+{
+  "run_id": "cd54d333-3d96-490b-82b4-8c133b53b728",
+  "passed": false,
+  "failure": {
+    "type": "AssertionError",
+    "code": null,
+    "sqlstate": null,
+    "frames": [
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 528,
+        "function": "execute"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_signup_fixture.py",
+        "line": 244,
+        "function": "extra_qualification"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_owner_fixture.py",
+        "line": 167,
+        "function": "command"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_signup_fixture.py",
+        "line": 242,
+        "function": "checkpoints"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_signup_fixture.py",
+        "line": 180,
+        "function": "signup_observe"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_signup_fixture.py",
+        "line": 134,
+        "function": "assert_profile_only"
+      },
+      {
+        "file": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/tests/studies_signup_fixture.py",
+        "line": 129,
+        "function": "added_rows"
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "stage": "process-stopped",
+      "pid": 517415,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 517433,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 520970,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 521252,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 521479,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522022,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522253,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522384,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522388,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522421,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522815,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 526761,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 526911,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 527602,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 527607,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522784,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522729,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 522565,
+      "forced": false,
+      "termination_confirmed": true
+    },
+    {
+      "stage": "process-stopped",
+      "pid": 527924,
+      "forced": false,
+      "termination_confirmed": true
+    }
+  ],
+  "wrapper_stop_exit": [
+    0
+  ]
+}
