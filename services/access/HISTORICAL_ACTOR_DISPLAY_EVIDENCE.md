@@ -1,5 +1,19 @@
 # Historical actor display: isolated synthetic owner evidence
 
+Resolved — 2026-10-27: the correction below is historical. The cancellation-diagnostic
+path now passes four actual HTTP RED/GREEN regressions,85 complete owner tests,127
+affected tests and independent review. See
+[repair evidence](ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md) for exact commands/custody.
+The original failing diagnostic and earlier qualification below remain preserved.
+
+Current correction — 2026-10-27: the subsequent
+[composition diagnostic](../../apps/kdg-capture/docs/audit-display-composition.md#concrete-identity-prerequisite-found-during-planning)
+exercised caller cancellation followed by a reader-cleanup exception on Python3.15.
+One loop diagnostic received the synthetic private exception message. The earlier
+81-test/review result below is preserved but did not prove this combined path.
+Consumer readiness now requires an owner repair with actual no-disclosure RED/GREEN;
+no runtime source or active service was changed during this discovery.
+
 2026-10-27; baseline `29763767fc3bb2895fea2500283759975f826d81`.
 Implementation, owner verification and three-layer review complete. The
 [owner contract](HISTORICAL-ACTOR-DISPLAY.md) remains authoritative. This candidate

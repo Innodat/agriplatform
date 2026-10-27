@@ -1,3 +1,58 @@
+## Identity cancellation-diagnostic prerequisite repaired — 2026-10-27
+
+The owner repair is complete: four actual HTTP cases failed before the private
+outcome wrapper and now pass;85 owner and127 affected tests, exporter/generator
+freshness and strictTS7.0.2 pass. Independent BMAD oneshot review found no supported
+findings and separately passed85 tests. The original diagnostic now records zero
+events while cancellation stays intact. [Repair evidence](../../../services/access/ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md)
+contains exact commands, retained RED/GREEN/source custody and scope. Twelve protected
+active/schema/generated/dependency files remain unchanged. No new deferral.
+
+Next select one bounded backend-only synthetic KDG audit-display composition through
+BMAD Build against the [defined composition contract](audit-display-composition.md).
+Preserve the unchanged audit page,321 KiB aggregate bound, authorized server selection,
+released business connection, original ten-second budget and final read.all check.
+Require missing-route acceptance RED and characterize any Budget seam extraction.
+The later inert browser request adapter, UI/session/device, native Identity projection
+permissions/retention, real credentials and release remain separate gates.
+
+No active app/client/schema, SQL/native/migration/grant/resource, dependency, UI/editor/
+Leave, deployment/production/pilot/push or cleanup change ran. Existing historical and
+concurrent work/resources are preserved; prohibited fixture not accessed. Historical
+handoff bytes follow intact. The previous repair-needed headers describe the old state.
+
+---
+
+## KDG audit display composition defined; owner repair next — 2026-10-27
+
+Read the [KDG composition contract](audit-display-composition.md) and updated
+[BMAD spec](../../../_bmad-output/specs/spec-kdg-historical-actor-display/SPEC.md).
+The design keeps the audit page unchanged, adds a closed label-status union, caps
+the aggregate at321 KiB, selects only authorized page actors, releases business
+connections before Identity, and rechecks current read.all after label lookup.
+One original ten-second budget and later client publication fences remain binding.
+
+Next repair the Identity owner cancellation-diagnostic path before consumer code.
+An actual synthetic ASGI diagnostic on Python3.15.0 cancelled a lookup and failed
+reader cleanup: one loop diagnostic received the synthetic private exception message.
+Safe source/results: `/tmp/kdg-actor-composition-diagnostic-yeqc5h4s/`. No raw
+diagnostic or real secret was printed. Earlier81 passing tests did not prove this
+combined case; the earlier result is retained with an explicit owner correction.
+
+Use BMAD Build: add the failing HTTP cancellation/cleanup-exception regression,
+shield a private non-raising reader outcome, preserve awaited cancellation/deadline
+ownership, then qualify/review before consuming implementation. No silent global
+logging suppression, detached reader or credential/schema change. After repair,
+select the backend-only synthetic KC matrix; inert web consumption follows separately.
+
+This pass changed documents only and ran one targeted synthetic diagnostic. No
+existing runtime suites were rerun, no runtime code/resources/dependencies changed.
+Active startup, real accounts/services, native DB/grants/migrations, UI/editor/Leave,
+deployment/production/pilot/push and cleanup remain excluded. The prohibited fixture
+was not accessed. Prior handoff bytes follow intact.
+
+---
+
 ## Completed isolated Identity actor display HTTP candidate — 2026-10-27
 
 The [Identity owner candidate](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md)

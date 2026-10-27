@@ -251,6 +251,68 @@ def test_exception_and_logs_are_safe(caplog):
     assert KEY not in response.text + caplog.text and 'private name' not in caplog.text
 
 
+@pytest.mark.parametrize('mode', ['caller', 'repeated', 'timeout', 'deadline'])
+def test_cleanup_exception_never_reaches_asyncio_diagnostics(mode, monkeypatch, caplog):
+    import actor_display_http
+    monkeypatch.setattr(actor_display_http, 'OPERATION_SECONDS', .25)
+    monkeypatch.setattr(actor_display_http, 'UNWIND_RESERVE_SECONDS', .06)
+
+    async def execute():
+        started, cleaning, finished = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        diagnostics, owned = [], []
+        marker = 'synthetic-private-cleanup-exception'
+        loop = asyncio.get_running_loop()
+        previous = loop.get_exception_handler()
+        loop.set_exception_handler(lambda _, context: diagnostics.append(context))
+
+        async def reader(selected, deadline):
+            owned.append(asyncio.current_task())
+            started.set()
+            try:
+                await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                cleaning.set()
+                try:
+                    await asyncio.sleep(10 if mode == 'deadline' else .02)
+                finally:
+                    finished.set()
+                raise RuntimeError(marker)
+
+        # The deadline case fails cleanup on the second, original-deadline cancel.
+        async def deadline_reader(selected, deadline):
+            try:
+                return await reader(selected, deadline)
+            except asyncio.CancelledError:
+                raise RuntimeError(marker)
+
+        app = create_app(config(), deadline_reader if mode == 'deadline' else reader)
+        try:
+            task = asyncio.create_task(post_async(app, {'org_id': ORG, 'actor_ids': [ACTOR]}))
+            await started.wait()
+            if mode in ('caller', 'repeated'):
+                task.cancel()
+                await cleaning.wait()
+                if mode == 'repeated':
+                    task.cancel()
+                with pytest.raises(asyncio.CancelledError):
+                    await task
+            else:
+                assert_error(await task, 503)
+            assert finished.is_set() and owned[0].done()
+            # Give shield's deferred diagnostic callback a chance to execute.
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+            assert len(diagnostics) == 0
+            assert marker not in caplog.text
+            if not owned[0].cancelled():
+                assert marker not in repr(owned[0])
+                assert marker not in repr(owned[0].result())
+        finally:
+            loop.set_exception_handler(previous)
+
+    asyncio.run(execute())
+
+
 def test_slow_input_and_reader_use_one_original_deadline(monkeypatch):
     import actor_display_http
     monkeypatch.setattr(actor_display_http, 'OPERATION_SECONDS', .15)

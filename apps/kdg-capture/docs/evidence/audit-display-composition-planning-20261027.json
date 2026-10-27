@@ -1,0 +1,36 @@
+{
+  "baseline_commit": "f116f05a590d7500e3b61b4a6783d441a872e3d4",
+  "scope": "composition contract planning and one synthetic disclosure diagnostic; no runtime code changed",
+  "diagnostic": {
+    "argv": [
+      "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+      "-I",
+      "-B",
+      "/tmp/kdg-actor-display-cancellation-diagnostic.py"
+    ],
+    "returncode": 1,
+    "source": "/tmp/kdg-actor-composition-diagnostic-yeqc5h4s/source.py",
+    "source_sha256": "37f25aad222dd5f8c4010ba8d92fe76282e07824989d2ffae4c48ac73d06b14b",
+    "result": "/tmp/kdg-actor-composition-diagnostic-yeqc5h4s/result.json",
+    "result_sha256": "1f0a4392ccbf515d4854022d199d792a5bcb5ebb1a703edac1e9f67938dad11c",
+    "safe_result": {
+      "python": "3.15.0",
+      "cancelled_http_request": true,
+      "loop_diagnostic_events": 1,
+      "private_cleanup_message_reaches_diagnostic_handler": true
+    }
+  },
+  "document_checks": {
+    "command": "python3 /tmp/check-kdg-audit-display-composition.py",
+    "returncode": 0,
+    "local_links_and_companions": 22,
+    "acceptance_cases": 9,
+    "unchanged_source_files": 8,
+    "scoped_git_diff_check": 0,
+    "source": "/tmp/kdg-actor-composition-diagnostic-yeqc5h4s/document-check.py",
+    "source_sha256": "6f505a58a2d61b5cee391360b34edcf02cdcb88b0136d68ec70a9775ca937827"
+  },
+  "next_required_work": "Identity private-outcome cancellation/cleanup exception repair with no-disclosure RED/GREEN before consumer Build",
+  "runtime_suites_rerun": false,
+  "resource_operations": false
+}

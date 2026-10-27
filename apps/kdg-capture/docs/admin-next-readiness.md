@@ -99,3 +99,40 @@ One verification gap was closed; no new deferral. This completes only the select
 synthetic owner scope. KDG combined DTO/budget/publication/authorization contracts
 remain to close before consuming implementation; no additional ready consumer is
 asserted. Native projection/real authority/activation gates remain.
+
+## Composition planning and corrected prerequisite — 2026-10-27
+
+The [composition contract](audit-display-composition.md) closes proposed route,
+combined DTO/321 KiB bound, exact permitted selection, transaction release, original
+budget, final authority check and later client invalidation, with KC-1–KC-9 mapped
+to HD-6/consumer HD-7. No consuming endpoint, generated contract or runtime is added.
+
+A targeted actual-ASGI diagnostic confirms that the existing Identity shielded reader
+can disclose a synthetic private cleanup exception to Python3.15 loop diagnostics
+after caller cancellation. Diagnostic command/source and boolean/count-only result
+are in the composition contract; retained evidence is
+`/tmp/kdg-actor-composition-diagnostic-yeqc5h4s/`. It exits1 with one diagnostic event.
+This newly exercised case supersedes the earlier no-open-finding readiness only
+for this specific path; no old successful test expectation/result is rewritten.
+
+Next: BMAD owner repair with a no-disclosure cancellation/timeout regression and
+private outcome wrapper before consuming implementation. Documentation changes and
+one synthetic diagnostic only; no native/service/resource or runtime-code changes.
+
+Verification: `python3 /tmp/check-kdg-audit-display-composition.py` passes22 local
+link/companion targets with heading checks, stable CAP-1, nine KC cases,203-ID and
+321 KiB bounds, and eight unchanged runtime/test/schema sources. Scoped
+`git diff --check` passes. The targeted disclosure diagnostic exits1 as recorded,
+not a passing owner qualification. Exact command, safe result and source hashes:
+[planning evidence](evidence/audit-display-composition-planning-20261027.json).
+
+## Identity prerequisite repaired — 2026-10-27
+
+The concrete cancellation-diagnostic issue is fixed in the isolated owner candidate;
+[repair evidence](../../../services/access/ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md) records
+four actual HTTP RED/GREEN cases,85 owner/127 affected passes, exporter/generator/TS7
+checks and independent no-finding review. Original diagnostic replay has zero events.
+This closes only that discovered prerequisite. The next selected scope is backend-only
+synthetic composition under the [defined KDG contract](audit-display-composition.md),
+with consuming acceptance RED before implementation. Native/real authority and active
+mount/browser/session/UI qualification remain separate. No new deferral or resources.

@@ -1921,3 +1921,22 @@ three-layer review. One verification gap was patched; no new deferral. See
 [owner evidence](../../../services/access/HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md).
 No KDG audit DTO, route, generated type or named composition is changed. Combined
 DTO/budget/current-authorization/response-publication contracts remain next.
+
+## KDG audit display composition design — 2026-10-27
+
+The [composition contract](audit-display-composition.md) defines a separate candidate
+audit-details envelope over the unchanged AuditPage and exact selected Identity
+labels, with321 KiB aggregate bounds, one original execution budget and final current
+read.all verification. These are planning defaults; no endpoint/DTO/client is added.
+The confirmed Python3.15 cancelled-reader exception diagnostic is an owner repair
+prerequisite. No consuming implementation is ready until its RED/GREEN and review
+close. Earlier owner proof remains recorded with that concrete qualification limit.
+
+### Identity cancellation-diagnostic prerequisite closure — 2026-10-27
+
+The verified owner issue above is repaired with a private non-raising reader outcome,
+without changing any wire shape, key policy, cancellation/deadline or active integration.
+[Repair evidence](../../../services/access/ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md) records
+85 owner/127 affected passes, actual RED/GREEN and no-finding independent review.
+The [KDG composition contract](audit-display-composition.md) remains the next bounded
+backend consuming scope; no consuming endpoint, DTO or generated type is implemented.

@@ -2,7 +2,11 @@
 
 Status: contract defaults agreed by the user's subsequent “next”; credential and
 projection design closed below. The isolated synthetic HTTP candidate is implemented
-and its owner checks and three-layer review pass. See
+and its owner checks and three-layer review passed. The later cancellation-diagnostic
+prerequisite is now repaired with actual RED/GREEN and independent review; see
+[repair evidence](ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md). The
+[composition prerequisite record](../../apps/kdg-capture/docs/audit-display-composition.md#concrete-identity-prerequisite-found-during-planning)
+retains the original discovery. See
 [delivery evidence](HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md). No active-service mount,
 native projection or real credential is implemented. Identity owns this contract within the existing
 Access-hosted Identity boundary. KDG owns record authorization and actor selection.

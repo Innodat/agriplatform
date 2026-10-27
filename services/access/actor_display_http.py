@@ -9,6 +9,7 @@ import asyncio
 import hmac
 import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping
+from dataclasses import dataclass
 from uuid import UUID
 
 from fastapi import APIRouter, FastAPI, Request, Security
@@ -80,6 +81,24 @@ def error_response(status: int) -> JSONResponse:
     return JSONResponse(model().model_dump(), status_code=status, headers=NO_STORE)
 
 
+@dataclass(frozen=True, repr=False)
+class _ReadOutcome:
+    rows: object = None
+    error: Exception | None = None
+
+    def __repr__(self):
+        return '<_ReadOutcome private>'
+
+
+async def _reader_outcome(reader: Reader, selected: tuple[UUID, ...], deadline: float):
+    # Python3.15 shield logs raw task exceptions after outer cancellation, even
+    # if the owner retrieves them later. The shielded task must finish privately.
+    try:
+        return _ReadOutcome(rows=await reader(selected, deadline))
+    except Exception as error:
+        return _ReadOutcome(error=error)
+
+
 async def read_owned(reader: Reader, selected: tuple[UUID, ...], deadline: float):
     """Keep ownership through cancellation, including repeated caller cancellation.
 
@@ -87,9 +106,9 @@ async def read_owned(reader: Reader, selected: tuple[UUID, ...], deadline: float
     must release on cancellation; at the absolute deadline a second cancellation
     interrupts a cleanup that exhausted the reserve. No detached read is allowed.
     """
-    task = asyncio.create_task(reader(selected, deadline))
+    task = asyncio.create_task(_reader_outcome(reader, selected, deadline))
     try:
-        return await asyncio.shield(task)
+        outcome = await asyncio.shield(task)
     except asyncio.CancelledError:
         task.cancel()
         while not task.done():
@@ -98,12 +117,13 @@ async def read_owned(reader: Reader, selected: tuple[UUID, ...], deadline: float
             except asyncio.CancelledError:
                 if time.monotonic() >= deadline:
                     task.cancel()
-            except Exception:
-                break
-        # Retrieve a cleanup exception without replacing the caller cancellation.
+        # Consume the private outcome without unwrapping a cancelled attempt.
         if task.done() and not task.cancelled():
-            task.exception()
+            task.result()
         raise
+    if outcome.error is not None:
+        raise outcome.error from None
+    return outcome.rows
 
 
 def create_router(configuration: Mapping[str, str], reader: Reader) -> APIRouter:

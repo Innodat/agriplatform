@@ -1,0 +1,123 @@
+{
+  "baseline_commit": "f116f05a590d7500e3b61b4a6783d441a872e3d4",
+  "scope": "Isolated Identity actor-display cancellation-diagnostic repair; no active mount or KDG consumer",
+  "acceptance_red": {
+    "argv": [
+      "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "services/access/tests/test_actor_display.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "-k",
+      "cleanup_exception_never_reaches_asyncio_diagnostics"
+    ],
+    "returncode": 1,
+    "tests_sha256": "2a542465c682747e1e2f7b5977bef84b61905d69fe8e00a724dd1bef1002bb1c"
+  },
+  "acceptance_green": {
+    "argv": [
+      "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "pytest",
+      "services/access/tests/test_actor_display.py",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "-k",
+      "cleanup_exception_never_reaches_asyncio_diagnostics"
+    ],
+    "returncode": 0,
+    "source_sha256": "e6b622095d818dc7a4e89307918e118573640ad1cc60e8cab659c67bbf3cd1da",
+    "tests_sha256": "2a542465c682747e1e2f7b5977bef84b61905d69fe8e00a724dd1bef1002bb1c"
+  },
+  "qualification": [
+    {
+      "name": "focused",
+      "cmd": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest services/access/tests/test_actor_display.py -q -p no:cacheprovider",
+      "chunk_id": "8e92bc",
+      "wall_time_seconds": 5.507710801,
+      "exit_code": 0,
+      "original_token_count": 45,
+      "output": "........................................................................ [ 84%]\n.............                                                            [100%]\n85 passed in 5.06s\n"
+    },
+    {
+      "name": "affected",
+      "cmd": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 timeout 30s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest services/access/tests/test_capability_check.py services/access/tests/test_organization_check.py services/access/tests/test_people_setup_references.py -q -p no:cacheprovider",
+      "chunk_id": "91b5c7",
+      "wall_time_seconds": 4.602846853,
+      "exit_code": 0,
+      "original_token_count": 204,
+      "output": "........................................................................ [ 56%]\n.......................................................                  [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n127 passed, 1 warning in 3.92s\n"
+    },
+    {
+      "name": "export",
+      "cmd": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B services/access/export_actor_display_openapi.py --check",
+      "chunk_id": "9c03ef",
+      "wall_time_seconds": 0.649770524,
+      "exit_code": 0,
+      "original_token_count": 8,
+      "output": "actor_display_openapi_current\n"
+    },
+    {
+      "name": "types",
+      "cmd": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext services/access/tests/actor_display_types.test.ts",
+      "chunk_id": "49bbbc",
+      "wall_time_seconds": 0.136411092,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "generator",
+      "cmd": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-yc4xuk/root/platform/api-client/src/cli.mjs --schema services/access/actor-display.openapi.json --output services/access/contracts/actor-display-generated --check",
+      "chunk_id": "d38bcd",
+      "wall_time_seconds": 0.845295507,
+      "exit_code": 0,
+      "original_token_count": 5,
+      "output": "api_client_current\n"
+    }
+  ],
+  "diagnostic_replay": {
+    "argv": [
+      "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+      "-I",
+      "-B",
+      "/tmp/kdg-actor-display-cancellation-diagnostic.py"
+    ],
+    "returncode": 0,
+    "safe_result": {
+      "evidence": "/tmp/kdg-actor-composition-diagnostic-f7_oc3i0",
+      "python": "3.15.0",
+      "cancelled_http_request": true,
+      "loop_diagnostic_events": 0,
+      "private_cleanup_message_reaches_diagnostic_handler": false
+    }
+  },
+  "independent_review": {
+    "workflow": "BMAD oneshot blind review",
+    "supported_findings": 0,
+    "independent_tests_passed": 85,
+    "report": "/tmp/actor-display-cleanup-fix-e_ezl9lo/review.md"
+  },
+  "protected_unchanged": 12,
+  "documentation_targets_checked": 26,
+  "retained_directory": "/tmp/actor-display-cleanup-fix-e_ezl9lo",
+  "new_deferrals": 0,
+  "resource_operations": false,
+  "logs": {
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/types.log": "37049efbf85bcd00ec3ae812e5f9a96d1a3d15f22e24a5dd5568face4968da0a",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/original-diagnostic-green.log": "ca276a63dc31fc06727525b47a1673082340c0f709edb6a4c7a252913f2640d4",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/generator.log": "c393419c92608bd3105cda34f8e04b7361aef4d5cab4dc63afc06eb18d18fa2d",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/acceptance-red.log": "7966319b06c43f4e3bc79ceb977d66cbe852f9497a2118ec8b661b0c46ee3f8e",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/focused.log": "45188119e53b4404982138d8da1bbc9de822452ffd5412d8b2e88a079776c5a9",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/export.log": "523845dfd46b1e40abc5987ce2b808b3e512e0801e4bcf93f166caeca0f06dfb",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/affected.log": "d1f292e6bcc22fde77fda624377f5c49150a280d8c717fef70216765e2f29f68",
+    "/tmp/actor-display-cleanup-fix-e_ezl9lo/acceptance-green.log": "66992f1eab74d18eac049306c075cf16782cf1071f853ce8d776a49180745d90"
+  }
+}

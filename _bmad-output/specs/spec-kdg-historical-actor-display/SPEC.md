@@ -1,8 +1,9 @@
 ---
 id: SPEC-kdg-historical-actor-display
-status: ready-for-isolated-synthetic-owner
+status: owner-repaired-composition-planned
 companions:
   - ../../../services/access/HISTORICAL-ACTOR-DISPLAY.md
+  - ../../../apps/kdg-capture/docs/audit-display-composition.md
   - ../../../apps/kdg-capture/docs/contracts.md
   - ../../../apps/kdg-capture/docs/epics.md
 sources: []
@@ -13,33 +14,39 @@ sources: []
 ## Why
 
 KDG administrator audit metadata retains durable actor IDs but cannot yet present
-permitted names for original capturers and actual modifiers. Identity owns the
-missing display contract; current-account and assignment discovery cannot supply it.
+permitted names for original capturers and actual modifiers. Identity owns label
+resolution; KDG owns current record authorization, composition and presentation.
 
 ## Capabilities
 
 - **CAP-1**
   - **intent:** Authorized KDG administrators can identify the actors behind the permitted record's attribution.
-  - **success:** Owner/consumer cases HD-1–HD-7 in the adopted Identity contract prove retained labels, original executor/initiator identity, scoped disclosure and safe lookup failure.
+  - **success:** HD-1–HD-7 and KDG KC-1–KC-9 prove retained labels, original executor/initiator identity, scoped disclosure, safe dependency failure and current-authority publication.
 
 ## Constraints
 
-- Repository-owned contracts and Story 3.1 remain authoritative; wire details and acceptance traceability live in the adopted owner contract.
-- Actor existence, employment and membership history confer no current access; KDG authorizes and selects actors, Identity owns labels and retention.
-- Preserve every current handoff exclusion, concurrent work and prior evidence. The selected implementation is an isolated synthetic owner candidate; native changes, active app wiring and KDG composition remain gated.
+- Adopted repository-owned contracts and Story 3.1 remain authoritative; API details and acceptance traceability live there.
+- Actor existence, employment and membership history confer no current access. KDG selects permitted record actors; Identity owns labels and retention.
+- Preserve the repaired private-outcome diagnostic boundary, cancellation ownership and original execution budgets in consuming implementation.
+- Preserve all handoff exclusions and concurrent work. Backend and later inert web consumers need separate proof; synthetic checks do not qualify native retention or live authority.
 
 ## Non-goals
 
-- General actor directory, event-time name snapshots, actor management, UI mounting, database changes, real authority qualification or full Story 3.1 completion.
+- General actor directory, event-time names, actor management, UI mounting, database/privilege changes, live activation or full Story 3.1 completion.
 
 ## Success signal
 
-The owner contract fixes label, caller/selection, wire, failure and execution
-semantics. The selected owner candidate must observe HTTP acceptance RED, then prove
-HD-1–HD-5 and owner HD-7 without activating a service. HD-6 and consuming HD-7 remain
-later work. This readiness pass executes documentation checks only.
+The isolated owner HTTP candidate exists, and the KDG combined contract now defines
+the selected page/label envelope, bounds, final authorization and publication rules.
+The owner cancellation-diagnostic repair now has four actual RED/GREEN regressions
+and independent review. Next select the bounded synthetic backend consumer against
+KC-1–KC-9. Passing owner suites do not establish unimplemented consuming behavior.
+
+## Assumptions
+
+- The separate audit-details path, label-status union, phase reserves and backend-first delivery are selected planning defaults for consuming Build; they do not activate a runtime surface.
 
 ## Deferred qualification
 
-- Native projection migration/privileges and actual retention need separately scoped database proof; real credential provisioning/rotation and runtime activation remain outside this slice.
-- KDG composition still needs a complete aggregate DTO/byte bound, current authorization and session/publication proof before named presentation.
+- Native projection/privileges, actual retention, real credential provisioning/rotation and release activation require separate qualification.
+- The later inert client must prove account/org/page/session invalidation and generated/runtime response validation before named presentation.
