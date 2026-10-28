@@ -1,3 +1,24 @@
+## Identity retained-actor native prerequisite qualified and reviewed -- 2026-10-28
+
+The explicitly authorized synthetic native prerequisite now supplies Identity28's
+retained-actor SQL projection, dedicated restricted login preparation and private
+Psycopg reader injected into the existing isolated HTTP candidate. Actual ON-1--ON-5
+RED/GREEN, seeded27 compatibility and controlled failure/rollback/forward retry are
+recorded in [native evidence](../../../services/access/ACTOR_DISPLAY_NATIVE_EVIDENCE.md).
+The earlier native-assessment exclusion is superseded only for this bounded proof.
+
+All three review lenses completed; four findings were fixed and independent patch
+review found no remaining supported findings. Final126 focused/198 affected tests,
+native matrix, strict types/generated freshness, KDG aggregate and composition pass.
+Prior custody/handoff bytes are preserved. Only owned containers stopped normally;
+database volumes and failed evidence remain. No new deferral. Story3.1 remains
+incomplete. Next active-owner mounting/export/package/config and running KDG
+HTTP/release integration require their own bounded authorization/evidence; real
+provider/session/access invalidation, credential lifecycle, deployed cache separation
+and installed-device/zoom/assistive-technology checks remain separate gates.
+
+Prior handoff is preserved verbatim below.
+
 ## Next owner/native prerequisite assessed -- 2026-10-28
 
 Resumed at `f77c257321fd91ef631cb40a9918637c9412df1b`. The

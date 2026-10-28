@@ -31,6 +31,8 @@ PREFERENCES_REVISION = 'identity_0023'
 ACCOUNT_GRANT_TARGET_REVISION = 'identity_0024'
 CAPABILITY_REVISION = 'identity_0025'
 DISCOVERY_REVISION = 'identity_0026'
+PEOPLE_SETUP_REVISION = 'identity_0027'
+ACTOR_DISPLAY_REVISION = 'identity_0028'
 CHECK_READER_BRIDGE_REFERENCE_SHA256 = '154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7'
 CHECK_READER = 'access_check_reader'
 ORGANIZATION_TARGET_REFERENCE_SHA256 = 'ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235'
@@ -230,6 +232,14 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'actor_display':
+        from identity_actor_display_catalog import verify_actor_display_catalog
+        verify_actor_display_catalog(connection)
+        return
+    if kind == 'people_setup':
+        from identity_people_setup_catalog import verify_people_setup_catalog
+        verify_people_setup_catalog(connection)
+        return
     if kind == 'discovery':
         from identity_discovery_catalog import verify_discovery_catalog
         verify_discovery_catalog(connection)
@@ -468,15 +478,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != DISCOVERY_REVISION:
+    if require_head and revision != ACTOR_DISPLAY_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target', CHECK_READER_BRIDGE_REVISION: 'check_reader_bridge', STUDIES_SETUP_REVISION:'studies_setup', PERSON_LINKS_REVISION:'person_links', PREFERENCES_REVISION:'language_preferences', ACCOUNT_GRANT_TARGET_REVISION:'account_grant_target', CAPABILITY_REVISION:'capability_reader', DISCOVERY_REVISION:'discovery'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target', CHECK_READER_BRIDGE_REVISION: 'check_reader_bridge', STUDIES_SETUP_REVISION:'studies_setup', PERSON_LINKS_REVISION:'person_links', PREFERENCES_REVISION:'language_preferences', ACCOUNT_GRANT_TARGET_REVISION:'account_grant_target', CAPABILITY_REVISION:'capability_reader', DISCOVERY_REVISION:'discovery', PEOPLE_SETUP_REVISION:'people_setup', ACTOR_DISPLAY_REVISION:'actor_display'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION], [CHECK_READER_BRIDGE_REVISION], [STUDIES_SETUP_REVISION], [PERSON_LINKS_REVISION], [PREFERENCES_REVISION], [ACCOUNT_GRANT_TARGET_REVISION], [CAPABILITY_REVISION], [DISCOVERY_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION], [CHECK_READER_BRIDGE_REVISION], [STUDIES_SETUP_REVISION], [PERSON_LINKS_REVISION], [PREFERENCES_REVISION], [ACCOUNT_GRANT_TARGET_REVISION], [CAPABILITY_REVISION], [DISCOVERY_REVISION], [PEOPLE_SETUP_REVISION], [ACTOR_DISPLAY_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:

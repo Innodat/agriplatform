@@ -439,3 +439,35 @@ Scaffold: reuse existing controlled owner lane, defer promotion until a consumin
 native proof. Shared UI: no change. Agent context: existing instructions suffice.
 Documentation: this assessment, handoff and Build record only. ADR: inherit existing
 0020/0022/0023/0056 and focused migration guidance; no accepted decision changed.
+
+## Identity native prerequisite qualified and reviewed — 2026-10-28
+
+The subsequent explicit synthetic-native authorization supersedes the prior
+assessment's exclusion only for this owner prerequisite. The
+[Identity native evidence](../../../services/access/ACTOR_DISPLAY_NATIVE_EVIDENCE.md)
+records actual restricted-login ON-1–ON-5 RED/GREEN on fresh isolated PostgreSQL17,
+seeded27 compatibility, controlled28 failure/rollback/forward retry, exact selected
+actor labels and existing isolated HTTP integration. Identity28 supplies the
+retained projection and explicit private reader. The native inherited-authority
+probe also exposed PUBLIC trigger attachment capable of forging an audit row;
+the migration removes direct helper EXECUTE while preserving installed triggers.
+
+All three review lenses completed; four findings were patched and independent patch
+review found no remaining supported findings or deferral. Final126 focused and198
+affected tests, native matrix, strict types/generated freshness, KDG aggregate proof
+and composition pass. Prior source/handoff custody is verified; only owned synthetic
+containers stopped normally, with volumes retained. Neither real provider lifecycle nor active owner
+mounting/configuration/packaging is established. Story3.1 remains incomplete.
+
+After this prerequisite is accepted, the next meaningful gate is active owner
+factory/export/package/config integration together with KDG's running owner HTTP
+path and controlled release compatibility. Real credential provisioning/rotation,
+Auth/session/access invalidation, synchronized capture-to-history journey, deployed
+own-PWA/portal storage separation and installed-device/zoom/assistive-technology
+evidence remain independently authorized qualifications. No editor, Leave, real
+account/key or release scope follows from the synthetic native proof.
+
+Scaffold: existing owner migration lane reused without generic catalogue expansion;
+no neutral pattern promoted. Shared UI and agent context: unchanged. Documentation:
+owner contract/runbook/evidence and this readiness/handoff. ADR: existing release,
+transaction/logging/error/actor decisions apply; no accepted decision changed.

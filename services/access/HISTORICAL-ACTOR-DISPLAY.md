@@ -7,8 +7,10 @@ prerequisite is now repaired with actual RED/GREEN and independent review; see
 [repair evidence](ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md). The
 [composition prerequisite record](../../apps/kdg-capture/docs/audit-display-composition.md#concrete-identity-prerequisite-found-during-planning)
 retains the original discovery. See
-[delivery evidence](HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md). No active-service mount,
-native projection or real credential is implemented. Identity owns this contract within the existing
+[delivery evidence](HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md). The later
+[native prerequisite](ACTOR_DISPLAY_NATIVE_EVIDENCE.md) now has an implemented
+Identity28 projection and restricted reader with reviewed synthetic ON evidence.
+No active-service mount or real credential is implemented. Identity owns this contract within the existing
 Access-hosted Identity boundary. KDG owns record authorization and actor selection.
 Baseline: `29763767fc3bb2895fea2500283759975f826d81`.
 
@@ -110,7 +112,8 @@ registry contents or validation payload enters error details.
 Identity total execution deadline: three seconds from operation entry, including
 streamed input, bounded read, serialization and owned unwind. Read only through an Identity-owned least-privilege
 projection; no provisioning, mapping writes or Access/KDG direct table reads.
-Projection/privilege design follows below; actual SQL/runtime proof remains unready.
+Projection/privilege design follows below; the [native prerequisite evidence](ACTOR_DISPLAY_NATIVE_EVIDENCE.md)
+records synthetic SQL/permission proof. Active runtime activation remains unqualified.
 
 KDG invokes resolution after releasing its business read transaction; no external
 wait inside row locks or business coordination. A future aggregate consumer shares
@@ -206,7 +209,8 @@ failure. Assemble output in exact request order; never infer absence after a rea
 exception or timeout. Cancellation is propagated and owned cleanup is awaited.
 No process-global label cache, reader configuration, URL or connection is created.
 
-Future native design, deliberately unimplemented: Identity owns
+Native design, implemented through the reviewed controlled Identity28 prerequisite:
+Identity owns
 `identity.actor_displays(uuid[]) RETURNS TABLE(actor_id uuid, display_name text)`.
 It validates nonzero unique input IDs and 1–203 cardinality and selects only
 `identity.actor.id/display_name` for those IDs in one read snapshot. It never joins
@@ -221,9 +225,17 @@ writes, actor registration or operator routines. Revoke PUBLIC/other callers'
 execution; inspect actual inherited privileges before qualification. Within a short
 read-only transaction, the native adapter passes only the selected UUID array as
 bound data and uses statement/lock timeouts bounded by the original remaining budget.
-This future function/role requires a separately authorized controlled migration,
+This function/role requires controlled migration before later runtime activation,
 previous-version compatibility, restricted-role denial/rollback/retry evidence and
-release recovery under ADR-0020. No SQL, role, grant or migration file is added now.
+release recovery under ADR-0020. The later bounded synthetic native delivery adds
+the SQL/role/migration and exact evidence without activating the current service.
+
+The private reader requires explicit nonempty host, port, database, user and password
+with exactly `identity_actor_display_runtime` as its login. Incomplete inputs never
+fall back to PGHOST/PGUSER. Service selectors and nonempty ambient PGHOSTADDR,
+PGSERVICE or PGSERVICEFILE fail construction/acquisition safely; the reader does not
+mutate process environment. Task-local driver-log filtering preserves unrelated
+task logs while removing this operation's raw dependency diagnostics.
 
 Source check: `identity-migrations/versions/0002_actor_registry.py` retains rows
 independently of live Auth and caps persisted names at 200 characters. The wire's
