@@ -200,3 +200,15 @@ SSH configuration. The private-network connection timed out (exit255); no curren
 production metadata, database query or mutation occurred. [Safe diagnostic](evidence/bounded-studies-rollout-20261028/production-preflight.json).
 Restore that existing connection before collecting the target-specific approval
 bundle. Do not substitute historical inventory or approve activation from local proof.
+
+## Live target follow-through — 2026-10-28
+
+Private SSH to the renamed `machon` host now works. [Actual target readiness](STUDIES_TARGET_READINESS.md)
+replaces the connection blocker with evidenced owner/consumer blockers: production
+Identity is postgres-owned with no owned ledger; Access is0001 with three real PtS
+grants; the actual PtS image uses `/v1/check`, while the qualified frozen Access
+image deliberately refuses it. The managed deployment login is not superuser, so
+the existing superuser-only Studies role helper also cannot be assumed executable.
+Public reading passed200/39books; Studies remains404; no production state changed.
+A coordinated Identity/Access/PtS adoption scope decision is pending. Do not activate
+or ask approval for the previously generic sequence against this target.

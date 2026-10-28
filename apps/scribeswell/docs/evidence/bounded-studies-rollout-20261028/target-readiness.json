@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "status": "blocked_on_owner_adoption_and_consumer_compatibility",
+  "activation_authorized": false,
+  "host": {
+    "release_sha": "2480de173149cc646e8c1c55d088a93c4b196f47",
+    "compose_sha256": "a0db97742988f590e306bac75360a499fdfae3efd364b965c24dd95d8cd827cb",
+    "compose_name": "agriplatform-production",
+    "pending_release": false,
+    "pending_tls": false,
+    "service_images": {
+      "access": "ghcr.io/innodat/agriplatform/access@sha256:066e4b81f81199c75bf57dfdbed63519de063d6399ab6bcce4a7342aa05b3b20",
+      "content": "ghcr.io/innodat/agriplatform/content@sha256:cb3bdbb62156ef9c1e05f52a08e720146e7ddf2daa81c2a16ee76c2271f9aabb",
+      "pts": "ghcr.io/innodat/agriplatform/pts@sha256:004cf7307d87b2f92403088ffdb9bbadbf9af303d9fe78c0a17b41bc8df5d42d",
+      "scribeswell": "ghcr.io/innodat/agriplatform/scribeswell@sha256:495e8a03bc5b398f80e910a33b7161e92ce85a79e4e95b0f01ded4a369e1d06c",
+      "directory": "ghcr.io/innodat/agriplatform/directory@sha256:baf0f9f334e547783029bc8775e5129e66968c4ed87d3c6bd776838eac6e0cb5",
+      "gateway": "apache/apisix:3.18.0-debian@sha256:84e6b5e787e9f889ebff88161cb9a16599bafcffa236c6b54c7f779a0655940d"
+    },
+    "running": [
+      {
+        "service": "directory",
+        "image_id": "sha256:baf0f9f334e547783029bc8775e5129e66968c4ed87d3c6bd776838eac6e0cb5",
+        "healthy": true,
+        "running": true,
+        "restarts": 0
+      },
+      {
+        "service": "gateway",
+        "image_id": "sha256:84e6b5e787e9f889ebff88161cb9a16599bafcffa236c6b54c7f779a0655940d",
+        "healthy": false,
+        "running": true,
+        "restarts": 0
+      },
+      {
+        "service": "pts",
+        "image_id": "sha256:004cf7307d87b2f92403088ffdb9bbadbf9af303d9fe78c0a17b41bc8df5d42d",
+        "healthy": true,
+        "running": true,
+        "restarts": 0
+      },
+      {
+        "service": "content",
+        "image_id": "sha256:cb3bdbb62156ef9c1e05f52a08e720146e7ddf2daa81c2a16ee76c2271f9aabb",
+        "healthy": true,
+        "running": true,
+        "restarts": 0
+      },
+      {
+        "service": "scribeswell",
+        "image_id": "sha256:495e8a03bc5b398f80e910a33b7161e92ce85a79e4e95b0f01ded4a369e1d06c",
+        "healthy": true,
+        "running": true,
+        "restarts": 0
+      },
+      {
+        "service": "access",
+        "image_id": "sha256:066e4b81f81199c75bf57dfdbed63519de063d6399ab6bcce4a7342aa05b3b20",
+        "healthy": true,
+        "running": true,
+        "restarts": 0
+      }
+    ],
+    "deployed_pts_contract": {
+      "clients_sha256": "79eded675f2bf733e335c6f93eb57eea07d409598b87e513e16d110af4214c29",
+      "calls_access_v1_check": true,
+      "matches_exact_deployed_source_commit": true
+    },
+    "private_studies_enabled": false,
+    "public_checks": {
+      "frontend_identity": {
+        "status": 200,
+        "sha256": "ad25a2b35252c78711e7730529afcd54f3d0d55859f39674c2b266809e442aaa",
+        "release_sha": "b7cb5b8c9ebb455eabaa7f1995353c9ecfd1c32c"
+      },
+      "books": {
+        "status": 200,
+        "sha256": "c09d84b2bbce54663005e40905956046e4b84ca2a0eb299137db2a04035ce97e",
+        "books": 39
+      },
+      "private_disabled": {
+        "status": 404
+      }
+    },
+    "observed_at": "2026-10-28T06:28:02.587500+00:00",
+    "scope": "Allowlisted host metadata, deployed client contract boolean/hash, public HTTP status/hash; no full Compose, environment values, keys or credentials exported"
+  },
+  "database": {
+    "observed_at": "2026-10-28T06:25:38.101024+00:00",
+    "read_only_verified": true,
+    "heads": {
+      "identity": null,
+      "access": [
+        "access_0001"
+      ],
+      "scribeswell": null,
+      "scribeswell_studies": null,
+      "content": [
+        "content_0004"
+      ],
+      "pts": [
+        "pts_0001"
+      ]
+    },
+    "schema_owners": {
+      "access": "access_migrator",
+      "identity": "postgres",
+      "scribeswell": "postgres"
+    },
+    "roles": [
+      {
+        "name": "access_migrator",
+        "superuser": false,
+        "inherit": true,
+        "createrole": false,
+        "createdb": false,
+        "bypassrls": false,
+        "database_temp": true
+      },
+      {
+        "name": "access_runtime",
+        "superuser": false,
+        "inherit": true,
+        "createrole": false,
+        "createdb": false,
+        "bypassrls": false,
+        "database_temp": true
+      },
+      {
+        "name": "scribeswell_runtime",
+        "superuser": false,
+        "inherit": false,
+        "createrole": false,
+        "createdb": false,
+        "bypassrls": false,
+        "database_temp": true
+      }
+    ],
+    "missing_roles": [
+      "access_studies_owner",
+      "access_studies_runtime",
+      "identity_migrator",
+      "identity_studies_owner",
+      "identity_studies_reader_runtime",
+      "identity_studies_setup_runtime",
+      "scribeswell_migrator",
+      "scribeswell_studies_migrator",
+      "scribeswell_studies_operator",
+      "scribeswell_studies_runtime"
+    ],
+    "deployment_administrator": {
+      "name": "postgres",
+      "superuser": false,
+      "createrole": true,
+      "createdb": true
+    },
+    "existing_grants": [
+      {
+        "permission": "pts.poetry.documents",
+        "count": 1
+      },
+      {
+        "permission": "pts.poetry.export",
+        "count": 1
+      },
+      {
+        "permission": "pts.poetry.read",
+        "count": 1
+      }
+    ],
+    "legacy_helper": [
+      {
+        "owner": "postgres",
+        "public_execute": false,
+        "authenticated_execute": true
+      }
+    ],
+    "reader_account": {
+      "count": 1,
+      "email_confirmed": true
+    }
+  },
+  "frozen_access_contract": {
+    "main_sha256": "4f4060bdc5f2a2c2a1f8a09883f348a672f1d61c21d9c56886c2d2890828f161",
+    "legacy_v1_check_refuses": true,
+    "image_id": "sha256:792933a8b3678b78657588e230e4f14dbbfe0e44909e616b56e1f9cf25448eba",
+    "source_commit": "deb424b0c4d29016917c9df39b540a468ca8e1cf",
+    "scope": "Actual local frozen image byte/legacy-handler inspection only; no network, credentials, production or application activation"
+  },
+  "source_revision": "7eb27133a887b481e84b0c2f2ce2de5c5c112e55",
+  "private_proof_sha256": {
+    "host-readiness-safe.json": "c0fc21b445679dfffd99b3582905939d371e2ebe13002ea9b6ce6471e916c2ab",
+    "release-readiness.json": "1ab456ec80360d9ea2f51df7e5fcaef545b53031fbe4c3f26f0237ad6f591d91",
+    "frozen-contract.json": "274270da8fc86221cd8adf2e829fba2ecc2836af67dc795c42fdcc9df25b501c"
+  },
+  "blockers": [
+    "Identity postgres-owned/no-ledger profile and PUBLIC-helper denial are expressly outside the original adoption reference.",
+    "Access0001 contains three real PtS grants; strict later grants require explicit registration/provenance adoption, not a blind head upgrade.",
+    "Actual deployed PtS clients call /v1/check; actual frozen qualified Access deliberately refuses that legacy contract.",
+    "Managed production postgres is not superuser; current Studies role-preparation SQL requires superuser and will refuse.",
+    "Required Identity/Scribeswell/Studies deployment roles and private schema are absent.",
+    "Unchanged current-head raw owner qualification and source archive were retained under /tmp, now unavailable in this session; historical older-head retained proof must not be relabelled."
+  ],
+  "execution": "Only read-only metadata/known-account admission queries, public HTTP requests and image source-byte inspection. No migrations, grant changes, account provisioning, registry publication, configuration edits or production activation.",
+  "scope_gate": "Whether this Studies task should include coordinated Identity/Access/PtS adoption is pending user direction; no cross-application implementation started.",
+  "approval_review": "Full Compose export was rejected due possible embedded secrets. It was not performed. A separately approved safer allowlist metadata collector completed."
+}
