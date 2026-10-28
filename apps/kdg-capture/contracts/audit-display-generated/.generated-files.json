@@ -4,7 +4,7 @@
     "generator": "platform-api-client",
     "template": "hey-api-0.99.0-types-v1",
     "recipe": "d3e06e4788695ffaa9ce45bcc8d62724af3870669d43ea340ea9d6342d976d3d",
-    "source": "91b508feebde370d76d247549f058f2d5db29aeb6dada4ae7cc898505e5d0f85"
+    "source": "3b3efc904ad5dd77782171c98b1726c57fc54186e5b61ae5184b7024e2368ebc"
   },
   "files": {
     "index.ts": {

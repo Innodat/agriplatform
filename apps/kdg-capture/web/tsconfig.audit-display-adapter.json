@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","files":["src/audit-display.ts","tests/audit-display-adapter.types.ts"]}

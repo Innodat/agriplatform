@@ -23,7 +23,7 @@ function cursor(raw:unknown,pinned:Pinned):Record<string,unknown> {
  }catch{return invalid();}
 }
 
-function pin(value:PendingAudit):Pinned {
+export function pin(value:PendingAudit):Pinned {
  // The private copy is the only request/validation context used after awaits.
  const captured={...value};object(captured,['account_id','org_id','capture_id'],['limit','cursor']);
  if(Object.hasOwn(captured,'limit')&&captured.limit===undefined)return invalid();
@@ -33,7 +33,7 @@ function pin(value:PendingAudit):Pinned {
  return pinned;
 }
 
-function validatePage(value:unknown,pinned:Pinned):Frozen<AuditPage> {
+export function validatePage(value:unknown,pinned:Pinned):Frozen<AuditPage> {
  const page=object(value,['account_id','org_id','capture_id','owner_account_id','owner_actor_id','created_by','created_at','updated_by','updated_at','current_revision','limit','events','next_cursor']);
  if(page.account_id!==pinned.account_id||page.org_id!==pinned.org_id||page.capture_id!==pinned.capture_id||page.limit!==pinned.limit)return invalid();
  for(const key of ['owner_account_id','owner_actor_id','created_by','updated_by'])if(!id(page[key]))return invalid();

@@ -1952,3 +1952,27 @@ commands/source/log custody. Existing audit/Identity sources, schemas and client
 remain unchanged; the new aggregate has its own schema/generated directory.
 The inert browser consumer is next; no active mount, portal/session/device or
 native/real-authority qualification is claimed.
+
+
+## Inert audit display request adapter — 2026-10-28
+
+`web/src/audit-display.ts:auditDetails(session, pending, options)` explicitly consumes
+`GET /api/v1/admin/captures/{capture_id}/audit-details` using generated request/result/
+error types. Pending account/org/capture/limit/cursor and bearer are pinned before
+awaits. Options require signal and a current-generation predicate for account/org/
+capture/page/session/access invalidation; optional timeout is bounded by ten seconds.
+The complete aggregate is published as `{kind:"loaded", page}` only after strict
+closed JSON/UTF8/audit/cursor/name validation and exact sorted page/header actor matching.
+Nested values are immutable. Loaded labels and temporarily unavailable batches stay
+separate; per-actor unavailable labels have no display_name. No actor-selector request,
+Identity browser call, partial batch, cache, storage or implicit retry exists.
+
+Actual321KiB response and raw64KiB audit/256KiB display subtree bounds include escaped
+spellings/whitespace. JSON/private/no-store/redirect/content-encoding checks fail closed.
+Known API failures publish only safe typed status/error_id. Recheck abort, current
+lease and original monotonic deadline around streaming and final publication, including
+late errors; best-effort cancellation discards late work even if fetch ignores abort.
+The caller owns invalidation; this inert function does not integrate Auth/session/UI.
+[Evidence](AUDIT_DISPLAY_ADAPTER_EVIDENCE.md) records109 adapter tests,73 prior audit
+checks,20 backend tests/two subtests, strictTS7.0.2, generated freshness and five parities.
+Native/real-authority, portal/device and release remain separate gates.

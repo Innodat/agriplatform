@@ -1,3 +1,31 @@
+## Completed inert audit display request adapter — 2026-10-28
+
+The next bounded `auditDetails` adapter is implemented and reviewed, unmounted.
+It validates the generated aggregate, original audit/cursor semantics, exact sorted
+page/header actors, closed names/statuses and actual321/64/256KiB byte bounds.
+Same-origin bearer requests and account/org/capture/page/session/access generation
+fences discard stale success/errors under one deadline with best-effort cancellation.
+
+Final qualification:109 adapter tests,73 existing audit tests,20 backend tests/two
+subtests, strictTS7.0.2, owner/generated freshness and five scaffold parities pass.
+Independent blind review found no supported code findings; no new deferral.
+See [adapter evidence](AUDIT_DISPLAY_ADAPTER_EVIDENCE.md) and its machine record for
+exact commands, retained RED/GREEN/source custody and limits. A preexisting generated
+manifest schema hash was repaired by its owning generator; type files are unchanged.
+
+Next assess a separately bounded ready synthetic consumer against current owner
+contracts before code. This handoff does not establish another implementation item
+or authorize portal/session/device/real-authority activation. Full Story3.1/3.2,
+native Identity retention/projection permissions and controlled release remain gated.
+
+No UI/editor/Leave, Auth/session/startup/browser/worker/queue activation, real services/
+accounts/credentials, native DB/Docker/migrations/grants, dependencies, deployment/
+production/pilot/push or resource lifecycle/cleanup changed. Concurrent work, retained
+resources and old evidence are preserved; prohibited fixture not accessed. All previous
+handoff bytes follow intact. Context headroom/model usage unknown.
+
+---
+
 ## Completed bounded KDG audit display backend — 2026-10-28
 
 The isolated `GET /api/v1/admin/captures/{capture_id}/audit-details` candidate is
