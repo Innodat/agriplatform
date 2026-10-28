@@ -4,16 +4,16 @@
     "generator": "builder-v1",
     "template": "local-entry-host-v1-candidate",
     "recipe": "8eee9700ad77f5b5b1a7dcb9ff91fad51058565614db3965c78e47d4eb02fa70",
-    "source": "34a878633215b3de105b613a867131ac59374dc3e979b0b2b49732feeeed4b0a"
+    "source": "ba95359b65965905007a036afd63f4c3174dd51090fc614d7f97c104dbd3f1fd"
   },
   "files": {
     "local-entry-host.mjs": {
       "classification": "generated",
-      "sha256": "042f8b1e8d853cf0bd12da3dc9f300e1312e35e053ae16c254d128c17c6db375"
+      "sha256": "f46b81a7a3b16a8c54a24b5468710396f0ef3a0a28bf8b17fcc85c47ebe45c23"
     },
     "test-local-entry-host.mjs": {
       "classification": "generated",
-      "sha256": "b68656f2b01d5c54808d83f92d4d858d7568016b51b8395affc58b1b5d51b2ab"
+      "sha256": "63f22f03997be6b7a1f2995200411c54e9b7628921943359b87ada4b0050dd58"
     }
   }
 }

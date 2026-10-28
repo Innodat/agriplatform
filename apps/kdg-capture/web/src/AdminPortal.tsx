@@ -8,8 +8,8 @@ import './admin-portal.css';
 export function actorName(actor:Readonly<AuditActorLabel>):string {
  return actor.status==='resolved'?actor.display_name:actor.status==='unavailable'?'Name unavailable':'Names temporarily unavailable';
 }
-/** Explicit preview consumer; the host owns the controller and its disposal. */
-export function AdminPortal({portal,from_date,to_date}:{portal:AdminPortalController;from_date:string;to_date:string}){
+/** Read-only review consumer; the host owns the controller and its disposal. */
+export function AdminPortal({portal,from_date,to_date,onSignIn}:{portal:AdminPortalController;from_date:string;to_date:string;onSignIn?:()=>Promise<void>}){
  const state=useSyncExternalStore(listener=>portal.subscribe(()=>flushSync(listener)),portal.snapshot,portal.snapshot);
  const heading=useRef<HTMLHeadingElement>(null),auditHeading=useRef<HTMLHeadingElement>(null),scroll=useRef(0);
  const lastNavigation=useRef<unknown>(null);
@@ -28,15 +28,15 @@ export function AdminPortal({portal,from_date,to_date}:{portal:AdminPortalContro
    window.scrollTo({top:0});
   }else lastNavigation.current=null;
  },[state]);
- const label=state.kind==='history'?'Observation history':state.kind==='detail'?'Observation details':state.kind==='checking'?'Checking access':state.kind==='loading'?'Loading review':state.kind==='offline'?'Connect to the internet':state.kind==='denied'?'Access denied':state.kind==='signed_out'?'Sign in to review':state.kind==='closed'?'Preview closed':'Review unavailable';
+ const label=state.kind==='history'?'Observation history':state.kind==='detail'?'Observation details':state.kind==='checking'?'Checking access':state.kind==='loading'?'Loading review':state.kind==='offline'?'Connect to the internet':state.kind==='denied'?'Access denied':state.kind==='signed_out'?'Sign in to review':state.kind==='closed'?'Review closed':'Review unavailable';
  const historyOutage=state.kind==='history'&&state.rows.some(row=>row.capturer.status==='temporarily_unavailable');
  return <div className="kdg-entry kdg-admin">
   <a className="kdg-entry-skip" href="#admin-main">Skip to review</a>
   <main id="admin-main">
-   <p>KDG Capture · Administrator review preview</p>
+   <p>KDG Capture · Administrator review</p>
    <h1 ref={heading} tabIndex={-1}>{label}</h1>
    <div role="status" aria-live="polite">{state.kind==='checking'?'Verifying current administrator access…':state.kind==='loading'?'Loading fresh authorized records…':state.kind==='history'?`${state.rows.length} observations on this page.`:state.kind==='detail'?'Observation loaded.':''}</div>
-   {['history','detail'].includes(state.kind)&&<nav aria-label="Review actions"><button onClick={()=>void portal.refresh()}>Verify access and refresh history</button><button onClick={()=>void portal.signOut()}>Sign out</button></nav>}
+   {['history','detail','denied','unavailable'].includes(state.kind)&&<nav aria-label="Review actions">{['history','detail'].includes(state.kind)&&<button onClick={()=>void portal.refresh()}>Verify access and refresh history</button>}<button onClick={()=>void portal.signOut()}>Sign out</button></nav>}
    {state.kind==='history'&&<>
     <form aria-label="Observation dates" onSubmit={event=>{event.preventDefault();void portal.dates(from,to);}}>
      <label htmlFor="history-from">From observation date</label><input id="history-from" type="date" required value={from} onChange={event=>setFrom(event.target.value)}/>
@@ -67,7 +67,7 @@ export function AdminPortal({portal,from_date,to_date}:{portal:AdminPortalContro
    </>}
    {state.kind==='unavailable'&&<div role="alert"><p>Could not load a complete current review. Please try again.</p><button onClick={()=>void portal.retry()}>Retry</button><button onClick={()=>void portal.firstHistory()}>Return to history</button></div>}
    {state.kind==='denied'&&<div role="alert"><p>Administrator review is not available for your current access.</p><button onClick={()=>void portal.refresh()}>Retry access check</button></div>}
-   {state.kind==='signed_out'&&<button onClick={()=>void portal.signIn()}>Sign in</button>}
+   {state.kind==='signed_out'&&<button onClick={()=>void (onSignIn??portal.signIn)()}>Sign in</button>}
    {state.kind==='offline'&&<p>Reconnect to verify administrator access and load fresh records.</p>}
   </main>
  </div>;

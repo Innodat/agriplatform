@@ -36,5 +36,30 @@ test('resolved CLI overrides cannot expose the local host or replace routing pol
 test('local host bounds a stalled response and closes its upstream after the deadline',async()=>{
  let closed=false;const api=createServer((req,res)=>{res.writeHead(200,{'Content-Type':'application/json'});res.write('{');res.once('close',()=>closed=true);});const apiOrigin=await serve(api);
  let middleware;createLocalEntryHost({...input,apiOrigin}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end()));const origin=await serve(server);
- try{const start=Date.now(),response=await fetch(origin+'/api/v1/context');assert.equal(response.status,503);assert.equal((await response.json()).error_id,'authorization_unavailable');assert.ok(Date.now()-start>=11000&&Date.now()-start<14000);for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);}finally{await close(server);await close(api);}
+ try{const start=Date.now(),monotonic=performance.now(),response=await fetch(origin+'/api/v1/context');assert.equal(response.status,503);assert.equal((await response.json()).error_id,'authorization_unavailable');// A host wall-clock step must not change the duration assertion.
+  const elapsed=performance.now()-monotonic;assert.ok(elapsed>=11000&&elapsed<14000,JSON.stringify({wall_elapsed:Date.now()-start,monotonic_elapsed:elapsed}));for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);}finally{await close(server);await close(api);}
+});
+test('declared canonical UUID read routes retain per-route byte limits and upstream not-found',async()=>{
+ const id='cccccccc-cccc-4ccc-8ccc-cccccccccccc',base='/api/v1/records';let calls=[],body=JSON.stringify({value:'x'.repeat(70000)}),status=200;
+ const api=createServer((req,res)=>{calls.push(req.url);res.writeHead(status,{'Content-Type':'application/json'});res.end(body);});const apiOrigin=await serve(api);
+ const routes=['/api/v1/context',{path:base,maxResponseBytes:2097152},{path:base+'/{uuid}',maxResponseBytes:524288},{path:base+'/{uuid}/audit',maxResponseBytes:328704}];
+ let middleware;createLocalEntryHost({...input,apiOrigin,routes}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end('HTML')));const origin=await serve(server);
+ try{
+  for(const path of [base,base+'/'+id,base+'/'+id+'/audit']){const result=await fetch(origin+path+'?limit=5',{headers:{Authorization:'Bearer synthetic','X-Unknown':'PRIVATE'}});assert.equal(result.status,200);assert.equal(result.headers.get('cache-control'),'private, no-store');await result.arrayBuffer();}
+  const before=calls.length;for(const path of [base+'/INVALID',base+'/'+id.toUpperCase(),base+'/00000000-0000-0000-0000-000000000000',base+'/'+id+'/edit',base+'/'+id+'/',base+'/'+id+'/audit/extra',base+'/%63ccccccc-cccc-4ccc-8ccc-cccccccccccc'])assert.equal((await fetch(origin+path)).status,404);assert.equal(calls.length,before);
+  status=404;body=JSON.stringify({error_id:'capture_unavailable',error:'Unavailable'});const missing=await fetch(origin+base+'/'+id);assert.equal(missing.status,404);assert.equal((await missing.json()).error_id,'capture_unavailable');
+  status=200;body=JSON.stringify({value:'x'.repeat(328704)});assert.equal((await fetch(origin+base+'/'+id+'/audit')).status,503);assert.equal((await fetch(origin+base+'/'+id)).status,200);
+ }finally{await close(server);await close(api);}
+});
+test('route policy rejects ambiguous templates and unsafe byte bounds',()=>{
+ for(const route of [{path:'/api/v1/records/{id}',maxResponseBytes:100},{path:'/api/{uuid}/{uuid}',maxResponseBytes:100},{path:'/api/v1/records',maxResponseBytes:0},{path:'/api/v1/records',maxResponseBytes:2097153},{path:'/api/v1/records',maxResponseBytes:1.5},{path:'/api/v1/records',maxResponseBytes:65536,unknown:true}])assert.throws(()=>createLocalEntryHost({...input,routes:[route]}),{message:'local_entry_host_invalid'});
+});
+test('only bearer authorization is forwarded and caller cancellation closes upstream',async()=>{
+ let calls=0,closed=false;const api=createServer((req,res)=>{calls++;res.writeHead(200,{'Content-Type':'application/json'});res.write('{');res.once('close',()=>closed=true);});const apiOrigin=await serve(api);
+ let middleware;createLocalEntryHost({...input,apiOrigin}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end()));const origin=await serve(server);
+ try{
+  for(const authorization of ['Basic synthetic','Bearer invalid token']){const response=await fetch(origin+'/api/v1/context',{headers:{Authorization:authorization}});assert.equal(response.status,401);}assert.equal(calls,0);
+  const duplicate=await new Promise(resolve=>{const req=request(origin+'/api/v1/context',{headers:['Host',new URL(origin).host,'Authorization','Bearer first','Authorization','Bearer second']},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.end();});assert.equal(duplicate,401);assert.equal(calls,0);
+  const controller=new AbortController(),pending=fetch(origin+'/api/v1/context',{headers:{Authorization:'Bearer synthetic'},signal:controller.signal});for(let i=0;i<100&&calls===0;i++)await new Promise(r=>setTimeout(r,10));assert.equal(calls,1);controller.abort();await assert.rejects(pending);for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);
+ }finally{await close(server);await close(api);}
 });

@@ -3,16 +3,24 @@ import {request} from 'node:http';
 const invalid=()=>{throw Error('local_entry_host_invalid');};
 /** @returns {import('vite').UserConfig & {plugins: import('vite').Plugin[], server: import('vite').ServerOptions}} */
 export function createLocalEntryHost({scriptId,publicConfig,apiOrigin,routes}){
- let json,target;
+ let json,target,allowed;
  try{
   target=new URL(apiOrigin);
   if(target.origin!==apiOrigin||target.protocol!=='http:'||target.hostname!=='127.0.0.1'||!target.port||Number(target.port)===0)invalid();
-  if(typeof scriptId!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scriptId)||!Array.isArray(routes)||!routes.length||routes.some(path=>typeof path!=='string'||!/^\/api\/[a-zA-Z0-9/_-]+$/.test(path)))invalid();
+  if(typeof scriptId!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scriptId)||!Array.isArray(routes)||!routes.length)invalid();
+  allowed=routes.map(route=>{
+   const path=typeof route==='string'?route:route?.path,maxResponseBytes=typeof route==='string'?65536:route?.maxResponseBytes;
+   if(typeof route!=='string'&&(!route||Array.isArray(route)||Object.keys(route).sort().join(',')!=='maxResponseBytes,path'))invalid();
+   if(typeof path!=='string'||!/^\/api\/[a-zA-Z0-9_-]+(?:\/(?:[a-zA-Z0-9_-]+|\{uuid\}))*$/.test(path)||(path.match(/\{uuid\}/g)??[]).length>1||!Number.isInteger(maxResponseBytes)||maxResponseBytes<1||maxResponseBytes>2097152)invalid();
+   const parts=path.split('{uuid}');return {parts,maxResponseBytes};
+  });
   json=JSON.stringify(publicConfig);if(!json||Buffer.byteLength(json)>8192)invalid();
   json=json.replaceAll('<','\\u003c').replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
   if(Buffer.byteLength(json)>8192)invalid();
  }catch{invalid();}
- const allowed=new Set(routes);
+ const routeFor=path=>allowed.find(({parts})=>parts.length===1?path===parts[0]:path.startsWith(parts[0])&&path.endsWith(parts[1])&&(()=>{
+  const id=path.slice(parts[0].length,path.length-parts[1].length);return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)&&id!=='00000000-0000-0000-0000-000000000000';
+ })());
  function failure(res,status){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store'});res.end(JSON.stringify({error_id:status===503?'authorization_unavailable':status===405?'method_not_allowed':status===422?'validation_failed':status===401?'authentication_required':'not_found',error:'The request could not be completed.'}));}
  const plugin={name:'explicit-local-entry-host',
   configResolved(config){if(config.command!=='serve'||config.server.host!=='127.0.0.1'||config.server.hmr!==false||config.server.cors!==false||config.server.strictPort!==true||config.server.proxy||config.server.https)invalid();},
@@ -23,18 +31,19 @@ export function createLocalEntryHost({scriptId,publicConfig,apiOrigin,routes}){
   },
   configureServer(server){server.middlewares.use((req,res,next)=>{
    const raw=req.url??'',path=raw.split('?')[0];if(!path.startsWith('/api/')&&path!=='/api')return next();
-   if(!allowed.has(path))return failure(res,404);
+   const route=routeFor(path);if(!route)return failure(res,404);
    if(req.method!=='GET')return failure(res,405);
    if(req.headers['transfer-encoding']||(req.headers['content-length']&&req.headers['content-length']!=='0'))return failure(res,422);
    if(req.rawHeaders.filter((_,i)=>i%2===0).filter(name=>name.toLowerCase()==='authorization').length>1)return failure(res,401);
+   if(req.headers.authorization&&!/^Bearer [\x21-\x7e]+$/i.test(req.headers.authorization))return failure(res,401);
    // Only the caller bearer crosses this local read-only boundary.
    const headers={Accept:'application/json'};if(req.headers.authorization)headers.Authorization=req.headers.authorization;
    let settled=false,upstream;const finish=(status,body)=>{if(settled)return;settled=true;clearTimeout(timer);if(status===503)failure(res,503);else{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store'});res.end(body);}upstream?.destroy();};
    const timer=setTimeout(()=>finish(503),12000);
    res.once('close',()=>{settled=true;clearTimeout(timer);upstream?.destroy();});
    upstream=request(new URL(raw,target),{method:'GET',headers},reply=>{
-    if(![200,401,403,409,422,500,503].includes(reply.statusCode)||!/^application\/json(?:;|$)/i.test(reply.headers['content-type']??'')||reply.headers['content-encoding']){reply.destroy();finish(503);return;}
-    let bytes=0;const chunks=[];reply.on('data',chunk=>{bytes+=chunk.length;if(bytes>65536){reply.destroy();finish(503);}else chunks.push(chunk);});reply.on('end',()=>{try{const body=Buffer.concat(chunks);JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));finish(reply.statusCode,body);}catch{finish(503);}});reply.on('error',()=>finish(503));reply.on('aborted',()=>finish(503));
+    if(![200,401,403,404,409,422,500,503].includes(reply.statusCode)||!/^application\/json(?:;|$)/i.test(reply.headers['content-type']??'')||reply.headers['content-encoding']){reply.destroy();finish(503);return;}
+    let bytes=0;const chunks=[];reply.on('data',chunk=>{bytes+=chunk.length;if(bytes>route.maxResponseBytes){reply.destroy();finish(503);}else chunks.push(chunk);});reply.on('end',()=>{try{const body=Buffer.concat(chunks);JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));finish(reply.statusCode,body);}catch{finish(503);}});reply.on('error',()=>finish(503));reply.on('aborted',()=>finish(503));
    });upstream.on('error',()=>finish(503));upstream.end();
   });}
  };

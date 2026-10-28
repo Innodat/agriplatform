@@ -435,3 +435,36 @@ It is not mounted and provides no offline administrator authority. With retained
 The actual loopback API proof uses synthetic Access and recorded storage only. It does
 not qualify native SQL/RLS/locks, installed devices or release activation. See
 [write evidence](../docs/ONLINE_ADMIN_EDIT_EVIDENCE.md).
+
+## Ordinary local administrator entry — 2026-10-28
+
+The opt-in local host now mounts `/admin` from the ordinary index/main startup with
+its actual SDK client and the shared existing-account email-code form. This supersedes
+prior unmounted/preview-only statements above for the read-only administrator surface.
+`/` retains its own-context setup entry. Administrator admission uses current all-read
+history and authorized audit enrichment directly; it never requests own-read first.
+The default dates cover the current UTC year through today and are editable.
+
+The same accepted-account Auth wrapper surrounds both entries. A signed-out administrator
+explicitly opens the email form, including while an earlier SDK logout is still settling;
+verification creates a new fenced controller and fresh all-read admission. Denied or
+unavailable review has an explicit Sign out action. Offline, Auth/session changes,
+refresh, disposal and page restoration remove rendered business records before new
+checks. Reconnect and restore recheck current all-read. SDK persistence remains SDK-owned;
+this route stores no business response and does not mount the unfinished own PWA.
+
+The generated local proxy now permits only the declared GET context/history/detail/
+audit-details paths. Dynamic record IDs must be canonical nonnil lowercase UUIDs. Context
+retains its 64 KiB limit; administrator history/detail/audit limits are 2 MiB/512 KiB/321 KiB.
+Upstream JSON 404 is preserved, while malformed paths, methods, duplicate/malformed
+bearers, bodies, redirects, invalid/oversized responses and unavailable reads close
+safely. Only the browser bearer and JSON Accept are forwarded. Cancellation tears down
+the upstream; private/no-store responses and the 12 second deadline remain mandatory.
+
+From repository root with the retained Node 26.11.1 executable, run
+`apps/kdg-capture/web/tests/local-admin-entry-proof.mjs` for the source-selected ordinary
+startup/SDK browser regression; it uses synthetic Auth/API HTTP and retained Chromium.
+`auth-proof.mjs` and `admin-portal-proof.mjs` remain affected regressions.
+`local-host-proof.mjs` now selects only web source/contracts and its three context API
+files instead of traversing the application root. Actual GoTrue/SMTP/current owner
+qualification and installed-device/assistive-technology evidence remain separate.

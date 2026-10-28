@@ -1,7 +1,7 @@
 // Synthetic local host qualification; fresh source capsule and retained approved tools.
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync,mkdirSync,cpSync,symlinkSync,existsSync} from 'node:fs';
-import {join,resolve} from 'node:path';
+import {readFileSync,writeFileSync,mkdirSync,symlinkSync,existsSync,readdirSync} from 'node:fs';
+import {join,resolve,dirname,relative,sep} from 'node:path';
 import {spawn,spawnSync} from 'node:child_process';
 import {createServer} from 'node:http';
 import {once} from 'node:events';
@@ -11,8 +11,11 @@ const root=process.cwd(),owner='apps/kdg-capture',hash=x=>createHash('sha256').u
 assert.equal(process.version,'v26.11.1');
 const proof=join(root,'platform/deployment/.local/kdg-local-host-20261023','proof-'+randomUUID());mkdirSync(proof,{recursive:true,mode:0o700});
 const copy=join(proof,'root'),web=join(copy,owner,'web');mkdirSync(copy);
-const snapshots=Object.fromEntries(['web/local-host.config.ts','web/tsconfig.local-host.json','web/local-host-tools/local-entry-host.mjs','web/local-host-tools/test-local-entry-host.mjs','web/local-host-tools/.generated-files.json','web/src/local-public-config.ts','web/src/auth-public-input.ts','web/index.html','web/src/main.ts','web/src/startup.tsx','web/tests/local-host-proof.mjs','web/tests/local-host-fixture/api.py','api/main.py','api/context.py','api/safe_errors.py'].filter(p=>existsSync(join(root,owner,p))).map(p=>[owner+'/'+p,hash(readFileSync(join(root,owner,p)))]));
-cpSync(join(root,owner),join(copy,owner),{recursive:true,filter:path=>!path.includes('/node_modules')&&!path.includes('/__pycache__')});
+const snapshots=Object.fromEntries(['web/package.json','web/tsconfig.auth.json','web/local-host.config.ts','web/tsconfig.local-host.json','web/local-host-tools/local-entry-host.mjs','web/local-host-tools/test-local-entry-host.mjs','web/local-host-tools/.generated-files.json','web/src/local-public-config.ts','web/src/auth-public-input.ts','web/index.html','web/src/main.ts','web/src/startup.tsx','web/tests/local-host-proof.mjs','web/tests/local-host-fixture/api.py','api/main.py','api/context.py','api/safe_errors.py'].filter(p=>existsSync(join(root,owner,p))).map(p=>[owner+'/'+p,hash(readFileSync(join(root,owner,p)))]));
+// Read only explicit web and contract roots, plus the three context API files.
+// Never traverse the application root: it contains separately governed native fixtures.
+const sourcePaths=[...Object.keys(snapshots),...readdirSync(join(root,owner,'web/src'),{recursive:true,withFileTypes:true}).filter(e=>e.isFile()).map(e=>join(e.parentPath,e.name)),...readdirSync(join(root,owner,'contracts'),{recursive:true,withFileTypes:true}).filter(e=>e.isFile()).map(e=>join(e.parentPath,e.name))];
+for(const source of sourcePaths){const path=source.startsWith(root+sep)?relative(root,source):source,dest=join(copy,path);mkdirSync(dirname(dest),{recursive:true});const bytes=readFileSync(join(root,path));snapshots[path]=hash(bytes);writeFileSync(dest,bytes);}
 assert.ok(Object.entries(snapshots).every(([p,v])=>hash(readFileSync(join(copy,p)))===v),'capsule_source_mismatch');
 const retained=join(root,'platform/deployment/.local/scaffold-application/proof-dI2Gy9/root'),modules=join(retained,'apps/bootstrap-application/web/node_modules');
 symlinkSync(join(retained,'node_modules'),join(copy,'node_modules'),'dir');symlinkSync(modules,join(web,'node_modules'),'dir');

@@ -1,0 +1,216 @@
+{
+  "baseline": "00c087a",
+  "receipts": {
+    "ordinary-startup": {
+      "path": "platform/deployment/.local/kdg-local-admin-entry-20261028/run-f7aeb798-8d3c-4866-8b26-8d6fa19309ad/result.json",
+      "sha256": "60cef74c0c9e05af03f2478c38d7862ca30a3ccba6be1496b6e2194219caee49",
+      "passed": true,
+      "checks": [
+        "fixture_calendar_and_deadline_clocks_continue_advancing",
+        "ordinary_admin_sdk_email_code_all_only_no_own_fallback",
+        "original_definition_names_read_only_audit",
+        "offline_synchronous_clear_reconnect_current_denial",
+        "denied_unavailable_distinct_recovery",
+        "reload_restore_fresh_all_read_old_response_ignored",
+        "phone_desktop_keyboard_focus",
+        "held_sdk_logout_then_explicit_signin_without_reload",
+        "signout_clears_no_business_storage_saved_own_preserved"
+      ]
+    },
+    "auth-affected": {
+      "path": "platform/deployment/.local/kdg-auth-entry-20261023/auth-3250e36a-74be-472a-9fdc-82695aae42a6/result.json",
+      "sha256": "f5a78eb6a8f691175a87cd7520cc735145c901c412c9a21998e56a4cd91e69f7",
+      "passed": true,
+      "checks": [
+        "strict_ts7_own_source",
+        "strict_own_source_negative_control",
+        "sdk_session_tests",
+        "vite8_react19",
+        "actual_app_index_main_build",
+        "sdk_bootstrap_strict_react",
+        "return_same_account_fresh_context_once",
+        "return_external_target_refused",
+        "return_different_sdk_account_safe",
+        "return_current_denial_safe",
+        "failed_capture_discards_prior_return",
+        "return_owner_org_replacement_discards_intent",
+        "sdk_token_refresh",
+        "current_access_recheck",
+        "explicit_auth_refresh_before_interactive",
+        "sdk_account_change",
+        "offline_reconnect_rechecks",
+        "local_logout_then_owner_launch_only",
+        "unmount_and_strict_replay",
+        "auth_owner_replacement_detaches_old",
+        "configured_org_replacement_clears_admission",
+        "pkce_launch_callback_scrubs_and_rechecks",
+        "pkce_callback_current_denial_no_admission",
+        "malformed_callback_scrubs_without_exchange",
+        "pending_launch_owner_replacement_clears_attempt",
+        "pending_exchange_owner_replacement_stays_closed",
+        "pending_exchange_org_replacement_stays_closed",
+        "synthetic_auth_fetch_no_storage_or_raw_errors",
+        "email_keyboard_labels_narrow_200_percent",
+        "email_existing_account_send_no_persisted_input",
+        "email_reconnect_preserves_attempt_and_cooldown",
+        "email_restart_explains_cooldown_disabled_keyboard",
+        "email_invalid_code_safe_retry",
+        "email_verify_then_current_admission",
+        "email_persisted_session_reload_rechecks",
+        "email_persistence_never_caches_grants",
+        "email_local_logout_removes_persisted_session",
+        "email_unfinished_entry_resets_on_reload",
+        "email_cancel_returns_closed_entry",
+        "email_cancel_late_sdk_session_cannot_admit",
+        "email_pending_org_replacement_blocks_old_A",
+        "email_pending_owner_replacement_blocks_old_A",
+        "email_complete_journey_browser_errors_checked",
+        "local_route_org_storage_preflight_no_sdk_io",
+        "local_cold_offline_no_sdk_until_reconnect",
+        "local_entry_route_mount",
+        "local_browser_connectivity_preserves_code_and_cooldown",
+        "local_skip_anchor_preserves_entry",
+        "local_owner_bootstrap_reload_rechecks",
+        "local_current_denial_no_cached_grant",
+        "local_route_refuses_pending_context_response",
+        "local_real_history_pair_refuses_then_clean_back_rechecks",
+        "local_history_callback_scrubs_and_cancels_late_entry",
+        "local_explicit_start_rechecks_late_sdk_session",
+        "local_hash_callback_refused",
+        "local_root_disposal_detaches_browser",
+        "local_direct_pending_disposal_refresh_order",
+        "explicit_email_selector_overrides_local_reload_fallback",
+        "complete_local_route_browser_errors_checked",
+        "actual_startup_invalid_config_origin_route_zero_io",
+        "actual_startup_cold_offline_reconnect",
+        "actual_startup_unconfigured_closed",
+        "actual_index_main_config_sdk_http_sign_in",
+        "actual_startup_reload_fresh_context",
+        "actual_startup_current_denial",
+        "actual_back_reload_current_denial_cache_unavailable",
+        "simulated_persisted_restore_current_denial_no_old_admission",
+        "actual_pending_import_disposal_no_owner",
+        "actual_pending_import_offline_and_route_recovery",
+        "actual_import_rejection_safe_disposal",
+        "complete_actual_startup_errors_checked"
+      ]
+    },
+    "portal-affected": {
+      "path": "platform/deployment/.local/kdg-admin-portal-20261028/run-f5dfdb56-2230-49de-a0e3-4ecfdfafd891/result.json",
+      "sha256": "9a7e58c19f73c327a1df8392d173f003d790c6c57265cffcf66df2989b66d9ed",
+      "passed": true,
+      "checks": []
+    },
+    "context-host-affected": {
+      "path": "platform/deployment/.local/kdg-local-host-20261023/proof-02e8e0a5-174e-4990-acad-6c56c173728e/result.json",
+      "sha256": "e982f72c8df9cb3ef1bd49643750283089dd8049327b3789b8b844acd587e2f0",
+      "passed": true,
+      "checks": [
+        "strict_host_ts7",
+        "actual_fastapi_ready",
+        "cli_invalid_config_and_override_no_listen",
+        "actual_vite_cli_configures_real_entry",
+        "private_files_and_ambient_env_not_served",
+        "same_origin_browser_actual_fastapi_admission",
+        "actual_api_current_denial",
+        "selectors_and_unknown_api_refuse",
+        "actual_api_outage_safe",
+        "all_browser_errors_accounted"
+      ]
+    },
+    "actual-email": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/email-contract-0d4894d35ad1401c96a5307f39fa5f98/result.json",
+      "sha256": "73aa5bb563cc4ca7bca22388bcc24169557b4c8b83325d74e4420adeae814b64",
+      "passed": true,
+      "checks": [
+        "actual_existing_account_otp_accepted",
+        "actual_smtp_token_only_template_no_links_assets",
+        "actual_invalid_code_refused",
+        "actual_valid_code_original_account_session",
+        "actual_used_code_replay_refused",
+        "actual_unknown_account_signup_refused_422_otp_disabled",
+        "unknown_account_not_created"
+      ]
+    },
+    "actual-browser": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/browser-12bf9a97-f871-471c-99ae-8c4749033691/result.json",
+      "sha256": "004ca88563a2be236eef6499b9c7d0eba2a2612f2ba099b08f4f19b6428aecbf",
+      "passed": true,
+      "checks": [
+        "ordinary_host_actual_sdk_numeric_email_gotrue_native_history",
+        "current_all_only_without_own_context",
+        "actual_original_answers_names_create_audit_keyboard_focus",
+        "actual_desktop_phone_narrow_layout",
+        "actual_transport_offline_dom_cleared_reconnect_fresh_all_read",
+        "protected_actual_grant_revoke_lock_restore_fresh_check",
+        "protected_actual_organization_app_disable_lock_restore",
+        "protected_actual_application_disable_lock_restore",
+        "sdk_persisted_reload_fresh_current_all_read",
+        "actual_sdk_provider_signout_clears_dom",
+        "actual_second_account_denied_no_prior_admin_records",
+        "actual_admin_no_business_persistence_saved_own_sentinel_survives"
+      ]
+    },
+    "actual-expiry": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/expiry-browser-fcea3fe6-b6e7-49a6-9246-22f15cc60c5d/result.json",
+      "sha256": "6d3193e61495cbb645e93ebe7fc6e58d8b0b88bf92aa4c4e6f92459430ca71e3",
+      "passed": true,
+      "checks": [
+        "real_short_provider_session_sdk_restore_authorized",
+        "actual_provider_global_logout_revokes_synthetic_refresh",
+        "actual_sdk_auto_renew_refused_locks_old_dom",
+        "actually_expired_provider_token_current_kdg_http_refused"
+      ]
+    },
+    "actual-membership-outage": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/membership-browser-6b360b7a-4073-4634-a74e-fa5bd0fe5158/result.json",
+      "sha256": "b8a8ffc78acf9aeca703f266a586b959595f71d1a12226e88db753d506e55c2e",
+      "passed": true,
+      "checks": [
+        "actual_read_all_only_reviewer_current_membership_allowed",
+        "actual_protected_membership_retirement_current_denial_clears_dom",
+        "actual_owner_stop_unavailable_distinct_from_denied_not_empty"
+      ]
+    }
+  },
+  "coordinator_proxy_scaffold_tests": {
+    "passed": 10,
+    "skipped": 0
+  },
+  "held_http_shutdown": {
+    "passed": false,
+    "expected_interruption": true,
+    "parent_exit": 143,
+    "children": [
+      {
+        "name": "kdg",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "name": "access",
+        "exit_code": 0,
+        "forced": false
+      },
+      {
+        "name": "auth",
+        "exit_code": 0,
+        "forced": false
+      }
+    ]
+  },
+  "review": {
+    "lenses": 3,
+    "independent_reviewers": 2,
+    "thread_limit_refused_third_launch": true,
+    "supported_findings": 2,
+    "grouped_corrections": 1,
+    "independent_patch_review_clear": true,
+    "deferred": 0
+  },
+  "limits": [
+    "actual local GoTrue/SMTP/SDK/Access/Identity/PostgreSQL only",
+    "own sentinel preservation does not establish mounted own PWA",
+    "no installed Android/iPhone, actual assistive technology, external email delivery or release qualification"
+  ]
+}

@@ -1,9 +1,10 @@
 import {useCallback,useEffect,useId,useMemo,useRef,useState} from 'react';
+import {AdminEntry} from './AdminEntry';
 import {AuthEntry} from './AuthEntry';
 import type {EntryAuth} from './auth-entry';
 import type {EmailCodeAuth,EmailCodeState} from './auth/lifecycle';
 import {useEmailCode} from './auth/use-lifecycle';
-export type EmailCodeEntryProps=Readonly<{org:string;auth:EntryAuth&EmailCodeAuth;request?:typeof fetch;online?:boolean;timeoutMs?:number}>;
+export type EmailCodeEntryProps=Readonly<{org:string;auth:EntryAuth&EmailCodeAuth;request?:typeof fetch;online?:boolean;timeoutMs?:number;surface?:'own'|'admin'}>;
 const messages:Record<EmailCodeState['notice'],string>={
  none:'Enter your details to sign in.',check_email:'If this account can sign in, a code has been sent. Check your email.',
  invalid_email:'Enter a valid email address.',invalid_code:'Enter the six-digit code from your email.',
@@ -35,8 +36,8 @@ function EmailForm({auth,online,timeoutMs,onVerified,onCancel}:Pick<EmailCodeEnt
 }
 /** Auth owns persisted sessions. Only the current successful code attempt can reopen admission. */
 export function EmailCodeEntry(props:EmailCodeEntryProps){
- const owner=useRef({auth:props.auth,org:props.org,version:0});
- if(owner.current.auth!==props.auth||owner.current.org!==props.org)owner.current={auth:props.auth,org:props.org,version:owner.current.version+1};
+ const owner=useRef({auth:props.auth,org:props.org,surface:props.surface,version:0});
+ if(owner.current.auth!==props.auth||owner.current.org!==props.org||owner.current.surface!==props.surface)owner.current={auth:props.auth,org:props.org,surface:props.surface,version:owner.current.version+1};
  return <OwnedEmailCodeEntry key={owner.current.version} {...props} bootstrap={owner.current.version===0}/>;
 }
 function OwnedEmailCodeEntry(props:EmailCodeEntryProps&{bootstrap:boolean}){
@@ -55,5 +56,5 @@ function OwnedEmailCodeEntry(props:EmailCodeEntryProps&{bootstrap:boolean}){
   };
  },[props.auth,accepted]);
  return form?<EmailForm auth={props.auth} online={props.online??true} timeoutMs={props.timeoutMs} onVerified={complete} onCancel={cancel}/>:
-  <AuthEntry {...props} auth={auth} beginSignIn={open}/>;
+  props.surface==='admin'?<AdminEntry {...props} auth={auth} beginSignIn={open}/>:<AuthEntry {...props} auth={auth} beginSignIn={open}/>;
 }

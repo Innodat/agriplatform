@@ -1,3 +1,33 @@
+## Ordinary administrator portal and actual local invalidation delivered -- 2026-10-28
+
+After active HTTP commit00c087a, ordinary /admin mounts the real SDK/email-code form,
+current all-read history/detail/audit and bounded generated local proxy. See the
+[current AC-1–AC-6 matrix and receipts](STORY31_LOCAL_ADMIN_EVIDENCE.md). Story3.1
+remains incomplete. Real browser12, server expiry4, membership/outage3, SMTP7 checks,
+final startup9 groups,575 Auth tests/71 checks, portal20/21 and proxy/scaffold10 pass.
+Three review lenses used two independent reviewers because the service refused a
+fresh third thread; independent patch review is clear, with no deferral.
+
+Actual provider work used only fresh synthetic GoTrue/SMTP/DB resources. Immediate
+signout→signin failure and future-year fixture failure were reproduced and fixed.
+Actual membership retirement and owner shutdown distinguish denial/unavailable; no
+prior records persist. The deliberate held-supervisor stop retains overallfalse,
+parent143 and three code0 child exits, zero DB runtime sessions. Resources/evidence
+remain retained; DB/Auth/SMTP are available for the next local item.
+
+Next execute `_bmad-output/implementation-artifacts/spec-kdg-story31-own-api-readiness.md`:
+actual restricted provision RED, new narrow controlled eligibility issuance migration,
+then configured own setup/create/edit/context/recovery/history/detail APIs. Existing
+own frontend/PWA/synchronization are missing locally actionable integration, not an
+external equipment blocker. Afterward implement actual own UI/queue/offline shell and
+qualify the saved-device-work→sync→administrator-refresh/cache split. Keep Story3.1
+incomplete pending all evidence, including actual Android/iPhone/assistive technology.
+
+Fresh synthetic authorization remains in force. No production deployment/push, real
+account/credential change or destructive cleanup. Never access/run/copy/hash the banned
+migration fixture; preserve concurrent People/Leave/generated database tooling and
+historical targets/evidence. Prior handoff is preserved verbatim below.
+
 ## Active owner HTTP integration delivered and reviewed -- 2026-10-28
 
 The current local authorization supersedes historical unmounted/no-startup exclusions.

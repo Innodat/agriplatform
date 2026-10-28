@@ -487,3 +487,17 @@ then remaining synchronization/cache/accessibility items. The existing own front
 only mounts setup status; its own capture/My observations PWA is not established.
 Physical installed devices, actual assistive technology and external provider evidence
 cannot be replaced by local Chromium or synthetic accounts.
+
+
+## Ordinary local administrator integration delivered — 2026-10-28
+
+Ordinary /admin now uses actual SDK/email-code/current all-read and active bounded
+proxy. Real GoTrue/SMTP/Access/Identity/PostgreSQL browser, grant/membership/app loss,
+actual renewal refusal/expiry and owner outage qualify local invalidation. Three review
+lenses and independent patch review completed; no supported finding remains or deferral.
+See the [current AC-1–AC-6 matrix](STORY31_LOCAL_ADMIN_EVIDENCE.md#current-ac-1ac-6-matrix).
+Story3.1 remains incomplete. Next close native eligibility issuance + configured own
+APIs, then actual own capture/My observations UI, synchronization and offline shell.
+Installed-device/actual assistive technology/true zoom and external provider/release
+claims remain separate; local emulation never substitutes. Current local authorization
+supersedes historical unmounted/no-startup exclusions for this work only.

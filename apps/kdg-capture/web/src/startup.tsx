@@ -9,13 +9,13 @@ import './entry-screen.css';
 export function startKdgLocalFrontend(){
  const roots=document.querySelectorAll('#root');
  if(roots.length!==1||!(roots[0] instanceof HTMLElement)){
-  const route=observeBrowserEntry({browser:window,paths:['/'],safePath:'/',anchors:['#kdg-entry-content'],publish:()=>{}});route.start();route.dispose();return null;
+  const route=observeBrowserEntry({browser:window,paths:['/','/admin'],safePath:'/',anchors:['#kdg-entry-content','#admin-main'],publish:()=>{}});route.start();route.dispose();return null;
  }
  const value=readEmbeddedPublicConfig(document,'kdg-local-config');
  const config=value.kind==='value'?parseKdgLocalPublicConfig(value.value,location.origin):null;
  const root=createRoot(roots[0]);let disposed=false,loading=false;
  let mounted:{dispose():void}|undefined;
- const observer=observeBrowserEntry({browser:window,paths:['/'],safePath:'/',anchors:['#kdg-entry-content'],publish:state=>{
+ const observer=observeBrowserEntry({browser:window,paths:['/','/admin'],safePath:'/',anchors:['#kdg-entry-content','#admin-main'],publish:state=>{
   if(disposed)return;
   if(!config||state.route!=='entry'||!state.online){
    flushSync(()=>root.render(<ClosedEntry state={state} failed={!config}/>));return;

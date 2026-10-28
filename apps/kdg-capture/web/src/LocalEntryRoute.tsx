@@ -21,7 +21,7 @@ export function mountKdgLocalEntry(root:Root,options:LocalEntryOptions){
   if(!auth||enabled===refreshing)return;refreshing=enabled;
   void (enabled?auth.startAutoRefresh():auth.stopAutoRefresh()).catch(()=>{/* Admission still requires the current API/session boundary. */});
  }
- const observer=observeBrowserEntry({browser,paths:['/'],safePath:'/',anchors:['#kdg-entry-content'],publish:state=>{
+ const observer=observeBrowserEntry({browser,paths:['/','/admin'],safePath:'/',anchors:['#kdg-entry-content','#admin-main'],publish:state=>{
   if(disposed)return;
   if(state.route==='entry'&&state.online&&!failed&&!auth){
    try{auth=createKdgEmailAuth({url,publicKey,storage:storage??browser.localStorage,request:authRequest});refreshing=true;}
@@ -30,7 +30,7 @@ export function mountKdgLocalEntry(root:Root,options:LocalEntryOptions){
   refresh(state.route==='entry'&&state.online&&!failed);
   // Commit refusal now, before another pending SDK completion can mount admission.
   flushSync(()=>root.render(<StrictMode>{state.route==='entry'&&!failed&&auth?
-   <EmailCodeEntry org={org} auth={auth} request={request} online={state.online}/>:
+   <EmailCodeEntry key={browser.location.pathname} surface={browser.location.pathname==='/admin'?'admin':'own'} org={org} auth={auth} request={request} online={state.online}/>:
    <ClosedEntry state={state} failed={failed}/>}</StrictMode>));
  }});
  observer.start();
