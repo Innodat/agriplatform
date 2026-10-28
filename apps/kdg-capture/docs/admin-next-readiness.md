@@ -136,3 +136,14 @@ This closes only that discovered prerequisite. The next selected scope is backen
 synthetic composition under the [defined KDG contract](audit-display-composition.md),
 with consuming acceptance RED before implementation. Native/real authority and active
 mount/browser/session/UI qualification remain separate. No new deferral or resources.
+
+## Backend composition complete — 2026-10-28
+
+The selected [backend composition](AUDIT_DISPLAY_BACKEND_EVIDENCE.md) is implemented
+and independently reviewed. Final134 tests/42 subtests, old/new export freshness,
+generator/strictTS7 pass;388 prior sources unchanged. One verification gap was
+closed with independent older-page/header-only and empty-continuation label tests;
+no new deferral. Next select the inert browser adapter for strict aggregate/runtime
+validation and publication fences. Backend proof does not establish browser/session
+/device, mounted portal, native owner permissions or real authority/release readiness.
+No source extraction, dependency or resource lifecycle operation was required.

@@ -1,6 +1,6 @@
 ---
 id: SPEC-kdg-historical-actor-display
-status: owner-repaired-composition-planned
+status: backend-composition-complete-inert-client-next
 companions:
   - ../../../services/access/HISTORICAL-ACTOR-DISPLAY.md
   - ../../../apps/kdg-capture/docs/audit-display-composition.md
@@ -36,15 +36,11 @@ resolution; KDG owns current record authorization, composition and presentation.
 
 ## Success signal
 
-The isolated owner HTTP candidate exists, and the KDG combined contract now defines
-the selected page/label envelope, bounds, final authorization and publication rules.
-The owner cancellation-diagnostic repair now has four actual RED/GREEN regressions
-and independent review. Next select the bounded synthetic backend consumer against
-KC-1–KC-9. Passing owner suites do not establish unimplemented consuming behavior.
-
-## Assumptions
-
-- The separate audit-details path, label-status union, phase reserves and backend-first delivery are selected planning defaults for consuming Build; they do not activate a runtime surface.
+The repaired Identity owner and isolated KDG backend composition are implemented
+and reviewed, with actual HTTP RED and backend KC acceptance. No active service is
+mounted. Next select an inert browser request adapter to prove remaining KC-7/9
+publication/validation behavior against the generated aggregate. Backend tests do
+not establish browser/session/device behavior or complete Story 3.1.
 
 ## Deferred qualification
 

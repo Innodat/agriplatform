@@ -2,10 +2,12 @@
 
 Status: design defined; the concrete Identity owner prerequisite below is repaired
 and independently reviewed. See [repair evidence](../../../services/access/ACTOR_DISPLAY_CANCELLATION_EVIDENCE.md).
-Consuming Build remains a separate selected delivery. Baseline
-`f116f05a590d7500e3b61b4a6783d441a872e3d4`.
-This is KDG-owned planning, not an implemented or mounted endpoint. Route/envelope
-and phase reserves below are selected design defaults for the next consuming Build.
+The isolated backend candidate is now implemented and reviewed; see
+[backend evidence](AUDIT_DISPLAY_BACKEND_EVIDENCE.md). The inert browser request
+adapter remains separate. Design baseline `f116f05a590d7500e3b61b4a6783d441a872e3d4`;
+backend delivery baseline `c88c753fc46d6d5caf296ef3b2ec87370b7f8dc1`.
+This is the KDG-owned contract. No active-service mount, portal/session integration
+or native/real-authority qualification is implied.
 
 Inherits [Story 3.1 AC-1–5](epics.md#story-31-view-authorized-khula-observations-and-administrator-audit-details),
 the [unchanged audit API](contracts.md#bounded-online-audit-metadata-api-subset--2026-10-26)
@@ -166,9 +168,10 @@ Keep Access/KDG active startup, schema and generated wire bytes unchanged. Do no
 silence global loop logging or merely swallow/detach the reader. Use BMAD Build with
 RED/GREEN, affected checks and review. Consumer implementation waits for this repair.
 
-## Planned consuming acceptance
+## Consuming acceptance
 
-These cases are plans, not executed qualification. HD-6/consumer HD-7 trace here.
+HD-6/consumer HD-7 trace here. Backend portions execute in the linked evidence;
+browser publication/runtime validation in KC-7/9 remain planned, not qualified.
 
 | Case | Given / When / Then |
 |---|---|
@@ -182,12 +185,12 @@ These cases are plans, not executed qualification. HD-6/consumer HD-7 trace here
 | KC-8 | Given maximum cursor/page/name sizes and delayed phases, when encoded, then64/256/321 KiB and original ten-second ceilings hold, with no automatic retry or pagination changes |
 | KC-9 | Given owner and candidate schema/client exports, when generated and consumed, then statuses/errors/closed fields and runtime rejection match, with active existing exports unchanged |
 
-After the owner repair, select a backend-only synthetic composition candidate in
-`write-candidate/audit_display.py`, `audit_display_http.py` and
-`identity_actor_display.py`, with `write-tests/test_audit_display*.py`, isolated
-export/generated types and fake Access/storage plus real synthetic Identity HTTP.
-Observe a missing-route HTTP404 acceptance first. Characterize any extracted audit
-Budget seam before refactoring. No native DB, active mount or browser integration.
+The backend-only candidate lives in `write-candidate/audit_display.py`,
+`audit_display_http.py` and `identity_actor_display.py`, with
+`write-tests/test_audit_display*.py`, isolated export/generated types and fake
+Access/storage plus real synthetic Identity HTTP. Missing-route HTTP404 RED was
+observed first; existing audit/worker/Budget source stayed unchanged without seam
+extraction. No native DB, active mount or browser integration was performed.
 The inert web request adapter is a separate later delivery and must prove the client
 part of KC-7/9; backend checks do not establish browser/session/device behavior.
 

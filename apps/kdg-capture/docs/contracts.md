@@ -1940,3 +1940,15 @@ without changing any wire shape, key policy, cancellation/deadline or active int
 85 owner/127 affected passes, actual RED/GREEN and no-finding independent review.
 The [KDG composition contract](audit-display-composition.md) remains the next bounded
 backend consuming scope; no consuming endpoint, DTO or generated type is implemented.
+
+## Bounded audit display backend completion — 2026-10-28
+
+The isolated backend implements the [composition contract](audit-display-composition.md)
+and passes134 tests/42 subtests, exporter/generator/strictTS7 and three review layers.
+The exact typed envelope,321 KiB ceiling, authorized actor selection, storage release,
+original Budget and final authorization are exercised. One verification gap was
+closed; no new deferral. [Evidence](AUDIT_DISPLAY_BACKEND_EVIDENCE.md) retains exact
+commands/source/log custody. Existing audit/Identity sources, schemas and clients
+remain unchanged; the new aggregate has its own schema/generated directory.
+The inert browser consumer is next; no active mount, portal/session/device or
+native/real-authority qualification is claimed.

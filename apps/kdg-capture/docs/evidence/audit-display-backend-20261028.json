@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-28",
+  "baseline_commit": "c88c753fc46d6d5caf296ef3b2ec87370b7f8dc1",
+  "scope": "isolated unmounted KDG audit display backend",
+  "acceptance_red": {
+    "result": "404 != 200; 1 failed in 0.42s",
+    "before_implementation": true
+  },
+  "final_pytest": {
+    "passed": 134,
+    "subtests_passed": 42,
+    "elapsed_seconds": 11.09,
+    "exit_code": 0,
+    "new_cases": 20,
+    "existing_audit_cases": 29,
+    "identity_cases": 85,
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 timeout 30s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest apps/kdg-capture/write-tests/test_audit_display_http.py apps/kdg-capture/write-tests/test_audit_display_contract.py apps/kdg-capture/write-tests/test_audit_http.py apps/kdg-capture/write-tests/test_audit_read.py apps/kdg-capture/write-tests/test_audit_contract.py services/access/tests/test_actor_display.py -q -p no:cacheprovider"
+  },
+  "contract_checks": [
+    {
+      "name": "new-export",
+      "cmd": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_audit_display_openapi.py --check",
+      "chunk_id": "a2ddbd",
+      "wall_time_seconds": 880.187779364,
+      "exit_code": 0,
+      "original_token_count": 8,
+      "output": "audit_display_openapi_current\n"
+    },
+    {
+      "name": "old-export",
+      "cmd": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_audit_openapi.py --check",
+      "chunk_id": "a801f4",
+      "wall_time_seconds": 880.180769551,
+      "exit_code": 0,
+      "original_token_count": 6,
+      "output": "audit_openapi_current\n"
+    },
+    {
+      "name": "types",
+      "cmd": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext apps/kdg-capture/write-tests/audit_display_types.test.ts",
+      "chunk_id": "cae956",
+      "wall_time_seconds": 880.173982634,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "generator",
+      "cmd": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-yc4xuk/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/audit-display-openapi.json --output apps/kdg-capture/contracts/audit-display-generated --check",
+      "chunk_id": "04875b",
+      "wall_time_seconds": 1.001702124,
+      "original_token_count": 0,
+      "output": "api_client_current\n",
+      "exit_code": 0
+    }
+  ],
+  "reviews": {
+    "blind": "no supported findings; reviewer environment lacked SQLAlchemy; parent retained environment passed",
+    "edge": "no supported findings",
+    "verification_gap": "one medium test gap patched; independent header-only/empty-continuation HTTP IDs",
+    "open_findings": 0,
+    "new_deferrals": 0
+  },
+  "protected_files": {
+    "count": 388,
+    "unchanged": 388,
+    "manifest_sha256": "107fe43104c6a113d7493b8f22a94f6272625163ee37499614110ba80096503d"
+  },
+  "documentation_checks": {
+    "changed_local_links_and_companions": 12,
+    "capability_kernel": "PASS",
+    "KC_1_through_9": "PASS"
+  },
+  "source_sha256": {
+    "_bmad-output/implementation-artifacts/spec-kdg-audit-display-backend.md": "34407518046b1052d364788ae2c22c6f5ef17b07dca2e8baf19835986945f8a2",
+    "_bmad-output/specs/spec-kdg-historical-actor-display/SPEC.md": "9ace2febcfcb27c7600ac42ef6b45abeb523fb9262f1b3eed3f93b98034a5edb",
+    "_bmad-output/specs/spec-kdg-historical-actor-display/.memlog.md": "cac58c5c98a1dab4ca384a8a450ba24126cd7a2c5879f6a5a939e539b6b19c89",
+    "apps/kdg-capture/docs/AUDIT_DISPLAY_BACKEND_EVIDENCE.md": "9d03da6ca71ad4a0bf7bd9e5400774121f226b05a5714b8abde17945fcd074c9",
+    "apps/kdg-capture/docs/audit-display-composition.md": "097cc644022269129016f691e662ce69433b29eb78be0df8642d82c486630f6c",
+    "apps/kdg-capture/docs/admin-next-readiness.md": "0f268dd7f7739268640897a79f74a95198764a7b76a84201db32acde4918dc89",
+    "apps/kdg-capture/docs/contracts.md": "6d983f20fe24048bceb667534d8154fcac1740a8e6a80d5389aca2ddba78c203",
+    "apps/kdg-capture/docs/next-session.md": "69dbcc3c3df9a20a458ba411dbecacdc54e260cb44e048e9a92ee4b59f618eeb",
+    "apps/kdg-capture/write-candidate/audit_display.py": "05d04c0ebafcc2f7ecb7db64db42f7df9597ab96a4ea5462dfb91979d23cac75",
+    "apps/kdg-capture/write-candidate/audit_display_http.py": "564eda56fb1bd4f1cf14a386a2b981fa57f0eee211fb64748b4a347d81527d0b",
+    "apps/kdg-capture/write-candidate/identity_actor_display.py": "8b8cdaafa4aaa2b3b9ab6cf2ef270f27bebbb23702b2ed95aa798e0ab8224a89",
+    "apps/kdg-capture/write-candidate/audit_display_openapi.py": "58c98bb537df445dac18c147eec0146ed5b17257a2b078beb00f35366d6c960f",
+    "apps/kdg-capture/write-candidate/export_audit_display_openapi.py": "81e63ae0bc575d95b0f3c7805eff8d2695fdec74abbffa6c73476a29eadb6daf",
+    "apps/kdg-capture/write-candidate/audit-display-openapi.json": "fe7f7aec06a788f9e5e0f84961e4d656ae50c1c637f6a44e50b4d5aef5db6528",
+    "apps/kdg-capture/contracts/audit-display-generated/index.ts": "099c0cbccd882e709e7fcb8879f91ea1ead2683976df1da155f77f6ec39c5dc1",
+    "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+    "apps/kdg-capture/contracts/audit-display-generated/.generated-files.json": "7b3b285df7b636afea0bb9df3cacf43274bb3baa2a3da378cce434a2a71dd43c",
+    "apps/kdg-capture/write-tests/test_audit_display_http.py": "53222ec5f9b25d9e5a4d7e5ff49e7b19284a8a71277b6f0a3dd88dbe3f5625bc",
+    "apps/kdg-capture/write-tests/test_audit_display_contract.py": "ed0254f5ebf21bc7585fe812d1764ebdefb4f021f77d5fa9e26eedc7696da3c0",
+    "apps/kdg-capture/write-tests/audit_display_types.test.ts": "373b8d316f6f7f80034e206b747fe659e4830c3c6f054a42721c71d1eb6c2b86"
+  },
+  "retained_evidence_directory": "/tmp/kdg-audit-display-20261028-zt4h9kvv",
+  "retained_evidence_sha256": {
+    "http404-red.log": "84ce291aff82d61245a5b29947bb09f416832666e8084b4f565f660701995ba4",
+    "final-pytest.json": "afc8786714b88f9643b4a14cc4dd05ae7a290260bf72f31db0e60c06e13ae57e",
+    "final-pytest.log": "b78e6d9778d4ec89ce99116c9c7b900e1bfe9de0527a14c13c8a13af11272656",
+    "parent-qualification.json": "c5da0bfc557c6f40da430f125383c7fbc150b8dfdef88c08fcc2e0a786454cc4",
+    "review-blind.md": "0f4ecd416c83c62013933957864c8b8aab61c3a36b0f05f77b62ec35820f2df9",
+    "review-edge.md": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "review-gap.md": "b87b65c20c25ac07be1caaacfc01a05f5130d156b7109a41c257468e619e0342",
+    "protected-before.json": "107fe43104c6a113d7493b8f22a94f6272625163ee37499614110ba80096503d"
+  },
+  "limits": [
+    "synthetic HTTP and injected SQL/Access only",
+    "no active app, native database, real credentials, browser/session, migration, deployment or release qualification",
+    "export/type checks precede test-only review patch; runtime/schema/generated sources unchanged"
+  ],
+  "next": "inert same-origin browser request adapter; no UI/session mounting"
+}

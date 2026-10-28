@@ -1,3 +1,28 @@
+## Completed bounded KDG audit display backend — 2026-10-28
+
+The isolated `GET /api/v1/admin/captures/{capture_id}/audit-details` candidate is
+implemented and reviewed. It wraps the unchanged audit page with strict permitted
+Identity labels, releases storage before lookup, shares the original ten-second
+Budget and verifies matching current read.all before success or label degradation.
+Actual missing-route404 RED is retained. Final134 tests/42 subtests, new/old exports,
+strictTS7.0.2 and generated freshness pass. Three review layers completed; one
+header-only/empty-continuation verification gap was fixed with an independent HTTP
+regression. No open finding or new deferral. All388 protected sources remain unchanged.
+See [backend evidence](AUDIT_DISPLAY_BACKEND_EVIDENCE.md) for commands/custody/limits.
+
+Next select one bounded inert browser request adapter against the generated
+audit-display aggregate and [composition contract](audit-display-composition.md).
+Prove strict byte/shape/actor-set/cursor validation, same-origin authentication,
+account/org/capture/page/session generation fences and cancellation/deadline handling.
+Do not mount the portal or imply Auth/session/device/native/real-authority readiness.
+
+No active startup, browser/UI/editor/Leave, worker/queue, real credentials/accounts,
+native DB/Docker/migrations/grants, dependencies, deployment/production/pilot/push
+or resource lifecycle/cleanup changed. Preserve concurrent work, old evidence and
+retained resources; prohibited fixture not accessed. Historical handoff follows intact.
+
+---
+
 ## Identity cancellation-diagnostic prerequisite repaired — 2026-10-27
 
 The owner repair is complete: four actual HTTP cases failed before the private
