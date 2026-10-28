@@ -85,3 +85,10 @@ All6 findings were repaired and covered by the64-case tool suite (22 regressions
 ## Verification
 
 Use `apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B -m pytest` for focused new and affected tests. Native proof uses a uniquely owned disposable PostgreSQL17 with exact cleanup; exclude existing KDG/Leave fixtures. Build and inspect the changed candidate API image if local Docker permits. Run composition check-only. Record command results, source hashes, skipped checks and production limitations; collection is not proof.
+
+Post-workflow operational follow-through: attempted authorized read-only current
+production inventory; existing SSH alias resolves through the private network, but
+connection timed out (exit255). No target data/configuration, production SQL or
+deployment occurred. Safe diagnostic is linked in the owner handoff. The local
+implementation/preparation delivery is done; target-specific production approval
+remains unavailable until connectivity and remaining exact inputs are resolved.

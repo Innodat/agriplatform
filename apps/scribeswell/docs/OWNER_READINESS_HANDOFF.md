@@ -194,3 +194,9 @@ migration40-file image proofs remain separately scoped. Actual image inspection
 found and fixed0600 generated-helper readability in migration packaging. No generated
 source was edited. No finding was deferred; production execution is still unapproved.
 See [parent post-review output](evidence/bounded-studies-rollout-20261028/parent-postreview.log).
+
+Post-BMAD read-only production preflight was attempted using the existing boabab
+SSH configuration. The private-network connection timed out (exit255); no current
+production metadata, database query or mutation occurred. [Safe diagnostic](evidence/bounded-studies-rollout-20261028/production-preflight.json).
+Restore that existing connection before collecting the target-specific approval
+bundle. Do not substitute historical inventory or approve activation from local proof.

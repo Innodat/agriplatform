@@ -1,0 +1,14 @@
+{
+  "observed_at": "2026-10-28T04:47:36.773628+00:00",
+  "scope": "Post-BMAD read-only production host metadata inventory; no production SQL, environment writes, deployment, provider changes or credentials captured",
+  "inventory_status": "unavailable",
+  "ssh_exit_code": 255,
+  "stderr_sha256": "68a0442aa6f00392e95f849ebbeac0e5ddf2668a4c831b82163891b38112ba54",
+  "diagnostic": {
+    "existing_alias_configured": true,
+    "exit_code": 255,
+    "reason": "private_network_timeout"
+  },
+  "activation_authorized": false,
+  "next_required": "Restore existing private-network SSH reachability, then collect fresh running target inventory before preparing the production approval bundle. Published immutable candidate image references and actual owner preparation/migration evidence remain required."
+}
