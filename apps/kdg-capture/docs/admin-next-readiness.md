@@ -338,3 +338,104 @@ remains incomplete until these independently sourced qualifications exist. Next 
 one separately bounded real-owner/native or deployment-integration prerequisite under
 its own permitted scope; no permission expansion, migration, live credential/account,
 resource startup, release or physical-device claim follows from this preview.
+
+
+## Owner/native prerequisite assessment — 2026-10-28
+
+Baseline: `f77c257321fd91ef631cb40a9918637c9412df1b` on `main`.
+**Next dependency: the Identity-owned retained-actor SQL projection and its restricted
+runtime identity. Assessment complete; native implementation/execution is outside
+retained authorization.** No further client wrapper is selected.
+
+### Current source evidence
+
+- [Owner HTTP candidate](../../../services/access/actor_display_http.py) still takes
+  an injected `Reader`. Its `create_app` mounts only the isolated candidate; it does
+  not configure a database. Existing synthetic lifecycle cases establish contract
+  handling, not actual actor retention or database permissions.
+- [Agreed owner projection design](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md#exact-read-projection-boundary)
+  already selects `identity.actor_displays(uuid[])` and
+  `identity_actor_display_runtime`. Neither a SQL implementation nor a native reader
+  exists in the inspected owner Python/SQL sources. Reuse this contract; do not
+  replace it with the current-account or assignment-target projection.
+- [Actor DDL](../../../services/access/identity-migrations/versions/0002_actor_registry.py)
+  retains actor/mapping identity separately from live Auth and guards deletion;
+  persisted labels remain limited to 200 characters. Source inspection establishes
+  intended structure only. Native removed-account/rename/service-actor behavior,
+  effective inherited permissions and controlled upgrade remain to prove.
+- The current working [owner factory](../../../services/access/main.py) does not
+  include the actor-display router. Native projection, native reader and later
+  active factory/packaging integration are separate missing steps; mounting the
+  candidate now cannot supply its database dependency.
+- The working [Identity verifier](../../../services/access/identity-migrations/identity_baseline.py)
+  recognizes Identity27, including concurrent People setup work. That file, active
+  owner factory, deployment verifier and other shared delivery files are already
+  dirty. This assessment reserves no migration number, changes no head/reference,
+  and makes no claim that the concurrent head is committed or natively qualified.
+  Reconcile the actual predecessor with its owner immediately before future work.
+
+### Bounded delivery to prepare next
+
+One cohesive future owner item supplies the existing projection contract through the
+controlled Identity migration lane, explicit restricted-role preparation, and a
+read-only native adapter consumed by the isolated HTTP factory. It leaves active
+`main.py`, production packaging, real service keys/accounts and KDG startup untouched.
+Resolve actual existing SECURITY DEFINER ownership and effective permissions from
+that authorized synthetic target; do not create a second migration system or reuse
+an operator/universal credential. The runtime login gets only necessary database
+connection, schema usage and projection EXECUTE, with no raw registry, mapping,
+account, membership, People, Access, KDG, ledger or operator access. Keep fixed search
+path and reject unsafe inherited execution, memberships or schema-create power.
+
+Use the existing owner contract for SQL arguments/results, exact selected IDs and
+missing-label semantics. The adapter binds the UUID array as data, runs a short
+read-only transaction, and includes connection acquisition, statement/lock waits and
+owned cancellation cleanup in the caller's original deadline. It must not join live
+Auth/current membership, infer mappings, write setup data or cache names. A database
+error never means actor absence. Retain the existing HTTP validation and private
+failure/cancellation handling rather than adding a duplicate protocol.
+
+Before native implementation, the retained exclusion on native DB/Docker/migration/
+grant/resource work must be explicitly changed for that bounded synthetic delivery.
+No ordinary “continue through ready work” instruction overrides that exclusion.
+There is no ready runtime implementation established by this assessment, and no
+native permission or credential has been requested, provisioned or activated.
+
+### Acceptance evidence required for that future item
+
+| Case | Given / when / then; evidence required |
+| --- | --- |
+| ON-1 / HD-1,3 | Given an authorized fresh synthetic predecessor, when the actual restricted login calls the missing projection before implementation, then retain the expected-result failure; after migration verify exact retained, renamed, account-removed, System/Migrate/service and unknown actor results. Preserve IDs and distinguish missing from failed lookup; use supported owner lifecycle setup, not real accounts. |
+| ON-2 / HD-2,4 | Given the dedicated login and independent unauthorized logins, when valid/invalid arrays and raw-table, DDL, ledger, operator, foreign-owner and other-routine operations run, then prove the selected function succeeds only as intended and forbidden access actually fails. Include null/empty/oversized/duplicate/nonzero-ID rules; HTTP still enforces service/org policy before SQL. |
+| ON-3 / HD-5 | Given the original three-second HTTP budget, when acquisition/query/lock/unwind consumes it or a caller cancels repeatedly, then no late success or sensitive diagnostic appears and the owned connection/transaction is released. Actual PostgreSQL waits supplement wrapper tests. |
+| ON-4 / ADR-0020 | Given supported predecessor schema/data and previous consumer, when controlled upgrade/repeat, injected failure and explicit forward retry run, then preserve prior data/consumers, prove transaction rollback for the failed attempt and block activation on failure. No startup migration or automatic downgrade. |
+| ON-5 / HD-7 | Given the actual native reader injected into the isolated HTTP candidate, when the existing consuming request runs, then resolve exactly the permitted ID batch with unchanged bounds/order/no-store/error envelopes and owner-generated freshness. This is synthetic owner integration, not real Auth or a deployed KDG journey. |
+
+Follow [focused migration verification](../../../platform/docs/development/migration-verification.md):
+ordinary Alembic/PostgreSQL behavior plus concrete least-privilege/retention/recovery
+cases, not a new global catalog whitelist or more mocks in place of native evidence.
+Retain exact commands/results, synthetic target provenance, RED/GREEN, source binding,
+failed attempts and normal stop evidence; preserve existing resources without cleanup.
+Do not select or inspect the prohibited migration fixture to source this proof.
+
+### Ordering and remaining Story 3.1 gates
+
+After this owner prerequisite is independently qualified, assess active owner
+factory/export/package/config integration and KDG's actual owner HTTP path together
+with their controlled release compatibility. Provisioning/rotation, real provider
+session/access invalidation, synchronized capture-to-history journey and deployed
+own-PWA/portal cache separation still require separate authorized evidence. Installed
+Android/iPhone, actual zoom and assistive technology are separate physical/runtime
+checks; Chromium simulations do not qualify them. Story 3.1 stays incomplete.
+
+### This assessment's verification and impacts
+
+Documentation/source inspection only: no HTTP/native/browser suite rerun and no old
+passing result promoted to current qualification. Local link/anchor checks, scoped
+`git diff --check`, exact handoff suffix preservation and concurrent tracked diff
+custody are recorded in the assessment Build item. No resource command ran.
+
+Scaffold: reuse existing controlled owner lane, defer promotion until a consuming
+native proof. Shared UI: no change. Agent context: existing instructions suffice.
+Documentation: this assessment, handoff and Build record only. ADR: inherit existing
+0020/0022/0023/0056 and focused migration guidance; no accepted decision changed.

@@ -1,3 +1,27 @@
+## Next owner/native prerequisite assessed -- 2026-10-28
+
+Resumed at `f77c257321fd91ef631cb40a9918637c9412df1b`. The
+[bounded assessment](admin-next-readiness.md#ownernative-prerequisite-assessment--2026-10-28)
+selects Identity's retained-actor SQL projection/restricted runtime plus native reader
+as the next dependency, before active owner mounting/packaging. Existing HTTP and
+portal proofs remain synthetic; Story 3.1 is incomplete. No further inert wrapper.
+
+The existing owner contract supplies the projection design; ON-1--ON-5 now specify
+actual restricted-login retention/denial/deadline/upgrade/recovery and isolated HTTP
+integration evidence. Concurrent Identity27/factory/deployment changes remain owned
+by their current work: no migration number/head/reference is reserved or changed.
+
+Assessment and documentation work are complete. Native implementation/execution is
+not ready within retained exclusions; no migration/grant/role, database/Docker,
+resource startup, real credential/account, deployment/production/pilot/push, physical
+device, editor/Leave, dependency or cleanup action is authorized by this assessment.
+A later explicitly bounded synthetic native scope must change those exclusions first.
+Preserve concurrent work and historical evidence/resources; never access/run/copy/hash
+the prohibited migration fixture. No runtime tests rerun or qualification claimed.
+All prior handoff bytes follow intact.
+
+---
+
 ## Synthetic administrator portal preview implemented -- 2026-10-28
 
 The user's Next continued the recorded portal/all-read boundary into one separately
