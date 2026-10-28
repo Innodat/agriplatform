@@ -306,3 +306,35 @@ No full Story 3.2, editor, assignment management, questionnaire management, expo
 dashboards, revision browser, Leave, real account/credential, DB/grant/migration,
 dependency, deployment/pilot/push or cleanup work follows. Historical evidence,
 concurrent work and resources stay preserved; prohibited fixture remains untouched.
+
+
+## Synthetic portal integration delivered — 2026-10-28
+
+The subsequent Next authorizes the previously proposed separately bounded portal/
+all-read integration as an explicit synthetic preview, without real startup or native/
+credential/deployment activation. The [portal preview](ADMIN_PORTAL_PREVIEW_EVIDENCE.md)
+now combines actual existing administrator adapters and generic Auth lifecycle in a
+responsive mounted browser fixture. No owner API or generated template changed.
+All three review layers completed; five findings grouped into four patches. Final
+20 controller cases/21 Chromium groups pass and independent patch review found no
+remaining supported findings. No new deferral.
+
+This supersedes the earlier no-mounted-consumer boundary only for this synthetic host.
+History uses five-row pages and at most five selected-record audit reads for capturer
+names under one executing-read deadline; detail/audit revision mismatches refuse mixed
+presentation. Current all-read is established by server responses, never own entry.
+
+| Story 3.1 criterion | Newly established synthetic client evidence | Remaining acceptance gate |
+| --- | --- | --- |
+| AC-1 | Current all-read history admission and per-request adapters; no own fallback; bound account/org/session and denial feedback | Actual selected Auth and running owner integration, complete real runtime-role boundary qualification |
+| AC-2 | Responsive child/date/capturer history, original-questionnaire answers, refresh/paging/empty versus partial/failure | Real synchronized producer-to-portal journey and actual operating environment |
+| AC-3 | Initially collapsed audit, retained header and actual executor/initiator labels, replaced bounded event pages | Real Identity retained projection/permission and active owner path |
+| AC-4 | Initial offline refuses requests; reconnect rechecks; isolated browser creates no business storage or worker | Actual deployed own-PWA/portal separation and worker/cache behavior |
+| AC-5 | Same-call DOM clearing on verification/offline/session/account/org/signout, ignored-abort late HTTP success/errors fenced | Actual provider/session/access integration and its invalidation sources |
+| AC-6 | Keyboard activation, focus/scroll return,48px targets, contrast, phone/desktop and200%-font layout simulations | Assistive technology, actual zoom and installed Android/iPhone extension; integrated runtime roles |
+
+No additional inert wrapper is needed to assert this client behavior. Full Story3.1
+remains incomplete until these independently sourced qualifications exist. Next assess
+one separately bounded real-owner/native or deployment-integration prerequisite under
+its own permitted scope; no permission expansion, migration, live credential/account,
+resource startup, release or physical-device claim follows from this preview.

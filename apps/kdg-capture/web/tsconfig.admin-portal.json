@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.auth.json","files":["src/admin-portal.ts","src/AdminPortal.tsx","src/admin-portal-preview.tsx","src/styles.d.ts","tests/admin-portal-fixture/main.tsx","tests/admin-portal.types.ts"]}

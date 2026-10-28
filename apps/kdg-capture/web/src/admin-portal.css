@@ -1,0 +1,15 @@
+.kdg-admin nav { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-block: 1.5rem; }
+.kdg-admin form { margin-block: 1.5rem; }
+.kdg-admin-history { list-style: none; padding: 0; }
+.kdg-admin-history li { border-block-start: 1px solid var(--kdg-foreground); padding-block: 0.75rem; }
+.kdg-admin-history button { width: 100%; text-align: start; }
+.kdg-admin-history span { display: block; }
+.kdg-admin dl { margin-block: 1rem; }
+.kdg-admin dt { font-weight: 600; margin-block-start: 0.5rem; }
+.kdg-admin dd { margin-inline-start: 0; }
+.kdg-admin-questions, .kdg-admin-events { padding-inline-start: 1.75rem; }
+.kdg-admin-questions li, .kdg-admin-events li { padding-block: 0.5rem 1rem; }
+.kdg-admin h3 { font-size: 1.125rem; }
+.kdg-admin-answer { white-space: pre-wrap; }
+.kdg-admin time { overflow-wrap: anywhere; }
+.kdg-admin :is(h1,h2)[tabindex]:focus { outline: 3px solid var(--kdg-foreground); outline-offset: 3px; }

@@ -1976,3 +1976,20 @@ The caller owns invalidation; this inert function does not integrate Auth/sessio
 [Evidence](AUDIT_DISPLAY_ADAPTER_EVIDENCE.md) records109 adapter tests,73 prior audit
 checks,20 backend tests/two subtests, strictTS7.0.2, generated freshness and five parities.
 Native/real-authority, portal/device and release remain separate gates.
+
+
+## Synthetic administrator portal composition — 2026-10-28
+
+An explicitly mounted [preview consumer](ADMIN_PORTAL_PREVIEW_EVIDENCE.md) uses existing
+administrator history/detail and audit-details APIs without a new wire contract.
+Five-row history pages select at most five permitted capture IDs for limit1 audit reads
+and original-capturer labels. One maximum ten-second executing-read deadline covers
+history and enrichment; no partial page publishes. Returned aggregate actor selection
+and current server authority remain unchanged. Empty pages need no name lookup.
+
+Record detail and selected audit page are freshly read under one deadline and must
+match record/owner/creator plus current revision/update attribution. A mismatch returns
+safe unavailable feedback with complete explicit Retry. Generic Auth lifecycle resets
+clear the browser view before current all-read admission; no read.own context or offline
+observation authorizes this preview. No persistence, new session/provider setup, active
+startup or real owner/native qualification is established by the synthetic host.

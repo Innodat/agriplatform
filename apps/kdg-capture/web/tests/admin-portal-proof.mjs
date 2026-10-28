@@ -1,0 +1,20 @@
+// Explicit file allowlist only. No migration/native fixture discovery or reads.
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdirSync,symlinkSync,existsSync} from 'node:fs';
+import {join,dirname} from 'node:path';
+import {createHash,randomUUID} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+const root=process.cwd(),hash=v=>createHash('sha256').update(v).digest('hex'),owner='apps/kdg-capture/web';
+assert.equal(process.version,'v26.11.1');
+const retained=join(root,'platform/deployment/.local/web-baseline-qualification/new-5/root');
+for(const [name,version] of [['typescript','7.0.2'],['react','19.3.0'],['react-dom','19.3.0']])assert.equal(JSON.parse(readFileSync(join(retained,'node_modules',name,'package.json'))).version,version);
+const paths=[...['admin-portal.ts','AdminPortal.tsx','admin-portal-preview.tsx','admin-portal.css','entry-screen.css','styles.d.ts','admin-history.ts','admin-detail.ts','audit-display.ts','audit-presentation.ts','audit.ts','read-validation.ts','read.ts','entry.ts','auth/lifecycle.ts'].map(p=>owner+'/src/'+p),...['admin-portal.test.mjs','admin-portal.types.ts','admin-portal-fixture.mjs','admin-portal-proof.mjs','admin-portal-browser.mjs','admin-portal-fixture/main.tsx','admin-portal-fixture/index.html'].map(p=>owner+'/tests/'+p),owner+'/tsconfig.json',owner+'/tsconfig.auth.json',owner+'/tsconfig.admin-portal.json',...['admin-generated','audit-generated','audit-display-generated','read-generated','generated'].map(p=>'apps/kdg-capture/contracts/'+p+'/types.gen.ts')];
+const proof=join(root,'platform/deployment/.local/kdg-admin-portal-20261028','run-'+randomUUID()),capsule=join(proof,'capsule');mkdirSync(capsule,{recursive:true,mode:0o700});
+symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');writeFileSync(join(capsule,'package.json'),'{"type":"module","private":true}\n');
+const sources=Object.fromEntries(paths.filter(p=>existsSync(join(root,p))).map(p=>{const bytes=readFileSync(join(root,p)),dest=join(capsule,p);mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,bytes);return[p,hash(bytes)];}));
+const commands=[];const run=(name,args)=>{const result=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',timeout:120000,maxBuffer:4*1024*1024});const log=join(proof,name+'.log');writeFileSync(log,(result.stdout??'')+(result.stderr??''));commands.push({name,command:[process.execPath,...args],exit_code:result.status,error:result.error?.code??null,log,sha256:hash(readFileSync(log))});return result.status===0&&!result.error;};
+const types=run('types',[join(retained,'node_modules/typescript/bin/tsc'),'--project',join(capsule,owner,'tsconfig.admin-portal.json'),'--noEmit','false','--rootDir',join(capsule,'apps/kdg-capture'),'--outDir',join(capsule,'compiled')]);
+const unit=run('acceptance',['--test','--test-isolation=none',...(process.argv.includes('--acceptance-only')?['--test-name-pattern=current all-read Auth admission']:[]),join(capsule,owner,'tests/admin-portal.test.mjs')]);
+let browser=true;if(types&&unit&&!process.argv.includes('--unit-only')&&!process.argv.includes('--acceptance-only'))browser=run('browser',[join(capsule,owner,'tests/admin-portal-browser.mjs'),proof,root]);
+const unchanged=Object.entries(sources).every(([p,h])=>hash(readFileSync(join(root,p)))===h),passed=types&&unit&&browser&&unchanged;
+writeFileSync(join(proof,'result.json'),JSON.stringify({passed,proof,node:process.version,typescript:'7.0.2',source_sha256:sources,source_unchanged:unchanged,commands,limits:['synthetic Auth port and loopback API only','no native database, real authority, installed device or release qualification']},null,2)+'\n');console.log(JSON.stringify({passed,proof}));if(!passed)process.exitCode=1;

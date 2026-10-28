@@ -219,3 +219,16 @@ results, and retries only through an explicit full authorized aggregate read.
 This updates the earlier future-consumer statements only for the isolated scope.
 Actual mounted UI, Auth/session/all-read admission, role-loss notifications and prior
 renderer references remain outside this proof. No new owner or wire contract.
+
+
+## Explicit synthetic portal consumer — 2026-10-28
+
+The [portal preview](ADMIN_PORTAL_PREVIEW_EVIDENCE.md) now renders actual adapter/
+projection outcomes with generic Auth lifecycle fences in an explicit loopback browser
+host. Browser history enrichment selects only the five returned record IDs and uses
+one audit-details limit1 read per row within the original executing-read deadline;
+there is no browser Identity batch endpoint. Detail plus audit must match immutable
+identity and latest revision/update facts before publishing. Failed/partial enrichment
+withholds all rows; valid temporary name degradation remains distinct. This establishes
+synthetic visible KC-5 and mounted client KC-7/9 evidence, not real owner/native/device
+activation. Existing app startup and wire contracts remain unchanged.

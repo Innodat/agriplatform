@@ -1,5 +1,13 @@
 # KDG Capture — implementation planning readiness
 
+Current synthetic integration checkpoint, 2026-10-28: a separate explicit administrator
+portal preview is implemented and browser-qualified against synthetic Auth/HTTP. See
+[updated criterion matrix](admin-next-readiness.md#synthetic-portal-integration-delivered--2026-10-28).
+The prior no-mounted-consumer boundary is superseded for this preview only; production
+startup/real owners/native Identity permissions, devices and release remain unqualified.
+Full Story3.1 is incomplete. Three review layers and independent patch verification
+completed; the synthetic preview passes20 controller cases/21 browser groups.
+
 Current delivery checkpoint, 2026-10-28: the ready inert presentation model and
 caller-driven review state consumer are implemented; focused/affected synthetic proofs
 pass. See the [continuous-delivery checkpoint](admin-next-readiness.md#continuous-story-31-delivery-checkpoint--2026-10-28)

@@ -1,3 +1,36 @@
+## Synthetic administrator portal preview implemented -- 2026-10-28
+
+The user's Next continued the recorded portal/all-read boundary into one separately
+bounded explicit preview host. History/date filters, original-questionnaire details
+and expandable audit now render through current all-read adapters and the unchanged
+generic Auth lifecycle. Main/index/startup and own-entry routing remain unchanged.
+
+[Evidence](ADMIN_PORTAL_PREVIEW_EVIDENCE.md): strict TypeScript7.0.2,20 controller
+cases,21 named actual Chromium groups and333 affected adapter/projection/state cases
+pass; parent also passed118 generated Auth cases and template/test parity. Exact
+RED limits, source/log/result custody, contrast/layout screenshots and normal owned
+fixture stop are retained in the ignored repository qualification directory. Three
+review layers completed; five findings grouped into four patches. Signout intent now
+survives reconnect/lifecycle replacement, unavailable records have a visible history exit,
+and applied date/mounted actor assertions pass. Independent patch review has no remaining
+supported findings. Earlier /tmp proof capsules were lost on resume; their records are
+historical/unavailable, with fresh qualification and exact pre-review fault reproduction
+recorded honestly. All631 protected prior KDG files remain unchanged; no new deferral.
+
+The [updated Story3.1 criterion matrix](admin-next-readiness.md#synthetic-portal-integration-delivered--2026-10-28)
+separates synthetic mounted client proof from remaining real-owner/native/device/
+release acceptance. Full Story3.1 is not done. Next assess a separately bounded
+real-owner/native or deployment-integration prerequisite; no more inert wrapper is
+needed to claim the implemented client behavior.
+
+No real startup/Auth/service/account/credential activation, native DB/Docker/migration/
+grant, dependency, worker/queue, editor/Leave, deployment/production/pilot/push or
+cleanup changed. Only disposable loopback qualification fixtures started/stopped;
+artifacts retained. Preserve concurrent work, historical evidence/resources and never
+access/run/copy/hash the prohibited migration fixture. All prior handoff bytes follow.
+
+---
+
 ## Continuous Story 3.1 delivery reached the activation boundary -- 2026-10-28
 
 The user's continue-until-done-if-plausible request produced two successive inert
