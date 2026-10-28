@@ -1,0 +1,176 @@
+{
+  "scope": "actual migration image package bytes only; no migration executed in image; local image not published",
+  "image_id": "sha256:861613b21043ef45480700b10151524951c479b5ea6ae70dea217a7390e33c7e",
+  "repo_digests": [],
+  "user": "10001:10001",
+  "entrypoint": [
+    "python",
+    "apps/scribeswell/deployment/migrate.py"
+  ],
+  "sources": {
+    "apps/scribeswell/deployment/migration-requirements.txt": "713141583e988e5a5c038990b6278a150197ddfc8ce65ba72c108e09e32e3bd6",
+    "apps/scribeswell/alembic.ini": "976856548f5b38fbf9dcd1a53a81829059b04f4ea069f3a38e1258bb8f5c0b51",
+    "apps/scribeswell/migrations/controller_history.py": "2ab930cd8d9c0530f2cb70f8d9102c2163b53f7d661cbf82009aa61758732f45",
+    "apps/scribeswell/migrations/release_profile.py": "a133f64dfea0af6e374dfee77e9b5919a316ee4ad0d1065a3782ca39cc0d263d",
+    "apps/scribeswell/migrations/reference-controller.json": "78f23cb01e2b91ff963bfc249631f8317b6c09ed9e41f45fd44abc72e8563d9a",
+    "apps/scribeswell/migrations/prepared_controller.py": "dbe986a3391b1f75842de4e86b5c1ea48aa95496f059f2f088e88a86cecfba74",
+    "apps/scribeswell/migrations/publication_profile.py": "8cfc6c1e9efa7dc5ee518043f0864b4f5f434c245fec1d63354304b72f6975d3",
+    "apps/scribeswell/migrations/reference-head.json": "a446ef7ff8de5adc7bd7163c99affdd71850341bca962963c76458d54bf6019f",
+    "apps/scribeswell/migrations/baseline.py": "ba52c2e75361ba933d4f103ddfab3984acb6abd1e9fa5690713c08e782d2a6d3",
+    "apps/scribeswell/migrations/reference.json": "10ac1f9f5060093e248fb1ed6987cfa24136b6c0662280bcc0dbdccbc0ea3dbf",
+    "apps/scribeswell/migrations/generate_reference.py": "2af503f06d4b35de7692bf8546156c24b9ae98c34d2ef0e207b354ce494c461a",
+    "apps/scribeswell/migrations/catalogue.py": "51b8d0d5bd1246cf2caf59df379264d4858ff84b1b07734d9edfc1a1c057df95",
+    "apps/scribeswell/migrations/env.py": "d93f0a374503f5e8e8c7412610424a787ba76381961647c931908a52fb6089f6",
+    "apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py": "7d3c790c8de85cd079b2ade3da63867285139fba570c8151972fd25b3a48042c",
+    "apps/scribeswell/migrations/versions/0003_corpus_controller.py": "d2d3399ec4178144b1a4df7edcdd0de6129672bf1e54f6aff3cd45147b519e2a",
+    "apps/scribeswell/migrations/versions/0004_corpus_publication.py": "a80764d9b2c8e959774f7309480f69216d64ce12b05aefd77d064be9f16c4b82",
+    "apps/scribeswell/migrations/versions/0005_reader_evidence.py": "74621ea7ad9017c9a3e467ade6017eac73e6a40ac9d0c9182293fd1f34ca45aa",
+    "apps/scribeswell/migrations/versions/0001_baseline.py": "157a9b6c5341072eeb5b8aa87c3d7271f3504846805b0abfa44804483cb5c188",
+    "apps/scribeswell/migrations/versions/0006_publication_append_batches.py": "05213d97fd646aae67ab17877b41d200b228690224cb9356835bb04b35bbcc1e",
+    "apps/scribeswell/studies-alembic.ini": "391e58205e9b3e23b68e2409c7f597b643f1cb8b6c227673cbcf031781da1f99",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "apps/scribeswell/studies-migrations/versions/0006_own_highlights.py": "057585ab54287e16d852b50e90a4194c54e94405cb9b625748df10b797a3e5c4",
+    "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py": "b4fedf15d6de8a2966d310d18ab89f15af5a737852dd9c4f3e7f94f3f33a36e9",
+    "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py": "e9b63b7d88448018fd04b127c8d1717891fe51818345fdf18b1dae70be7217c6",
+    "apps/scribeswell/studies-migrations/versions/0002_study_rename.py": "15e604cfd8aa126fc0f0aefe7d7ea280205fb337d7b7558fc326d9393fd5c4f3",
+    "apps/scribeswell/studies-migrations/versions/0003_collected_passages.py": "c1ce1350f89c1fa111614f7502dc94a68ef87601b387f2e11fd5ebd80a988cfc",
+    "apps/scribeswell/studies-migrations/versions/0008_study_details.py": "dc0e5d326ab0a28e1a39501c6c1f06c2a9bd86b06b43a99815c660a08e4866cf",
+    "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": "5f75af08071ec17b1ad5e7c406ae4bed92f570328fe40cb477af6378c1592ea3",
+    "apps/scribeswell/studies-migrations/versions/0004_note_deletion.py": "d32b5032b4b09a0316b3c95f3def6d0d94a906815adec7d6ec6787f49ba0e61d",
+    "apps/scribeswell/studies-migrations/versions/0005_study_deletion.py": "8ea74f5531c4dbdbeee79c0a9185b809bd1afb84299dd978b65f201a204ad251",
+    "apps/scribeswell/studies-database-tools/test_owned_migration.py": "95f0be531a0370f64a2cbe98ee670092214772c9ed41678ca1e9d394bda801c2",
+    "apps/scribeswell/studies-database-tools/owned_migration.py": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0",
+    "apps/scribeswell/studies-database-tools/.generated-files.json": "55c670f73b79a7eaa737ad8800d7162be163c60ecc9e645cd439567502767b41",
+    "apps/scribeswell/deployment/studies_release_contract.py": "a6004855d59c8c94e547025ddf868edf3996226e459f8cc0374702059b13a7d2",
+    "apps/scribeswell/deployment/studies_migrate.py": "92b624e3e81eb5a4fed7ba1772ed4f03adf014e164f117502661eafb57f7f6e0",
+    "apps/scribeswell/backend/database.py": "57da87d4ae91c979edec74de20a55a1396ad35db79f75bd6050e81d999b24add",
+    "apps/scribeswell/deployment/migrate.py": "628820b4646ee124b29920b895ef4d6274de40866df2054c3b2534a3ad63f39c",
+    "apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql": "b5140822e9655b933a98f17df8b7a7cb8424246991e168238ba736a319b511f0",
+    "apps/scribeswell/deployment/bootstrap/001_direct_database_roles.sql": "d03e8e34227fe73d0572d74e9c799a76982ed6ec83a774fec86e2c757d54c66d",
+    "platform/deployment/target_contract.py": "1e4a1efabc48508082972ab54d6d9212172aae0ad4e9054e67e25b4e489942b1"
+  },
+  "paths": {
+    "apps/scribeswell/deployment/migration-requirements.txt": [
+      "/tmp/migration-requirements.txt"
+    ],
+    "apps/scribeswell/alembic.ini": [
+      "/workspace/apps/scribeswell/alembic.ini"
+    ],
+    "apps/scribeswell/migrations/controller_history.py": [
+      "/workspace/apps/scribeswell/migrations/controller_history.py"
+    ],
+    "apps/scribeswell/migrations/release_profile.py": [
+      "/workspace/apps/scribeswell/migrations/release_profile.py"
+    ],
+    "apps/scribeswell/migrations/reference-controller.json": [
+      "/workspace/apps/scribeswell/migrations/reference-controller.json"
+    ],
+    "apps/scribeswell/migrations/prepared_controller.py": [
+      "/workspace/apps/scribeswell/migrations/prepared_controller.py"
+    ],
+    "apps/scribeswell/migrations/publication_profile.py": [
+      "/workspace/apps/scribeswell/migrations/publication_profile.py"
+    ],
+    "apps/scribeswell/migrations/reference-head.json": [
+      "/workspace/apps/scribeswell/migrations/reference-head.json"
+    ],
+    "apps/scribeswell/migrations/baseline.py": [
+      "/workspace/apps/scribeswell/migrations/baseline.py"
+    ],
+    "apps/scribeswell/migrations/reference.json": [
+      "/workspace/apps/scribeswell/migrations/reference.json"
+    ],
+    "apps/scribeswell/migrations/generate_reference.py": [
+      "/workspace/apps/scribeswell/migrations/generate_reference.py"
+    ],
+    "apps/scribeswell/migrations/catalogue.py": [
+      "/workspace/apps/scribeswell/migrations/catalogue.py"
+    ],
+    "apps/scribeswell/migrations/env.py": [
+      "/workspace/apps/scribeswell/migrations/env.py"
+    ],
+    "apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py"
+    ],
+    "apps/scribeswell/migrations/versions/0003_corpus_controller.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0003_corpus_controller.py"
+    ],
+    "apps/scribeswell/migrations/versions/0004_corpus_publication.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0004_corpus_publication.py"
+    ],
+    "apps/scribeswell/migrations/versions/0005_reader_evidence.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0005_reader_evidence.py"
+    ],
+    "apps/scribeswell/migrations/versions/0001_baseline.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0001_baseline.py"
+    ],
+    "apps/scribeswell/migrations/versions/0006_publication_append_batches.py": [
+      "/workspace/apps/scribeswell/migrations/versions/0006_publication_append_batches.py"
+    ],
+    "apps/scribeswell/studies-alembic.ini": [
+      "/workspace/apps/scribeswell/studies-alembic.ini"
+    ],
+    "apps/scribeswell/studies-migrations/env.py": [
+      "/workspace/apps/scribeswell/studies-migrations/env.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0006_own_highlights.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0006_own_highlights.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0001_personal_notes.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0002_study_rename.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0002_study_rename.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0003_collected_passages.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0003_collected_passages.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0008_study_details.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0008_study_details.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0007_own_copies.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0004_note_deletion.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0004_note_deletion.py"
+    ],
+    "apps/scribeswell/studies-migrations/versions/0005_study_deletion.py": [
+      "/workspace/apps/scribeswell/studies-migrations/versions/0005_study_deletion.py"
+    ],
+    "apps/scribeswell/studies-database-tools/test_owned_migration.py": [
+      "/workspace/apps/scribeswell/studies-database-tools/test_owned_migration.py"
+    ],
+    "apps/scribeswell/studies-database-tools/owned_migration.py": [
+      "/workspace/apps/scribeswell/studies-database-tools/owned_migration.py"
+    ],
+    "apps/scribeswell/studies-database-tools/.generated-files.json": [
+      "/workspace/apps/scribeswell/studies-database-tools/.generated-files.json"
+    ],
+    "apps/scribeswell/deployment/studies_release_contract.py": [
+      "/workspace/apps/scribeswell/deployment/studies_release_contract.py"
+    ],
+    "apps/scribeswell/deployment/studies_migrate.py": [
+      "/workspace/apps/scribeswell/deployment/studies_migrate.py"
+    ],
+    "apps/scribeswell/backend/database.py": [
+      "/workspace/apps/scribeswell/backend/database.py"
+    ],
+    "apps/scribeswell/deployment/migrate.py": [
+      "/workspace/apps/scribeswell/deployment/migrate.py"
+    ],
+    "apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql": [
+      "/workspace/apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql"
+    ],
+    "apps/scribeswell/deployment/bootstrap/001_direct_database_roles.sql": [
+      "/workspace/apps/scribeswell/deployment/bootstrap/001_direct_database_roles.sql"
+    ],
+    "platform/deployment/target_contract.py": [
+      "/workspace/platform/deployment/target_contract.py"
+    ]
+  },
+  "source_bytes_match": true,
+  "build_log_sha256": "4260dfb190b59e8953eb28c104df0f5e9333c7b5c288c3cfa11102edf937f3be"
+}

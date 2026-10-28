@@ -141,6 +141,63 @@ def test_fresh_worker_reports_committed_head_and_repeat_preserves_public(report_
     assert ledger(admin)==[(TARGET,)] and public_read(public)==previous
 
 
+def test_head_saved_rows_revisions_and_receipts_survive_private_disable_and_restore(report_database,monkeypatch):
+    """A route/config transition never reverses schema or overwrites saved data."""
+    from datetime import datetime,timezone
+    from fastapi.testclient import TestClient
+    import httpx
+    from pydantic import SecretStr
+    import config
+    import personal_notes_access
+    from personal_notes_storage import PersonalNotesStorage
+    from database import Database
+    from services import bible_service
+    admin,migrator,runtime,public=report_database
+    success(invoke(migrator),None)
+    storage=PersonalNotesStorage(runtime)
+    study,note,_=seed_previous(storage)
+    update=command('note.replace',expected_revision='1',value=value('Saved current-head observation'))
+    acknowledged=run(storage.execute(IDENTITY,'note.replace',update,study,note['note_id'],deadline()))
+    before=run(storage.read(IDENTITY,study,note['note_id'],deadline()))
+    assert before['revision']=='2'
+    public_database=Database(public,'scribeswell_runtime');public_database.open()
+    monkeypatch.setattr(bible_service,'get_database',lambda:public_database)
+    calls=[]
+    def check(request):
+        calls.append(request.url.path)
+        return httpx.Response(200,json={'account_id':A,'actor_id':IDENTITY['actor_id'],'decision_id':str(uuid4()),
+            'permission':'scribeswell.studies.use','authorization_scope':{'kind':'account'},'checked_at':datetime.now(timezone.utc).isoformat()})
+    original=personal_notes_access.StudiesAccess
+    monkeypatch.setattr(personal_notes_access,'StudiesAccess',lambda url,key,**kwargs:original(url,key,httpx.MockTransport(check),**kwargs))
+    monkeypatch.setattr(config.settings,'scribeswell_studies_database_url',SecretStr(runtime))
+    monkeypatch.setattr(config.settings,'scribeswell_studies_access_url','http://access:8000')
+    monkeypatch.setattr(config.settings,'scribeswell_studies_service_key',SecretStr('synthetic-server-only'))
+    monkeypatch.setattr(config.settings,'scribeswell_studies_account_id',A)
+    def mounted(enabled):
+        monkeypatch.setattr(config.settings,'scribeswell_studies_enabled',enabled)
+        spec=importlib.util.spec_from_file_location('bounded_native_'+uuid4().hex,APP/'backend/main.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return TestClient(module.app)
+    headers={'Authorization':'Bearer current'};path=f'/api/studies/{study}/notes/{note["note_id"]}'
+    try:
+        enabled=mounted(True)
+        assert enabled.get(path,headers=headers).json()==before
+        public_before=enabled.get('/api/bible/books').json()
+        disabled=mounted(False)
+        assert disabled.get(path,headers=headers).status_code==404
+        assert disabled.get('/api/bible/books').json()==public_before
+        assert ledger(admin)==[(TARGET,)]
+        restored=mounted(True)
+        assert restored.get(path,headers=headers).json()==before
+        receipt=restored.get('/api/operations/'+update.operation_id+'?command=note.replace',headers=headers)
+        assert receipt.status_code==200 and receipt.json()=={'status':'committed','outcome':acknowledged}
+        assert restored.get('/api/bible/books').json()==public_before
+        assert calls==['/v2/check']*3
+        success(invoke(migrator),TARGET)
+        assert run(storage.read(IDENTITY,study,note['note_id'],deadline()))==before
+    finally:public_database.close()
+
+
 def test_previous_populated_worker_and_repeat_preserve_previous_consumers_and_denials(report_database,tmp_path,monkeypatch):
     admin,migrator,runtime,public=report_database
     previous_one(migrator,tmp_path,monkeypatch)

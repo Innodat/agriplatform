@@ -1,0 +1,21 @@
+{
+  "command": "apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B -m pytest apps/scribeswell/tests/test_bounded_studies.py apps/scribeswell/tests/test_studies_rollout.py apps/scribeswell/tests/test_personal_notes_release.py apps/scribeswell/tests/test_studies_api_image.py apps/scribeswell/tests/test_direct_database.py apps/scribeswell/tests/test_personal_notes_api.py -q",
+  "result": "105 passed,1 warning in16.16s",
+  "prior_result": "94 passed,1 failed in2.74s; worker test directly set migration environment and did not restore it; image probe correctly refused leaked authority. Test isolation repaired; oracle/helper unchanged.",
+  "migration_image_attempts": [
+    {
+      "image_id": "sha256:bfeb2436e6e2ee3db445704acf66cd4a8b95347192a9db5285080ffc98e133f1",
+      "result": "actual default-user read failed PermissionError on0600 generated helper package; no migration ran"
+    },
+    {
+      "image_id": "sha256:861613b21043ef45480700b10151524951c479b5ea6ae70dea217a7390e33c7e",
+      "result": "all40 packaged files readable and exact source hashes match after packaging permission repair; no migration ran"
+    }
+  ],
+  "evidence_sha256": {
+    "parent-browser.json": "78681634b3a1dd906a6ba577c7b027c596e7f7777bf2832147bd9de7d0a09032",
+    "parent-migration-image.json": "a471de7eb7677337046dec4ec31cd6024cc149ce61bbf335cfc85807e81a2985",
+    "parent-image.json": "2257eeae09d228445ea267352e7f6e188b3f88a263cc227f092a7ff704e2208d",
+    "parent-focused.log": "facdc67087a5d04b8decb1be2bdf2ad0fa9046e44925ea3380a903eb14fb6784"
+  }
+}

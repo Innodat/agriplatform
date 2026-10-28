@@ -169,6 +169,44 @@ async function reloadRememberedWorkspace(page,{title='Untitled study',studyId=st
  }
 }
 
+test('bounded rollout creates first study and saves through explicit API without enrollment',async({page},testInfo)=>{
+ test.skip(!testInfo.project.metadata.boundedStudies,'Requires bounded rollout build settings');
+ const {requests}=await setup(page),privateUrls=[];
+ page.on('request',request=>{if(new URL(request.url()).pathname.startsWith('/scribeswell/api/studies'))privateUrls.push(request.url());});
+ await page.goto('/');
+ await page.getByRole('button',{name:'Studies',exact:true}).click();
+ await page.getByRole('button',{name:'Start a study',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Create study',exact:true})).toBeVisible();
+ expect(requests.some(request=>request.method==='GET'&&request.path.endsWith('/api/studies'))).toBe(true);
+ await page.getByRole('button',{name:'Create study',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Add note',exact:true}).click();
+ await page.getByLabel('Note text',{exact:true}).fill('Bounded saved observation שָׁלוֹם');
+ await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+ await reloadRememberedWorkspace(page);
+ await expect(page.getByLabel('Note text',{exact:true})).toContainText('Bounded saved observation שָׁלוֹם');
+ expect(requests.filter(request=>request.path.endsWith('/enrollment'))).toHaveLength(0);
+ expect(privateUrls.length).toBeGreaterThan(0);
+ expect(privateUrls.every(url=>url.startsWith('https://bounded-api.example.invalid/scribeswell/api/studies'))).toBe(true);
+});
+
+test('bounded rollout refuses first study when fresh private authority fails',async({page},testInfo)=>{
+ test.skip(!testInfo.project.metadata.boundedStudies,'Requires bounded rollout build settings');
+ await setup(page);let enrollmentCalls=0,createCalls=0,checks=0;
+ await page.route('**/api/studies**',route=>{
+  const request=route.request(),pathname=new URL(request.url()).pathname;
+  if(pathname.endsWith('/enrollment'))enrollmentCalls++;
+  if(pathname.endsWith('/api/studies')&&request.method()==='POST')createCalls++;
+  if(pathname.endsWith('/api/studies')&&request.method()==='GET')checks++;
+  return route.fulfill({status:403,json:{code:'studies_access_denied'},headers:{'Cache-Control':'private, no-store'}});
+ });
+ await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();
+ await page.getByRole('button',{name:'Start a study',exact:true}).click();
+ await expect(page.getByRole('alert').first()).toBeVisible();
+ expect(checks).toBeGreaterThan(0);expect(enrollmentCalls).toBe(0);expect(createCalls).toBe(0);
+ await expect(page.getByRole('button',{name:'Create study',exact:true})).toHaveCount(0);
+});
+
 test('explicitly enroll, create, write Hebrew and reopen saved text after reload',async({page})=>{
  const {requests}=await setup(page);await page.goto('/');expect(requests).toHaveLength(0);
  await page.getByRole('button',{name:'Studies',exact:true}).click();

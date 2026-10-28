@@ -187,7 +187,7 @@ def test_app_refusals_require_configuration_reason_and_preserve_all_cases(tmp_pa
         seen.append((label,environment));run.containers[label]='a'*64;return label
     run.launch_api=launch
     run.container_state=lambda name:{'State':{'Running':False,'ExitCode':1,'OOMKilled':False}}
-    run.docker=lambda *args:'Invalid database configuration Remove obsolete runtime service-key authority Studies production activation awaits migration and integration qualification' if marker_present else 'unrelated failure'
+    run.docker=lambda *args:'Invalid database configuration Remove obsolete runtime service-key authority Studies production activation requires one pregranted account' if marker_present else 'unrelated failure'
     run.stop_one=lambda name:run.containers.pop(name)
     if marker_present:
         run.api_refusals({'SCRIBESWELL_STUDIES_ENABLED':'true'})

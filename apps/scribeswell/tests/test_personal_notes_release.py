@@ -140,6 +140,9 @@ def test_worker_requires_committed_observations(monkeypatch,observation):
     monkeypatch.setattr(command,'upgrade',upgrade)
     monkeypatch.setattr(command,'current',lambda *a,**k:pytest.fail('must not query a second connection'))
     environment={'SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL':'postgresql://scribeswell_studies_migrator:synthetic@127.0.0.1/postgres'}
+    # upgrade deliberately publishes its validated URL for Alembic. Own that
+    # mutation so later no-migration-authority image oracles stay isolated.
+    monkeypatch.setenv('SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL',environment['SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL'])
     if observation and observation['scribeswell_studies_after']=='scribeswell_studies_0009':
         assert studies_migrate.upgrade(environment)==private_report(None)
     else:
@@ -156,6 +159,7 @@ def test_worker_rejects_packaged_target_mismatch_before_migration(tmp_path,monke
     (tmp_path/'studies-migrations/versions/0009_note_metadata_predicates.py').unlink()
     monkeypatch.setattr(studies_migrate,'APP',tmp_path)
     monkeypatch.setattr(command,'upgrade',lambda *a,**k:pytest.fail('history mismatch must precede DB work'))
+    monkeypatch.setenv('SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL','postgresql://scribeswell_studies_migrator:synthetic@127.0.0.1/postgres')
     with pytest.raises(ValueError,match='history_invalid'):
         studies_migrate.upgrade({'SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL':'postgresql://scribeswell_studies_migrator:synthetic@127.0.0.1/postgres'})
 

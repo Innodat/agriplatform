@@ -14,5 +14,8 @@ COPY apps/scribeswell/deployment/migrate.py apps/scribeswell/deployment/migrate.
 COPY apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql
 COPY apps/scribeswell/deployment/bootstrap/001_direct_database_roles.sql apps/scribeswell/deployment/bootstrap/001_direct_database_roles.sql
 COPY platform/deployment/target_contract.py platform/deployment/target_contract.py
+# Generated scaffold helper inputs can be0600 in the checkout. The restricted
+# migration user must read/import the copied package; never edit generated files.
+RUN chmod -R a+rX /workspace/apps/scribeswell/studies-database-tools
 USER 10001:10001
 ENTRYPOINT ["python", "apps/scribeswell/deployment/migrate.py"]

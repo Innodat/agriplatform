@@ -194,7 +194,7 @@ class ApiImageQualification(frozen.FrozenRuntimeQualification):
             ('private-migration-role',{'SCRIBESWELL_STUDIES_DATABASE_URL':self.urls['identity_migrator'].render_as_string(hide_password=False)},'Invalid database configuration'),
             ('provider-key',{'SUPABASE_SERVICE_ROLE_KEY':'synthetic-forbidden-authority'},'Remove obsolete runtime service-key authority'),
             ('provider-secret-key',{'SUPABASE_SECRET_KEY':'synthetic-forbidden-authority'},'Remove obsolete runtime service-key authority'),
-            ('production',{'APP_ENV':'production'},'Studies production activation awaits migration and integration qualification')]
+            ('production',{'APP_ENV':'production'},'Studies production activation requires one pregranted account')]
         for label,changes,marker in variants:
             name=self.launch_api('refusal-'+label,environment|changes)
             deadline=time.monotonic()+20

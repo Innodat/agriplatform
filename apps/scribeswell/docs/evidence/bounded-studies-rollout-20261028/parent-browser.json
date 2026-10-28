@@ -1,0 +1,36 @@
+{
+  "scope": "Browser UI doubles and frontend build only; no live owner, production, SMTP or physical-device proof",
+  "runs": [
+    {
+      "command": "node_modules/.bin/playwright test --config apps/scribeswell/web/playwright.bounded-studies.config.cjs --workers=1 --reporter=line",
+      "result": "acceptance red:2 failed,2 passed in9.3s; expected explicit API requests absent",
+      "retained": "/tmp/scribeswell-bounded-browser-red-20261028"
+    },
+    {
+      "command": "node_modules/.bin/playwright test --config apps/scribeswell/web/playwright.bounded-studies.config.cjs --workers=1 --reporter=line",
+      "result": "4 passed in8.4s; desktop/mobile first create,save,reload,no enrollment and fresh denial"
+    },
+    {
+      "command": "node_modules/.bin/playwright test --config apps/scribeswell/web/playwright.config.cjs --grep 'explicitly enroll, create, write Hebrew and reopen saved text after reload' --workers=1 --reporter=line",
+      "result": "2 passed in10.6s; existing desktop/mobile default enrollment"
+    },
+    {
+      "command": "npm run build --workspace=scribeswell-web",
+      "result": "exit0; vite built6.02s; chunk-size warning retained"
+    },
+    {
+      "command": "python3 tools/py/run_compose_supabase.py --check-only",
+      "result": "exit0;15 migrations;no writes"
+    }
+  ],
+  "initial_attempts": [
+    "sandbox webServer launch exit1 before tests; reran with authorized socket access",
+    "first bounded grep anchored at title start collected no tests; corrected filter, no pass inferred"
+  ],
+  "source_sha256": {
+    "apps/scribeswell/web/src/context/StudiesContext.tsx": "f04b9bad921029bc39c2d287c7a05171a30c77bdfb8541f021e9f56b55613eb7",
+    "apps/scribeswell/web/src/lib/personal-notes.ts": "3d0935f00767bfd9669da89860767e78561f8e772a2ded5c6c4199a1ad9cf54b",
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs": "a45b4f50ff2d9a616ea2d156b8f1837c28da5431e4487b16921cf85b51a759ce",
+    "apps/scribeswell/web/playwright.bounded-studies.config.cjs": "c4380b20d44646694393227ca954f9da7583b27a27cc5b4aef20494315730ace"
+  }
+}

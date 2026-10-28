@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded app-only rollout preparation; no deployment, production SQL, pushes or remote mail/settings changes",
+  "baseline_commit": "3e1b29519c2293ec0355cbab69fafb5a96795c36",
+  "acceptance_red": {
+    "command": "apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B -m pytest apps/scribeswell/tests/test_bounded_studies.py -q -k \"bounded_production or matching_account\"",
+    "result": "2 failed, 1 deselected in0.93s",
+    "failures": [
+      "Unconditional production refusal",
+      "allowed_account_id option absent"
+    ]
+  },
+  "final_focused": {
+    "command": "apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B -m pytest apps/scribeswell/tests/test_bounded_studies.py apps/scribeswell/tests/test_studies_rollout.py apps/scribeswell/tests/test_personal_notes_release.py apps/scribeswell/tests/test_personal_notes_api.py apps/scribeswell/tests/test_studies_api_image.py -q",
+    "exit_code": 0,
+    "result": "100 passed, 1 warning in3.18s",
+    "warning": "Existing FastAPI TestClient/httpx deprecation"
+  },
+  "missing_inventory_probe": {
+    "command": "apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B apps/scribeswell/deployment/studies_rollout.py prepare --output /tmp/scribeswell-bounded-no-live-inventory-20261028",
+    "exit_code": 2,
+    "status": "blocked",
+    "files_created": false
+  },
+  "native": "native-results.json",
+  "parent_browser": "parent-browser.json",
+  "parent_image": "parent-image.json",
+  "final_changed_source_sha256": {
+    "apps/scribeswell/backend/config.py": "06c7f5dc2b374eafbacffb53ff01decd7fbb63daddf307eec12fdece3c333f37",
+    "apps/scribeswell/backend/main.py": "be790707f61b36624d7b4b5ebb1c3ae476f889fa0c4e263e31d5070b2adc485c",
+    "apps/scribeswell/backend/personal_notes_access.py": "7ee51788c1d3ad2ec72ef3559c9bae9a5d4af51f71b647a78f0d5368338ff2b0",
+    "apps/scribeswell/deployment/Migrations.Dockerfile": "3815e6781f707507811119a000ba18cd02645d711e9536c49e1681fe789a7572",
+    "apps/scribeswell/deployment/Migrations.Dockerfile.dockerignore": "6721b3c5065e7da5bba6b3add00f692d8b1cf22db8f4a6861d4d03c85d239f76",
+    "apps/scribeswell/deployment/studies-runtime.env.example": "86c0ef8022db2ebd1fddc5d11ba7b7168c4bef216fea8bf41f2dc35900d9e4ca",
+    "apps/scribeswell/deployment/studies_rollout.py": "11c52d9114dec99b5706f2ff34186f475d37896ee10862c9ba86b42b36564781",
+    "apps/scribeswell/tests/studies_api_image_fixture.py": "550e9146acc4fca16cf662ee52d0fde18ee0f4c2079ac129e83f65dbca5d6a05",
+    "apps/scribeswell/tests/test_bounded_studies.py": "0e71a2c24621e5633ec813509d79b69269432fdc1da13007708d407f9044f543",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "a362693d7d83732f8f9e607d17da19a9dbb779692ea6743e48cf1eaac8c9d48a",
+    "apps/scribeswell/tests/test_studies_api_image.py": "67e674b060baeae691d2291be4b87c3aee7228caafef70aadabdaaf99775f3bc",
+    "apps/scribeswell/tests/test_studies_migration_report_native.py": "c9d35def77af7f607c3378aa894992a616c4e759ec534156cf5ad30439c4702d",
+    "apps/scribeswell/tests/test_studies_rollout.py": "24517db3b76cd0ff09f050fcbe87e39fd534f21dc59bfa3bb8f4dfc61bf6f48d",
+    "apps/scribeswell/web/src/context/StudiesContext.tsx": "f04b9bad921029bc39c2d287c7a05171a30c77bdfb8541f021e9f56b55613eb7",
+    "apps/scribeswell/web/src/lib/personal-notes.ts": "3d0935f00767bfd9669da89860767e78561f8e772a2ded5c6c4199a1ad9cf54b"
+  },
+  "limitations": [
+    "Production inventory, real account/grant and credentials unresolved",
+    "No published immutable candidate registry digests",
+    "Actual production owner preparation and coordinated maintenance activation/recovery not executed",
+    "HTTP authority in native preservation test uses explicit owner double",
+    "Candidate API network-isolated checks are not live-owner/TLS/write qualification",
+    "No broad upgrade rehearsal, external SMTP or physical-device proof"
+  ],
+  "notes": [
+    "Native run before/after64 source hashes were unchanged. Later rollout-tool-only and migration-Dockerfile readability repairs do not alter native migration/runtime consumer inputs; exact execution hashes remain retained.",
+    "Migration image unreadable generated helper discovered by parent actual probe; fixed in Docker packaging only, no generated-file edit. Parent retains rebuild/probe evidence.",
+    "Unrelated dirty work and pre-existing Scribeswell README edits preserved. Global release guards unchanged.",
+    "Existing worker unit tests now own Alembic environment mutation via monkeypatch; no production helper/probe oracle change."
+  ],
+  "earlier_focused_runs": [
+    {
+      "command": "apps/scribeswell/.local/owner-integration-20261027/python/bin/python -B -m pytest apps/scribeswell/tests/test_bounded_studies.py apps/scribeswell/tests/test_studies_rollout.py apps/scribeswell/tests/test_personal_notes_release.py apps/scribeswell/tests/test_personal_notes_api.py apps/scribeswell/tests/test_studies_api_image.py -q",
+      "exit_code": 0,
+      "result": "100 passed, 1 warning in2.88s",
+      "warning": "Existing FastAPI TestClient/httpx deprecation"
+    },
+    {
+      "result": "99 passed, 1 warning in2.81s",
+      "scope": "worker tests precede image no-migration-authority probe after test-isolation repair"
+    }
+  ],
+  "parent_migration_image": "parent-migration-image.json",
+  "post_review": {
+    "file_only_result": "64 passed in2.01s",
+    "regressions_red": "22 failed,42 deselected before code repair",
+    "parent_affected_result": "127 passed,1 existing warning in3.25s",
+    "findings": "All6 findings triaged and repaired: two duplicate inline override findings, relative topology, project identity, copied gateway mount and operations route coverage. No deferrals.",
+    "changed_source_sha256": {
+      "apps/scribeswell/deployment/studies_rollout.py": "f4529bbaa28b3eea173d47e657ef6db45c1be6a644de52a3582b10e07195580d",
+      "apps/scribeswell/tests/test_studies_rollout.py": "1d3a9a7155279c5df4ea7fa46764e7a772cbc2a1c10a2941bc18dc5529e6fe6b"
+    },
+    "unchanged_qualifications": "Runtime/schema/frontend unchanged by review fixes; native, browser and actual image results remain scoped as originally recorded."
+  },
+  "coordinator_baseline_commit": "f1fd78025ad7bdad0e06db7129f5435a8d7c8fe5",
+  "baseline_note": "Child implementation started after unrelated KDG commit3e1b295; coordinator scope diff uses original f1fd780 and excludes unrelated changes."
+}

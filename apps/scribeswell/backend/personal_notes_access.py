@@ -22,8 +22,9 @@ def remaining(deadline):
     return seconds
 
 class StudiesAccess:
-    def __init__(self, url, service_key, transport=None):
+    def __init__(self, url, service_key, transport=None, *, allowed_account_id=None):
         self.url=url.rstrip('/'); self.key=service_key; self.transport=transport
+        self.allowed_account_id=allowed_account_id
 
     async def _request(self, path, bearer, payload, deadline):
         if not bearer or not bearer.startswith('Bearer ') or len(bearer)>8192:
@@ -57,9 +58,14 @@ class StudiesAccess:
             if checked.tzinfo is None or checked.utcoffset()!=timedelta(0): raise ValueError
             if result['permission']!='scribeswell.studies.use' or result['authorization_scope']!={'kind':'account'}: raise ValueError
         except Exception: raise NotesError('studies_access_unavailable') from None
+        if self.allowed_account_id is not None and result['account_id']!=self.allowed_account_id:
+            raise NotesError('studies_access_denied')
         return result
 
     async def enroll(self,bearer,operation_id,deadline):
+        # Bounded mode never sends an enrollment mutation, including for its
+        # configured account. Account restriction itself confers no authority.
+        if self.allowed_account_id is not None: raise NotesError('studies_access_denied')
         result=await self._request('/v2/enrollments/scribeswell-studies',bearer,{'operation_id':operation_id},deadline)
         try:
             if set(result)!={'operation_id','status','result'} or result['operation_id']!=operation_id or result['status']!='committed': raise ValueError

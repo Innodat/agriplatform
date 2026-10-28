@@ -254,3 +254,24 @@ separate gates. Studies remains refused under `APP_ENV=production`. Identity0027
 and concurrent owner work are not adopted. This task changes packaging and app-owned
 qualification/documentation only; no scaffold, shared UI, agent-context, schema,
 accepted ADR, generated spec or dependency baseline changes.
+
+## Bounded production-capable candidate — 2026-10-28
+
+The production-capable follow-up changes the API image identity. Parent built and
+inspected `sha256:71a599b4054c7b1e3b193369f87c4f24b719eafdbfb2a335ac3f99a49ea8f43c`;
+[exact independent image observations](evidence/bounded-studies-rollout-20261028/parent-image.json)
+retain all60 packaged app-file hashes, actual default-command production-enabled
+startup (health200, anonymous private401, enrollment403 and unavailable Access503),
+and production-disabled startup (health200 and private404). Both exact local
+containers ran as UID10001 with read-only root/network-none/cap-drop/no-new-privileges,
+stopped normally with exit0/no OOM and were removed. Earlier harness failures remain
+retained in the private proof directory.
+
+These network-isolated checks establish candidate startup and packaging only. They
+exercise no live Access/provider request or DB connection and therefore establish
+no TLS/write/owner-readiness proof. The old development-mode integration cannot be
+relabeled as this new production image's end-to-end qualification. There is no
+published RepoDigest; the rollout inspector/gate refuses a local config image ID
+as a production registry binding. See [the runbook](BOUNDED_STUDIES_ROLLOUT.md) for
+remaining target inventory, current owner preparation, controlled migration and
+separately approved activation/recovery verification.

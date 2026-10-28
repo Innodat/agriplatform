@@ -110,7 +110,8 @@ if settings.scribeswell_studies_enabled:
     from personal_notes_storage import PersonalNotesStorage
     from personal_notes_router import build_router
     app.include_router(build_router(
-        StudiesAccess(settings.scribeswell_studies_access_url, settings.scribeswell_studies_service_key.get_secret_value()),
+        StudiesAccess(settings.scribeswell_studies_access_url, settings.scribeswell_studies_service_key.get_secret_value(),
+            allowed_account_id=settings.scribeswell_studies_account_id or None),
         PersonalNotesStorage(settings.scribeswell_studies_database_url.get_secret_value())))
 
     @app.middleware("http")

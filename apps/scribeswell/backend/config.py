@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     scribeswell_studies_database_url: SecretStr = SecretStr("")
     scribeswell_studies_access_url: str = ""
     scribeswell_studies_service_key: SecretStr = SecretStr("")
+    # Exactly one existing, pregranted account in bounded production mode.
+    scribeswell_studies_account_id: str = ""
 
     # JWT — Supabase signs JWTs with the project JWT secret
     supabase_jwt_secret: str = ""
@@ -43,15 +45,24 @@ class Settings(BaseSettings):
         validate_url(self.scribeswell_database_url.get_secret_value(), "scribeswell_runtime", self.app_env == "production")
         private = (self.scribeswell_studies_database_url.get_secret_value(), self.scribeswell_studies_access_url, self.scribeswell_studies_service_key.get_secret_value())
         if self.scribeswell_studies_enabled:
-            if self.app_env == "production":
-                raise ValueError("Studies production activation awaits migration and integration qualification")
+            if self.app_env == "production" and not self.scribeswell_studies_account_id:
+                raise ValueError("Studies production activation requires one pregranted account")
+            if self.scribeswell_studies_account_id:
+                from uuid import UUID
+                try:
+                    account=UUID(self.scribeswell_studies_account_id)
+                    if not account.int or str(account)!=self.scribeswell_studies_account_id: raise ValueError
+                except (ValueError,TypeError):
+                    raise ValueError("Studies account restriction invalid") from None
             if not all(private): raise ValueError("Studies configuration incomplete")
-            validate_url(private[0], "scribeswell_studies_runtime", False)
+            validate_url(private[0], "scribeswell_studies_runtime", self.app_env == "production")
             from urllib.parse import urlsplit
             target=urlsplit(private[1])
             if target.scheme not in ("http","https") or not target.hostname or target.username or target.password or target.query or target.fragment:
                 raise ValueError("Studies Access URL invalid")
-        elif any(private):
+            if self.app_env == "production" and target.scheme!="https" and private[1]!="http://access:8000":
+                raise ValueError("Studies Access TLS required")
+        elif any(private) or self.scribeswell_studies_account_id:
             raise ValueError("Studies configuration requires explicit opt-in")
         return self
 

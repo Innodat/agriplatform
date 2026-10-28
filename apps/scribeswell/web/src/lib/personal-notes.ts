@@ -6,7 +6,7 @@ export type {NoteValue,NoteView,StudyView,OperationAck,PassageList};
 import {isReadableNoteValue} from './note-value';
 // A declared page can carry 50 maximum-size aggregates plus bounded attribution.
 const MAX_RESPONSE_CHARS=50*262144+65536;
-const base=import.meta.env.BASE_URL.replace(/\/$/,'');
+const base=(import.meta.env.VITE_STUDIES_API_URL||import.meta.env.BASE_URL).replace(/\/$/,'');
 export class NotesFailure extends Error { constructor(public code:string){super(code);} }
 export const emptyValue=():NoteValue=>({document:{version:1,blocks:[]},connections:[],highlights:[]});
 export function uuid(){return crypto.randomUUID();}

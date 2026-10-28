@@ -160,3 +160,37 @@ environment release/recovery, external SMTP and physical-device gates remain.
 Impacts: owner readiness/qualification, consumer artifact example and documentation;
 no shared UI, generator, agent-context or ADR changes. Recipient/invitation and
 Notification remain undelivered. Physical-device and external SMTP gates remain.
+
+## Bounded sole-consumer production preparation — 2026-10-28
+
+The [bounded rollout runbook](BOUNDED_STUDIES_ROLLOUT.md) now permits an app-local
+production configuration for exactly one existing canonical account, still subject
+to fresh current Access authority on every request. Enrollment is blocked before
+upstream mutation; the bounded frontend checks current private read authority before
+creation. The default remains public-only. This narrows the earlier unconditional
+production refusal; it grants no deployment or production SQL authority.
+
+The offline app-only preparer preserves retained unrelated Compose/gateway/env
+configuration, binds exact source/image/proof references and same-project restricted
+credentials, and leaves Access unusable until the supervised private head0009
+report and actual archived owner preparation pass. It consumes only qualified
+Identity0026/Access0019 readiness v2 and the exact frozen qualified Access image.
+Global whole-registry guards and the mixed Identity0027 tree remain unchanged.
+
+Focused local PostgreSQL17 proof preserves saved content, revision2, operation
+receipt and actual public reads across private-route disable/restore, plus fresh
+head/repeat and failure/forward retry. Parent browser and actual candidate-image
+checks are retained with explicit limits in
+[the bounded evidence](evidence/bounded-studies-rollout-20261028).
+Actual production inventory/account/credentials, registry publication bindings,
+coordinated target maintenance/readiness and live consumer verification remain
+unresolved. No environment was activated; prior external SMTP, physical-device and
+sharing/Notification gates remain separate.
+
+Bounded-rollout parent completion: final affected suite127 passed3.25s after all six
+BMAD review findings were fixed (two findings shared the inline-environment root
+cause). Focused native3, bounded browser4 plus default enrollment2, API60-file and
+migration40-file image proofs remain separately scoped. Actual image inspection
+found and fixed0600 generated-helper readability in migration packaging. No generated
+source was edited. No finding was deferred; production execution is still unapproved.
+See [parent post-review output](evidence/bounded-studies-rollout-20261028/parent-postreview.log).
