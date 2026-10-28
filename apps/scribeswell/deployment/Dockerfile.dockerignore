@@ -1,6 +1,7 @@
 **
 !apps/scribeswell/backend/requirements.txt
 !apps/scribeswell/backend/**
+!apps/scribeswell/data/reference-catalogue/**
 !apps/scribeswell/data/hebrew-lexicon/**
 !apps/scribeswell/scripts/hebrew.json
 !apps/scribeswell/scripts/seed.py

@@ -1,5 +1,34 @@
 # Final native implementation evidence — 2026-10-26
 
+## Default Scribeswell API image follow-up — 2026-10-28
+
+The [default API image qualification](API_IMAGE_INTEGRATION_EVIDENCE.md) repairs the
+missing offline reference catalogue after an actual unchanged-image import failure.
+Final review-fixed run `56ec83ff-a9e3-4ad0-a0b2-9374c0d853a7` passed the inherited real browser/
+privacy47.074s, disabled authority6.839s, genuine signup/local-mail135.648s and all24
+independent SQL checkpoints, without skips. Actual OTP elapsed122.000329s exceeded
+the unchanged120-second limit. Three Access packaging refusals, ten Access startup
+refusals and five app authority/production refusals passed.
+
+The unchanged default command ran as UID10001 with read-only/bounded restrictions,
+no migration/provider-service authority and both actual app SQL roles independently
+observed over TLSv1.3. Exact60 app files and2,514 installed dependency files/2,927
+entries agreed before/after signup; unpinned app requirements establish no frozen
+dependency baseline. All17 exact app/Access containers and21 process groups stopped
+normally, native fixture stop exited0, and no exact fixture containers/port listeners
+remained. All190 original owner inputs/qualification and the retained live bundle
+remain unchanged. Parent146-test repetition and independent live/final audits are
+linked in the [safe evidence](evidence/api-image-integration-20261028.json).
+
+Blind and verification reviews had no findings; edge review found and fixed the
+top-level COPY-directory-symlink boundary, with RED then focused GREEN coverage.
+The fixed qualifier passed the fresh complete native run above. The earlier
+`eff62b26` success remains superseded pre-review history by retained path/hash.
+Failed/interrupted attempts remain distinct, including an unexplained privacy timeout;
+its cause is not inferred from later successful runs. This qualifies the repaired local default API
+image alongside frozen Access; production activation remains refused. Actual environment
+release/recovery, external SMTP, physical-device and sharing/Notification gates remain.
+
 ## Frozen Access image follow-up — 2026-10-27
 
 The separate [frozen runtime qualification](FROZEN_ACCESS_RUNTIME_EVIDENCE.md) passed

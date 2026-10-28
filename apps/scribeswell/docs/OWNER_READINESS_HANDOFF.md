@@ -16,6 +16,28 @@ pair, with a freshly prepared version2 artifact and all inherited consumer oracl
 Coordinated environment release/recovery evidence remains outstanding. Sharing remains
 separate; implementing a substitute Access or Notification path would cross ownership.
 
+## Default Scribeswell API image follow-up — 2026-10-28
+
+The [API image qualification](API_IMAGE_INTEGRATION_EVIDENCE.md) now includes the
+required offline reference catalogue and passes the shipped default CMD on a fresh
+real-owner fixture alongside frozen Access. Final review-fixed run
+`56ec83ff-a9e3-4ad0-a0b2-9374c0d853a7` passed browser/privacy, disabled authority,
+genuine signup/local mail/consumed/elapsed-expired links and24 SQL checkpoints,
+without skips. Both actual restricted runtime URLs independently proved TLSv1.3;
+UID10001, exact60 app files, installed dependency bytes and runtime hardening agree
+with recorded image provenance. The app requirements remain unpinned.
+
+All17 exact app/Access containers and21 process groups stopped normally; native
+fixture stop exited0, no fixture containers/listeners remained and nine reuse binds
+passed. All190 original owner inputs, qualification and live bundle remain unchanged.
+The independent parent repeated146 affected tests and inspected the actual live/final
+image. Blind and verification reviews had no findings; edge review found and fixed
+one top-level COPY-directory-symlink boundary defect. Earlier failed/interrupted
+attempts, including an unexplained privacy timeout, remain retained. The earlier
+`eff62b26` success is superseded pre-review history with retained files/hashes. See [safe evidence](evidence/api-image-integration-20261028.json).
+Production Studies refusal remains binding; environment release/recovery, external
+SMTP, physical devices and recipient/Notification gates remain outstanding.
+
 ## Access/Identity owner: adopted exact-head readiness
 
 The owning readiness delivery adopts artifact and qualification `schema_version: 2`

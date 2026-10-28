@@ -43,7 +43,8 @@
   },
   "smoke_artifacts": [
     "/app/apps/scribeswell/data/hebrew-lexicon",
-    "/app/apps/scribeswell/scripts/hebrew.json"
+    "/app/apps/scribeswell/scripts/hebrew.json",
+    "/app/apps/scribeswell/data/reference-catalogue/catalogue.json"
   ],
   "database_roles": {
     "SCRIBESWELL_DATABASE_URL": "scribeswell_runtime"
