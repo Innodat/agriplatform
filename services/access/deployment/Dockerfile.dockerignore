@@ -24,3 +24,7 @@
 !services/access/discovery.py
 !services/access/discovery_contract.py
 !services/access/discovery_query.py
+!services/access/actor_display_runtime.py
+!services/access/actor_display_http.py
+!services/access/actor_display_contract.py
+!services/access/actor_display_native.py

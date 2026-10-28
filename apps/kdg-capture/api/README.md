@@ -62,7 +62,7 @@ no new or modified accepted ADR. Fingerprints/HMAC remain deferred.
 
 ## Explicit configured startup factory
 
-`runtime:create_app` is an owner-owned ASGI factory. It reads exactly KDG_ORG_ID,
+`runtime:create_app` is an owner-owned ASGI factory. Its context policy reads KDG_ORG_ID,
 KDG_ACCESS_URL and KDG_SERVICE_KEY from the server environment at construction; all
 three are required. Invalid/missing policy raises only kdg_context_configuration_invalid.
 An explicitly supplied mapping overrides environment discovery, including an empty
@@ -105,6 +105,60 @@ exit. Its ordinary TLS consumer uses an explicit private local CA test transport
 The optional `--interrupt-probe` qualification intentionally sends SIGTERM to its own
 runner after both test servers start. It must retain failed/interrupted evidence,
 bounded child exits and a successful independent after-inspection, then exit143.
+
+## Configured administrator reads
+
+The same explicit factory enables the reviewed administrator read handlers when
+all three additional server inputs are supplied:
+
+| Input | Rule |
+| --- | --- |
+| `KDG_ADMIN_READ_DATABASE_URL` | Explicit PostgreSQL URL for exactly `kdg_capture_runtime`; existing bounded numeric-host read engine policy applies |
+| `KDG_IDENTITY_URL` | Fixed HTTPS Identity base URL, without userinfo, query, fragment or application path |
+| `KDG_ACTOR_DISPLAY_SERVICE_KEY` | Dedicated32–256 visible ASCII display credential, distinct from every other supplied service key |
+
+All three absent preserves context-only behavior and imports. Partial, empty,
+invalid, wrong-role or duplicate-key activation fails construction with only
+`kdg_admin_configuration_invalid`. Explicit mappings never merge ambient values.
+The API lock declares SQLAlchemy2.1.4 and Psycopg[binary]3.3.6, matching the existing
+approved native owner runtime; no dependency version upgrade is required.
+
+Enabled routes are GET `/api/v1/admin/captures`,
+GET `/api/v1/admin/captures/{capture_id}` and
+GET `/api/v1/admin/captures/{capture_id}/audit-details`, alongside the existing
+GET `/api/v1/context`. There are no administrative write routes. Each read checks
+current exact organization `capture.read.all`; own access never supplies a
+fallback. Audit-details releases its business connection before selected-ID
+Identity lookup, then requires final matching current authority before publishing.
+Existing safe errors, original deadlines, cancellation ownership, private/no-store
+responses, immutable definitions and original audit attribution remain binding.
+
+Construction performs no checkout or migration. The two candidate apps retain
+their closure-bound lazy engines; FastAPI router composition retains both
+lifespans and disposes each engine after requests drain. The existing context
+client remains owned by its original lifespan. The optional `identity_transport`
+argument is a synthetic seam like `transport`, never browser configuration or an
+automatic TLS bypass.
+
+`app.openapi()` composes the existing owner-exported route schemas and refuses
+ambiguous component definitions. The configured contract is exported offline by
+`export_configured_admin_openapi.py` to `configured-admin.openapi.json`; its
+`--check` mode detects staleness without constructing a database engine. Existing
+`main:app`, `openapi.json`, context-generated types and isolated administrator
+contracts retain their independent compatibility boundaries.
+
+The local migration policy retains `kdg-local` at port55482. A fresh Story3.1
+synthetic run explicitly uses target `kdg-story31-synthetic` with
+`KDG_MIGRATION_SYNTHETIC_PORT` matching its canonical selected URL port and differing
+from55482. All prior loopback, disposable-environment, restricted-migrator and
+`kdg_schema_<32hex>` database checks remain. This creates no resources, performs no
+automatic migration, and authorizes no retained-target cleanup or production use.
+
+Impacts: existing bounded owner/scaffold primitives reused without new generic
+promotion; shared UI unchanged; current agent context sufficient; configuration,
+schema and owner runbooks updated; existing ADRs remain unchanged. Focused HTTP
+tests use synthetic authority/storage; full native/TLS/Auth/browser evidence and
+remaining Story3.1 acceptance belong to their explicit qualification.
 
 ## Inert questionnaire definition candidate
 

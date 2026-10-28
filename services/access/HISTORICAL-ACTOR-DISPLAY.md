@@ -10,7 +10,10 @@ retains the original discovery. See
 [delivery evidence](HISTORICAL_ACTOR_DISPLAY_EVIDENCE.md). The later
 [native prerequisite](ACTOR_DISPLAY_NATIVE_EVIDENCE.md) now has an implemented
 Identity28 projection and restricted reader with reviewed synthetic ON evidence.
-No active-service mount or real credential is implemented. Identity owns this contract within the existing
+The later [explicit runtime integration](ACTOR_DISPLAY_RUNTIME.md) mounts this
+reviewed route in the active factory with disabled-by-default policy and a native
+reader when fully configured. Its local native/socket qualification is separate
+from the earlier isolated proofs; no real credential is provisioned. Identity owns this contract within the existing
 Access-hosted Identity boundary. KDG owns record authorization and actor selection.
 Baseline: `29763767fc3bb2895fea2500283759975f826d81`.
 

@@ -6,7 +6,7 @@ import os
 import stat
 from pathlib import Path
 
-SOURCES=('main.py','organization_check.py','studies_access.py','studies_identity.py','studies_contract.py','studies_readiness.py','identity_preferences.py','caller_policy.py','capability_contract.py','capability_check.py','identity_context.py','discovery.py','discovery_contract.py','discovery_query.py')
+SOURCES=('main.py','organization_check.py','studies_access.py','studies_identity.py','studies_contract.py','studies_readiness.py','identity_preferences.py','caller_policy.py','capability_contract.py','capability_check.py','identity_context.py','discovery.py','discovery_contract.py','discovery_query.py','actor_display_runtime.py','actor_display_http.py','actor_display_contract.py','actor_display_native.py')
 INPUTS=('pyproject.toml','uv.lock',*SOURCES,'deployment/verify_runtime.py','deployment/package_runtime.py','deployment/Dockerfile','deployment/Dockerfile.dockerignore')
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()

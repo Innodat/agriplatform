@@ -1,3 +1,28 @@
+## Active owner HTTP integration delivered and reviewed -- 2026-10-28
+
+The current local authorization supersedes historical unmounted/no-startup exclusions.
+Active Access-hosted Identity display and configured KDG administrator history/detail/
+audit-details now run with real local GoTrue, current restricted Access and PostgreSQL.
+[Evidence and maintained AC-1–AC-6 matrix](STORY31_ACTIVE_HTTP_EVIDENCE.md) distinguish
+actual native/HTTP proof from remaining browser, PWA, provider and device requirements.
+Identity28 was consumed unchanged. Controlled migration failures, forward retries,
+compatibility repair, resources and original evidence remain retained.
+
+Three review lenses and independent patch review are clear after five corrections;
+319 affected tests plus7 subtests, five final supervisor tests, nine final actual HTTP
+checks, frozen package and generated freshness pass. Interrupted qualification remains
+failed even after normal owned-child shutdown. No finding deferred. Story3.1 is incomplete.
+
+Next execute `_bmad-output/implementation-artifacts/spec-kdg-story31-local-admin-entry.md`:
+ordinary `/admin`, real SDK/email-code/current all-read, actual session/access locking,
+cache separation and integrated accessibility. Then select remaining synchronization/
+own-PWA items. Do not stop at this delivery boundary. Fresh synthetic resources only;
+no production deployment, push, real account/key changes or destructive cleanup.
+Never access/run/copy/hash the prohibited migration fixture; preserve concurrent work.
+Actual installed Android/iPhone and assistive-technology evidence remain external.
+
+Prior handoff is preserved verbatim below.
+
 ## Identity retained-actor native prerequisite qualified and reviewed -- 2026-10-28
 
 The explicitly authorized synthetic native prerequisite now supplies Identity28's

@@ -42,6 +42,65 @@ export type AccountScope = {
 };
 
 /**
+ * ActorDisplayDenied
+ */
+export type ActorDisplayDenied = {
+    details: Closed;
+    /**
+     * Error
+     */
+    error: 'Request could not be completed';
+    /**
+     * Error Id
+     */
+    error_id: 'service_access_denied';
+};
+
+/**
+ * ActorDisplayInvalid
+ */
+export type ActorDisplayInvalid = {
+    details: Closed;
+    /**
+     * Error
+     */
+    error: 'Request could not be completed';
+    /**
+     * Error Id
+     */
+    error_id: 'validation_failed';
+};
+
+/**
+ * ActorDisplayResponse
+ */
+export type ActorDisplayResponse = {
+    /**
+     * Labels
+     */
+    labels: Array<ResolvedActorDisplay | UnavailableActorDisplay>;
+    /**
+     * Org Id
+     */
+    org_id: string;
+};
+
+/**
+ * ActorDisplayUnavailable
+ */
+export type ActorDisplayUnavailable = {
+    details: Closed;
+    /**
+     * Error
+     */
+    error: 'Request could not be completed';
+    /**
+     * Error Id
+     */
+    error_id: 'identity.actor_display_unavailable';
+};
+
+/**
  * ApplicationsDiscovery
  */
 export type ApplicationsDiscovery = {
@@ -496,6 +555,24 @@ export type PreferenceErrorResponse = {
 };
 
 /**
+ * ResolvedActorDisplay
+ */
+export type ResolvedActorDisplay = {
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    /**
+     * Display Name
+     */
+    display_name: string;
+    /**
+     * Status
+     */
+    status: 'resolved';
+};
+
+/**
  * StudiesError
  */
 export type StudiesError = {
@@ -511,6 +588,20 @@ export type StudiesError = {
      * Error Id
      */
     error_id: 'authentication_required' | 'service_access_denied' | 'access_denied' | 'identity.verification_required' | 'validation_failed' | 'authorization_unavailable' | 'identity.setup_unavailable' | 'dependency_unavailable';
+};
+
+/**
+ * UnavailableActorDisplay
+ */
+export type UnavailableActorDisplay = {
+    /**
+     * Actor Id
+     */
+    actor_id: string;
+    /**
+     * Status
+     */
+    status: 'unavailable';
 };
 
 /**
@@ -813,6 +904,51 @@ export type EnrollV2EnrollmentsScribeswellStudiesPostResponses = {
 };
 
 export type EnrollV2EnrollmentsScribeswellStudiesPostResponse = EnrollV2EnrollmentsScribeswellStudiesPostResponses[keyof EnrollV2EnrollmentsScribeswellStudiesPostResponses];
+
+export type IdentityActorDisplaysData = {
+    /**
+     * ActorDisplayRequest
+     */
+    body: {
+        /**
+         * Actor Ids
+         */
+        actor_ids: Array<string>;
+        /**
+         * Org Id
+         */
+        org_id: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/v2/identity/actor-displays';
+};
+
+export type IdentityActorDisplaysErrors = {
+    /**
+     * Forbidden
+     */
+    403: ActorDisplayDenied;
+    /**
+     * Unprocessable Content
+     */
+    422: ActorDisplayInvalid;
+    /**
+     * Service Unavailable
+     */
+    503: ActorDisplayUnavailable;
+};
+
+export type IdentityActorDisplaysError = IdentityActorDisplaysErrors[keyof IdentityActorDisplaysErrors];
+
+export type IdentityActorDisplaysResponses = {
+    /**
+     * Successful Response
+     */
+    200: ActorDisplayResponse;
+};
+
+export type IdentityActorDisplaysResponse = IdentityActorDisplaysResponses[keyof IdentityActorDisplaysResponses];
 
 export type ContextV2IdentityOrganizationContextPostData = {
     /**

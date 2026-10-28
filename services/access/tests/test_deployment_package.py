@@ -85,3 +85,17 @@ def test_bundle_includes_discovery_runtime_modules():
     assert expected <= set(m.SOURCES)
     context=(OWNER/'deployment/Dockerfile.dockerignore').read_text()
     for name in expected:assert '!services/access/'+name in context
+
+def test_bundle_includes_native_actor_display_and_refuses_missing_or_stale_payload(tmp_path):
+    m,root,bundle,manifest=binding(tmp_path)
+    expected={'actor_display_runtime.py','actor_display_http.py','actor_display_contract.py','actor_display_native.py'}
+    assert expected <= set(m.SOURCES)
+    context=(OWNER/'deployment/Dockerfile.dockerignore').read_text()
+    for name in expected:assert '!services/access/'+name in context
+    target=bundle/'owner-code/actor_display_native.py'
+    target.unlink()
+    manifest['files']=m.inventory(bundle);(bundle/'provenance.json').write_text(json.dumps(manifest))
+    with pytest.raises(ValueError,match='access_bundle_owner_source_mismatch'):m.verify(root,bundle)
+    target.write_text('stale-native-reader')
+    manifest['files']=m.inventory(bundle);(bundle/'provenance.json').write_text(json.dumps(manifest))
+    with pytest.raises(ValueError,match='access_bundle_owner_source_mismatch'):m.verify(root,bundle)

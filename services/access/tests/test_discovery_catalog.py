@@ -9,6 +9,116 @@ import identity_discovery_catalog as identity
 import access_discovery_catalog as access
 import studies_migration_support as studies
 
+# Exact function metadata from the Access19 DDL and its Identity26 dependency.
+# Its ten-row digest matches the immutable Access discovery reference; Identity28
+# deliberately removes only these three inherited trigger-attachment permissions.
+DISCOVERY_FUNCTIONS=sorted([
+    ['access','discover_applications',''],
+    ['access','discover_organizations','p_app_id text, p_after_org_id uuid, p_page_size integer'],
+    ['access','discovery_memberships',''],
+    ['identity','current_account_memberships',''],
+    ['identity','current_member_id',''],
+    ['identity','current_org_id',''],
+    ['identity','discovery_account_context',''],
+])
+LEGACY_HELPERS=[['identity',name,''] for name in ('handle_new_user','log_audit','set_audit_fields')]
+
+
+@pytest.fixture
+def discovery_verifier(monkeypatch):
+    """Exercise actual head comparison with the other native-unchanged categories.
+
+    The coordinated rollback-only diagnosis found ONLY discovery_functions changed.
+    This double supplies those already qualified category digests, not SQL authority.
+    """
+    import copy,json
+    from types import SimpleNamespace
+    import access_baseline as baseline
+    import access_capability_catalog as capability
+    import access_account_grant_catalog as account
+    import access_organization_check_catalog as organization
+    monkeypatch.setattr(studies,'verify_roles',lambda *_:None)
+    monkeypatch.setattr(baseline,'verify_operator_roles',lambda *_:None)
+    monkeypatch.setattr(organization,'verify_reader_role',lambda *_,**__:None)
+    monkeypatch.setattr(capability,'verify_reader_role',lambda *_,**__:None)
+    monkeypatch.setattr(account,'verify_runtime_role',lambda *_:None)
+    monkeypatch.setattr(access,'verify_role',lambda *_:None)
+    expected=json.loads((access.HERE/'discovery-reference.json').read_bytes())
+    original=access.reference_document
+
+    def verify(functions,hardened,deny_identity_usage=False):
+        snapshot={'discovery_functions':copy.deepcopy(functions)}
+        untouched=copy.deepcopy(snapshot)
+        monkeypatch.setattr(access,'snapshot',lambda _:snapshot)
+        class MetadataConnection:
+            def execute(self,sql):
+                if deny_identity_usage and str(sql)=="SELECT to_regprocedure('identity.actor_displays(uuid[])') IS NOT NULL":
+                    from sqlalchemy.exc import ProgrammingError
+                    raise ProgrammingError(str(sql),{},Exception('synthetic_identity_schema_usage_denied'))
+                assert str(sql)=="SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='identity' AND p.proname='actor_displays' AND p.prokind='f' AND p.pronargs=1 AND p.proargtypes[0]='pg_catalog.uuid[]'::regtype)"
+                return SimpleNamespace(scalar_one=lambda:hardened)
+        def reference(connection):
+            observed=original(connection)
+            observed['catalog']={**expected['catalog'],**observed['catalog']}
+            return observed
+        monkeypatch.setattr(access,'reference_document',reference)
+        try:access.verify_discovery_catalog(MetadataConnection())
+        finally:assert snapshot==untouched  # Raw observations remain truthful.
+    return verify
+
+
+def test_identity28_permission_reduction_matches_unchanged_access19_reference(discovery_verifier):
+    discovery_verifier(DISCOVERY_FUNCTIONS,True)
+
+
+def test_restricted_access_migrator_observes_marker_without_identity_schema_usage(discovery_verifier):
+    discovery_verifier(DISCOVERY_FUNCTIONS,True,deny_identity_usage=True)
+
+
+def test_previous_identity_variant_retains_exact_published_comparison(discovery_verifier):
+    discovery_verifier(sorted(DISCOVERY_FUNCTIONS+LEGACY_HELPERS),False)
+
+
+@pytest.mark.parametrize('helpers',[LEGACY_HELPERS[:1],LEGACY_HELPERS])
+def test_identity28_rejects_one_or_all_restored_helper_permissions(discovery_verifier,helpers):
+    import access_baseline as baseline
+    with pytest.raises(baseline.BaselineError,match='^discovery_owner_privileges_unsafe$'):
+        discovery_verifier(sorted(DISCOVERY_FUNCTIONS+helpers),True)
+
+
+@pytest.mark.parametrize('hardened',[False,True])
+@pytest.mark.parametrize('change',['missing_required','extra_routine','wrong_overload','foreign_actor_reader'])
+def test_compatibility_keeps_unrelated_function_drift_rejected(discovery_verifier,hardened,change):
+    import copy
+    import access_baseline as baseline
+    functions=copy.deepcopy(DISCOVERY_FUNCTIONS)
+    if change=='missing_required':functions.remove(['identity','current_account_memberships',''])
+    if change=='extra_routine':functions.append(['identity','unrelated_helper',''])
+    if change=='wrong_overload':functions.append(['identity','log_audit','value text'])
+    if change=='foreign_actor_reader':functions.append(['identity','actor_displays','selected uuid[]'])
+    if not hardened:functions+=LEGACY_HELPERS
+    with pytest.raises(baseline.BaselineError,match='^access_catalog_mismatch$'):
+        discovery_verifier(sorted(functions),hardened)
+
+
+def test_missing_legacy_permissions_without_exact_projection_remains_a_mismatch(discovery_verifier):
+    import access_baseline as baseline
+    with pytest.raises(baseline.BaselineError,match='^access_catalog_mismatch$'):
+        discovery_verifier(DISCOVERY_FUNCTIONS,False)
+
+
+def test_compatible_comparison_preserves_immutable_reference_and_migration(discovery_verifier):
+    from hashlib import sha256
+    import json
+    paths=[access.HERE/'discovery-reference.json',access.HERE/'versions/0019_discovery.py']
+    before={path:path.read_bytes() for path in paths}
+    assert sha256(before[paths[0]]).hexdigest()==access.REFERENCE_SHA256
+    from access_account_grant_catalog import fingerprints
+    historical=fingerprints({'discovery_functions':sorted(DISCOVERY_FUNCTIONS+LEGACY_HELPERS)})
+    assert historical['discovery_functions']==json.loads(before[paths[0]])['catalog']['discovery_functions']
+    discovery_verifier(DISCOVERY_FUNCTIONS,True)
+    assert before=={path:path.read_bytes() for path in paths}
+
 @pytest.mark.parametrize('module,owner',[(identity,'identity'),(access,'access')])
 def test_new_head_preserves_inherited_studies_role_guards(monkeypatch,module,owner):
     def unsafe(connection,selected):

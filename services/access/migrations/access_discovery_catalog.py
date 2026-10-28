@@ -23,7 +23,21 @@ def snapshot(connection):
 
 def reference_document(connection):
     from access_account_grant_catalog import fingerprints
-    return dict(migration_sha256=sha256((HERE/'versions/0019_discovery.py').read_bytes()).hexdigest(),predecessor_reference_sha256=sha256((HERE/'current-capabilities-reference.json').read_bytes()).hexdigest(),catalog=fingerprints(snapshot(connection)))
+    observed=snapshot(connection)
+    # Access's migrator intentionally lacks Identity schema USAGE. Observe the
+    # exact input signature through public catalogues; regprocedure name lookup
+    # would require cross-owner schema authority that this comparison does not need.
+    if connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='identity' AND p.proname='actor_displays' AND p.prokind='f' AND p.pronargs=1 AND p.proargtypes[0]='pg_catalog.uuid[]'::regtype)")).scalar_one():
+        from access_baseline import BaselineError
+        legacy=[['identity',name,''] for name in ('handle_new_user','log_audit','set_audit_fields')]
+        # Identity28 intentionally revoked these inherited trigger-attachment
+        # permissions. Keep the raw observation and published Access19 reference
+        # unchanged; restore only their historical comparison rows after proving
+        # that no such effective EXECUTE remains. Any other drift stays visible.
+        if any(row in observed['discovery_functions'] for row in legacy):
+            raise BaselineError('discovery_owner_privileges_unsafe')
+        observed={**observed,'discovery_functions':sorted(observed['discovery_functions']+legacy)}
+    return dict(migration_sha256=sha256((HERE/'versions/0019_discovery.py').read_bytes()).hexdigest(),predecessor_reference_sha256=sha256((HERE/'current-capabilities-reference.json').read_bytes()).hexdigest(),catalog=fingerprints(observed))
 
 def verify_configuration(connection):
     """Access-owner release check; cross-owner catalogue inspection reads no rows."""

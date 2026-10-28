@@ -6,8 +6,11 @@ The isolated backend candidate is now implemented and reviewed; see
 [backend evidence](AUDIT_DISPLAY_BACKEND_EVIDENCE.md). The inert browser request
 adapter remains separate. Design baseline `f116f05a590d7500e3b61b4a6783d441a872e3d4`;
 backend delivery baseline `c88c753fc46d6d5caf296ef3b2ec87370b7f8dc1`.
-This is the KDG-owned contract. No active-service mount, portal/session integration
-or native/real-authority qualification is implied.
+This is the KDG-owned contract. The later explicit `api/runtime.py` administrator
+policy composes this reviewed handler with history/detail and preserves their
+owned lifespans and schemas; see [configured startup](../api/README.md#configured-administrator-reads).
+The earlier isolated evidence does not establish native/real-authority qualification
+or portal/session integration. Story3.1 acceptance remains separately tracked.
 
 Inherits [Story 3.1 AC-1–5](epics.md#story-31-view-authorized-khula-observations-and-administrator-audit-details),
 the [unchanged audit API](contracts.md#bounded-online-audit-metadata-api-subset--2026-10-26)

@@ -471,3 +471,19 @@ Scaffold: existing owner migration lane reused without generic catalogue expansi
 no neutral pattern promoted. Shared UI and agent context: unchanged. Documentation:
 owner contract/runbook/evidence and this readiness/handoff. ADR: existing release,
 transaction/logging/error/actor decisions apply; no accepted decision changed.
+
+
+## Active owner HTTP integration — 2026-10-28
+
+The explicitly authorized local work now connects the reviewed Identity28 reader to
+the active owner and KDG configured history/detail/audit-details API. Fresh real
+GoTrue/current Access/restricted PostgreSQL/TLS HTTP checks pass, with controlled
+migration refusal/rollback/forward retry and compatibility repairs. Independent
+review and patch review completed without remaining supported findings; Story3.1 remains incomplete. See the maintained
+[AC-1–AC-6 matrix and exact evidence](STORY31_ACTIVE_HTTP_EVIDENCE.md#ac-1ac-6-matrix-after-this-delivery).
+
+Next execute ordinary local administrator entry/real-SDK integration and invalidation,
+then remaining synchronization/cache/accessibility items. The existing own frontend
+only mounts setup status; its own capture/My observations PWA is not established.
+Physical installed devices, actual assistive technology and external provider evidence
+cannot be replaced by local Chromium or synthetic accounts.

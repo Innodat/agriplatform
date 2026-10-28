@@ -20,8 +20,19 @@ class Decision(BaseModel):
     actor_id: UUID
 
 
-def create_app(db=None, authenticate=None, *, studies_provider=None, studies_identity_db=None, studies_setup_db=None, studies_db=None, preferences_db=None, capability_db=None, capability_provider=None):
+def create_app(db=None, authenticate=None, *, studies_provider=None, studies_identity_db=None, studies_setup_db=None, studies_db=None, preferences_db=None, capability_db=None, capability_provider=None, actor_display_configuration=None):
     app=FastAPI(title='Shared current access',version='1.0.0')
+    from actor_display_runtime import create_router as actor_display_router
+    if actor_display_configuration is not None:
+        from actor_display_http import ACTIVE, PREVIOUS, ORG, ActorDisplayPolicy
+        # Other host routes use their ambient credentials. An explicit display
+        # mapping cannot hide those keys or import ambient display activation.
+        host_policy={name:value for name,value in os.environ.items()
+                     if name.endswith('_SERVICE_KEY') and name not in (ACTIVE,PREVIOUS)}
+        host_policy.update({name:actor_display_configuration[name] for name in (ACTIVE,PREVIOUS,ORG)
+                            if name in actor_display_configuration})
+        ActorDisplayPolicy(host_policy)
+    app.include_router(actor_display_router(os.environ if actor_display_configuration is None else actor_display_configuration))
     db=db or create_engine(os.environ.get('ACCESS_DATABASE_URL','postgresql+psycopg://access_runtime@localhost/pts'),pool_pre_ping=True,pool_timeout=5,hide_parameters=True,connect_args={'connect_timeout':5})
 
     def optional_pool(name,role):

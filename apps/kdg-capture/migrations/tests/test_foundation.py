@@ -17,6 +17,18 @@ class CandidateTests(unittest.TestCase):
         with patch('sqlalchemy.create_engine',side_effect=AssertionError('network')):
             value=policy.connection_url(self.values())
         self.assertEqual(value.username,policy.POLICY.migrator);self.assertEqual(value.host,'127.0.0.1')
+    def test_separate_fresh_synthetic_target_requires_explicit_matching_port(self):
+        values=self.values()
+        values.update(KDG_MIGRATION_TARGET_ID='kdg-story31-synthetic',KDG_MIGRATION_SYNTHETIC_PORT='55493')
+        values['KDG_MIGRATION_DATABASE_URL']=values['KDG_MIGRATION_DATABASE_URL'].replace(':55482',':55493')
+        self.assertEqual(policy.connection_url(values).port,55493)
+        for port in (None,'','0','65536','55482','055493','55494','PRIVATE'):
+            invalid={**values,'KDG_MIGRATION_SYNTHETIC_PORT':port}
+            with self.assertRaisesRegex(policy.MigrationError,'^kdg_migration_configuration_invalid$'):
+                policy.connection_url(invalid)
+        # Synthetic port policy never changes the retained local target.
+        retained={**self.values(),'KDG_MIGRATION_SYNTHETIC_PORT':'55493'}
+        self.assertEqual(policy.connection_url(retained).port,55482)
     def test_missing_configuration_has_safe_failure(self):
         for key in self.values():
             values=self.values();values.pop(key)
