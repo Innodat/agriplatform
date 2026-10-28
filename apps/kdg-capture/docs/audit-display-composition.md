@@ -170,8 +170,11 @@ RED/GREEN, affected checks and review. Consumer implementation waits for this re
 
 ## Consuming acceptance
 
-HD-6/consumer HD-7 trace here. Backend portions execute in the linked evidence;
-browser publication/runtime validation in KC-7/9 remain planned, not qualified.
+HD-6/consumer HD-7 trace here. Backend portions execute in the linked evidence.
+Update 2026-10-28: the [inert adapter](AUDIT_DISPLAY_ADAPTER_EVIDENCE.md) completes
+synthetic client runtime validation and caller-predicate publication fencing for
+KC-7/9. KC-5 visible presentation and actual portal/session invalidation remain
+unqualified; this is not integrated browser or full Story 3.1 acceptance.
 
 | Case | Given / When / Then |
 |---|---|
@@ -191,8 +194,11 @@ The backend-only candidate lives in `write-candidate/audit_display.py`,
 Access/storage plus real synthetic Identity HTTP. Missing-route HTTP404 RED was
 observed first; existing audit/worker/Budget source stayed unchanged without seam
 extraction. No native DB, active mount or browser integration was performed.
-The inert web request adapter is a separate later delivery and must prove the client
-part of KC-7/9; backend checks do not establish browser/session/device behavior.
+The separate inert web request adapter is now implemented and reviewed; its evidence
+records the client part of KC-7/9 within synthetic fetch/stream scope. The
+[next readiness assessment](admin-next-readiness.md#story-31-next-bounded-delivery-assessment--2026-10-28)
+selects a pure audit presentation model. Neither adapter nor backend proof establishes
+mounted browser/session/device behavior or current rendered-data invalidation.
 
 Impacts: scaffold—reuse existing bounded transport/budget primitives; no new neutral
 promotion before a proven consumer; shared UI—none yet; agent context—unchanged;
@@ -200,3 +206,16 @@ docs—this contract, Identity correction, BMAD and KDG handoff; ADR—existing0
 0031/0056 govern, no accepted ADR edits. Release safety remains unchanged. No Leave,
 questionnaire editor, native/migration/grant/resource, dependency, real account,
 deployment/production/pilot/push or cleanup work. Never access the prohibited fixture.
+
+
+## Inert consuming presentation and memory state — 2026-10-28
+
+The [presentation/state consumer evidence](AUDIT_REVIEW_CONSUMER_EVIDENCE.md) records
+synthetic KC-5 label semantics and KC-7/9 caller-driven invalidation/publication/full-read
+Retry over the completed adapter. Pure immutable presentation preserves exact header
+and event attribution, current names, times, revisions, order and cursor. One-context
+review state clears retained data on invalidation/abort/close, rejects old overlapping
+results, and retries only through an explicit full authorized aggregate read.
+This updates the earlier future-consumer statements only for the isolated scope.
+Actual mounted UI, Auth/session/all-read admission, role-loss notifications and prior
+renderer references remain outside this proof. No new owner or wire contract.

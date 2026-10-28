@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","files":["src/audit-review.ts","tests/audit-review.types.ts"]}

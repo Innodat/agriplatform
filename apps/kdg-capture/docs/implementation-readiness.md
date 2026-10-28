@@ -1,5 +1,20 @@
 # KDG Capture — implementation planning readiness
 
+Current delivery checkpoint, 2026-10-28: the ready inert presentation model and
+caller-driven review state consumer are implemented; focused/affected synthetic proofs
+pass. See the [continuous-delivery checkpoint](admin-next-readiness.md#continuous-story-31-delivery-checkpoint--2026-10-28)
+for remaining AC-1–6 gates. Full Story 3.1 is incomplete and cannot be completed within
+the retained no-portal/no-session-activation scope. Both independent reviews completed
+with no supported findings or new deferrals.
+
+Current bounded-delivery assessment, 2026-10-28 at `f1fd780`:
+**PASS for an inert audit presentation model only.** The reviewed audit-display request
+adapter is complete; the [current Story 3.1 assessment](admin-next-readiness.md#story-31-next-bounded-delivery-assessment--2026-10-28)
+maps all six remaining criteria and selects the smallest synthetic consumer. Full
+Story 3.1/3.2, mounted portal/session/device, native Identity projection/retention,
+real authority and controlled release remain gated. Historical planning and approval
+statements below retain their dated scope; this assessment implements no behavior.
+
 Current amendment, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit. Earlier HMAC/secret-key planning selections are superseded; this documentation change implements no runtime behavior. Other owner choices and ordinary business-data backup/recovery/child privacy gates remain.
 
 2026-10-14 final successor checkpoint. Installed bmad-sprint-planning, readiness-only.

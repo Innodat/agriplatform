@@ -1,3 +1,57 @@
+## Continuous Story 3.1 delivery reached the activation boundary -- 2026-10-28
+
+The user's continue-until-done-if-plausible request produced two successive inert
+consumers: immutable audit presentation and single-context audit review state.
+Focused9/16 and affected109/73 cases plus strict TypeScript7.0.2 pass after actual
+acceptance REDs. Both independent blind reviews have no supported findings; reviewers also passed
+focused tests/strict types. See [consumer evidence](AUDIT_REVIEW_CONSUMER_EVIDENCE.md).
+
+[Current checkpoint](admin-next-readiness.md#continuous-story-31-delivery-checkpoint--2026-10-28)
+records the remaining Story 3.1 acceptance boundary. Full completion is not plausible
+within retained exclusions: it needs mounted responsive portal/history/detail/audit,
+actual current all-read admission and session/access invalidation, running browser
+connectivity/cache separation, accessibility and installed-device evidence. Current
+mounted own-read entry is not an admin admission contract. Do not mark Story 3.1 done
+or add inert wrappers to claim visible/integrated acceptance.
+
+Next meaningful scope is separately bounded portal/all-read integration, with owner
+activation/native Identity projection and physical-device prerequisites resolved.
+No such activation or real-authority/device/resource work is authorized here. Preserve
+prior exclusions, concurrent work and historical evidence/resources; never access/run/
+copy/hash the prohibited migration fixture. No editor/Leave, real services/accounts/
+credentials, native DB/Docker/migrations/grants, dependencies, startup/browser/worker/
+queue activation, deployment/production/pilot/push or cleanup changed. Historical
+handoff bytes follow intact.
+
+---
+
+## Story 3.1 readiness reconciled; next inert presentation slice — 2026-10-28
+
+Assessed from `f1fd78025ad7bdad0e06db7129f5435a8d7c8fe5` through BMAD
+sprint-planning readiness-only. The completed audit-display adapter is reconciled
+into readiness/composition/testing records; all 15 selected source hashes and the
+retained passing proof digest match. No runtime tests were rerun in this assessment.
+
+[Current assessment](admin-next-readiness.md#story-31-next-bounded-delivery-assessment--2026-10-28)
+maps Story 3.1 AC-1–6 and selects one ready **pure audit presentation model** over
+validated `auditDetails` loaded input. Next use BMAD Build with acceptance RED first:
+map original capturer/creator/latest modifier/actual event executor and separate
+nullable initiator, current retained names, distinct unmapped/outage presentation,
+exact server timestamps/revisions/order/cursor and immutable bounded output. Synthetic
+consuming proof reuses the existing adapter; no new wire contract or duplicate parser.
+
+No code is implemented by this assessment. This is one technical subset, not another
+batch, full Story 3.1/3.2 or portal activation. Rendering/access invalidation, actual
+Auth/session/device, native Identity retention/projection permissions, real authority
+and controlled release remain separate gates. Preserve all prior exclusions: no
+UI/editor/Leave, startup/browser/worker/queue activation, real services/accounts/keys,
+native DB/Docker/migrations/grants, dependencies, deployment/production/pilot/push or
+resource lifecycle/cleanup. Preserve concurrent work, historical evidence and resources;
+never access/run/copy/hash the prohibited migration fixture. Documentation checks only.
+All previous handoff bytes follow intact.
+
+---
+
 ## Completed inert audit display request adapter — 2026-10-28
 
 The next bounded `auditDetails` adapter is implemented and reviewed, unmounted.

@@ -1,0 +1,510 @@
+{
+  "delivery": "Inert KDG audit presentation and review consumers",
+  "date": "2026-10-28",
+  "baseline_commit": "f1fd78025ad7bdad0e06db7129f5435a8d7c8fe5",
+  "status": "complete",
+  "toolchain": {
+    "node": "26.11.1",
+    "typescript": "7.0.2",
+    "dependency_changes": false
+  },
+  "proofs": {
+    "presentation_red": {
+      "result_path": "platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/result.json",
+      "sha256": "12b15d80b711baa997249d2c76b8a7b61be10889f2cbefb8f2a43c1583bf433c",
+      "tests": 1,
+      "passed": false,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit-presentation.ts": "a853a00f2e11c7dc3fe1915e276ba7387863493b9197cdbef5ab77c4b68b1ae5",
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/audit-display.ts": "4fd041783bae11b5cb57db36d190a2dac65761bb79de66483181c08af0f6acf2",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-presentation.json": "2c0c75a57a8507b53fc82133852d3720ead4a219381f9fc5da654725c677419f",
+        "apps/kdg-capture/web/tests/audit-presentation.types.ts": "13ff9a50d4b6e2b0c246283f69badef8413fef2f873bc365599ef9c4580f5d5a",
+        "apps/kdg-capture/web/tests/audit-presentation.test.mjs": "477467ed0bfd8e028c215b9002f0ff1f3963457d3a63b617888e51965bcc5e2f",
+        "apps/kdg-capture/web/tests/audit-presentation-proof.mjs": "fe0125d307254962755c5c186b7670ff380a0e28d37e99eba71d50ac07ad5690",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/capsule/apps/kdg-capture/web/tsconfig.audit-presentation.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "--test-name-pattern=authorized cross-owner aggregate",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/capsule/apps/kdg-capture/web/tests/audit-presentation.test.mjs"
+          ],
+          "exit_code": 1,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-66003804-570f-4639-bcd4-cd58ad99db8b/behavior.log",
+          "log_sha256": "ee872c467a3eb034c8276296a38031f1b4e7199aad5a27cd8b1f6dc039dbd3da"
+        }
+      ]
+    },
+    "presentation_green": {
+      "result_path": "platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/result.json",
+      "sha256": "c11edd43f37ca542f76fe0e78585b1adcaccc94c9b5aa8a37998e13c42ccda79",
+      "tests": 9,
+      "passed": true,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit-presentation.ts": "d4c1de9eaa0bb52df55e4cd6507348c0c0c6fd36471f444ad07bf82298ad118e",
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/audit-display.ts": "4fd041783bae11b5cb57db36d190a2dac65761bb79de66483181c08af0f6acf2",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-presentation.json": "2c0c75a57a8507b53fc82133852d3720ead4a219381f9fc5da654725c677419f",
+        "apps/kdg-capture/web/tests/audit-presentation.types.ts": "13ff9a50d4b6e2b0c246283f69badef8413fef2f873bc365599ef9c4580f5d5a",
+        "apps/kdg-capture/web/tests/audit-presentation.test.mjs": "477467ed0bfd8e028c215b9002f0ff1f3963457d3a63b617888e51965bcc5e2f",
+        "apps/kdg-capture/web/tests/audit-presentation-proof.mjs": "fe0125d307254962755c5c186b7670ff380a0e28d37e99eba71d50ac07ad5690",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/capsule/apps/kdg-capture/web/tsconfig.audit-presentation.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/capsule/apps/kdg-capture/web/tests/audit-presentation.test.mjs"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-presentation-20261028/run-e569f93d-1719-40c4-b412-5d3c09816f38/behavior.log",
+          "log_sha256": "af8f001433edb45104eb0fcb8ab5ca323390e6156044dbcdbb31b8952d5a45da"
+        }
+      ]
+    },
+    "state_red": {
+      "result_path": "platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/result.json",
+      "sha256": "83520b9728ab952405bd686a436ed8de6708d640ea4f95340bf01d1a520b9e77",
+      "tests": 1,
+      "passed": false,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit-review.ts": "4fcb449855705b8a9bacd665d46f556b5ee7e48ae3fc64b485285072e069bdf3",
+        "apps/kdg-capture/web/src/audit-presentation.ts": "d4c1de9eaa0bb52df55e4cd6507348c0c0c6fd36471f444ad07bf82298ad118e",
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/audit-display.ts": "4fd041783bae11b5cb57db36d190a2dac65761bb79de66483181c08af0f6acf2",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-review.json": "cd92fe72126b35e5486d3016267642a1e8f914fde2fb0fa025fe95f121af3207",
+        "apps/kdg-capture/web/tests/audit-review.types.ts": "4bd19dee5688bac8ae122b0a4cc5e753b706a2bf712d3cf54a54b50908f19791",
+        "apps/kdg-capture/web/tests/audit-review.test.mjs": "14e6ee2abb851583d508f6ba9b8027f50e0bf113cc51ce2b8c07c61881e18804",
+        "apps/kdg-capture/web/tests/audit-review-proof.mjs": "9fa9ae5294072f47cceecf4aa752f68b49a00ce7b2f886282729567724c79d26",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/capsule/apps/kdg-capture/web/tsconfig.audit-review.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "--test-name-pattern=loaded audit state clears",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/capsule/apps/kdg-capture/web/tests/audit-review.test.mjs"
+          ],
+          "exit_code": 1,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-009f5062-e691-48ff-abdc-544d302c4970/behavior.log",
+          "log_sha256": "0d33975c111046cf10619976bdfacf6e22a18041250da7ed36c9f92b09c17e98"
+        }
+      ]
+    },
+    "state_green": {
+      "result_path": "platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/result.json",
+      "sha256": "e04db11667e7841f41e29165caa64d768f20d1ce50193b5dea1a4fc6d76d7642",
+      "tests": 16,
+      "passed": true,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit-review.ts": "bec70695e165bd32a3b85042c9ede5bebf5bcdfa6f2a3e2957366eecb8148f7b",
+        "apps/kdg-capture/web/src/audit-presentation.ts": "d4c1de9eaa0bb52df55e4cd6507348c0c0c6fd36471f444ad07bf82298ad118e",
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/audit-display.ts": "4fd041783bae11b5cb57db36d190a2dac65761bb79de66483181c08af0f6acf2",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-review.json": "cd92fe72126b35e5486d3016267642a1e8f914fde2fb0fa025fe95f121af3207",
+        "apps/kdg-capture/web/tests/audit-review.types.ts": "4bd19dee5688bac8ae122b0a4cc5e753b706a2bf712d3cf54a54b50908f19791",
+        "apps/kdg-capture/web/tests/audit-review.test.mjs": "14e6ee2abb851583d508f6ba9b8027f50e0bf113cc51ce2b8c07c61881e18804",
+        "apps/kdg-capture/web/tests/audit-review-proof.mjs": "9fa9ae5294072f47cceecf4aa752f68b49a00ce7b2f886282729567724c79d26",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/capsule/apps/kdg-capture/web/tsconfig.audit-review.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/capsule/apps/kdg-capture/web/tests/audit-review.test.mjs"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-review-20261028/run-0d3ed64e-9b02-4eb2-9dee-e49a35a15168/behavior.log",
+          "log_sha256": "d4d3b4a104e08c977b491c585173f7a10bb58f7272c64f7b3321a2fbfc40da18"
+        }
+      ]
+    },
+    "aggregate_regression": {
+      "result_path": "platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/result.json",
+      "sha256": "d697d07755ab2010225588e0b4eac55c4a772b4faba8d8e8c01e59e872c2a70c",
+      "tests": 109,
+      "passed": true,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/audit-display.ts": "4fd041783bae11b5cb57db36d190a2dac65761bb79de66483181c08af0f6acf2",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/audit-display-generated/types.gen.ts": "1d0a011384c4733254304f112053eb4f65d491eb2470e577be934a3d88b09d59",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-display-adapter.json": "7d1fc4bc0b9c1e5b3d6f8b2ec79849ff24bd24170f4020e716f0862778a7671e",
+        "apps/kdg-capture/web/tests/audit-display-adapter.types.ts": "431d1a007efad4b687d162be1d0c950a8d1f54b5934a8b1073d4d9b95bc584d4",
+        "apps/kdg-capture/web/tests/audit-display.test.mjs": "dc8c2beccc376be2b3969a997fcc01efa398ae1a60b96a751a1a704d2cf2f189",
+        "apps/kdg-capture/web/tests/audit-display-adapter-proof.mjs": "efec573acd6eaa7863374fd96cb088c70af5716f45004b05933fd4bc7a26a187",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/capsule/apps/kdg-capture/web/tsconfig.audit-display-adapter.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/capsule/apps/kdg-capture/web/tests/audit-display.test.mjs"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-display-adapter-20261028/run-abe5f70f-6dff-4335-9d60-f05b3c342ad6/behavior.log",
+          "log_sha256": "ce47f4812b012d76f4ab75f729909f5851225276e04bef51ef02b2c7e5b5b476"
+        }
+      ]
+    },
+    "audit_regression": {
+      "result_path": "platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/result.json",
+      "sha256": "1886ea3edd940f0d42618f92d0ceeab63eed07687fc78ce2d607b860610f0e58",
+      "tests": 73,
+      "passed": true,
+      "source_sha256": {
+        "apps/kdg-capture/web/src/audit.ts": "deee75bf90fa615b41fca6ef368e6e7c954441d4899ca273c86e9f7e62d6d8bd",
+        "apps/kdg-capture/web/src/read-validation.ts": "d624b619c85d79b20356f1c2a8f62eb2b794b5b32a1bc7139396ccd33ed3a478",
+        "apps/kdg-capture/web/src/read.ts": "0fb429855ed890485a6c143b5a77adc209479f755c917a0c6a0eee3d3c29cdba",
+        "apps/kdg-capture/web/src/entry.ts": "e2e2ffba5a8eecd1ed53442041204b2ed5ee98e979f710fbff169ed639051263",
+        "apps/kdg-capture/contracts/audit-generated/types.gen.ts": "6e6bb9983a2739082c67e979584241931731f4a4f57d2cb3b01e81dd9e0168e8",
+        "apps/kdg-capture/contracts/read-generated/types.gen.ts": "a4d4ecd38f90266e850a582529468e80a89ddab2a927c6683d80a552458dbb1f",
+        "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+        "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+        "apps/kdg-capture/web/tsconfig.audit-adapter.json": "97624fe54c087c92681def0769101e9fedb5e7c8c7c20be7ecb0062986dfa93f",
+        "apps/kdg-capture/web/tests/audit-adapter.types.ts": "4b9eb44c41b5118b485f5b960494076a71345dbcd91b12cffede462ee0955263",
+        "apps/kdg-capture/web/tests/audit.test.mjs": "6cce7b704f6603c9661cd825852460ba59a131e707a27f7661fc28fb82cd2931",
+        "apps/kdg-capture/web/tests/audit-adapter-proof.mjs": "370cee8d762ca8bbd8e1d3759e401807815dcd9ffab8b51097187994e5297233",
+        "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12"
+      },
+      "commands": [
+        {
+          "name": "toolchain",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/toolchain.log",
+          "log_sha256": "41024334022fa58f9c7337359517de307cbcfc6055c19f2b734245eacc2fe97a"
+        },
+        {
+          "name": "strict-types-and-emit",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+            "--project",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/capsule/apps/kdg-capture/web/tsconfig.audit-adapter.json",
+            "--noEmit",
+            "false",
+            "--rootDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/capsule/apps/kdg-capture",
+            "--outDir",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/capsule/compiled"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/strict-types-and-emit.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "behavior",
+          "command": [
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+            "--test",
+            "--test-isolation=none",
+            "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/capsule/apps/kdg-capture/web/tests/audit.test.mjs"
+          ],
+          "exit_code": 0,
+          "signal": null,
+          "error_code": null,
+          "log": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-audit-adapter-20261027/run-044beda8-3b9b-4982-9cf9-4e37bbe73ffe/behavior.log",
+          "log_sha256": "f041439da4dbc29914f928a7523f009ec5667e45ff6862329e3d1dc9c6434835"
+        }
+      ]
+    }
+  },
+  "infrastructure_attempt": {
+    "path": "platform/deployment/.local/kdg-audit-presentation-20261028/run-ce4d718b-cceb-4af3-80aa-d7333e5b48c0/result.json",
+    "outcome": "sandbox subprocess EPERM; not acceptance RED"
+  },
+  "preservation": {
+    "baseline_manifest": "/tmp/kdg-audit-presentation-20261028/before-source-sha256.json",
+    "protected_tracked_kdg_files": 620,
+    "unexpected_changes": [],
+    "prohibited_fixture_accessed": false,
+    "concurrent_external_edits_observed": [
+      "apps/scribeswell/backend/config.py",
+      "apps/scribeswell/backend/main.py",
+      "apps/scribeswell/backend/personal_notes_access.py",
+      "apps/scribeswell/tests/studies_api_image_fixture.py",
+      "apps/scribeswell/tests/test_studies_api_image.py",
+      "apps/scribeswell/web/src/context/StudiesContext.tsx",
+      "apps/scribeswell/web/src/lib/personal-notes.ts",
+      "apps/scribeswell/web/tests/personal-notes.spec.cjs"
+    ],
+    "initial_workspace_diff_check": "detected concurrent Scribeswell edits; not treated as owned changes, restored or overwritten"
+  },
+  "review": {
+    "presentation": "zero supported findings; reviewer direct strict compile and nine tests pass after wrapper EPERM",
+    "state": "zero supported findings; reviewer direct strict compile and sixteen tests pass after wrapper EPERM",
+    "deferrals": []
+  },
+  "traceability": {
+    "presentation": [
+      "Story3.1 AC2/3 attribution subset",
+      "A21.admin-audit-attribution",
+      "KC5"
+    ],
+    "state": [
+      "Story3.1 AC5 caller-driven invalidation subset",
+      "KC7/9",
+      "explicit full-read Retry"
+    ]
+  },
+  "limits": [
+    "synthetic inert consumers; no mounted portal/Auth/session or real-authority proof",
+    "Story3.1 incomplete; current own-read entry is not administrator admission",
+    "no native/device/resource/dependency/release actions"
+  ],
+  "model_usage": {
+    "selected_model": "coordinator inline per oneshot",
+    "actual_model": "unknown",
+    "effort": "unknown",
+    "tokens": "unknown",
+    "model_only_elapsed": "unknown"
+  },
+  "document_verification": {
+    "command": [
+      "python3",
+      "/tmp/kdg-audit-presentation-20261028/check_delivery.py"
+    ],
+    "result_path": "/tmp/kdg-audit-presentation-20261028/document-check.json",
+    "local_links_and_anchors": 21,
+    "scoped_whitespace": "pass"
+  }
+}

@@ -147,3 +147,162 @@ no new deferral. Next select the inert browser adapter for strict aggregate/runt
 validation and publication fences. Backend proof does not establish browser/session
 /device, mounted portal, native owner permissions or real authority/release readiness.
 No source extraction, dependency or resource lifecycle operation was required.
+
+
+## Story 3.1 next bounded delivery assessment — 2026-10-28
+
+Baseline: `f1fd78025ad7bdad0e06db7129f5435a8d7c8fe5`. BMAD sprint-planning,
+readiness-only. **PASS for one inert audit presentation model; full Story 3.1
+remains incomplete and portal activation remains gated.** This assessment selects
+a technical subset, not another implementation batch or completed product story.
+
+### Completed work reconciled
+
+The [audit-display adapter](AUDIT_DISPLAY_ADAPTER_EVIDENCE.md) is done and reviewed,
+following the completed Identity owner, cancellation repair and KDG backend composition.
+Its [machine record](evidence/audit-display-adapter-20261028.json) records 109 adapter
+cases, strict TypeScript 7.0.2, 73 prior audit cases, 20 backend cases/two subtests,
+owner/generated freshness and five adopted scaffold parities. These are the delivery's
+retained results, not new runtime test executions in this assessment.
+
+All 15 selected adapter source hashes match the current workspace. The retained final
+proof digest matches the machine record and reports passing strict compile/emit and
+behavior commands with sources unchanged. The adapter validates the exact actor set,
+strict aggregate and byte bounds, and rejects late success/errors through the supplied
+current-generation predicate. It does not own an integrated session/access lifecycle.
+Repeating history/detail/edit/recovery/audit request adapters would add no missing
+presentation or integration evidence. Earlier entries above remain historical.
+
+### Remaining acceptance, without promoting synthetic proof
+
+Authoritative criteria remain [Story 3.1](epics.md#story-31-view-authorized-khula-observations-and-administrator-audit-details).
+
+| Criterion | Evidence already available | Remaining acceptance / selected contribution |
+| --- | --- | --- |
+| AC-1 current all-record authorization | Isolated authorized history/detail/audit APIs and inert request validation; bounded native history evidence has its own limits | Current authority through the mounted portal and coordinated running owners remains unproved; presentation supplies no authority |
+| AC-2 responsive review | Generated history/detail/original-definition request contracts; audit owner/header labels now available | Phone/computer portal, child/date/answers under original definition, empty versus failed/partial and refresh after sync remain; selected model maps original capturer only for audit context, not every history row |
+| AC-3 administrator audit | Committed bounded event/header metadata and complete validated actor displays | Selected model maps creator/latest modifier and actual event executor with preserved server times and separate initiator; visible expandable audit section remains later |
+| AC-4 online portal / own PWA | Inert requests require same-origin authenticated private/no-store responses; no all-record persistence introduced | Actual connectivity feedback and browser/service-worker/IndexedDB separation remain; pure model adds no cache or offline authority |
+| AC-5 role/account/session loss | Adapter fences discard delayed success/errors when caller invalidates the generation | Actual session/access owner invalidation, clearing already-rendered data and locking after denial/unavailability remain; a pure projection cannot establish these |
+| AC-6 accessible/runtime evidence | Existing API/native evidence is limited to its recorded scope | DOM labels/focus/keyboard/zoom/touch/assistive technology, integrated runtime-role matrix and separately recorded installed-device extension remain; model tests establish none of these |
+
+### Smallest ready slice
+
+Build one **KDG-local, pure audit presentation model** consuming only the existing
+validated, deeply frozen `auditDetails` loaded aggregate. It performs no request,
+subscription, retry, authorization, session wiring, storage or UI mount. It projects
+one bounded page, not an accumulated audit archive. This advances A21.admin-audit-
+attribution and KC-5 presentation semantics without inventing another HTTP contract.
+
+Its required behavior is already selected by the [composition contract](audit-display-composition.md)
+and [Identity label semantics](../../../services/access/HISTORICAL-ACTOR-DISPLAY.md#label-and-retention-semantics):
+
+- Map original capturer from `owner_actor_id`, creator from `created_by`, latest
+  modifier from `updated_by`, and each event editor from `executor_actor_id`.
+  Preserve nullable initiator separately; never substitute reader, owner account,
+  latest modifier or initiator for the actual executor. Older/empty continuation
+  pages still use the aggregate header for creation/latest-modification facts.
+- Use exact resolved current retained names, not alleged event-time names. Emit
+  distinct semantic presentation states for per-actor Name unavailable and batch
+  Names temporarily unavailable; preserve the latter's explicit-retry indication.
+  Do not invent approved Afrikaans translations. No UUID-as-name or guessed System.
+- Preserve committed event order, command kind, exact decimal revisions, UTC server
+  timestamps and opaque next cursor. Add no synthetic create/edit/no-op events,
+  answer copies, version selector, restore/export or historical-name snapshots.
+  Retain internal identity/provenance references distinctly from ordinary labels.
+- Return an immutable projection without mutating or retaining input in module state.
+  Transport failures/denial/supersession are not loaded input and must never be
+  converted into an empty audit or unmapped-name result. No duplicate wire parser.
+
+The model is a synchronous projection, not an access lease. A later caller must check
+its current generation at rendering, discard references on invalidation, and make an
+explicit Retry repeat the complete authorized aggregate read. Those lifecycle/network
+behaviors are outside this slice; a retry indication here executes nothing.
+
+### Build entry and verification plan
+
+Next workflow: BMAD Build for this single subset. First observe an acceptance RED
+for an authorized cross-owner aggregate with different owner/creator/modifier/
+executor/initiator labels. Then cover resolved/unmapped/outage distinctions, null
+initiator, exact service names, rename-on-new-input, older/header-only and empty pages,
+maximum page, cursor/order/revision/time preservation, immutable output and unchanged
+input. Drive loaded input through the existing adapter in synthetic consuming proof;
+show its failed/superseded result cannot become a loaded presentation. Use retained
+Node 26.11.1/TypeScript 7.0.2, strict types, the existing audit-display adapter proof
+and affected audit checks. Record exact RED/GREEN commands and source custody in that
+delivery; no RED or new runtime qualification is claimed here.
+
+No unresolved load-bearing owner/DTO/label decision blocks this narrow projection.
+DOM interaction, complete portal state coordination or native Identity projection
+would each require a separately bounded assessment; combining them is unnecessary.
+Keep the Story 3.1 status approved/incomplete and do not mutate global Leave tracking.
+
+### Scope and impacts
+
+Scaffold: reuse existing immutable/generated types; no new proven neutral pattern to
+promote. Shared UI: none; KDG audit wording/provenance stays local. Agent context:
+unchanged. Documentation: reconcile readiness/composition/test map and prepend handoff;
+the Build item will record its own evidence. ADR: inherit 0022/0023/0031/0056; no new
+or modified accepted decision. Release/migration tooling unchanged.
+
+All prior exclusions remain: no portal/UI/editor/Leave, Auth/session/startup/browser/
+worker/queue activation, real services/accounts/credentials, native DB/Docker/migrations/
+grants, dependencies, deployment/production/pilot/push or resource lifecycle/cleanup.
+Native Identity retention/projection permissions, real authority, installed devices and
+controlled release remain separate gates. Fingerprints/HMAC remain deferred under
+ADR-0061. Preserve concurrent work and retained evidence/resources. The prohibited
+migration fixture must not be accessed, run, copied or hashed.
+
+Verification for this assessment: selected source/proof digest checks and local Markdown
+link/anchor checks; scoped diff whitespace and unchanged concurrent tracked diffs.
+No runtime tests, dependency installation, service startup or resource command ran.
+
+
+## Continuous Story 3.1 delivery checkpoint — 2026-10-28
+
+The user requested continuing through successive ready work until Story 3.1 is done,
+if plausible, without stopping after each small slice. Two inert consuming increments
+are implemented: the selected pure audit presentation model and a separately assessed
+single-context in-memory review coordinator. The latter derives its caller-driven
+invalidation, full-read Retry, no-cache and generation rules from the existing
+composition contract; it adds no authority or owner policy. See
+[combined evidence](AUDIT_REVIEW_CONSUMER_EVIDENCE.md) for exact RED/GREEN and limits.
+Both independent blind reviews report no supported findings; reviewers independently
+passed focused cases/strict types. Full Story 3.1 remains incomplete.
+
+Current qualification: nine presentation and16 state cases, both strict TS7.0.2 proofs,
+109 aggregate and73 original audit cases pass. Prior source bytes are unchanged.
+The earlier readiness assessment's projection-only stopping point is superseded by
+this explicit continuation; its scope exclusions remain binding.
+
+The next boundary is substantive, not a routine confirmation between small slices:
+
+- **AC-1/5:** actual administrator admission/session/access integration. The mounted
+  [entry context](../web/src/entry.ts) validates `own_account` and
+  `kdg_capture.capture.read.own`; [local entry routing](../web/src/LocalEntryRoute.tsx)
+  mounts that own-entry flow. It cannot be repurposed as current all-read authority.
+  The new coordinator consumes explicit caller invalidation; it does not supply
+  the missing real administrator owner integration or revoke old renderer references.
+- **AC-2/3:** the phone/computer portal must actually render history, child/date,
+  original-definition answers and optional audit details, with refresh/partial/error
+  feedback. There is no mounted administrator surface in this delivery. Additional
+  inert wrappers cannot establish those visible acceptance results.
+- **AC-4:** prove actual online portal/own-PWA separation, reconnect feedback and
+  absence of all-record service-worker/IndexedDB persistence in a running browser.
+- **AC-6:** DOM focus/labels/pagination/loading/failure/keyboard/zoom/touch/assistive
+  technology and the integrated runtime-role matrix, followed by separately recorded
+  installed-device extension. Synthetic state tests cannot substitute for these.
+
+Native Identity retained actor projection/permissions and controlled real authority/
+release remain unqualified owner gates as previously recorded. No routine task choice
+can supply installed Android/iPhone evidence or authorize excluded activation. Therefore
+**full Story 3.1 completion is not plausible within the retained scope**. Do not mark
+it done or add speculative inert layers merely to keep a batch running. The next
+meaningful delivery requires a separately bounded portal/all-read integration scope
+with its activation and physical-device prerequisites resolved. This records the
+boundary; it does not approve any excluded action or request routine reconfirmation.
+
+No full Story 3.2, editor, assignment management, questionnaire management, exports,
+dashboards, revision browser, Leave, real account/credential, DB/grant/migration,
+dependency, deployment/pilot/push or cleanup work follows. Historical evidence,
+concurrent work and resources stay preserved; prohibited fixture remains untouched.
