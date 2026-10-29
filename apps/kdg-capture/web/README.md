@@ -468,3 +468,76 @@ startup/SDK browser regression; it uses synthetic Auth/API HTTP and retained Chr
 `local-host-proof.mjs` now selects only web source/contracts and its three context API
 files instead of traversing the application root. Actual GoTrue/SMTP/current owner
 qualification and installed-device/assistive-technology evidence remain separate.
+
+## Revisioned own offline shell — Story 3.1 candidate
+
+`index.html` declares a manifest and icon. `shell-build.config.ts` builds the actual
+index/main with the explicit external `KDG_LOCAL_WEB_CONFIG` input documented above;
+only its five validated public fields enter the HTML. `scripts/own-shell-build.mjs`
+hashes final public HTML/JS/CSS/manifest/icon bytes into a shell revision and emits its
+service worker. No development modules, API, Auth/provider responses or administrator
+navigation enter CacheStorage. Only exact `/` receives an offline navigation fallback.
+Old revision caches and content-hashed resources are retained.
+
+`src/own-shell.ts` exports `prepareOwnShell`, `shellState`, `subscribeShellUpdate` and
+`applyShellUpdate`. Setup must independently confirm shell readiness and atomic provision
+commit; registration by itself is insufficient. The worker confirms that every expected
+public resource is present. Prepare operations and worker responses are bounded. Own UI
+shows the update action; `applyShellUpdate` accepts a callback reading current unsaved
+input and executing-work flags, checks it before and after waiting-cache verification,
+and only the explicitly requesting safe tab reloads. Callers stop new foreground cycles
+and settle their bounded executing work first. Other tabs retain their in-memory input;
+the active worker can still serve their old content-hashed assets. No queue/schema or
+business-data read/write, reset, cleanup, successful-sync prerequisite or reload promise
+on storage/activation failure is introduced.
+
+Use the retained Node26.11.1 (`N`) from repository root:
+
+```sh
+"$N" --test apps/kdg-capture/web/tests/own-shell.test.mjs
+"$N" apps/kdg-capture/web/tests/own-shell-proof.mjs
+KDG_LOCAL_WEB_CONFIG=/absolute/private/synthetic-local.json "$N" apps/kdg-capture/web/tests/own-shell-proof.mjs --build-only
+```
+
+The last command builds only, using pinned retained packages in a fresh selected-source
+capsule, and reports its absolute `dist`. Serve that immutable output with
+`KDG_LOCAL_SHELL_DIST=/absolute/reported/dist`, the same `KDG_LOCAL_WEB_CONFIG`, and
+`N apps/kdg-capture/web/scripts/serve-local-shell.mjs`. That host reuses the generated
+bounded same-origin API proxy. No package install or root dependency changes are needed.
+See [shell evidence](../docs/OWN_SHELL_EVIDENCE.md) for actual built Chromium coverage and
+its limits. Loopback service-worker proof is separate from installed-device qualification.
+
+
+## Ordinary own workspace and foreground synchronization
+
+The built `/` route uses `OwnWorkspace` for explicit Save/Cancel and My observations.
+Only completed observations are persisted. Before-Save input remains in memory; failed
+Save retains the exact input/operation for Retry. Original questionnaire labels and
+answers remain pinned, including positive multiline details. Own details show date,
+answers and Pending/Synced/Needs attention; administrator history/audit stays at `/admin`.
+
+Provision must commit and the public shell must be confirmed before the account/org
+routing selector is published. That selector supplies no authority: schema4 guarded
+reads enforce the existing seven-day own window, known denial and clock fences.
+Negative account observations durably lock the captured prior partition and preserve
+another tab's new selection. Explicit Sign out additionally removes its own selection.
+No store reset, pending/conflict deletion or all-read offline observation is introduced.
+
+Open/resume/reconnect/Save/Sync triggers coalesce into foreground cycles bounded to
+30 seconds and100 attempted actions. Cross-tab claims expire after40 seconds; an
+interrupted claim is recovered on the next trigger after expiry using its original
+operation outcome. Creates precede dependent edits, and attention items do not block
+independent records. Only the existing receipt/readback owners establish Synced.
+
+From repository root with the retained Node26.11.1 executable (`N`):
+
+```sh
+"$N" apps/kdg-capture/web/tests/own-workspace-store-proof.mjs
+"$N" apps/kdg-capture/web/tests/own-workspace-proof.mjs
+```
+
+These use strict TypeScript7, real Chromium IndexedDB and the actual built index/main
+with synthetic HTTP. The mounted proof includes paging, retained failed input, account
+races, exact later-page details, genuine failed precache and explicit waiting updates.
+[Story3.1 evidence](../docs/STORY31_OWN_WORKSPACE_EVIDENCE.md) separately records the
+actual local GoTrue/SMTP/current owner/database journey and remaining equipment gates.

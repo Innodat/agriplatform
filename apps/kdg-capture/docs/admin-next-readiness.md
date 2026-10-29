@@ -1,3 +1,36 @@
+## Story3.1 local acceptance closure and external next step — 2026-10-29
+
+All independent ready local implementation and qualification is complete after the own
+workspace/synchronization/public-shell delivery. [Current AC-1–AC-6 evidence matrix](STORY31_OWN_WORKSPACE_EVIDENCE.md#current-ac-1ac-6-matrix)
+records current real native/HTTP/browser and automated results. Story3.1 stays incomplete.
+
+| Criterion | Readiness |
+| --- | --- |
+| AC-1 | Current all-read, capability/organization/owner isolation and no fallback locally qualified |
+| AC-2 | Original-definition responsive review, truthful failed/partial paging and actual saved-offline→sync→admin-refresh locally qualified |
+| AC-3 | Online read-only committed audit and own/audit separation locally qualified |
+| AC-4 | Local own-PWA/online-admin/cache boundary qualified; actual installed Android/iPhone extension remains |
+| AC-5 | Current role/session/membership/outage/account/sign-out fences and retained pending/conflicts locally qualified |
+| AC-6 | Automated keyboard/focus/labels/layout and actual role/API boundaries qualified; true browser zoom, real assistive technology and actual installed-device results remain |
+
+Final actual browser13, mounted47, guarded store39, affected store1398, Auth575/71,
+admin9/host10 and producer46/affected430+101subtests pass. Actual native16/load3/
+coordination3/configuredHTTP11/transport10, generated freshness and scaffold parity pass.
+All19 supported findings repaired; final independent patch review clear, none deferred.
+See the linked evidence for exact commands/source bindings and retained failed attempts;
+initial mounted acceptance-RED chronology remains an explicit limit.
+
+No additional local synthetic wrapper closes the remaining evidence. The smallest
+external next step is a controlled synthetic reachable trusted-HTTPS target and an
+operator with installed Android/iPhone, a full browser for actual zoom, and a real
+screen reader. Qualify existing surfaces/boundaries against the exact source/build,
+recording device/browser/OS and outcomes separately. The current retained loopback host
+is not phone-accessible or a release. No supported equipment/tool access exists here.
+Production, push, real accounts/credentials and cleanup remain excluded. The handoff
+contains exact held ready directories and recovery/retention instructions. Historical
+readiness assessments follow unchanged; current user authorization supersedes their
+old no-local-startup exclusions only for the completed synthetic local scope.
+
 ## Configured own APIs and native provisioning delivered — 2026-10-29
 
 The actual restricted runtime now provisions setup and the configured KDG API mounts

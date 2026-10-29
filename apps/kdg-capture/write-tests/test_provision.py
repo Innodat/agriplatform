@@ -1,5 +1,7 @@
 """Synthetic protected setup acceptance; no database privilege qualification."""
+import asyncio
 import json
+from itertools import product
 import unittest
 from datetime import datetime,timedelta,timezone
 from types import SimpleNamespace
@@ -78,6 +80,194 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(datetime.fromisoformat(child.expires_at)-datetime.fromisoformat(child.checked_at),timedelta(days=7))
         self.assertEqual((child.child_revision,child.create_permission),('3',provision.create.ALL))
         self.assertEqual((self.db.issued[0]['actor'],self.db.issued[0]['member'],self.db.issued[0]['account']),(ACTOR,7,ACCOUNT))
+    async def test_optional_checks_overlap_after_mandatory_read_before_any_sql(self):
+        # Real yielding transport gates qualify overlap without a wall-clock race.
+        arrived=set();release=asyncio.Event();read_done=False;active=0
+        async def access(request):
+            nonlocal read_done,active
+            permission=json.loads(request.content)['permission']
+            self.assertEqual(self.db.calls,[])
+            if permission==provision.READ:
+                self.assertFalse(arrived);read_done=True
+            else:
+                self.assertTrue(read_done);arrived.add(permission);active+=1
+                try:await release.wait()
+                finally:active-=1
+            return httpx.Response(200,json=support.support.evidence(permission))
+        self.handler._transport=httpx.MockTransport(access)
+        task=asyncio.create_task(self.execute())
+        try:
+            for _ in range(100):
+                if len(arrived)==3:break
+                await asyncio.sleep(.001)
+            self.assertEqual(arrived,set(PERMISSIONS[1:]),'optional capability checks remained sequential')
+            self.assertEqual(active,3);self.assertEqual(self.db.calls,[])
+        finally:
+            release.set()
+            await task
+        self.assertEqual(self.db.calls[-1][0],'COMMIT')
+
+    async def test_concurrent_roundtrips_keep_oldest_read_fresh_without_resetting_it(self):
+        # Each yielded roundtrip costs .4s in the existing monotonic DB guard.
+        # Serial optional calls age READ by1.2s; one concurrent round ages it by.4s.
+        now=100.
+        async def access(request):
+            nonlocal now
+            started=now;await asyncio.sleep(0);now=started+.4
+            return httpx.Response(200,json=support.support.evidence(json.loads(request.content)['permission']))
+        self.handler._transport=httpx.MockTransport(access)
+        with patch.object(provision.write,'time',SimpleNamespace(monotonic=lambda:now)):
+            result=await self.execute()
+        self.assertEqual(result.create_state,'ready');self.assertAlmostEqual(now,100.8)
+        self.assertEqual(self.db.calls[-1][0],'COMMIT')
+
+    async def test_reordered_optional_completion_keeps_slots_and_oldest_observation(self):
+        finished=[]
+        async def authorize(checker,token,budget):
+            permission=checker._permissions[0]
+            if permission!=provision.READ:
+                for _ in range({provision.EDIT:3,provision.create.ALL:2,provision.create.ASSIGNED:1}[permission]):await asyncio.sleep(0)
+            finished.append(permission)
+            return checker._evidence_type.model_validate(support.support.evidence(permission)),100.+len(finished)*.1
+        with patch.object(provision._Checker,'_authorize',authorize):
+            evidence,observed=await self.handler.authorize('Bearer synthetic',provision.write.Budget())
+        self.assertEqual(finished,[provision.READ,provision.create.ASSIGNED,provision.create.ALL,provision.EDIT])
+        self.assertEqual([item.permission for item in evidence],PERMISSIONS)
+        self.assertEqual(observed,100.1);self.assertEqual(self.db.calls,[])
+
+    async def test_optional_denial_matrix_preserves_each_grant_without_inference(self):
+        for allowed in product((False,True),repeat=3):
+            with self.subTest(allowed=allowed):
+                self.setUp();self.denied(*(permission for permission,granted in zip(PERMISSIONS[1:],allowed,strict=True) if not granted))
+                result=await self.execute()
+                self.assertEqual(self.checks,PERMISSIONS)
+                self.assertEqual(tuple(item is not None for item in (result.edit_observation,result.create_all_observation,result.create_assigned_observation)),allowed)
+                self.assertEqual(result.create_state,'ready' if any(allowed[1:]) else 'not_permitted')
+                if any(allowed[1:]):self.assertEqual(result.children[0].create_permission,provision.create.ALL if allowed[1] else provision.create.ASSIGNED)
+                else:self.assertEqual(self.db.issued,[])
+
+    async def test_optional_non_denial_errors_never_become_absent_grants(self):
+        for permission in PERMISSIONS[1:]:
+            for status,code in ((401,'authentication_required'),(409,'identity.actor_setup_required'),(503,'authorization_unavailable'),(403,'unknown')):
+                with self.subTest(permission=permission,status=status):
+                    self.setUp()
+                    self.upstream=lambda current:httpx.Response(status,json={'detail':{'code':code}}) if current==permission else httpx.Response(200,json=support.support.evidence(current))
+                    with self.assertRaises(provision.protected.HandlerError) as error:await self.execute()
+                    self.assertEqual((error.exception.status,error.exception.error_id),(status,code) if status in (401,409) else (503,'authorization_unavailable'))
+                    self.assertEqual(self.db.calls,[])
+
+    async def test_parent_cancellation_drains_all_optional_checks_without_sql(self):
+        arrived=set();closed=set();release=asyncio.Event()
+        async def access(request):
+            permission=json.loads(request.content)['permission']
+            if permission!=provision.READ:
+                arrived.add(permission)
+                try:await release.wait()
+                finally:closed.add(permission)
+            return httpx.Response(200,json=support.support.evidence(permission))
+        self.handler._transport=httpx.MockTransport(access)
+        task=asyncio.create_task(self.execute())
+        try:
+            for _ in range(100):
+                if len(arrived)==3:break
+                await asyncio.sleep(.001)
+            self.assertEqual(arrived,set(PERMISSIONS[1:]))
+        finally:
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):await task
+        self.assertEqual(closed,set(PERMISSIONS[1:]));self.assertEqual(self.db.calls,[])
+
+    async def test_optional_failure_cancels_and_drains_siblings_before_return(self):
+        arrived=set();closed=set();release=asyncio.Event()
+        async def access(request):
+            permission=json.loads(request.content)['permission']
+            if permission!=provision.READ:
+                arrived.add(permission)
+                try:
+                    if len(arrived)==3:release.set()
+                    await release.wait()
+                    if permission==provision.EDIT:return httpx.Response(503,json={'detail':{'code':'unavailable'}})
+                    await asyncio.Event().wait()
+                finally:closed.add(permission)
+            return httpx.Response(200,json=support.support.evidence(permission))
+        self.handler._transport=httpx.MockTransport(access)
+        with self.assertRaises(provision.protected.HandlerError) as error:
+            async with asyncio.timeout(.5):await self.execute()
+        self.assertEqual((error.exception.status,error.exception.error_id),(503,'authorization_unavailable'))
+        self.assertEqual(closed,set(PERMISSIONS[1:]));self.assertEqual(self.db.calls,[])
+
+    async def test_repeated_cancellation_keeps_optional_cleanup_owned_until_drained(self):
+        arrived=set();draining=set();closed=set();release=asyncio.Event()
+        async def access(request):
+            permission=json.loads(request.content)['permission']
+            if permission!=provision.READ:
+                arrived.add(permission)
+                try:await asyncio.Event().wait()
+                finally:
+                    draining.add(permission);await release.wait();closed.add(permission)
+            return httpx.Response(200,json=support.support.evidence(permission))
+        self.handler._transport=httpx.MockTransport(access);task=asyncio.create_task(self.execute())
+        try:
+            for _ in range(100):
+                if len(arrived)==3:break
+                await asyncio.sleep(.001)
+            self.assertEqual(arrived,set(PERMISSIONS[1:]))
+            task.cancel()
+            for _ in range(100):
+                if len(draining)==3:break
+                await asyncio.sleep(.001)
+            self.assertEqual(draining,arrived);task.cancel();await asyncio.sleep(0)
+            self.assertFalse(task.done());self.assertEqual(self.db.calls,[])
+        finally:
+            release.set()
+            if not task.cancelling():task.cancel()
+            with self.assertRaises(asyncio.CancelledError):await task
+        self.assertEqual(closed,arrived);self.assertEqual(self.db.calls,[])
+
+    async def test_cancellation_closes_each_borrowed_transport_response_before_return(self):
+        # Match the configured fixture's ownership contract: client close is a no-op
+        # on its borrowed transport; streamed responses remain client-owned.
+        arrived=set();closed=set();client_closes=[];release=asyncio.Event()
+        class Stream(httpx.AsyncByteStream):
+            def __init__(self,permission):self.permission=permission
+            async def __aiter__(self):
+                arrived.add(self.permission);await release.wait()
+                yield json.dumps(support.support.evidence(self.permission)).encode()
+            async def aclose(self):closed.add(self.permission)
+        class BorrowedTransport(httpx.AsyncBaseTransport):
+            async def handle_async_request(self,request):
+                permission=json.loads(request.content)['permission']
+                if permission==provision.READ:return httpx.Response(200,json=support.support.evidence(permission))
+                return httpx.Response(200,stream=Stream(permission))
+            async def aclose(self):client_closes.append(True)
+        self.handler._transport=BorrowedTransport();task=asyncio.create_task(self.execute())
+        try:
+            for _ in range(100):
+                if len(arrived)==3:break
+                await asyncio.sleep(.001)
+            self.assertEqual(arrived,set(PERMISSIONS[1:]))
+        finally:
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):await task
+        self.assertEqual(closed,arrived);self.assertEqual(len(client_closes),4);self.assertEqual(self.db.calls,[])
+
+    async def test_shared_access_deadline_includes_read_and_drains_optional_work(self):
+        arrived=set();closed=set()
+        async def access(request):
+            permission=json.loads(request.content)['permission']
+            if permission==provision.READ:await asyncio.sleep(.02)
+            else:
+                arrived.add(permission)
+                try:await asyncio.sleep(.02)
+                finally:closed.add(permission)
+            return httpx.Response(200,json=support.support.evidence(permission))
+        self.handler._transport=httpx.MockTransport(access)
+        self.assertEqual(provision.protected.ACCESS_SECONDS,3.)
+        with patch.object(provision.protected,'ACCESS_SECONDS',.03):
+            with self.assertRaises(provision.protected.HandlerError) as error:await self.execute()
+        self.assertEqual((error.exception.status,error.exception.error_id),(503,'authorization_unavailable'))
+        self.assertEqual(arrived,set(PERMISSIONS[1:]));self.assertEqual(closed,arrived);self.assertEqual(self.db.calls,[])
+
     async def test_assigned_scope_current_membership_and_revision(self):
         self.denied(provision.create.ALL,provision.EDIT)
         result=await self.execute()

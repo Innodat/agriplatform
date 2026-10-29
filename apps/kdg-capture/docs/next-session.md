@@ -1,3 +1,46 @@
+## Own workspace, synchronization and local Story3.1 boundaries delivered — 2026-10-29
+
+The delivery after ac5499b2bea045db59260150c554cb94ecceb0b0 is implemented, locally
+qualified and independently reviewed. Ordinary `/` now mounts explicit capture/My
+observations, guarded schema4 retention, bounded foreground synchronization and a
+revisioned public-only offline shell. `/admin` retains separate current online all-read.
+See [AC-1–AC-6 matrix and exact receipts](STORY31_OWN_WORKSPACE_EVIDENCE.md).
+
+Final actual SDK/GoTrue/SMTP/Access/Identity/restricted SQL browser13 and mounted47 pass:
+`own-browser-bd4d7c0e-366e-489a-80b4-e873e699c208` in the retained fresh frame and
+`platform/deployment/.local/kdg-own-workspace/browser-5c94cf46-3ce1-4738-beea-37e1023109fb`.
+They prove cold offline Save/reopen, actual commit/lost-response original-outcome
+recovery with one POST, admin refresh/audit, public-only caches, current role loss,
+verified account changes/sign-out and exact retained pending/conflicts. Guarded store39,
+affected store1398, Auth575/71, admin9/host10, proxy15, shell helper8, producer46/
+affected430+101subtests, native16/load3/coordination3, actual transport10/configuredHTTP11,
+export/client freshness, scaffold parities and composition check-only pass. Final entry
+aggregate: `last-frontend-checks-fd7ee7e93c784832b5f55f248d9a2e40` under the proof root.
+All19 supported review findings are repaired; two final independent reviewers are clear,
+none deferred. The spec retains the thread-limit denials and missing initial mounted-RED
+chronology; failed evidence remains failed and retained. No Identity/applied0003 change.
+
+Every independent ready local item is complete. **Story3.1 remains incomplete:** AC-4's
+separately recorded actual installed Android/iPhone extension and AC-6 true browser zoom,
+real assistive-technology usability and installed-device evidence remain unavailable.
+AC-1/2/3/5 and the local AC-4/6 boundaries are qualified. Smallest external next step:
+controlled synthetic reachable trusted-HTTPS target and an operator with installed
+Android/iPhone plus full browser/screen reader; bind results to exact source/build and
+record device/browser/OS and outcomes separately. Current loopback-only host is not a
+phone target or release. No simulation can close these gates. No further inert wrapper.
+
+Retained resource/proof root: `platform/deployment/.local/kdg-story31-20261028/`;
+fresh frame `fresh-8f3e984596bb453a902adb8710b4860d`. Current configured API is held at
+`own-serve-c9920b804b02451898acc78ec334d8d3`; actual owner/Auth gateway remains held at
+`owners-28352cf8e19840f08fc5ab8f6d6617b5`. Read private ready/config artifacts; never use
+historical ports/tokens or rerun preparers. Failed/old servers and resource volumes are
+retained; superseded API stops and final browser-host stops have honest normal receipts.
+Synthetic protected grants were restored after qualification; no reseed/delete/cleanup.
+
+Preserve concurrent work and historical evidence. Never access/run/copy/hash the
+prohibited migration fixture. Production deployment, push, real-account/credential
+changes and destructive cleanup remain excluded. Prior committed handoff follows intact.
+
 ## Configured own APIs and native provisioning delivered — 2026-10-29
 
 The actual restricted runtime now provisions setup and the configured KDG API mounts

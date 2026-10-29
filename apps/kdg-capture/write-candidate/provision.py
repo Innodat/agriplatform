@@ -199,22 +199,35 @@ class ProvisionHandler(protected.CreateHandler):
         try:self.questionnaire_id=canonical_uuid(questionnaire_id)
         except (ValueError,TypeError):raise RuntimeError('kdg_provision_configuration_invalid') from None
     async def authorize(self,token,budget):
-        values=[];observed=None
+        async def check(permission,model):
+            checker=_Checker(permission,model,org_id=self.org_id,access_url=self.access_url,service_key=self._service_key,transport=self._transport)
+            try:
+                decision=await checker._authorize(token,budget)
+            except protected.HandlerError as error:
+                if error.status==403 and error.error_id=='access_denied' and permission!=READ:return None
+                raise
+            # CreateHandler represents a denied create.all check as no decision.
+            if decision is None and permission==create.ALL:return None
+            return decision
         try:
             async with asyncio.timeout(min(protected.ACCESS_SECONDS,budget.remaining())):
-                for permission,model in ((READ,Context),(EDIT,EditEvidence),(create.ALL,CreateAllEvidence),(create.ASSIGNED,CreateAssignedEvidence)):
-                    checker=_Checker(permission,model,org_id=self.org_id,access_url=self.access_url,service_key=self._service_key,transport=self._transport)
-                    try:
-                        decision=await checker._authorize(token,budget)
-                        if decision is None and permission==create.ALL:
-                            values.append(None);continue
-                        item,instant=decision
-                    except protected.HandlerError as error:
-                        if error.status==403 and error.error_id=='access_denied' and permission!=READ:
-                            values.append(None);continue
-                        raise
-                    if observed is None:observed=instant
+                # Mandatory admission comes first: denial launches no optional work.
+                entry=await check(READ,Context)
+                try:
+                    # Independent capabilities share the original Access deadline.
+                    # TaskGroup drains cancellation/failure before any DB admission.
+                    async with asyncio.TaskGroup() as group:
+                        optional=[group.create_task(check(permission,model)) for permission,model in
+                            ((EDIT,EditEvidence),(create.ALL,CreateAllEvidence),(create.ASSIGNED,CreateAssignedEvidence))]
+                except* protected.HandlerError as errors:
+                    raise errors.exceptions[0] from None
+                values=[];observed=None
+                for decision in (entry,*(task.result() for task in optional)):
+                    if decision is None:
+                        values.append(None);continue
+                    item,instant=decision
                     if values and (item.account_id,item.actor_id,item.membership_id)!=(values[0].account_id,values[0].actor_id,values[0].membership_id):raise protected.HandlerError(503,'authorization_unavailable')
+                    observed=instant if observed is None else min(observed,instant)
                     values.append(item)
                 budget.remaining()
                 return tuple(values),observed

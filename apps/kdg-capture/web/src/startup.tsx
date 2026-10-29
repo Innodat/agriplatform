@@ -13,19 +13,20 @@ export function startKdgLocalFrontend(){
  }
  const value=readEmbeddedPublicConfig(document,'kdg-local-config');
  const config=value.kind==='value'?parseKdgLocalPublicConfig(value.value,location.origin):null;
- const root=createRoot(roots[0]);let disposed=false,loading=false;
+ const root=createRoot(roots[0]);let disposed=false,loading=false,preflight=0;
  let mounted:{dispose():void}|undefined;
  const observer=observeBrowserEntry({browser:window,paths:['/','/admin'],safePath:'/',anchors:['#kdg-entry-content','#admin-main'],publish:state=>{
   if(disposed)return;
-  if(!config||state.route!=='entry'||!state.online){
+  const attempt=++preflight;
+  if(!config||state.route!=='entry'||!state.online&&location.pathname!=='/'){
    flushSync(()=>root.render(<ClosedEntry state={state} failed={!config}/>));return;
   }
   flushSync(()=>root.render(<EntryScreen state={{kind:'checking'}} online={true} onSignIn={()=>{}} onRetry={()=>{}}/>));
-  if(loading)return;loading=true;
+  loading=true;
   void import('./LocalEntryRoute').then(module=>{
-   if(disposed)return;
+   if(disposed||attempt!==preflight){loading=false;return;}
    const current=observer.state();
-   if(current.route!=='entry'||!current.online){loading=false;return;}
+   if(current.route!=='entry'||!current.online&&location.pathname!=='/'){loading=false;return;}
    observer.dispose();mounted=module.mountKdgLocalEntry(root,config);
   }).catch(()=>{if(!disposed){loading=false;flushSync(()=>root.render(<ClosedEntry state={observer.state()} failed={true}/>));}});
  }});

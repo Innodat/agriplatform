@@ -20,5 +20,7 @@ test('fresh rendered and installed local host tools pass emitted behavioral test
  const parent=join(root,'platform/deployment/.local/local-host-pattern');mkdirSync(parent,{recursive:true});const dir=mkdtempSync(join(parent,'proof-'));
  const recipe={schema_version:1,owner_id:'local_host_sample',owner_kind:'application',sources:['platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md'],contracts:['platform/docs/architecture/contracts/scaffold-environment-and-generation.md'],patterns:['api.owner-http.v1','web.react-shell.v1','auth.organization-account.fixed.v1','errors.safe-envelope.v1','saving.none.v1'],extensions:[],deployment_manifest:'apps/local-host-sample/deployment/manifest.json'};
  const files=renderApplication(recipe,root),hash=v=>createHash('sha256').update(v).digest('hex');installScaffold(dir,files,{generator:'builder-v1',template:'application-v1-candidate',recipe:hash(JSON.stringify(recipe)),source:hash(JSON.stringify(files))});
- const run=spawnSync(process.execPath,['--test',join(dir,'web/local-host-tools/test-local-entry-host.mjs')],{encoding:'utf8',timeout:30000});assert.equal(run.status,0,run.stdout+run.stderr);
+ // A nested Node26 runner must not inherit its parent's child-runner protocol.
+ const {NODE_TEST_CONTEXT:parentRunner,...childEnv}=process.env;
+ const run=spawnSync(process.execPath,['--test','--test-reporter=spec',join(dir,'web/local-host-tools/test-local-entry-host.mjs')],{env:childEnv,encoding:'utf8',timeout:30000});assert.equal(run.status,0,run.stdout+run.stderr);assert.match(run.stdout,/explicit write routes accept bounded streamed JSON/);assert.match(run.stdout,/tests 10/);
 });

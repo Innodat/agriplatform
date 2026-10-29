@@ -33,11 +33,14 @@ test('resolved CLI overrides cannot expose the local host or replace routing pol
  const host=createLocalEntryHost(input),plugin=host.plugins[0];
  for(const change of [{host:'0.0.0.0'},{host:true},{cors:true},{hmr:true},{strictPort:false},{proxy:{'/api':'http://remote.invalid'}}])assert.throws(()=>plugin.configResolved({...host,command:'serve',server:{...host.server,...change}}),{message:'local_entry_host_invalid'});
 });
-test('local host bounds a stalled response and closes its upstream after the deadline',async()=>{
- let closed=false;const api=createServer((req,res)=>{res.writeHead(200,{'Content-Type':'application/json'});res.write('{');res.once('close',()=>closed=true);});const apiOrigin=await serve(api);
- let middleware;createLocalEntryHost({...input,apiOrigin}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end()));const origin=await serve(server);
- try{const start=Date.now(),monotonic=performance.now(),response=await fetch(origin+'/api/v1/context');assert.equal(response.status,503);assert.equal((await response.json()).error_id,'authorization_unavailable');// A host wall-clock step must not change the duration assertion.
-  const elapsed=performance.now()-monotonic;assert.ok(elapsed>=11000&&elapsed<14000,JSON.stringify({wall_elapsed:Date.now()-start,monotonic_elapsed:elapsed}));for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);}finally{await close(server);await close(api);}
+test('local host bounds stalled request and response streams and closes its upstream after the deadline',async()=>{
+ let closed=false,calls=0,held;const api=createServer((req,res)=>{calls++;res.writeHead(200,{'Content-Type':'application/json'});res.write('{');res.once('close',()=>closed=true);});const apiOrigin=await serve(api);
+ let middleware;createLocalEntryHost({...input,apiOrigin,routes:[...input.routes,{path:'/api/v1/write',method:'POST',maxRequestBytes:131072,maxResponseBytes:16384}]}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end()));const origin=await serve(server);
+ try{
+  const pendingBody=new Promise((resolve,reject)=>{held=request(origin+'/api/v1/write',{method:'POST',agent:false,headers:{'Content-Type':'application/json'}},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});held.on('error',reject);held.write('{');});
+  const start=Date.now(),monotonic=performance.now(),response=await fetch(origin+'/api/v1/context');assert.equal(response.status,503);assert.equal((await response.json()).error_id,'authorization_unavailable');assert.equal(await pendingBody,503);assert.equal(calls,1);// A host wall-clock step must not change the duration assertion.
+  const elapsed=performance.now()-monotonic;assert.ok(elapsed>=11000&&elapsed<14000,JSON.stringify({wall_elapsed:Date.now()-start,monotonic_elapsed:elapsed}));for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);
+ }finally{held?.destroy();await close(server);await close(api);}
 });
 test('declared canonical UUID read routes retain per-route byte limits and upstream not-found',async()=>{
  const id='cccccccc-cccc-4ccc-8ccc-cccccccccccc',base='/api/v1/records';let calls=[],body=JSON.stringify({value:'x'.repeat(70000)}),status=200;
@@ -62,4 +65,28 @@ test('only bearer authorization is forwarded and caller cancellation closes upst
   const duplicate=await new Promise(resolve=>{const req=request(origin+'/api/v1/context',{headers:['Host',new URL(origin).host,'Authorization','Bearer first','Authorization','Bearer second']},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.end();});assert.equal(duplicate,401);assert.equal(calls,0);
   const controller=new AbortController(),pending=fetch(origin+'/api/v1/context',{headers:{Authorization:'Bearer synthetic'},signal:controller.signal});for(let i=0;i<100&&calls===0;i++)await new Promise(r=>setTimeout(r,10));assert.equal(calls,1);controller.abort();await assert.rejects(pending);for(let i=0;i<100&&!closed;i++)await new Promise(r=>setTimeout(r,10));assert.equal(closed,true);
  }finally{await close(server);await close(api);}
+});
+
+test('explicit write routes accept bounded streamed JSON only and preserve exact caller bytes',async t=>{
+ const id='cccccccc-cccc-4ccc-8ccc-cccccccccccc',base='/api/v1/records',calls=[];
+ const api=createServer((req,res)=>{const chunks=[];req.on('data',chunk=>chunks.push(chunk));req.on('end',()=>{calls.push({method:req.method,url:req.url,headers:req.headers,body:Buffer.concat(chunks)});res.writeHead(200,{'Content-Type':'application/json'});res.end('{"saved":true}');});});t.after(async()=>{if(api.listening)await close(api);});const apiOrigin=await serve(api);
+ const routes=[{path:base,method:'GET',maxResponseBytes:65536},{path:base,method:'POST',maxRequestBytes:32,maxResponseBytes:16384},{path:base+'/{uuid}',method:'PUT',maxRequestBytes:32,maxResponseBytes:16384}];
+ let middleware;createLocalEntryHost({...input,apiOrigin,routes}).plugins[0].configureServer({middlewares:{use:fn=>middleware=fn}});const server=createServer((req,res)=>middleware(req,res,()=>res.end('HTML')));const origin=await serve(server);
+ const send=(path,method,chunks,headers={})=>new Promise((resolve,reject)=>{const req=request(origin+path,{method,agent:false,headers:{'Content-Type':'application/json',Authorization:'Bearer synthetic',Cookie:'PRIVATE=1','X-Service-Key':'PRIVATE',...headers}},res=>{const chunks=[];res.on('data',c=>chunks.push(c));res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body:Buffer.concat(chunks).toString()}));});req.on('error',reject);for(const chunk of chunks)req.write(chunk);req.end();});
+ try{
+  const body=' {"answer":"é"} ';for(const [path,method]of [[base,'POST'],[base+'/'+id,'PUT']]){const result=await send(path,method,[body.slice(0,8),body.slice(8)]);assert.equal(result.status,200);assert.equal(result.headers['cache-control'],'private, no-store');assert.equal(calls.at(-1).method,method);assert.equal(calls.at(-1).url,path);assert.equal(calls.at(-1).body.toString(),body);assert.equal(calls.at(-1).headers.authorization,'Bearer synthetic');assert.equal(calls.at(-1).headers.cookie,undefined);assert.equal(calls.at(-1).headers['x-service-key'],undefined);assert.equal(calls.at(-1).headers['content-type'],'application/json');}
+  const exact='\"'+'x'.repeat(30)+'\"';assert.equal(Buffer.byteLength(exact),32);assert.equal((await send(base,'POST',[exact])).status,200);
+  const before=calls.length;
+  for(const [chunks,headers]of [[[JSON.stringify({v:'x'.repeat(40)})],{}],[['{'],{}],[[],{}],[[Buffer.from([123,34,118,34,58,34,255,34,125])],{}],[['{}'],{'Content-Type':'text/plain'}],[['{}'],{'Content-Encoding':'gzip'}]]){const result=await send(base,'POST',chunks,headers);assert.equal(result.status,422);assert.ok(!result.body.includes('PRIVATE'));}
+  assert.equal((await send(base,'POST',['{}'],{'Content-Length':'33'})).status,422);
+  assert.equal((await send(base,'PUT',['{}'])).status,405);assert.equal((await send(base+'/'+id,'POST',['{}'])).status,405);assert.equal((await send(base+'/INVALID','PUT',['{}'])).status,404);assert.equal((await send(base,'DELETE',['{}'])).status,405);
+  assert.equal((await send(base,'GET',['{}'],{'Content-Length':'2'})).status,422);assert.equal(calls.length,before);
+ }finally{await close(server);await close(api);}
+});
+test('write declarations require one explicit method and bounded body policy without duplicate routes',()=>{
+ const route={path:'/api/v1/records',method:'POST',maxRequestBytes:131072,maxResponseBytes:16384};
+ for(const overrides of [{method:'DELETE'},{method:['GET','POST']},{method:'post'},{maxRequestBytes:0},{maxRequestBytes:131073},{maxRequestBytes:1.5}])assert.throws(()=>createLocalEntryHost({...input,routes:[{...route,...overrides}]}),{message:'local_entry_host_invalid'});
+ const {maxRequestBytes,...missing}=route;assert.throws(()=>createLocalEntryHost({...input,routes:[missing]}),{message:'local_entry_host_invalid'});
+ assert.throws(()=>createLocalEntryHost({...input,routes:[{...route,method:'GET'}]}),{message:'local_entry_host_invalid'});
+ assert.throws(()=>createLocalEntryHost({...input,routes:[route,route]}),{message:'local_entry_host_invalid'});
 });

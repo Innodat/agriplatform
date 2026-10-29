@@ -21,6 +21,10 @@ export type EditDelivery=Frozen<{version:1;pending:PreparedEdit;serialized:strin
 type ServerLocalEditIntent=Frozen<{key:string;partition:string;version:1;type:'capture.edit';action_id:string;capture_id:string;content:string;base:CaptureDetail;changes:LocalEditChanges;predecessor_action_id:string|null;expected_revision:string|null;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation'];status:'Pending'|'Needs attention';delivery?:EditDelivery;result:{kind:'saved_locally'|'needs_attention';action_id:string}}>;
 /** A completed local create has no server revision or server attribution. */
 export type LocalCaptureBase=Omit<CaptureDetail,'revision'|'created_by'|'created_at'|'updated_by'|'updated_at'>;
+export type OwnCapture=Pick<LocalCaptureBase,'capture_id'|'child_id'|'child_label'|'questionnaire_id'|'questionnaire_version_id'|'questionnaire_version'|'definition'|'observation_date'|'answers'|'captured_at'>;
+export type OwnRecord=Frozen<{capture:OwnCapture;status:'Pending'|'Synced'|'Needs attention';reason?:string}>;
+export type OwnWorkspaceView=Frozen<{kind:'available';access_expires_at:string;setup:Provision|null;records:OwnRecord[];next_key:string|null}>|Readonly<{kind:'setup_required'}>;
+export type DeliveryClaim=Readonly<{kind:'claimed';type:'capture.create'|'capture.edit';action_id:string;owner:string;token:string;expires_at:number}>;
 export type EditPredecessor=Readonly<{type:'capture.create'|'capture.edit';action_id:string}>;
 export type PendingReviewedEdit=Frozen<{version:2;base_kind:'local_create';account_id:string;org_id:string;capture_id:string;base:LocalCaptureBase;capture:LocalCaptureBase;edit_epoch:number;edit_generation:number;predecessor:EditPredecessor;predecessor_action_id:string;baseline_revision:string|null;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation']}>;
 export type ReviewedEdit=ServerReviewedEdit|PendingReviewedEdit;
@@ -39,6 +43,9 @@ type Execution=Readonly<{signal?:AbortSignal;isCurrent?:()=>boolean}>;
 class AuthorityFailure extends Error {constructor(readonly kind:'expired'|'denied'){super(kind);}}
 class ClockFailure extends Error {constructor(readonly observation:any){super('unavailable');}}
 const fences=new Map<string,Fence>();
+// A blocked schema4 request cannot be cancelled by IndexedDB. Share its negative
+// observation with this realm's queued opens until those requests have settled.
+const openingPolicies=new WeakMap<IDBFactory,Map<string,{blocked:boolean;pending:Set<()=>void>}>>();
 const canonical=(v:unknown):string=>JSON.stringify(v&&typeof v==='object'?Array.isArray(v)?v.map(x=>JSON.parse(canonical(x))):Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b)).map(([k,x])=>[k,JSON.parse(canonical(x))])):v);
 const result=<const K extends string>(kind:K)=>Object.freeze({kind});
 export function phoneHistoryDates(today=new Date()):Readonly<{from_date:string;to_date:string}>{
@@ -51,9 +58,24 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
  const {account_id,org_id}=scope;if(!id(account_id)||!id(org_id))throw Error('invalid_scope');
  const partition=account_id+'/'+org_id,wall=options.wall??Date.now,mono=options.monotonic??(()=>performance.now());
  const factory=options.indexedDB??indexedDB;
- const opening=factory.open(options.database??HISTORY_DATABASE,4);
- opening.onupgradeneeded=()=>{for(const name of tables)if(!opening.result.objectStoreNames.contains(name))opening.result.createObjectStore(name,{keyPath:'key'});for(const name of ['edit_actions','create_actions','resolutions']){const store=opening.transaction!.objectStore(name);if(!store.indexNames.contains('capture'))store.createIndex('capture',['partition','capture_id']);}};
- const db=await request(opening);db.onversionchange=()=>db.close();
+ const database=options.database??HISTORY_DATABASE;
+ let policies=openingPolicies.get(factory);if(!policies){policies=new Map();openingPolicies.set(factory,policies);}
+ let policy=policies.get(database);if(policy?.blocked)throw Error('storage_update_blocked');
+ if(!policy){policy={blocked:false,pending:new Set()};policies.set(database,policy);}
+ const openingPolicy=policy,opening=factory.open(database,4);
+ let abandoned=false;
+ opening.onupgradeneeded=()=>{if(abandoned){opening.transaction?.abort();return;}for(const name of tables)if(!opening.result.objectStoreNames.contains(name))opening.result.createObjectStore(name,{keyPath:'key'});for(const name of ['edit_actions','create_actions','resolutions']){const store=opening.transaction!.objectStore(name);if(!store.indexNames.contains('capture'))store.createIndex('capture',['partition','capture_id']);}};
+ // This owner selects schema4 and its bounded open policy. A refused request must
+ // never perform a late upgrade after another window finally releases its handle.
+ const db=await new Promise<IDBDatabase>((resolve,reject)=>{
+  let settled=false;
+  const refuse=(code:'storage_update_blocked'|'storage_update_unavailable')=>{if(settled)return;settled=true;abandoned=true;clearTimeout(timer);try{opening.transaction?.abort();}catch{}reject(Error(code));};
+  const timer=setTimeout(()=>refuse('storage_update_unavailable'),10000);
+  const blocked=()=>refuse('storage_update_blocked');openingPolicy.pending.add(blocked);
+  const untrack=()=>{openingPolicy.pending.delete(blocked);if(!openingPolicy.pending.size&&policies!.get(database)===openingPolicy)policies!.delete(database);};
+  opening.onblocked=()=>{openingPolicy.blocked=true;for(const stop of openingPolicy.pending)stop();};opening.onerror=()=>{untrack();refuse('storage_update_unavailable');};
+  opening.onsuccess=()=>{untrack();if(settled){opening.result.close();return;}settled=true;clearTimeout(timer);resolve(opening.result);};
+ });db.onversionchange=()=>db.close();
  const fenceKey=(options.database??HISTORY_DATABASE)+'/'+partition;
  let fence=fences.get(fenceKey);if(!fence){fence={childLosses:new Map(),createLatches:new Map(),generation:0,transactions:new Set(),wall:wall(),mono:mono(),knownLock:false,clockLock:false,lockedCheckedAt:0,deniedAt:0,editGeneration:0,editDenied:false,editDeniedAt:0};fences.set(fenceKey,fence);}
  const shared=fence,generation=shared.generation;let closed=false;const ownTransactions=new Set<IDBTransaction>();
@@ -652,6 +674,78 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   return clock;
  }
  return {
+  /** Negative evidence only, for confirming another tab completed the same durable lock. */
+  async confirmLocked(){
+   try{const tx=db.transaction('partitions','readonly'),done=complete(tx);void done.catch(()=>{});const meta=await request<any>(tx.objectStore('partitions').get(partition));await done;return result(meta?.denied===true?'locked':'unavailable');}catch{return result('unavailable');}
+  },
+  /** Presentation is derived inside the guarded owner transaction, never from raw UI reads. */
+  async workspace(bounds:Readonly<{limit?:number;after?:string;capture_id?:string}>={},execution:Execution={}){
+   const limit=bounds.limit??100,after=bounds.after,capture_id=bounds.capture_id;
+   if(!Number.isInteger(limit)||limit<1||limit>100||capture_id!==undefined&&(!id(capture_id)||after!==undefined)||after!==undefined&&(!after.startsWith(partition+'/')||after>=partition+'/\uffff'))return result('unavailable');
+   const view=await editOperation<OwnWorkspaceView>(async(tx,check)=>{
+    const observed=await request<any>(tx.objectStore('partitions').get(partition));check();
+    if(observed?.clockLocked)throw new AuthorityFailure('expired');
+    if(!observed?.observation&&!observed?.denied&&!shared.knownLock)return {value:result('setup_required'),clock:{now:shared.wall,tick:shared.mono}};
+    const {meta,clock,validate}=await readAccess(tx,check);
+    const stored=await request<any>(tx.objectStore('setups').get(partition));check();
+    const setup=stored?validateProvision(stored.value,{account_id,org_id}):null;
+    const rows=capture_id?[await request<any>(tx.objectStore('records').get(partition+'/'+capture_id))].filter(Boolean):await request<any[]>(tx.objectStore('records').getAll(IDBKeyRange.bound(after??partition+'/',partition+'/\uffff',after!==undefined),limit+1));check();
+    const records:OwnRecord[]=[];
+    for(const row of rows.slice(0,limit)){
+     if(row.partition!==partition)throw Error('invalid_partition');
+     if(row.baseline)validateDetail(row.baseline,{account_id,org_id,capture_id:row.baseline.capture_id});
+     if(row.local_capture){const action=await request<any>(tx.objectStore('create_actions').get(partition+'/'+row.create_action_id));check();if(!supportedCreate(action)||!validCreateDelivery(action)||canonical(row.local_capture)!==canonical(localBase(action)))throw Error('unsupported_create');}
+     let base=row.baseline??row.local_capture;
+     if(row.saved_edit){const action=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+row.saved_edit.action_id));check();if(!supportedAction(action)||!await originalLocalBase(tx,action,check)||canonical(action.base)!==canonical(row.saved_edit.base)||canonical(action.changes)!==canonical(row.saved_edit.changes))throw Error('unsupported_overlay');base={...action.base,...action.changes};}
+     if(!base||base.owner_account_id!==account_id||base.org_id!==org_id||row.key!==partition+'/'+base.capture_id)throw Error('invalid_record');
+     validateAnswers(base.definition,base.answers);
+     const {capture_id,child_id,child_label,questionnaire_id,questionnaire_version_id,questionnaire_version,definition,observation_date,answers,captured_at}=base;
+     const retained=await request<any[]>(tx.objectStore('edit_actions').index('capture').getAll(IDBKeyRange.only([partition,base.capture_id]),101));check();
+     const retainedAttention=retained.length>100||retained.some(a=>!supportedAction(a)||row.resolution_dispositions?.[a.action_id]==='paused'||!row.resolution_dispositions?.[a.action_id]&&(a.status==='Needs attention'||Boolean(a.delivery?.conflict)));
+     const status=retainedAttention||row.edit_status==='Needs attention'||row.create_status==='Needs attention'||row.conflict?'Needs attention':row.saved_edit||row.edit_status==='Pending'||row.create_status==='Pending'||!row.baseline?'Pending':'Synced';
+     records.push(freeze({capture:{capture_id,child_id,child_label,questionnaire_id,questionnaire_version_id,questionnaire_version,definition,observation_date,answers,captured_at},status,...(status==='Needs attention'?{reason:'Review saved changes before retrying.'}:{})}));
+    }
+    validate();tx.objectStore('partitions').put({...meta,wall:clock.now});
+    return {value:freeze({kind:'available' as const,access_expires_at:meta.observation.expires_at as string,setup,records,next_key:rows.length>limit?rows[limit-1].key as string:null}),clock,validate};
+   },execution);
+   // A storage write failure is not evidence of access loss. Keep known negative
+   // clock/access latches distinct for the mounted editor's retention decision.
+   return view.kind==='unavailable'&&shared.knownLock?result(shared.clockLock?'expired':'denied'):view;
+  },
+  /** Claims live in existing schema4 partition metadata; immutable actions are unchanged. */
+  async claimDelivery(owner:string,excluded:readonly string[]=[],execution:Execution={}){
+   if(!id(owner)||excluded.length>100||excluded.some(x=>!id(x)))return result('invalid');
+   return editOperation(async(tx,check)=>{
+    const {meta,clock,validate}=await readAccess(tx,check),claims={...meta.deliveryClaims};
+    for(const [key,value] of Object.entries(claims))if(!value||!Number.isFinite((value as any).expires_at)||(value as any).expires_at<=clock.now)delete claims[key];
+    let chosen:any,type:'capture.create'|'capture.edit'='capture.create';
+    // Scan bounded cursor batches; attention and old receipts never starve independent records.
+    for(const table of ['create_actions','edit_actions'] as const){
+     let cursor=await request<IDBCursorWithValue|null>(tx.objectStore(table).openCursor(IDBKeyRange.bound(partition+'/',partition+'/\uffff')));check();
+     while(cursor){const a=cursor.value;
+      if(!excluded.includes(a.action_id)&&!claims[a.action_id]){
+       const row=await request<any>(tx.objectStore('records').get(partition+'/'+a.capture_id));check();
+       let eligible=table==='create_actions'?supportedCreate(a)&&validCreateDelivery(a)&&!a.delivery?.attention&&(!a.delivery?.receipt||row?.create_status!=='Synced'):supported(a)&&!a.delivery?.conflict&&!row?.resolution_dispositions?.[a.action_id]&&(!a.delivery?.receipt||row?.saved_edit?.action_id===a.action_id);
+       if(eligible&&table==='edit_actions'&&!a.delivery&&a.predecessor_action_id){const parentTable=a.version===2&&a.predecessor?.type==='capture.create'?'create_actions':'edit_actions';const parent=await request<any>(tx.objectStore(parentTable).get(partition+'/'+a.predecessor_action_id));check();eligible=parentTable==='create_actions'?supportedCreate(parent)&&validCreateDelivery(parent)&&Boolean(parent.delivery?.receipt):Boolean(supported(parent)&&parent.delivery?.receipt&&!parent.delivery?.conflict);}
+       if(eligible){chosen=a;type=table==='create_actions'?'capture.create':'capture.edit';break;}
+      }
+      const next=new Promise<IDBCursorWithValue|null>((resolve,reject)=>{cursor!.request.onsuccess=()=>resolve(cursor!.request.result);cursor!.request.onerror=()=>reject(Error('cursor'));});cursor.continue();cursor=await next;check();
+     }
+     if(chosen)break;
+    }
+    const claim:DeliveryClaim|undefined=chosen?Object.freeze({kind:'claimed',type,action_id:chosen.action_id,owner,token:crypto.randomUUID(),expires_at:clock.now+40000}):undefined;
+    if(claim)claims[claim.action_id]=claim;
+    tx.objectStore('partitions').put({...meta,wall:clock.now,deliveryClaims:claims});validate();
+    return {value:claim??result('empty'),clock,validate};
+   },execution);
+  },
+  async releaseDelivery(claim:DeliveryClaim,execution:Execution={}){
+   return editOperation<Readonly<{kind:'stale'|'released'}>>(async(tx,check)=>{
+    const {meta,clock,validate}=await readAccess(tx,check),claims={...meta.deliveryClaims},held=claims[claim.action_id];
+    if(!held||held.owner!==claim.owner||held.token!==claim.token)return {value:result('stale'),clock,validate};
+    delete claims[claim.action_id];tx.objectStore('partitions').put({...meta,wall:clock.now,deliveryClaims:claims});return {value:result('released'),clock,validate};
+   },execution);
+  },
   /** Publish only the latest setup request's confirmed HTTP denial. */
   async denySetup(ticket:SetupTicket,execution:Execution={}){
    let t:SetupTicket;try{t={...ticket};object(t,['account_id','org_id','generation','nonce']);if(t.account_id!==account_id||t.org_id!==org_id||!Number.isSafeInteger(t.generation)||!id(t.nonce))return result('invalid');}catch{return result('invalid');}

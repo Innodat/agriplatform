@@ -9,16 +9,18 @@ export function createLocalEntryHost({scriptId,publicConfig,apiOrigin,routes}){
   if(target.origin!==apiOrigin||target.protocol!=='http:'||target.hostname!=='127.0.0.1'||!target.port||Number(target.port)===0)invalid();
   if(typeof scriptId!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scriptId)||!Array.isArray(routes)||!routes.length)invalid();
   allowed=routes.map(route=>{
-   const path=typeof route==='string'?route:route?.path,maxResponseBytes=typeof route==='string'?65536:route?.maxResponseBytes;
-   if(typeof route!=='string'&&(!route||Array.isArray(route)||Object.keys(route).sort().join(',')!=='maxResponseBytes,path'))invalid();
+   const path=typeof route==='string'?route:route?.path,maxResponseBytes=typeof route==='string'?65536:route?.maxResponseBytes,method=typeof route==='string'||!Object.hasOwn(route??{},'method')?'GET':route.method,maxRequestBytes=typeof route==='string'?undefined:route?.maxRequestBytes;
+   if(typeof route!=='string'&&(!route||Array.isArray(route)||Object.keys(route).some(key=>!['path','method','maxResponseBytes','maxRequestBytes'].includes(key))))invalid();
+   if(!['GET','POST','PUT'].includes(method)||(method==='GET'?maxRequestBytes!==undefined:!Number.isInteger(maxRequestBytes)||maxRequestBytes<1||maxRequestBytes>131072))invalid();
    if(typeof path!=='string'||!/^\/api\/[a-zA-Z0-9_-]+(?:\/(?:[a-zA-Z0-9_-]+|\{uuid\}))*$/.test(path)||(path.match(/\{uuid\}/g)??[]).length>1||!Number.isInteger(maxResponseBytes)||maxResponseBytes<1||maxResponseBytes>2097152)invalid();
-   const parts=path.split('{uuid}');return {parts,maxResponseBytes};
+   const parts=path.split('{uuid}');return {path,parts,method,maxResponseBytes,maxRequestBytes};
   });
+  if(new Set(allowed.map(route=>route.method+' '+route.path)).size!==allowed.length)invalid();
   json=JSON.stringify(publicConfig);if(!json||Buffer.byteLength(json)>8192)invalid();
   json=json.replaceAll('<','\\u003c').replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
   if(Buffer.byteLength(json)>8192)invalid();
  }catch{invalid();}
- const routeFor=path=>allowed.find(({parts})=>parts.length===1?path===parts[0]:path.startsWith(parts[0])&&path.endsWith(parts[1])&&(()=>{
+ const routesFor=path=>allowed.filter(({parts})=>parts.length===1?path===parts[0]:path.startsWith(parts[0])&&path.endsWith(parts[1])&&(()=>{
   const id=path.slice(parts[0].length,path.length-parts[1].length);return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)&&id!=='00000000-0000-0000-0000-000000000000';
  })());
  function failure(res,status){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store'});res.end(JSON.stringify({error_id:status===503?'authorization_unavailable':status===405?'method_not_allowed':status===422?'validation_failed':status===401?'authentication_required':'not_found',error:'The request could not be completed.'}));}
@@ -31,20 +33,33 @@ export function createLocalEntryHost({scriptId,publicConfig,apiOrigin,routes}){
   },
   configureServer(server){server.middlewares.use((req,res,next)=>{
    const raw=req.url??'',path=raw.split('?')[0];if(!path.startsWith('/api/')&&path!=='/api')return next();
-   const route=routeFor(path);if(!route)return failure(res,404);
-   if(req.method!=='GET')return failure(res,405);
-   if(req.headers['transfer-encoding']||(req.headers['content-length']&&req.headers['content-length']!=='0'))return failure(res,422);
+   const matches=routesFor(path);if(!matches.length)return failure(res,404);
+   const route=matches.find(route=>route.method===req.method);if(!route)return failure(res,405);
+   const write=route.method!=='GET';
+   if(!write&&(req.headers['transfer-encoding']||(req.headers['content-length']&&req.headers['content-length']!=='0')))return failure(res,422);
+   if(write&&(!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type']??'')||req.headers['content-encoding']||(req.headers['content-length']!==undefined&&(!/^\d+$/.test(req.headers['content-length'])||Number(req.headers['content-length'])>route.maxRequestBytes)))){res.shouldKeepAlive=false;return failure(res,422);}
    if(req.rawHeaders.filter((_,i)=>i%2===0).filter(name=>name.toLowerCase()==='authorization').length>1)return failure(res,401);
    if(req.headers.authorization&&!/^Bearer [\x21-\x7e]+$/i.test(req.headers.authorization))return failure(res,401);
-   // Only the caller bearer crosses this local read-only boundary.
+   // Forward only the explicit caller bearer and JSON headers, never ambient credentials.
    const headers={Accept:'application/json'};if(req.headers.authorization)headers.Authorization=req.headers.authorization;
-   let settled=false,upstream;const finish=(status,body)=>{if(settled)return;settled=true;clearTimeout(timer);if(status===503)failure(res,503);else{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store'});res.end(body);}upstream?.destroy();};
+   let settled=false,upstream;const finish=(status,body)=>{if(settled)return;settled=true;clearTimeout(timer);if(!req.complete)res.shouldKeepAlive=false;if(status===503||body===undefined)failure(res,status);else{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'private, no-store'});res.end(body);}upstream?.destroy();};
+   // The one deadline includes reading the request body and upstream response.
    const timer=setTimeout(()=>finish(503),12000);
    res.once('close',()=>{settled=true;clearTimeout(timer);upstream?.destroy();});
-   upstream=request(new URL(raw,target),{method:'GET',headers},reply=>{
-    if(![200,401,403,404,409,422,500,503].includes(reply.statusCode)||!/^application\/json(?:;|$)/i.test(reply.headers['content-type']??'')||reply.headers['content-encoding']){reply.destroy();finish(503);return;}
-    let bytes=0;const chunks=[];reply.on('data',chunk=>{bytes+=chunk.length;if(bytes>route.maxResponseBytes){reply.destroy();finish(503);}else chunks.push(chunk);});reply.on('end',()=>{try{const body=Buffer.concat(chunks);JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));finish(reply.statusCode,body);}catch{finish(503);}});reply.on('error',()=>finish(503));reply.on('aborted',()=>finish(503));
-   });upstream.on('error',()=>finish(503));upstream.end();
+   req.once('aborted',()=>{settled=true;clearTimeout(timer);upstream?.destroy();});
+   req.once('error',()=>finish(503));
+   const forward=body=>{
+    if(settled)return;
+    if(write){headers['Content-Type']='application/json';headers['Content-Length']=String(body.length);}
+    upstream=request(new URL(raw,target),{method:route.method,headers},reply=>{
+     if(![200,401,403,404,409,422,500,503].includes(reply.statusCode)||!/^application\/json(?:;|$)/i.test(reply.headers['content-type']??'')||reply.headers['content-encoding']){reply.destroy();finish(503);return;}
+     let bytes=0;const chunks=[];reply.on('data',chunk=>{bytes+=chunk.length;if(bytes>route.maxResponseBytes){reply.destroy();finish(503);}else chunks.push(chunk);});reply.on('end',()=>{try{const body=Buffer.concat(chunks);JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));finish(reply.statusCode,body);}catch{finish(503);}});reply.on('error',()=>finish(503));reply.on('aborted',()=>finish(503));
+    });upstream.on('error',()=>finish(503));upstream.end(body);
+   };
+   if(!write){forward();return;}
+   // Buffer only the declared bounded command, validating before any bytes reach the API.
+   let bytes=0;const chunks=[];req.on('data',chunk=>{if(settled)return;bytes+=chunk.length;if(bytes>route.maxRequestBytes){chunks.length=0;req.pause();finish(422);}else chunks.push(chunk);});
+   req.once('end',()=>{if(settled)return;try{const body=Buffer.concat(chunks);JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));forward(body);}catch{finish(422);}});
   });}
  };
  // No generic env injection, public directory, HMR socket or unrestricted filesystem.
