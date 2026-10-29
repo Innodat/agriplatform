@@ -24,16 +24,31 @@ class Connection(support.support.support.Connection):
         self.children=[self.child.copy()]
         self.assignment=dict(id=ASSIGNMENT,org_id=ORG,child_id=CHILD,account_id=ACCOUNT,membership_id=7,active=True,revision=4)
         self.version=dict(id=VERSION,org_id=ORG,questionnaire_id=QUESTIONNAIRE,display_version=2,definition=support.DEFINITION)
-        self.issued=[];self.on_lock=lambda:None
+        self.issued=[];self.on_lock=lambda:None;self.locked=[]
+        self.current_children={CHILD:self.child};self.current_assignments={CHILD:self.assignment}
+        self.return_issuance=lambda rows:rows
     def execute(self,sql,p):
         result=super().execute(sql,p);sql=str(sql)
         if sql==provision.VERSION:return Rows(self.version)
         if sql in (provision.CHILDREN,provision.ASSIGNED_CHILDREN):return Rows(self.children)
-        if sql==provision.create.CHILD_LOCK:self.on_lock()
-        if sql==provision.CHILD:return Rows(self.child)
-        if sql==provision.ASSIGNMENT:return Rows(self.assignment)
-        if sql==provision.ISSUE:
-            self.issued.append(p);return Rows(dict(issued_at=datetime.now(timezone.utc)))
+        if sql==provision.LOCK_CHILDREN:
+            self.locked.extend(p['children']);self.on_lock()
+            return Rows([{'child_id':child} for child in p['children']])
+        if sql in (provision.CHILDREN_AFTER_LOCK,provision.ASSIGNED_AFTER_LOCK):
+            rows=[]
+            for child in p['children']:
+                if child not in self.current_children:continue
+                row=self.current_children[child].copy()
+                if sql==provision.ASSIGNED_AFTER_LOCK:
+                    item=self.current_assignments.get(child) or {}
+                    row.update({'assignment_'+key:item.get(key) for key in ('id','org_id','child_id','account_id','membership_id','active','revision')})
+                rows.append(row)
+            return Rows(rows)
+        if sql==provision.ISSUE_BATCH:
+            rows=[];issued_at=datetime.now(timezone.utc)
+            for item in json.loads(p['issues']):
+                self.issued.append({**p,**item});rows.append(dict(ref=item['ref'],child_id=item['child'],issued_at=issued_at))
+            return Rows(self.return_issuance(rows))
         return result
 
 class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
@@ -55,7 +70,7 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.questionnaire.definition.model_dump(mode='json'),support.DEFINITION)
         self.assertEqual(result.questionnaire.questionnaire_version,'2')
         self.assertIsNone(result.children[0].assignment)
-        self.assertFalse(any(sql==provision.ASSIGNMENT for sql,_ in self.db.calls))
+        self.assertFalse(any(sql==provision.ASSIGNED_AFTER_LOCK for sql,_ in self.db.calls))
         self.assertEqual(self.db.calls[-1][0],'COMMIT')
         self.assertEqual((result.org_id,result.account_id,result.actor_id,result.membership_id),(ORG,ACCOUNT,ACTOR,'7'))
         for observation in (result.read_observation,result.edit_observation,result.create_all_observation,result.create_assigned_observation):self.assertEqual(observation.expires_at-observation.checked_at,timedelta(days=7))
@@ -70,9 +85,8 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.children[0].assignment.model_dump(),{'assignment_id':ASSIGNMENT,'assignment_revision':'4'})
         self.assertEqual(self.db.issued[0]['assignment'],ASSIGNMENT)
         sql=[sql for sql,_ in self.db.calls]
-        self.assertLess(sql.index(provision.create.CHILD_LOCK),sql.index(provision.CHILD))
-        self.assertLess(sql.index(provision.CHILD),sql.index(provision.ASSIGNMENT))
-        self.assertLess(sql.index(provision.ASSIGNMENT),sql.index(provision.ISSUE))
+        self.assertLess(sql.index(provision.LOCK_CHILDREN),sql.index(provision.ASSIGNED_AFTER_LOCK))
+        self.assertLess(sql.index(provision.ASSIGNED_AFTER_LOCK),sql.index(provision.ISSUE_BATCH))
     async def test_states_have_explicit_precedence_and_no_inferred_authority(self):
         self.denied(provision.create.ALL,provision.create.ASSIGNED)
         self.db.version=None
@@ -113,7 +127,7 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
         first=await self.execute();self.db.calls=[];second=await self.execute()
         self.assertNotEqual(first.children[0].child_eligibility_ref,second.children[0].child_eligibility_ref)
         mutations=[sql for sql,_ in self.db.calls if sql.startswith(('INSERT','UPDATE','DELETE'))]
-        self.assertEqual(mutations,[provision.ISSUE])
+        self.assertEqual(mutations,[provision.ISSUE_BATCH])
     async def test_commit_failure_and_expired_first_check_never_return_setup(self):
         self.db.fail_commit=True
         with self.assertRaises(provision.protected.HandlerError) as failed:await self.execute()
@@ -148,21 +162,14 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
         rows=[dict(id=f'{n:08x}-bbbb-4bbb-8bbb-{n:012x}',org_id=ORG,display_name=label,active=True,revision=n+2) for n in range(1,count+1)]
         children={row['id']:row for row in rows}
         assignments={row['id']:dict(id=f'{n:08x}-cccc-4ccc-8ccc-{n:012x}',org_id=ORG,child_id=row['id'],account_id=ACCOUNT,membership_id=7,active=True,revision=n+4) for n,row in enumerate(rows,1)}
-        original=self.db.execute
-        def execute(sql,p):
-            value=original(sql,p)
-            if str(sql) in (provision.CHILDREN,provision.ASSIGNED_CHILDREN):return Rows(rows)
-            if str(sql)==provision.CHILD:return Rows(children.get(p['child']))
-            if str(sql)==provision.ASSIGNMENT:return Rows(assignments.get(p['child']))
-            return value
-        self.db.execute=execute
+        self.db.children=rows;self.db.current_children=children;self.db.current_assignments=assignments
         return rows,assignments
     async def test_multiple_children_have_sorted_locks_and_independent_committed_bindings(self):
         rows,assignments=self.install_children(3);self.denied(provision.create.ALL)
         result=await self.execute()
-        self.assertEqual([p['child'] for sql,p in self.db.calls if sql==provision.create.CHILD_LOCK],[row['id'] for row in rows])
-        lock_positions=[n for n,(sql,_) in enumerate(self.db.calls) if sql==provision.create.CHILD_LOCK]
-        first_read=next(n for n,(sql,_) in enumerate(self.db.calls) if sql==provision.CHILD)
+        self.assertEqual(self.db.locked,[row['id'] for row in rows])
+        lock_positions=[n for n,(sql,_) in enumerate(self.db.calls) if sql==provision.LOCK_CHILDREN]
+        first_read=next(n for n,(sql,_) in enumerate(self.db.calls) if sql==provision.ASSIGNED_AFTER_LOCK)
         self.assertLess(max(lock_positions),first_read)
         self.assertEqual(len({child.child_eligibility_ref for child in result.children}),3)
         for child,row,stored in zip(result.children,rows,self.db.issued,strict=True):
@@ -171,18 +178,23 @@ class ProvisionAcceptance(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((stored['child'],stored['revision'],stored['ref'],stored['assignment'],stored['assignment_revision']),(child.child_id,row['revision'],child.child_eligibility_ref,assignment['id'],assignment['revision']))
             self.assertEqual((stored['org'],stored['account'],stored['actor'],stored['member'],stored['permission']),(ORG,ACCOUNT,ACTOR,7,provision.create.ASSIGNED))
         self.assertEqual(self.db.calls[-1][0],'COMMIT')
-    async def test_later_child_failure_after_provisional_insert_has_no_successful_commit(self):
+    async def test_incomplete_batch_rechecks_or_issuance_have_no_successful_commit(self):
         for phase in ('child','assignment','issuance'):
-            self.setUp();rows,assignments=self.install_children(2);self.denied(provision.create.ALL)
+            self.setUp();self.install_children(2);self.denied(provision.create.ALL)
             original=self.db.execute
             def execute(sql,p):
-                if p.get('child')==rows[1]['id'] and str(sql)=={'child':provision.CHILD,'assignment':provision.ASSIGNMENT,'issuance':provision.ISSUE}[phase]:
-                    self.db.calls.append((str(sql),p));return Rows(None)
-                return original(sql,p)
+                result=original(sql,p)
+                if str(sql)==provision.ASSIGNED_AFTER_LOCK:
+                    if phase=='child':return Rows(result.value[:1])
+                    if phase=='assignment':result.value[1]['assignment_membership_id']=8
+                if str(sql)==provision.ISSUE_BATCH and phase=='issuance':return Rows(result.value[:1])
+                return result
             self.db.execute=execute
             with self.assertRaises(provision.protected.HandlerError) as failed:await self.execute()
             self.assertEqual((failed.exception.status,failed.exception.error_id),(503,'provision_unavailable'))
-            self.assertEqual(len(self.db.issued),1) # Provisional call evidence only; no native rollback claim.
+            # Complete rechecks now precede the single INSERT. Only an issuance
+            # result mismatch has provisional rows; final rollback remains required.
+            self.assertEqual(len(self.db.issued),2 if phase=='issuance' else 0)
             self.assertFalse(self.db.in_transaction());self.assertNotIn('COMMIT',[sql for sql,_ in self.db.calls])
             self.assertEqual(self.db.calls[-1][0],'EXIT_WITH_ERROR')
     async def test_distinct_thousand_row_bound_accepts_complete_result_and_rejects_overflow(self):

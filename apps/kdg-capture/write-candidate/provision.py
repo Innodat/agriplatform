@@ -73,17 +73,33 @@ ASSIGNED_CHILDREN='''SELECT ch.id,ch.org_id,ch.display_name,ch.active,ch.revisio
 JOIN kdg_capture.child_assignment a ON a.org_id=ch.org_id AND a.child_id=ch.id
 WHERE ch.org_id=CAST(:org AS uuid) AND ch.active AND a.account_id=CAST(:account AS uuid)
 AND a.membership_id=:member AND a.active ORDER BY ch.id LIMIT :row_limit'''
-CHILD='''SELECT id,org_id,display_name,active,revision FROM kdg_capture.child
-WHERE org_id=CAST(:org AS uuid) AND id=CAST(:child AS uuid)'''
-ASSIGNMENT='''SELECT id,org_id,child_id,account_id,membership_id,active,revision FROM kdg_capture.child_assignment
-WHERE org_id=CAST(:org AS uuid) AND child_id=CAST(:child AS uuid) AND account_id=CAST(:account AS uuid)'''
+# PostgreSQL evaluates output expressions after ORDER BY when they are not sort
+# keys (PostgreSQL17 SELECT/SELECT List). The volatile lock expression is not a
+# sort/group/distinct key: every exact existing child key is acquired in UUID order.
+LOCK_CHILDREN="""SELECT child_id,pg_advisory_xact_lock(hashtextextended(
+'kdg_capture:child:v1:' || :org || ':' || child_id::text,0)) AS locked
+FROM unnest(CAST(:children AS uuid[])) AS requested(child_id) ORDER BY child_id"""
+CHILDREN_AFTER_LOCK='''SELECT id,org_id,display_name,active,revision FROM kdg_capture.child
+WHERE org_id=CAST(:org AS uuid) AND id=ANY(CAST(:children AS uuid[])) ORDER BY id'''
+ASSIGNED_AFTER_LOCK='''SELECT ch.id,ch.org_id,ch.display_name,ch.active,ch.revision,
+a.id AS assignment_id,a.org_id AS assignment_org_id,a.child_id AS assignment_child_id,
+a.account_id AS assignment_account_id,a.membership_id AS assignment_membership_id,
+a.active AS assignment_active,a.revision AS assignment_revision
+FROM kdg_capture.child ch LEFT JOIN kdg_capture.child_assignment a
+ON a.org_id=ch.org_id AND a.child_id=ch.id AND a.account_id=CAST(:account AS uuid)
+WHERE ch.org_id=CAST(:org AS uuid) AND ch.id=ANY(CAST(:children AS uuid[])) ORDER BY ch.id'''
 VERSION='''SELECT id,org_id,questionnaire_id,display_version,definition FROM kdg_capture.questionnaire_version
 WHERE org_id=CAST(:org AS uuid) AND questionnaire_id=CAST(:questionnaire AS uuid)
 ORDER BY display_version DESC LIMIT 1'''
-ISSUE='''INSERT INTO kdg_capture.child_eligibility
+BIND_ISSUANCE="""SELECT set_config('app.provision_membership_id', :member, true),
+set_config('app.provision_create_permission', :permission, true)"""
+ISSUE_BATCH='''INSERT INTO kdg_capture.child_eligibility
 (org_id,ref,account_id,membership_id,child_id,child_revision,observed_active,create_permission,assignment_id,assignment_revision,issued_by)
-VALUES(CAST(:org AS uuid),:ref,CAST(:account AS uuid),:member,CAST(:child AS uuid),:revision,true,:permission,
-CAST(:assignment AS uuid),:assignment_revision,CAST(:actor AS uuid)) RETURNING issued_at'''
+SELECT CAST(:org AS uuid),item.ref,CAST(:account AS uuid),:member,item.child,item.revision,true,:permission,
+item.assignment,item.assignment_revision,CAST(:actor AS uuid)
+FROM jsonb_to_recordset(CAST(:issues AS jsonb))
+AS item(ref text,child uuid,revision bigint,assignment uuid,assignment_revision bigint)
+RETURNING ref,child_id,issued_at'''
 
 def _normalize(row):
     return {key:str(value) if isinstance(value,UUID) else value for key,value in dict(row).items()}
@@ -98,12 +114,17 @@ def _timestamp(value):
     return value.astimezone(timezone.utc).isoformat().replace('+00:00','Z')
 
 def _transaction(conn,budget,context,questionnaire_id,evidence):
+    if type(context) is not write.VerifiedContext or context.mode!='own_write':raise write.WriteError('invalid_write_context')
     entry,edit,all_create,assigned=evidence
     permission=create.ALL if all_create else create.ASSIGNED if assigned else None
     parameters=dict(org=context.org_id,account=context.account_id,actor=context.actor_id,
         member=int(entry.membership_id),questionnaire=questionnaire_id,row_limit=MAX_CHILDREN+1)
     try:
         with write.transaction(conn,budget,context):
+            if permission is not None:
+                # Owner-local evidence binding. Transaction-local settings cannot
+                # survive commit/rollback or renew the verified Access observation.
+                write.execute(conn,budget,BIND_ISSUANCE,{'member':entry.membership_id,'permission':permission})
             version=create._one(conn,budget,VERSION,parameters)
             questionnaire=None
             if version is not None:
@@ -122,32 +143,40 @@ def _transaction(conn,budget,context,questionnaire_id,evidence):
                     child=canonical_uuid(row['id'])
                     if row['org_id']!=context.org_id or row['active'] is not True or (ids and child<=ids[-1]):raise ValueError('invalid_child_set')
                     ids.append(child)
-                # Acquire existing owner locks in deterministic UUID order. Re-read
-                # each child and same-membership assignment only after coordination.
-                for child in ids:create.child_lock(conn,budget,context,child)
-                for child in ids:
-                    args={**parameters,'child':child}
-                    row=create._one(conn,budget,CHILD,args)
-                    if row is None:raise ValueError('changed_child')
-                    row=_normalize(row)
-                    if (row['id'],row['org_id'],row['active'])!=(child,context.org_id,True) or row['active'] is not True:raise ValueError('changed_child')
-                    revision=_revision(row['revision'])
-                    assignment=None
-                    if permission==create.ASSIGNED:
-                        item=create._one(conn,budget,ASSIGNMENT,args)
-                        if item is None:raise ValueError('changed_assignment')
-                        item=_normalize(item)
-                        if (item['org_id'],item['child_id'],item['account_id'],item['membership_id'])!=(context.org_id,child,context.account_id,int(entry.membership_id)) or type(item['membership_id']) is not int or item['active'] is not True:raise ValueError('changed_assignment')
-                        assignment=Assignment(assignment_id=canonical_uuid(item['id']),assignment_revision=_revision(item['revision']))
-                    ref=secrets.token_urlsafe(32)
-                    issued=create._one(conn,budget,ISSUE,{**args,'ref':ref,'revision':int(revision),'permission':permission,
-                        'assignment':assignment.assignment_id if assignment else None,
-                        'assignment_revision':int(assignment.assignment_revision) if assignment else None})
-                    if issued is None:raise ValueError('issuance_failed')
-                    checked=issued['issued_at']
-                    children.append(Child(child_id=child,child_label=row['display_name'],child_revision=revision,
-                        child_eligibility_ref=ref,create_permission=permission,assignment=assignment,
-                        checked_at=_timestamp(checked),expires_at=_timestamp(checked+timedelta(days=7))))
+                if ids:
+                    args={**parameters,'children':ids,'permission':permission}
+                    locked=write.execute(conn,budget,LOCK_CHILDREN,args).mappings().all()
+                    if [canonical_uuid(str(row['child_id'])) for row in locked]!=ids:raise ValueError('incomplete_locks')
+                    # This is a separate READ COMMITTED statement after every lock.
+                    # It observes changes committed while coordination was awaited.
+                    current=write.execute(conn,budget,CHILDREN_AFTER_LOCK if all_create else ASSIGNED_AFTER_LOCK,args).mappings().all()
+                    if len(current)!=len(ids):raise ValueError('changed_child_set')
+                    planned=[];issues=[]
+                    for child,raw in zip(ids,current,strict=True):
+                        row=_normalize(raw)
+                        if (row['id'],row['org_id'],row['active'])!=(child,context.org_id,True) or row['active'] is not True:raise ValueError('changed_child')
+                        revision=_revision(row['revision']);assignment=None
+                        if permission==create.ASSIGNED:
+                            if (row['assignment_org_id'],row['assignment_child_id'],row['assignment_account_id'],row['assignment_membership_id'])!=(context.org_id,child,context.account_id,int(entry.membership_id)) or type(row['assignment_membership_id']) is not int or row['assignment_active'] is not True:raise ValueError('changed_assignment')
+                            assignment=Assignment(assignment_id=canonical_uuid(row['assignment_id']),assignment_revision=_revision(row['assignment_revision']))
+                        ref=secrets.token_urlsafe(32)
+                        planned.append(dict(child_id=child,child_label=row['display_name'],child_revision=revision,
+                            child_eligibility_ref=ref,create_permission=permission,assignment=assignment))
+                        issues.append(dict(child=child,ref=ref,revision=int(revision),
+                            assignment=assignment.assignment_id if assignment else None,
+                            assignment_revision=int(assignment.assignment_revision) if assignment else None))
+                    returned=write.execute(conn,budget,ISSUE_BATCH,{**args,'issues':json.dumps(issues,separators=(',',':'),allow_nan=False)}).mappings().all()
+                    if len(returned)!=len(planned):raise ValueError('incomplete_issuance')
+                    expected={item['ref']:item['child'] for item in issues};issued={}
+                    for raw in returned:
+                        row=_normalize(raw);ref=row['ref']
+                        if ref not in expected or ref in issued or row['child_id']!=expected[ref]:raise ValueError('invalid_issuance')
+                        checked=row['issued_at']
+                        issued[ref]=(_timestamp(checked),_timestamp(checked+timedelta(days=7)))
+                    if len(issued)!=len(planned):raise ValueError('incomplete_issuance')
+                    for item in planned:
+                        checked,expires=issued[item['child_eligibility_ref']]
+                        children.append(Child(**item,checked_at=checked,expires_at=expires))
             state='not_permitted' if permission is None else 'no_published_questionnaire' if questionnaire is None else 'no_eligible_children' if not children else 'ready'
             result=Provision(schema_version=1,org_id=context.org_id,account_id=context.account_id,actor_id=context.actor_id,membership_id=entry.membership_id,
                 read_observation=_observation(OwnReadObservation,entry),edit_observation=_observation(OwnEditObservation,edit),

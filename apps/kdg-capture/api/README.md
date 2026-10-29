@@ -205,3 +205,69 @@ Pydantic field freezing does not freeze the nested answers dictionary. Keep pars
 commands private and revalidate with validate_answers immediately before consuming a
 fresh write; its instance revalidation protects modified/constructed nested models.
 These models are not an immutable queued-command envelope or authority evidence.
+
+## Configured own APIs — 2026-10-28
+
+`runtime:create_app` now optionally composes the established own setup, create,
+edit/context, operation recovery, history and detail handlers. Supply both
+`KDG_OWN_DATABASE_URL` and `KDG_QUESTIONNAIRE_ID` alongside the existing fixed-org
+Access settings. The database URL must select the exact `kdg_capture_runtime` login
+and satisfy the existing numeric-host/bounded-connection policy; the questionnaire
+must be a canonical nonnil UUID selected by the server. Neither value is a browser
+selector. Partial/invalid settings fail closed with `kdg_own_configuration_invalid`.
+Omitting both preserves context-only or administrator-only behavior.
+
+The composed own routes are GET `/api/v1/provision`, GET/POST `/api/v1/captures`,
+GET/PUT `/api/v1/captures/{capture_id}`, GET
+`/api/v1/captures/{capture_id}/edit-context`, and GET
+`/api/v1/operations/{operation_id}` with its required command discriminator. Their
+existing independent current Access checks, scope/ownership, original-definition,
+first-committed retry, deadlines, cancellation/drain and safe private/no-store
+behavior stay with their owning handlers. No administrator write route is composed.
+GET/POST and GET/PUT sharing a path remain separate operations; duplicate methods
+and conflicting component definitions are refused.
+
+Each candidate retains its closure-owned lazy engine and lifespan. Construction and
+startup perform no checkout, migration, seeding or automatic delivery. The context
+client and all enabled engines close after host request drain. Candidate0003 must be
+applied through controlled migration before native provision activation; a failed
+migration blocks activation and requires explicit reconciliation/forward retry.
+
+The new configured schema gives each own owner's DTOs a stable `Own<Owner>` prefix,
+rewriting local references and discriminator mappings without changing any isolated
+owner declaration or generated client. This preserves differing existing declarations
+that use the same component name. `export_configured_own_openapi.py` exports own-only
+`configured-own.openapi.json` and combined own/administrator `configured.openapi.json`
+without constructing an authority or engine. Existing configured administrator and
+isolated schemas remain independently owned and unchanged. Combined types live in
+`../contracts/configured-generated/` and are generated only by the platform API-client
+owner; the runtime still validates every boundary independently of TypeScript.
+
+Using the approved Python and retained Node/API-client owner from repository root:
+
+```sh
+"$P" -I -B apps/kdg-capture/api/export_configured_own_openapi.py --check
+"$N" platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/api/configured.openapi.json --output apps/kdg-capture/contracts/configured-generated --check
+"$P" -I -B -m pytest apps/kdg-capture/tests/test_configured_own.py apps/kdg-capture/write-tests/test_provision_migration.py -q -p no:cacheprovider
+```
+
+This API prerequisite does not mount the own capture/history PWA, introduce offline
+all-read authority or complete Story3.1. Actual restricted native/HTTP qualification,
+controlled rollback/retry and previous-running-consumer compatibility are recorded
+separately by the coordinator. Existing retained fixtures/evidence remain unchanged.
+Scaffold: existing transaction/migration tools reused, no neutral change. Shared UI
+and agent context unchanged; owner documentation/exports updated; existing ADRs apply.
+
+Native1000-child setup exposed an N+1 query timeout under the original ten-second
+budget. Provisioning now selects the same bounded ordered IDs, acquires their exact
+existing advisory keys in one UUID-ordered query, rereads the complete selected child/
+assignment set in a separate post-lock READ COMMITTED statement, then issues references
+in one atomic INSERT. Each statement still uses the original remaining-budget limits.
+Returned rows are matched by opaque reference and child, with exact completeness and
+uniqueness checks before response validation/commit; RETURNING order is not assumed.
+No migration, cap, authority, time budget or wire contract changed. PostgreSQL's
+[SELECT-list evaluation guarantee](https://www.postgresql.org/docs/17/sql-select.html#SQL-SELECT-LIST)
+places the volatile lock expression after UUID sorting because that expression is not
+a sort/group/distinct key. Existing namespace/version and coordinator locks remain.
+Actual load success is established separately by the coordinator's restricted native
+proof; recorded-connection count tests establish control flow, not native latency.

@@ -1,0 +1,117 @@
+{
+  "status": "locally qualified; Story 3.1 incomplete",
+  "date": "2026-10-29",
+  "baseline_commit": "5f995f437dc4bcc3d5de66dc5bd0db8a9479ed02",
+  "artifacts": {
+    "migration_failure": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/own-migrate-fail-84e28adb7adc43deb68cab4291337552/result.json",
+      "sha256": "e02d227ba07a322da9105ed9f0dd9d0c8eafe3013407396c37d5fa681d7306f8",
+      "passed": true,
+      "checks": []
+    },
+    "migration_upgrade": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/own-migrate-upgrade-5f7ef1ef99c046528d6fbd9996ba5708/result.json",
+      "sha256": "76df9033dca004c952e866964f92d8a2eb86db68e55456a85e2a4be2b7abc16d",
+      "passed": true,
+      "checks": []
+    },
+    "migration_repeat": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/own-migrate-repeat-4b211c13efc14608bafc2a75cfb5536a/result.json",
+      "sha256": "8cf6204a473b0c7faaac8c29e5823e45f143878fce46923d9572a08c27b47b08",
+      "passed": true,
+      "checks": []
+    },
+    "native": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/provision-native-46a00f74046e4c75804a83e9402ac004/result.json",
+      "sha256": "2b5063246f37b1c28625da01ccb3eec3dc3a81df4db9d91928a0131dfde4cf6a",
+      "passed": true,
+      "checks": [
+        "actual_restricted_committed_latest_v2_setup_two_children_no_capture_effects",
+        "running_v1_capture_keeps_exact_original_after_v2_publish",
+        "native_42501_wrong_org",
+        "native_42501_wrong_account",
+        "native_42501_wrong_actor",
+        "native_42501_wrong_membership",
+        "native_42501_missing_membership",
+        "native_42501_wrong_permission",
+        "native_42501_own_read",
+        "native_42501_all_read",
+        "native_42501_all_write",
+        "native_column_privilege_refuses_caller_issued_at",
+        "native_update_delete_ledger_role_denied",
+        "actual_immutable_trigger_refuses_privileged_update",
+        "real_batch_unique_failure_rolls_back_entire_issuance",
+        "transaction_local_domain_evidence_cleared_after_commit_and_rollback"
+      ]
+    },
+    "load": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/provision-load-0dfeae5e609044d0be22a0d05e1578cc/result.json",
+      "sha256": "e6054efc3ada46bcdf40c67a1f5220ee15b7fc0dc6fe3ae4c604e1a9e5c251f4",
+      "passed": true,
+      "checks": [
+        "actual_1000_distinct_children_complete_under_original_budget",
+        "actual_utf8_oversize_after_native_batch_insert_rolls_back_all1000",
+        "actual_1001_children_refused_without_partial_issuance"
+      ],
+      "seconds": 0.44615606000002117
+    },
+    "coordination": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/provision-coordination-24d851be50e44b528aaad6418ebbd104/result.json",
+      "sha256": "a4c2522b16eddb0cd32397bb742c084d63363d49f5f610173ceaf8f8c95d0be7",
+      "passed": true,
+      "checks": [
+        "actual_child_change_committed_while_waiting_is_reread_and_entire_setup_refused",
+        "actual_advisory_contention_safe503_under_original_lock_and_total_budget",
+        "actual_cancellation_keeps_worker_connection_until_unwind_without_committed_issuance"
+      ]
+    },
+    "configured_http": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/own-http-350754b83f0d473a8e591506a927b402/result.json",
+      "sha256": "497a05fbeeab6de5c32ba47db1cd8c22f1ffa229f811d3b354644f8dd4ad6f9f",
+      "passed": true,
+      "checks": [
+        "configured_own_provision_actual_four_current_checks_latest_definition_two_children",
+        "own_all_scope_independent_real_role_matrix_no_fallback",
+        "actual_existing_foreign_org_record_404_under_current_real_all_and_own",
+        "actual_own_history_foreign_owner_not_enumerable",
+        "actual_configured_http_create_first_committed_replay_not_overwrite",
+        "own_current_keyset_pages_bound_account_and_original_owner",
+        "actual_original_operation_recovery_own_only_no_foreign_receipt",
+        "actual_own_edit_context_independent_current_read_edit",
+        "actual_committed_create_edit_native_audit_actual_executor_original_owner",
+        "actual_noop_retry_preserves_audit_revision_and_server_time",
+        "actual_facilitator_sync_visible_after_admin_refresh_original_v1_retained_no_admin_write"
+      ]
+    },
+    "previous_running_consumer": {
+      "path": "platform/deployment/.local/kdg-story31-20261028/fresh-8f3e984596bb453a902adb8710b4860d/own-migration-previous-consumer.json",
+      "sha256": "ad964fdd86b6692ba0040b8eedc58c707a543768e081ca4fca6cc1ea73e949b2",
+      "passed": null,
+      "checks": []
+    }
+  },
+  "review": {
+    "lenses": 3,
+    "independent_reviewers": 3,
+    "supported_remaining_findings": 0,
+    "withdrawn": "configured wiring coverage exists in actual source-bound HTTP qualification"
+  },
+  "limitations": [
+    "Synthetic local accounts and resources only",
+    "HTTP producer is not device-saved PWA synchronization",
+    "No installed Android/iPhone, actual assistive technology, external provider or release claim"
+  ],
+  "applied_migration_unchanged": {
+    "apps/kdg-capture/migrations/candidates/0003_provision_eligibility.py": "10e57d8a64c58089bcb6f8ee4b8691d865f9dae2746c7cff078615433aca4669"
+  },
+  "verification": {
+    "affected_tests": 420,
+    "affected_subtests": 81,
+    "seconds": 104.05,
+    "configured_exporters": "pass",
+    "generated_client_freshness": "pass",
+    "strict_generated_types": "pass",
+    "write_database_native_parity": "pass",
+    "composition_check_only": "pass"
+  }
+}

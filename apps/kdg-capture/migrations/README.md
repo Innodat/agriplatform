@@ -1,3 +1,29 @@
+## Controlled own provisioning candidate — 2026-10-28
+
+`candidates/0003_provision_eligibility.py` links to0002 without changing either
+predecessor or active `versions` discovery. It grants runtime eligibility INSERT on
+only the eleven required input columns; `issued_at` remains excluded and uses the
+existing server DEFAULT. Existing immutable UPDATE/DELETE protection and SELECT
+policies remain. No role/table/DDL grant, new timestamp trigger or mutable eligibility
+path is introduced.
+
+The new INSERT policy requires own_write, exact org/account/issuer actor and matching
+`app.provision_membership_id` / `app.provision_create_permission`. The provisioning
+owner installs those transaction-local values from independently validated current
+Access evidence under its original request budget. No local reference or GUC substitutes
+for current authorization. Commit/rollback clears the local context; existing previous
+capture/admin consumers need neither new settings nor new privileges.
+
+Only controlled explicit upgrade may apply this candidate; API construction/startup
+never runs migrations. Preserve applied candidate bytes as provenance. Reported upgrade
+failure blocks activation, retains evidence and requires reconciliation plus explicit
+forward retry; no stamp, automatic downgrade, historical re-recording or cleanup.
+The fresh Story3.1 qualification is separate from the retained0002 fixture described
+below. Actual restricted allow/deny, complete atomicity, latest-version/previous-consumer
+and recovery proof belong to its source-bound coordinator evidence. Offline focused
+checks live in `../write-tests/test_provision_migration.py`; they establish emitted
+DDL/binding behavior, not native PostgreSQL permissions or rollback.
+
 ## Retained fixture transition — 2026-10-25
 
 The specifically approved retained fixture is now durably at

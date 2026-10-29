@@ -1,3 +1,27 @@
+## Configured own APIs and native provisioning delivered — 2026-10-29
+
+The actual restricted runtime now provisions setup and the configured KDG API mounts
+existing own create/edit/context/recovery/history/detail owners. Linked candidate0003
+passed controlled failure/rollback/forward upgrade/repeat and previous-running-consumer
+compatibility. The actual1000-child timeout was corrected after characterization;
+source-bound native16, load3, coordination3 and configured HTTP11 pass. Final affected
+420 tests/81 subtests, exporter/client/types/parity and composition pass. Three independent
+review lenses are clear; none deferred. See [current AC-1–AC-6 evidence matrix](STORY31_OWN_API_EVIDENCE.md).
+Identity prerequisite unchanged; applied0003 matches its source binding.
+
+Story3.1 remains incomplete. Next execute ordinary own capture/My observations UI and
+foreground synchronization, then verified offline host/shell/cache/update and integrated
+pending/conflict invalidation/accessibility qualification. These remain locally ready.
+Actual installed Android/iPhone and assistive-technology evidence remain external and
+must be recorded separately. No routine confirmation or delivery-boundary stop is needed.
+
+The resumed environment interruption and abnormal255 exits remain recorded. Only needed
+owned resources were restarted; old/failed resources, volumes and evidence are retained.
+Use current private ready/config artifacts, not historical hardcoded ports or stale Auth
+tokens. Preserve concurrent People/Leave/generated tooling. Never access/run/copy/hash
+the prohibited migration fixture. No production, push, real accounts/credentials or
+cleanup. Prior handoff bytes are preserved below.
+
 # Next administrator prerequisite assessment — 2026-10-27
 
 Assessed at Git `29763767fc3bb2895fea2500283759975f826d81` after the

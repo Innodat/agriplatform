@@ -33,23 +33,27 @@ def handlers():
         sys.path.remove(source)
 
 
-def compose_schema(context, administrator, audit):
+def compose_schema(context, *owners, title='KDG Capture configured read API'):
     """Merge owner-exported schemas, refusing ambiguous component identities."""
     result = deepcopy(context)
-    result['info']['title'] = 'KDG Capture configured read API'
-    for schema in (administrator, audit):
+    result['info']['title'] = title
+    methods = {'get','put','post','delete','options','head','patch','trace'}
+    for schema in owners:
         for path, operation in schema['paths'].items():
-            if path in result['paths']:
-                raise RuntimeError('kdg_admin_schema_invalid')
-            result['paths'][path] = deepcopy(operation)
+            target = result['paths'].setdefault(path, {})
+            for method, definition in operation.items():
+                if method in target and (method in methods or target[method] != definition):
+                    raise RuntimeError('kdg_admin_schema_invalid')
+                target[method] = deepcopy(definition)
         for category, definitions in schema.get('components', {}).items():
             selected = result.setdefault('components', {}).setdefault(category, {})
             for name, definition in definitions.items():
                 if name in selected and selected[name] != definition:
                     raise RuntimeError('kdg_admin_schema_invalid')
                 selected[name] = deepcopy(definition)
-    operation = result['paths']['/api/v1/admin/captures/{capture_id}/audit-details']['get']
-    operation['description'] = operation['description'].replace('; no active mount or UI.', '.')
+    operation = result['paths'].get('/api/v1/admin/captures/{capture_id}/audit-details', {}).get('get')
+    if operation is not None:
+        operation['description'] = operation['description'].replace('; no active mount or UI.', '.')
     return result
 
 
