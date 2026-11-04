@@ -31,7 +31,7 @@ export function Topbar() {
 
           <div className="flex items-center gap-2 text-stone-800">
             <BookOpen className="hidden sm:block w-5 h-5 text-amber-600" aria-hidden="true" />
-            <span className="font-semibold text-sm sm:text-lg tracking-tight">
+            <span className="scribeswell-wordmark font-semibold text-sm sm:text-lg tracking-tight">
               Scribes' Well
             </span>
           </div>

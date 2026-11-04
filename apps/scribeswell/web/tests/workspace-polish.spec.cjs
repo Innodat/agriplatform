@@ -41,3 +41,27 @@ test('overflow keeps add available and Hebrew range labels leave reference ident
  await tabs(page).last().focus();await page.keyboard.press('Home');await expect(tabs(page).first()).toBeFocused();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
 });
+test('selected passage uses Hebrew names and retains chapter colour while previewing',async({page},testInfo)=>{
+ await setup(page);
+ const trigger=page.getByRole('button',{name:'Navigate: Isaiah, chapter 4. Open selector.'});
+ await expect(trigger).toHaveText('ישעיהו›ד');await expect(trigger).toHaveAccessibleName(/ישעיהו ד/);await trigger.click();
+ const dialog=page.getByRole('dialog',{name:'Book and chapter selector'}),current=dialog.getByRole('button',{name:'Chapter 4 of Isaiah',exact:true}),candidate=dialog.getByRole('button',{name:'Chapter 5 of Isaiah',exact:true});
+ await expect(dialog.getByRole('heading',{name:'ישעיהו',exact:true})).toBeVisible();
+ await page.getByLabel('Passage reference').fill('');
+ await expect(current).toHaveAttribute('aria-current','page');
+ await expect(current).toHaveCSS('background-color','oklch(0.555 0.163 48.998)');
+ await page.getByLabel('Passage reference').fill('Isaiah 5');
+ await expect(current).toHaveCSS('background-color','oklch(0.555 0.163 48.998)');
+ expect(await candidate.evaluate(el=>getComputedStyle(el).backgroundColor)).not.toBe(await current.evaluate(el=>getComputedStyle(el).backgroundColor));
+ if(process.env.WORKSPACE_POLISH_SCREENSHOTS)await page.screenshot({path:`${process.env.WORKSPACE_POLISH_SCREENSHOTS}/scribeswell-selector-${testInfo.project.name}.png`});
+ await candidate.click();await expect(trigger).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Navigate: Isaiah, chapter 5. Open selector.'})).toHaveText('ישעיהו›ה');
+});
+test('selected book falls back to English when Hebrew is unavailable',async({page})=>{
+ await setup(page);
+ await page.route('**/api/bible/books',r=>r.fulfill({json:{data:[{id:23,osis_id:'Isa',name_en:'Isaiah',name_he:'',testament:'OT',book_order:23,division:'nevi_im'}],total:1}}));
+ await page.reload();
+ const trigger=page.getByRole('button',{name:'Navigate: Isaiah, chapter 4. Open selector.'});
+ await expect(trigger).toHaveText('Isaiah›ד');await trigger.click();
+ await expect(page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('heading',{name:'Isaiah',exact:true})).toBeVisible();
+});

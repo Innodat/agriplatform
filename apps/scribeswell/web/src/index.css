@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Use each platform's native UI face while keeping brand sizing/weight explicit. */
+.scribeswell-wordmark {
+  font-family: system-ui, sans-serif;
+}
+
 /* Keep secondary tab actions quiet on a mouse, discoverable on focus and touch. */
 @media (hover: hover) and (pointer: fine) {
   .tab-rename:not(:disabled) { opacity: 0; }
