@@ -1,5 +1,37 @@
 # Scribeswell owner readiness handoff
 
+## Approved UI baseline for the release candidate — 2026-11-04
+
+The user accepted the rendered UI changes and requested the next step. The local
+UI baseline ends at `8747187cf45127ab3043abaeede54a00e542b861`, following
+`b575bc8`, `37384d1`, `889f387` and `c699fc8`. It includes compact workspace
+controls, discreet rename, Hebrew book/chapter labels, click-only book selection,
+restored amber colours, softer borders, consistent Studies/Analysis controls and
+bounded dialogs/mobile editing. Retain native system UI typography and bundled
+Noto Serif Hebrew. The accepted appearance is the baseline for further work.
+
+The completed [UI delivery record](../../../_bmad-output/implementation-artifacts/spec-scribeswell-study-ui-polish.md)
+records 1,205 distinct browser passes, seven intentional skips, successful
+TypeScript/Vite build and production-preview checks, and inspection of 57 rendered
+captures. These results concern the local tested workspace, including preserved
+concurrent changes; they do not qualify a clean archive of this commit or the
+existing frozen release candidate. Temporary visual evidence is at
+`/tmp/scribeswell-after/report.html`; preserve or regenerate it before relying on
+it outside this workstation.
+
+Subsequent investigation found a newer completed production handoff in the isolated
+shared-adoption checkout: source `59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84` was deployed
+on 2026-11-04. Earlier release-preparation entries below are historical. The UI
+follow-up therefore uses a fresh frontend-only candidate based on that deployed
+source; shared adoption and backend release work must not be repeated. See the
+[UI candidate record](UI_RELEASE_CANDIDATE.md) for source selection, actual release
+builds, candidate browser/visual evidence and the remaining publication approval.
+
+This is a handoff within the existing release delivery, not a new release approval.
+No push, publication, deployment, migration or production mutation occurred in this
+UI follow-up. The mixed main workspace must not be treated as the selected release
+source merely because the visual work is accepted.
+
 As of 2026-10-27, after local checkpoint `321f7eb`. This is an operational handoff,
 not a new feature specification, accepted owner contract or release authorization.
 The [canonical spec](../../../_bmad-output/specs/spec-scribeswell-studies/SPEC.md),

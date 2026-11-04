@@ -1,0 +1,125 @@
+{
+  "approved_ui_revision": "8747187cf45127ab3043abaeede54a00e542b861",
+  "archive_sha256": {
+    "previous-primary.tar.gz": "b4d98d5609b3655cf6e975a6567e37bf9bf3915d818409456ecdc42bdc1a3e9c",
+    "primary.tar.gz": "27830beeabcae254809522fc7ad37d30d173c12fa05c8ef483bf14f6aee7e4ed",
+    "recovery.tar.gz": "f998a43abf089de53a5b1004f402105f9a8e393ee56f035729591969d32391f1"
+  },
+  "artifact_receipt_sha256": "e01984c047c50d658201de2f6a11cea523ee35a14b3fd6452e19779615f8b889",
+  "build_variants": {
+    "primary": {
+      "artifact_files": 11,
+      "artifact_inventory_sha256": "fb7bdcc5f671c6396ae587f56406f584039b3fa7cb36cc2f12a6ef306242fd3a",
+      "exit_code": 0,
+      "pts_bytes_equal_deployed": true,
+      "public_build_fingerprint": "9fcab777a06fffedf6becb7f419504543724e89247321c1be2d3199f878a78cf",
+      "release_attempt": "2026110402-1",
+      "seconds": 6.802,
+      "verifier_passed": true
+    },
+    "recovery": {
+      "artifact_files": 11,
+      "artifact_inventory_sha256": "3195d9ba26cfa92e4542940dece2c848aee1f4b3d6fd5fc30a173be3fda1a5f0",
+      "exit_code": 0,
+      "pts_bytes_equal_deployed": true,
+      "public_build_fingerprint": "be23bd23ca86caad2306dd6bc66d5f7fb028fe3a1e0218bab962b66774040bd5",
+      "release_attempt": "2026110402-2",
+      "seconds": 6.801,
+      "verifier_passed": true
+    }
+  },
+  "compiled_primary_browser": {
+    "flaky": 0,
+    "passed": 31,
+    "scope": "Actual localhost HTTP; synthetic Auth/API, external proxy blocked",
+    "seconds": 14.898,
+    "skipped": 1,
+    "unexpected": 0
+  },
+  "custody": "apps/scribeswell/.local/ui-release-evidence-20261104",
+  "date": "2026-11-04",
+  "deployed_baseline": "59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84",
+  "limitations": [
+    "Existing installed local dependencies reused; no clean installation verified.",
+    "No live Auth/private session, native/backend or production-hosting verification.",
+    "Historical UI and shared-release evidence retains its original source boundary.",
+    "Main workspace contains unrelated changes; only isolated candidate is the proposed source."
+  ],
+  "node_version": "v26.11.1",
+  "production_changed": false,
+  "publication_executed": false,
+  "schema_version": 1,
+  "scope": "Local frontend candidate on actual deployed source; no publication or production mutation",
+  "source_paths_changed": 23,
+  "source_revision": "7293caf739390857600bafd2d9e2213fecd270ef",
+  "visual_smoke": {
+    "captures": 20,
+    "complete": true,
+    "external_network_blocked": true,
+    "results": [
+      {
+        "deep_query_reload": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "variant": "primary",
+        "viewport": "desktop"
+      },
+      {
+        "deep_query_reload": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "variant": "primary",
+        "viewport": "mobile"
+      },
+      {
+        "deep_query_reload": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "variant": "recovery",
+        "viewport": "desktop"
+      },
+      {
+        "deep_query_reload": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "variant": "recovery",
+        "viewport": "mobile"
+      },
+      {
+        "actions": true,
+        "confirmation": true,
+        "note_editor": true,
+        "overflow": false,
+        "retry": true,
+        "variant": "primary",
+        "viewport": "desktop"
+      },
+      {
+        "actions": true,
+        "confirmation": true,
+        "note_editor": true,
+        "overflow": false,
+        "retry": true,
+        "variant": "primary",
+        "viewport": "mobile"
+      },
+      {
+        "actions": true,
+        "confirmation": true,
+        "note_editor": true,
+        "overflow": false,
+        "retry": true,
+        "variant": "primary",
+        "viewport": "narrow"
+      }
+    ]
+  }
+}

@@ -100,3 +100,14 @@ Apply the visual-review recommendations approved by the user: make Studies, Note
 - Visual evidence: **57 rendered captures** at 1440×1000, 390×844, 320×568, plus footer-menu bounds at 1280/390/320 widths. Inspected selector, compact/full analysis, occurrence list, comparison active cue, forms, editor, menus, account entry, deletion, unsaved exit and capacity dialogs. Footer menu has zero inspector horizontal overflow at all three widths. Gallery: `/tmp/scribeswell-after/report.html`; these use synthetic fixture data.
 - `git diff --check -- apps/scribeswell/web`: passed. Three independent reviews completed, all supported findings patched; nothing deferred. No push, deployment, migrations or production mutation.
 - Delivery observation: implementation selected `gpt-6.1-sol` / `high`; reviewers used the coordinator's capability. Original implementation continuation was lost on environment restart, so coordinator completed refinements inline. Retries include explained legacy assertions, debounce timing fixtures and preview base-path configuration. Actual model metadata, model-only elapsed time and billing are not inferred; available local usage is collected once at completion.
+
+### User acceptance and release handoff — 2026-11-04
+
+The user accepted the changes ("happy with these") and then requested the next step.
+The accepted local implementation ends at `8747187cf45127ab3043abaeede54a00e542b861`.
+The [existing owner handoff](../../apps/scribeswell/docs/OWNER_READINESS_HANDOFF.md#approved-ui-baseline-for-the-release-candidate--2026-11-04)
+now records this baseline and the candidate-specific build, visual and browser
+verification needed when the release delivery incorporates it. Existing local
+workspace results are not clean-archive or production qualification. No further
+UI implementation is outstanding in this delivery; release activation retains its
+separate scope and approval requirements.
