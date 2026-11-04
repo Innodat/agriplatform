@@ -25,7 +25,7 @@ on 2026-11-04. Earlier release-preparation entries below are historical. The UI
 follow-up therefore uses a fresh frontend-only candidate based on that deployed
 source; shared adoption and backend release work must not be repeated. See the
 [UI candidate record](UI_RELEASE_CANDIDATE.md) for source selection, actual release
-builds, candidate browser/visual evidence and the remaining publication approval.
+builds, candidate browser/visual evidence and the approved publication outcome.
 
 This is a handoff within the existing release delivery, not a new release approval.
 No push, publication, deployment, migration or production mutation occurred in this

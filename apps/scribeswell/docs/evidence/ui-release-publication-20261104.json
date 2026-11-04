@@ -1,0 +1,135 @@
+{
+  "backend_deployment_executed": false,
+  "database_operations_executed": false,
+  "git_push_executed": false,
+  "live_verification": {
+    "browser": [
+      {
+        "amber_selection": true,
+        "anonymous_studies": true,
+        "chapter_selection_reload": true,
+        "click_only_book_selection": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "no_horizontal_overflow": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "viewport": "desktop"
+      },
+      {
+        "amber_selection": true,
+        "anonymous_studies": true,
+        "chapter_selection_reload": true,
+        "click_only_book_selection": true,
+        "hebrew_closed_selector": true,
+        "hebrew_font": true,
+        "no_horizontal_overflow": true,
+        "pts_entry_reload": true,
+        "reader": true,
+        "viewport": "mobile"
+      }
+    ],
+    "complete": true,
+    "live_assets": [
+      {
+        "path": "assets/index-CDI48ARG.js",
+        "sha256": "38b6f3e64064e80946f8a633b711e88a38a38ad781941eac10635eb5283a7f6c",
+        "status": 200
+      },
+      {
+        "path": "assets/index-ChDtFvPh.css",
+        "sha256": "bbc244417828c6114e69553de781b68630c5205a0d534310eda03bd85c83843c",
+        "status": 200
+      },
+      {
+        "path": "assets/noto-serif-hebrew-hebrew-400-normal-jyUp5Tfv.woff",
+        "sha256": "170a89e2a51b1cbf1cb05fc31252b4953e11314c0099f8b9edc556b3968de7ca",
+        "status": 200
+      },
+      {
+        "path": "assets/noto-serif-hebrew-hebrew-400-normal-v_xU1ROG.woff2",
+        "sha256": "5fd3fc127fc1b627673a85979750526b70c2ac6feaecfadd3d2321d7dedc8585",
+        "status": 200
+      },
+      {
+        "path": "fonts/OFL-Noto-Serif-Hebrew.txt",
+        "sha256": "38d5fbc95848cf88131f2611c9f3f3a44f0262141601abf3aee6df2f8c4c71f5",
+        "status": 200
+      },
+      {
+        "path": "index.html",
+        "sha256": "ac1010a17746467bfe6f2001afcfc827ab737b7826e84d4a8407968788b95bad",
+        "status": 200
+      },
+      {
+        "path": "pts/assets/index-BuV0KNUv.css",
+        "sha256": "ae7a18f85205edeaa16868197dc433a34aee7aca42f98165ec67c9b7d51e2396",
+        "status": 200
+      },
+      {
+        "path": "pts/assets/index-DkyAvXfS.js",
+        "sha256": "c337950f039053bbbe0aa6d123908b06fb6903a73dd4a135fcd21d611743c091",
+        "status": 200
+      },
+      {
+        "path": "pts/index.html",
+        "sha256": "eb013f857c210621580c185ef4960139c9b00b8ffeb1c8d9166fd915fec273fc",
+        "status": 200
+      },
+      {
+        "path": "release-identity.json",
+        "sha256": "ff73ad656f61c0b1d905351b7d2406e6bf80b6638264ffe20169b581d78cd6a7",
+        "status": 200
+      }
+    ],
+    "private_session_used": false,
+    "site": "https://scribeswell.com",
+    "source_revision": "7293caf739390857600bafd2d9e2213fecd270ef"
+  },
+  "local_custody": "apps/scribeswell/.local/ui-release-publication-20261104-01",
+  "preflight": {
+    "artifact_inventory_verified": true,
+    "prior_source": "59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84",
+    "production_changed": false,
+    "published_deploy": "6aeb2e2e1d25383b65007bf1",
+    "rollback_ready": true,
+    "site": "https://scribeswell.com",
+    "site_id": "e739718f-de86-4ad4-ab84-cf6249134558",
+    "source_revision": "7293caf739390857600bafd2d9e2213fecd270ef",
+    "status": "preflight-passed"
+  },
+  "private_session_used": false,
+  "publication": {
+    "backend_changed": false,
+    "deploy_id": "6aeb87011e4242277929c51e",
+    "previous_deploy": "6aeb2e2e1d25383b65007bf1",
+    "release_attempt": "2026110402-1",
+    "site": "https://scribeswell.com",
+    "site_id": "e739718f-de86-4ad4-ab84-cf6249134558",
+    "source_revision": "7293caf739390857600bafd2d9e2213fecd270ef",
+    "status": "published"
+  },
+  "receipts_sha256": {
+    "live-verification-final.cjs": "7be840b1f94dbfe09c8f16cda06666137611461a9963fae776539a842972bd08",
+    "live-verification.json": "f6e875414e51ca8da11ad4140e927cd568921e5759de735f4debd240249c56b4",
+    "netlify-primary.json": "bc361d66f6e0865e9cd1be1fab6761aeb1c79b0fef79e466e5d872a67bcfce24",
+    "preflight.json": "91af5904666854c098cdfc198b72c8cf676caec9c6da04a62d6ca9b16085dad0",
+    "publication-driver.py": "37d91fa06b4855ec8b6caa3631466360155909312f9bed88eb3f4641202c8880",
+    "publication-intent.json": "74910a44d029f10f865138c90a504a084e99d815ce5eb9e8edaa1de60a601b86",
+    "published.json": "f177cf88711c8ad839e374a05b46890d9e70c2b79da38e18257b898869b04f46"
+  },
+  "recorded_at": "2026-11-04T19:32:27.826470+00:00",
+  "retained_probe_attempts": [
+    {
+      "attempt": 1,
+      "result": "Expected Hebrew omitted legitimate vowel points; no product change"
+    },
+    {
+      "attempt": 2,
+      "result": "Expected text differed by layout-only innerText line breaks; no product change"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Approved primary static frontend publication only",
+  "user_approved": true
+}

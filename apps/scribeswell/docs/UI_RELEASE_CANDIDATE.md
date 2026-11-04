@@ -3,7 +3,9 @@
 The accepted Scribeswell UI is incorporated into isolated candidate
 `7293caf739390857600bafd2d9e2213fecd270ef`, on local branch
 `scribeswell/ui-release-20261104`. Its parent is the actually deployed shared-release
-source `59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84`. Publication is pending approval.
+source `59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84`. The user approved publication,
+and the primary frontend is now live at `https://scribeswell.com/`, Netlify deploy
+`6aeb87011e4242277929c51e`, release attempt `2026110402-1`.
 
 ## Source and build
 
@@ -62,9 +64,9 @@ browser results and `gallery.html`. The exact candidate worktree is
 `apps/scribeswell/.local/ui-release-20261104/`. These ignored local artifacts must
 be retained until publication/recovery acceptance; no remote availability is claimed.
 
-## Proposed publication and recovery
+## Approved publication and recovery
 
-After explicit approval, publish the verified **primary static artifact only** to
+The user explicitly approved publishing the verified **primary static artifact only** to
 the existing Scribeswell Netlify site serving `https://scribeswell.com/`. Preserve
 the existing backend, owner ledgers, runtime credentials, grants, corpus and saved
 Studies data. No backend deployment or maintenance window is required by this static
@@ -79,6 +81,32 @@ source is `59e2c8884cad24bb2f6e99fc519b2e6dc5bc9d84` and recorded Netlify deploy
 rollback. Do not automatically use the Studies-off recovery variant as rollback for
 this UI-only release; it changes the visible feature configuration. No database
 restore, migration reversal or shared-adoption rerun is part of frontend recovery.
+
+## Observed publication result
+
+Preflight independently confirmed the existing site/custom domain, previous primary
+deploy ready for rollback and exact served previous source/release identity. Both
+the reviewed artifact inventory and previous-primary inventory matched. The existing
+owner publisher then uploaded only the verified static primary, with no build or
+Git push. Netlify reported the new deploy ready and selected as the published deploy.
+
+Live HTTP verification matched all10 public files against their retained SHA256
+values: HTML entries, JS/CSS, Hebrew fonts/license and release identity. `_redirects`
+is hosting configuration rather than a served asset and is excluded from that count.
+Actual anonymous Chromium desktop/mobile checks passed for public reading, loaded
+Hebrew font, pointed Hebrew closed-selector labels, amber current chapter, click-only
+book selection, chapter selection/reload, signed-out Studies and PtS entry/reload.
+The coordinator inspected the actual production desktop selector and phone reader
+captures. No private account/session was used and non-read HTTP requests were blocked.
+
+The first two browser probes used overly literal expected text: one omitted actual
+Hebrew vowel points, the next included layout-only `innerText` line breaks. Both
+attempts remain retained. The final probe compares Hebrew letters and chapter after
+normalizing points/whitespace; no product change or second publication was needed.
+Final result and exact served asset hashes are in
+[publication evidence](evidence/ui-release-publication-20261104.json). Restricted
+local receipts/scripts/logs and six live screenshots are retained in
+`apps/scribeswell/.local/ui-release-publication-20261104-01/`.
 
 The prior complete production receipt belongs to the shared-release checkout's
 `apps/scribeswell/docs/SHARED_PRODUCTION_ADOPTION_HANDOFF.md`; this follow-up neither

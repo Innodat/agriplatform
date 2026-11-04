@@ -106,3 +106,23 @@ dirty work and all historical release evidence.
   existing Scribeswell site, using existing release instructions and retained prior
   primary frontend for recovery. Publication remains unexecuted pending the separate
   concrete approval required by the release instructions and prior UI scope.
+
+### Approved production publication — 2026-11-04
+
+The user answered "yes please" to the explicit frontend-only publication request.
+Fresh Netlify/site preflight confirmed the exact previous source and ready rollback;
+candidate/previous artifact inventories stayed exact. The existing owner static
+publisher published primary attempt2026110402-1 as deploy6aeb87011e4242277929c51e.
+Netlify independently reported it ready and current. No Git push, backend deployment,
+database operation, runtime credential/configuration or grant change occurred.
+
+All10 served public files matched the candidate's exact hashes. Actual anonymous
+desktop/mobile Chromium passed public reading, font loading, Hebrew labels, amber
+chapter selection, click-only book navigation, chapter/reload, signed-out Studies
+and PtS entry/reload. Coordinator inspected actual production desktop selector and
+phone reader screenshots. No production private session was used; non-read HTTP requests
+were blocked. Two probe-only expected-text failures (pointed Hebrew, then innerText
+line breaks) are retained; normalization corrected only the probe, without product
+changes or republication. Final safe evidence is
+`apps/scribeswell/docs/evidence/ui-release-publication-20261104.json`; restricted
+receipts/captures remain under app `.local/ui-release-publication-20261104-01`.
