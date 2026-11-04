@@ -49,6 +49,12 @@ signed-in/different-account context. No browser storage is introduced here.
   require1–80 Unicode code points, reject controls, support mixed Hebrew/English.
   Cancel preserves it. Returning to the default name is an explicit Reset name.
   No study title is changed. Omit absent study labels.
+- Presentation refinement (2026-11-04): default tab reference numbers use Hebrew
+  numbering, preserving canonical numeric references and verbatim custom labels.
+  New tab stays beside the horizontally scrolling strip. Rename is a compact
+  pencil, revealed on mouse hover/keyboard focus and available directly on touch;
+  accessible action names remain explicit. Reading actions and Studies/Analysis
+  share one responsive toolbar with visible tool selection.
 - Close tab removes only that layout and its associations. Closing active selects
   previous neighbor if present, otherwise next, preserving its positions. Closing
   inactive leaves active unchanged. A sole pane delegates to tab closure when

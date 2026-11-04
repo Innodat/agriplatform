@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Keep secondary tab actions quiet on a mouse, discoverable on focus and touch. */
+@media (hover: hover) and (pointer: fine) {
+  .tab-rename:not(:disabled) { opacity: 0; }
+  .group:hover .tab-rename:not(:disabled),
+  .group:focus-within .tab-rename:not(:disabled) { opacity: 1; }
+}
+
 /* Hebrew text — right-to-left, larger for readability */
 .hebrew-text {
   font-family: "SBL Hebrew", "Ezra SIL", "David", serif;

@@ -37,7 +37,7 @@ test('valid Unicode punctuation snapshot tab identity remains selectable and clo
  // The native key is installed before the initial app controller exists, so
  // no departing live controller can overwrite the arranged public identity.
  await page.addInitScript(({key,ref})=>{history.replaceState({...history.state,usr:{scribeswellReader:{v:1,tabKey:key,activePaneKey:'unicode-pane',panes:[{paneKey:'unicode-pane',ref}]}}},'');},{key,ref});
- await setup(page);await page.reload();await expect(tabs(page)).toHaveCount(1);expect(await tabs(page).first().getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis 1',exact:true})).toBeVisible();await add(page);await tabs(page).first().click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);await expect(tabs(page).first()).toBeFocused();
+ await setup(page);await page.reload();await expect(tabs(page)).toHaveCount(1);expect(await tabs(page).first().getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis א',exact:true})).toBeVisible();await add(page);await tabs(page).first().click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);await expect(tabs(page).first()).toBeFocused();
 });
 
 test('POP checkpoints the outgoing live tab anchor for a later explicit tab activation',async({page})=>{
