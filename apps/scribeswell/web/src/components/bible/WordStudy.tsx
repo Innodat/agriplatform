@@ -116,9 +116,9 @@ function StudyEntry({memoryKey,word,context,books,onClose,onOpen,initial,canBack
     if(node.kind==='reference'&&node.book&&node.chapter&&node.verse&&books.some(b=>b.osis_id===node.book))return <button key={index} className="underline text-amber-800" onClick={()=>setReference({book:node.book!,chapter:node.chapter!,verse:node.verse!})}>{node.text}</button>;
     return <span key={index}>{node.text}</span>;
   });}
-  return <div ref={element} tabIndex={-1} aria-label="Dictionary inspector" className="bg-white rounded-xl border border-stone-200 min-w-0 break-words">
-    <div className="sticky top-0 z-20 bg-white rounded-t-xl"><div className="p-3 flex justify-between items-start gap-2"><div className="min-w-0">{canBack&&<button className="underline text-sm mb-1" aria-label="Back to previous dictionary entry" onClick={onBack}>← Back</button>}<p className="text-xs text-stone-500">Selected word · <span>{context}</span></p><bdi aria-label={`Hebrew word: ${word.display_he}`} className="font-hebrew text-lg" dir="rtl" lang="he">{word.display_he??word.surface_he}</bdi>{initial.linked&&<p className="text-xs text-stone-500">Dictionary entry · Strong’s {identity}</p>}</div><button aria-label="Close morphology panel" className="p-2 text-stone-500" onClick={onClose}>×</button></div>
-    <div hidden={hideTabs} role="tablist" aria-label="Word study" className="flex bg-white border-b border-stone-200 rounded-t-xl">
+  return <div ref={element} tabIndex={-1} aria-label="Dictionary inspector" className="sw-word-shell bg-white rounded-xl border border-stone-200 min-w-0 break-words">
+    <div className="sticky top-0 z-20 bg-white rounded-t-xl"><div className="p-3 flex justify-between items-start gap-2"><div className="min-w-0">{canBack&&<button className="underline text-sm mb-1" aria-label="Back to previous dictionary entry" onClick={onBack}>← Back</button>}<p className="text-xs text-stone-600">Selected word · <span>{context}</span></p><bdi aria-label={`Hebrew word: ${word.display_he}`} className="font-hebrew text-lg" dir="rtl" lang="he">{word.display_he??word.surface_he}</bdi>{initial.linked&&<p className="text-xs text-stone-600">Dictionary entry · Strong’s {identity}</p>}</div><button aria-label="Close morphology panel" className="p-2 text-stone-500" onClick={onClose}>×</button></div>
+    <div hidden={hideTabs} role="tablist" aria-label="Word study" className="sw-tabs flex bg-white border-b border-stone-200 rounded-t-xl">
       {(['Word','Occurrences'] as const).map(name=><button key={name} id={`study-tab-${name}`} role="tab" aria-controls={`study-${name}`} aria-selected={tab===name} tabIndex={tab===name?0:-1} onKeyDown={event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const next=event.key==='Home'?'Word':event.key==='End'?'Occurrences':name==='Word'?'Occurrences':'Word';changeTab(next);setRequested(true);document.getElementById(`study-tab-${next}`)?.focus();}}} onClick={()=>{changeTab(name);if(name==='Occurrences')setRequested(true);}} className={`flex-1 p-3 text-sm ${tab===name?'border-b-2 border-amber-600 font-semibold':''}`}>{name}</button>)}
     </div></div>
     <div role="tabpanel" id="study-Word" aria-labelledby="study-tab-Word" hidden={tab!=='Word'}>
@@ -132,14 +132,14 @@ function StudyEntry({memoryKey,word,context,books,onClose,onOpen,initial,canBack
             {lexical.data.transliteration&&<span className="text-stone-500">{lexical.data.transliteration}</span>}
             <span className="text-stone-700">{lexical.data.definition||'Short definition not supplied'}</span>
           </div>
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-stone-500">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-stone-600">
             <span>Strong’s {identity}</span><span>Root: {lexical.data.root?(lexical.data.root.lexical_id&&lexical.data.root.lexical_id!==identity?<button className="cursor-pointer underline text-amber-800" aria-label={`Open dictionary entry ${lexical.data.root.lexical_id}`} data-dictionary-link="root" onClick={event=>follow(lexical.data!.root!.lexical_id!,event.currentTarget)}><bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi></button>:<bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi>):'Not recorded'}</span>
           </div>
         </>}
         {!initial.linked&&<MorphologyPanel word={word}/>}
         {lexical.data?.status==='available'&&<>
           <section aria-label="BDB outline"><h3 className="font-semibold">BDB outline</h3>
-            <p className="text-xs text-stone-500 my-1">Incomplete source · entry status: {lexical.data.bdb_status}</p>
+            <p className="text-xs text-stone-600 my-1">Incomplete source · entry status: {lexical.data.bdb_status}</p>
             <div data-bdb-content className="leading-relaxed">{lexical.data.bdb.length?nodes(bdb?lexical.data.bdb:outline.nodes):<p>No outline supplied.</p>}</div>
             {outline.truncated&&<button className="underline text-amber-800 mt-1" aria-expanded={bdb} onClick={()=>setBdb(!bdb)}>{bdb?'Show less':'Show more'}</button>}
           </section>
@@ -147,12 +147,12 @@ function StudyEntry({memoryKey,word,context,books,onClose,onOpen,initial,canBack
             <p>{lexical.data.strong_definition_nodes.length?nodes(lexical.data.strong_definition_nodes,"strong-definition"):lexical.data.strong_definition}</p>
             <p>{lexical.data.strong_usage_nodes.length?nodes(lexical.data.strong_usage_nodes,"strong-usage"):lexical.data.strong_usage}</p>
             <p className="text-stone-500">{lexical.data.strong_source_nodes.length?nodes(lexical.data.strong_source_nodes,"strong-source"):lexical.data.strong_source}</p>
-            <p className="text-xs text-stone-500">Dictionary senses and usage, not a translation of this verse. Strong’s may combine augmented senses.</p>
+            <p className="text-xs text-stone-600">Dictionary senses and usage, not a translation of this verse. Strong’s may combine augmented senses.</p>
           </div></details>
-          {lexical.data.pronunciation&&<p className="text-xs text-stone-500">Pronunciation: {lexical.data.pronunciation} (written)</p>}
-          <p className="text-xs text-stone-500"><a className="underline" href="https://github.com/openscriptures/HebrewLexicon">Open Scriptures Hebrew Bible Project</a> · <a className="underline" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · BDB is incomplete.</p>
+          {lexical.data.pronunciation&&<p className="text-xs text-stone-600">Pronunciation: {lexical.data.pronunciation} (written)</p>}
+          <p className="text-xs text-stone-600"><a className="underline" href="https://github.com/openscriptures/HebrewLexicon">Open Scriptures Hebrew Bible Project</a> · <a className="underline" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · BDB is incomplete.</p>
         </>}
-        {reference&&<section aria-label="Scripture preview" className="border rounded p-2 space-y-2">
+        {reference&&<section aria-label="Scripture preview" className="border border-stone-200 rounded-lg bg-stone-50/60 p-3 space-y-2">
           <p>{reference.book} {reference.chapter}:{reference.verse}</p>
           {preview.loading&&<p role="status">Loading verse…</p>}
           {preview.error&&<p>Verse unavailable. <button className="underline" onClick={preview.refetch}>Retry preview</button></p>}
@@ -164,12 +164,12 @@ function StudyEntry({memoryKey,word,context,books,onClose,onOpen,initial,canBack
     </div>
     <div role="tabpanel" id="study-Occurrences" aria-labelledby="study-tab-Occurrences" hidden={tab!=='Occurrences'} className="p-4 text-sm space-y-3">
       <p>Exact lemma: {identity??'Unavailable'}</p>
-      <label className="block">Book <select aria-label="Filter occurrences by book" className="w-full border rounded p-1" value={book} onChange={event=>{setBook(event.target.value);setOffset(0);}}><option value="">All books</option>{books.map(b=><option key={b.id} value={b.osis_id}>{b.name_en}</option>)}</select></label>
+      <label className="block">Book <select aria-label="Filter occurrences by book" className="w-full border border-stone-300 rounded-lg p-2 min-h-10" value={book} onChange={event=>{setBook(event.target.value);setOffset(0);}}><option value="">All books</option>{books.map(b=><option key={b.id} value={b.osis_id}>{b.name_en}</option>)}</select></label>
       {!identity&&<p>No lexical identity is available for lookup.</p>}
       {occurrences.loading&&requested&&<p role="status">Loading occurrences…</p>}
       {occurrences.error&&<p>Could not load occurrences. <button className="underline" onClick={occurrences.refetch}>Retry occurrences</button></p>}
       {occurrences.data&&<><p>{occurrences.data.total} word occurrences in {occurrences.data.verse_total} verses</p>{!occurrences.data.total&&<p>No matching occurrences.</p>}
-        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen("here",row.book,row.chapter,row.verse)}>Open here</button><button className="underline" onClick={()=>onOpen("beside",row.book,row.chapter,row.verse)}>Open beside</button><button className="underline ml-2" onClick={()=>onOpen("tab",row.book,row.chapter,row.verse)}>Open in new tab</button></li>)}</ol>
+        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b border-stone-200 pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen("here",row.book,row.chapter,row.verse)}>Open here</button><button className="underline" onClick={()=>onOpen("beside",row.book,row.chapter,row.verse)}>Open beside</button><button className="underline ml-2" onClick={()=>onOpen("tab",row.book,row.chapter,row.verse)}>Open in new tab</button></li>)}</ol>
         <div className="flex justify-between"><button disabled={offset===0} className="underline disabled:opacity-30" onClick={()=>setOffset(Math.max(0,offset-25))}>Previous results</button><button disabled={offset+25>=occurrences.data.total} className="underline disabled:opacity-30" onClick={()=>setOffset(offset+25)}>Next results</button></div>
       </>}
     </div>

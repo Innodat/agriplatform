@@ -87,7 +87,7 @@ export function SignInDialog({onClose, initialMode}: SignInDialogProps) {
     <div className="bg-white rounded-xl shadow-xl w-full max-w-sm max-h-full overflow-y-auto p-6">
       <div className="flex items-center justify-between mb-4 gap-3">
         <h2 id="signin-title" className="text-lg font-semibold text-stone-800">{pending ? 'Check your email' : title}</h2>
-        <button onClick={onClose} className="text-stone-500 p-1" aria-label={mode === 'signup' ? 'Close create account dialog' : 'Close sign in dialog'}><X className="w-5 h-5" /></button>
+        <button onClick={onClose} className="text-stone-600 p-2 min-h-10 min-w-10 rounded-lg focus-visible:outline-2 focus-visible:outline-amber-600" aria-label={mode === 'signup' ? 'Close create account dialog' : 'Close sign in dialog'}><X className="w-5 h-5" /></button>
       </div>
       {pending ? <div className="space-y-4">
         <p role="status" className="text-sm text-stone-700">If this address can be registered, check your email for a confirmation link. If you already have an account, sign in. You can continue reading while you wait.</p>
@@ -95,10 +95,10 @@ export function SignInDialog({onClose, initialMode}: SignInDialogProps) {
         <button className="ml-4 underline" onClick={onClose}>Continue reading</button>
       </div> : <>
         <form aria-busy={loading} onSubmit={event => void submit(event)} className="space-y-4">
-          <div><label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1">Email</label><input ref={emailInput} id="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500" /></div>
-          <div><label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1">Password</label><input id="password" type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required value={password} onChange={event => setPassword(event.target.value)} className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500" /></div>
+          <div><label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1">Email</label><input ref={emailInput} id="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200" /></div>
+          <div><label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1">Password</label><input id="password" type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required value={password} onChange={event => setPassword(event.target.value)} className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200" /></div>
           {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-medium py-2 rounded-md text-sm">{loading ? (mode === 'signup' ? 'Requesting account…' : 'Signing in…') : title}</button>
+          <button type="submit" disabled={loading} className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-medium py-2 min-h-11 rounded-md text-sm">{loading ? (mode === 'signup' ? 'Requesting account…' : 'Signing in…') : title}</button>
         </form>
         {loading && <p role="status" className="mt-2 text-sm text-stone-600">{mode === 'signup' ? 'Requesting account…' : 'Signing in…'}</p>}
         <button className="mt-4 text-sm underline" onClick={switchMode}>{mode === 'signup' ? 'Sign in' : 'Create account'}</button>

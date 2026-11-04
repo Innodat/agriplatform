@@ -886,9 +886,9 @@ test('review: wrapping controls and navigation errors requalify unchanged grid h
   await setup(page);
   await page.setViewportSize({
     width: 1000,
-    // The tab region (74px) plus its12px gap consume86px; retain the
-    // original grid space so normal text qualifies and wrapped controls do not.
-    height: 846
+    // Leave 235px per text pane with normal controls; wrapped controls
+    // and a multiline error must cross the 200px reading-space boundary.
+    height: 806
   });
   await page.goto('/');
   for (let i = 0; i < 3; i++) await add(page);
@@ -946,6 +946,8 @@ test('review: wrapping controls and navigation errors requalify unchanged grid h
     name: 'Retry navigation',
     exact: true
   })).toBeVisible();
+  // Exercise a wrapped error, as occurs with a longer localized message.
+  await page.locator('[data-reader-chrome]').evaluate(node => node.style.maxWidth = '160px');
   await expect(page.locator('[data-reader-pane]:visible')).toHaveCount(1);
   fail = false;
   await page.getByRole('button', {

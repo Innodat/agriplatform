@@ -47,8 +47,8 @@ export function RelevantNotes({reference}:{reference?:PassageReference}){
  function closePreview(){previewSequence.current++;setPreview(undefined);setPreviewTarget(undefined);setPreviewError('');setPreviewBusy(false);setPreviewUnavailable(false);}
  if(!exposed||!session||studies.searchMasked||!reference)return null;
  const shown=installed===context?items:[];
- return <section aria-label="Relevant own notes" className="border-t p-3 space-y-2">
-  <h3 className="font-semibold">Relevant own notes</h3><p className="text-sm">{referenceLabel(reference)} · Only you</p>
+ return <section aria-label="Relevant own notes" className="sw-panel border-t border-stone-200 p-3 space-y-2">
+  <h3 className="text-sm font-semibold">Relevant own notes <span className="font-normal text-stone-600">· {referenceLabel(reference)} · Only you</span></h3>
   {busy&&<p aria-live="polite">Loading relevant notes…</p>}
   {error&&<p role="alert">{error} <button className="underline" disabled={busy} onClick={()=>void load(retryMore)}>Retry relevant notes</button></p>}
   {!busy&&!error&&!shown.length&&<p>{cursor?'No readable notes on this page.':'No relevant saved notes.'}</p>}

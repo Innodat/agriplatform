@@ -18,15 +18,15 @@ export function Topbar() {
   const [entryMode,setEntryMode]=useState<AccountMode>('signin');
   const [callbackNotice,setCallbackNotice]=useState(callbackFailed);
   useEffect(() => {if(callbackFailed)setCallbackNotice(true);}, [callbackFailed]);
-  useEffect(()=>{const open=()=>{setEntryMode('signin');setShowSignIn(true);};window.addEventListener('scribeswell-account-entry',open);return()=>window.removeEventListener('scribeswell-account-entry',open);},[]);
+  useEffect(()=>{const open=(event:Event)=>{setEntryMode((event as CustomEvent<{mode?:string}>).detail?.mode==='signup'?'signup':'signin');setShowSignIn(true);};window.addEventListener('scribeswell-account-entry',open);return()=>window.removeEventListener('scribeswell-account-entry',open);},[]);
   const { apps, loading: appsLoading } = useMyApps();
   useEffect(()=>{if(user){setShowSignIn(false);setSignOutError('');}},[user?.id]);
 
   return (
     <header className="shrink-0 bg-white border-b border-stone-200 shadow-sm">
-      <div className="w-full px-4 h-14 flex items-center justify-between">
+      <div className="sw-topbar w-full px-4 max-[359px]:px-2 min-h-14 flex items-center justify-between gap-1">
         {/* Left: AppLauncher + Brand */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" iconOnly />
 
           <div className="flex items-center gap-2 text-stone-800">
@@ -39,7 +39,7 @@ export function Topbar() {
 
         {/* Right: Auth */}
         {!loading && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {user ? (
               <>
                 <span className="hidden sm:flex text-sm text-stone-500 items-center gap-1 max-w-48 truncate">
@@ -48,7 +48,7 @@ export function Topbar() {
                 </span>
                 <button
                   onClick={async()=>{setSignOutError('');try{await studies.exit(async()=>{try{await signOut();}catch{setSignOutError('We could not sign you out. Please try again.');}});}catch{setSignOutError('We could not sign you out. Please try again.');}}}
-                  className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
+                  className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-1.5 sm:px-3 py-2 min-h-10 rounded-md hover:bg-stone-100 transition-colors"
                   aria-label="Sign out"
                 >
                   <LogOut className="w-4 h-4" aria-hidden="true" />
@@ -57,13 +57,13 @@ export function Topbar() {
               </>
             ) : (
               <>
-              <button onClick={() => {setEntryMode('signup');setShowSignIn(true);}} className="text-sm text-stone-600 hover:text-stone-900 rounded-md px-2 py-1.5">Create account</button>
+              <button onClick={() => {setEntryMode('signup');setShowSignIn(true);}} className="sw-account-create text-xs sm:text-sm text-stone-600 hover:text-stone-900 rounded-md px-1.5 sm:px-2 py-2 min-h-10">Create account</button>
               <button
                 onClick={() => {setEntryMode('signin');setShowSignIn(true);}}
-                className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
+                className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-1.5 sm:px-3 py-2 min-h-10 rounded-md hover:bg-stone-100 transition-colors"
                 aria-label="Sign in"
               >
-                <LogIn className="w-4 h-4" aria-hidden="true" />
+                <LogIn className="hidden sm:block w-4 h-4" aria-hidden="true" />
                 Sign in
               </button>
               </>
