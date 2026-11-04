@@ -49,13 +49,24 @@ test('selected passage uses Hebrew names and retains chapter colour while previe
  await expect(dialog.getByRole('heading',{name:'ישעיהו',exact:true})).toBeVisible();
  await page.getByLabel('Passage reference').fill('');
  await expect(current).toHaveAttribute('aria-current','page');
- await expect(current).toHaveCSS('background-color','oklch(0.555 0.163 48.998)');
+ await expect(current).toHaveCSS('background-color','oklch(0.769 0.188 70.08)');
  await page.getByLabel('Passage reference').fill('Isaiah 5');
- await expect(current).toHaveCSS('background-color','oklch(0.555 0.163 48.998)');
+ await expect(current).toHaveCSS('background-color','oklch(0.769 0.188 70.08)');
  expect(await candidate.evaluate(el=>getComputedStyle(el).backgroundColor)).not.toBe(await current.evaluate(el=>getComputedStyle(el).backgroundColor));
- if(process.env.WORKSPACE_POLISH_SCREENSHOTS)await page.screenshot({path:`${process.env.WORKSPACE_POLISH_SCREENSHOTS}/scribeswell-selector-${testInfo.project.name}.png`});
+ if(process.env.WORKSPACE_POLISH_SCREENSHOTS){await page.screenshot({path:`${process.env.WORKSPACE_POLISH_SCREENSHOTS}/scribeswell-selector-${testInfo.project.name}.png`});await dialog.screenshot({path:`${process.env.WORKSPACE_POLISH_SCREENSHOTS}/scribeswell-selector-detail-${testInfo.project.name}.png`});}
  await candidate.click();await expect(trigger).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Navigate: Isaiah, chapter 5. Open selector.'})).toHaveText('ישעיהו›ה');
+});
+test('selector matches the reference soft dividers and roomy bilingual layout',async({page})=>{
+ await setup(page);await page.getByRole('button',{name:/Navigate: Isaiah/}).click();
+ const dialog=page.getByRole('dialog',{name:'Book and chapter selector'});
+ await expect(dialog.locator('form')).toHaveCSS('border-bottom-color','oklch(0.97 0.001 106.424)');
+ await expect(dialog.getByRole('navigation',{name:'Books of the Bible'})).toHaveCSS('border-right-color','oklch(0.97 0.001 106.424)');
+ const english=await dialog.locator('[data-reference-book="Isa"] span').first().boundingBox(),hebrew=await dialog.locator('[data-reference-book="Isa"] span').last().boundingBox();
+ expect(Math.abs(english.y+english.height/2-hebrew.y-hebrew.height/2)).toBeLessThan(3);
+ const columns=await dialog.locator('[data-reference-chapter]').first().evaluate(el=>getComputedStyle(el.parentElement).gridTemplateColumns.split(' ').length);
+ expect(columns).toBe(page.viewportSize().width>=640?5:4);
+ const bounds=await dialog.boundingBox();expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(page.viewportSize().width);expect(bounds.y+bounds.height).toBeLessThanOrEqual(page.viewportSize().height);
 });
 test('selected book falls back to English when Hebrew is unavailable',async({page})=>{
  await setup(page);
@@ -64,4 +75,12 @@ test('selected book falls back to English when Hebrew is unavailable',async({pag
  const trigger=page.getByRole('button',{name:'Navigate: Isaiah, chapter 4. Open selector.'});
  await expect(trigger).toHaveText('Isaiah›ד');await trigger.click();
  await expect(page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('heading',{name:'Isaiah',exact:true})).toBeVisible();
+});
+test('long reference-only headings stay single and do not overflow',async({page})=>{
+ await setup(page);await page.getByRole('button',{name:/Navigate: Isaiah/}).click();
+ await page.getByLabel('Passage reference').fill('Rev 1');
+ const group=page.getByRole('group',{name:'Chapters of Revelation of John',exact:true});
+ await expect(group.getByRole('heading',{name:'Revelation of John',exact:true})).toBeVisible();
+ expect(await group.evaluate(el=>el.scrollWidth>el.clientWidth)).toBe(false);
+ await expect(group.getByText('Revelation of John',{exact:true})).toHaveCount(1);
 });
