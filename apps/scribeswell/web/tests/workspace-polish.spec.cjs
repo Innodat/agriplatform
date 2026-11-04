@@ -84,3 +84,21 @@ test('long reference-only headings stay single and do not overflow',async({page}
  expect(await group.evaluate(el=>el.scrollWidth>el.clientWidth)).toBe(false);
  await expect(group.getByText('Revelation of John',{exact:true})).toHaveCount(1);
 });
+test('crossing another book keeps the explicitly chosen chapter grid',async({page})=>{
+ await setup(page);await page.getByRole('button',{name:/Navigate: Isaiah/}).click();
+ const dialog=page.getByRole('dialog',{name:'Book and chapter selector'});
+ await dialog.locator('[data-reference-book="Jer"]').click();
+ await expect(dialog.getByRole('group',{name:'Chapters of Jeremiah',exact:true})).toBeVisible();
+ await dialog.locator('[data-reference-book="Isa"]').hover();
+ await expect(dialog.getByRole('group',{name:'Chapters of Jeremiah',exact:true})).toBeVisible();
+ await dialog.getByRole('button',{name:'Chapter 2 of Jeremiah',exact:true}).click();
+ await expect(dialog).toBeHidden();
+ const state=JSON.parse(new URL(page.url()).searchParams.get('reader'));
+ expect(state.panes[0].ref.book_id).toBe('Jer');
+ expect(state.panes[0].ref.target).toEqual({kind:'chapter',chapter:2});
+ await page.getByRole('button',{name:/Navigate: Jeremiah/}).click();
+ const isaiah=dialog.locator('[data-reference-book="Isa"]');await isaiah.focus();await isaiah.press('Enter');
+ await expect(dialog.getByRole('group',{name:'Chapters of Isaiah',exact:true})).toBeVisible();
+ await page.getByLabel('Passage reference').fill('Psalm 110');
+ await expect(dialog.getByRole('group',{name:'Chapters of Psalms',exact:true})).toBeVisible();
+});

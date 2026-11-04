@@ -333,9 +333,9 @@ test('word study has persistent Word and Occurrences tabs',async({page})=>{
  await expect(page.getByRole('tab',{name:'Notes',exact:true})).toHaveCount(0);
 });
 
-test('typed reference visibly positions remote book chapter and hovering does not trap later typing',async({page})=>{
+test('typed reference visibly positions remote book chapter and clicked browsing does not trap later typing',async({page})=>{
  await setup(page);await page.goto('/');await page.getByRole('button',{name:/Navigate:/}).first().click();const input=page.getByLabel('Passage reference',{exact:true});await input.fill('Matthew26:63–64');const matthew=page.getByRole('button',{name:'Matthew — Reference only',exact:true}),chapter=page.getByRole('button',{name:'Chapter 26 of Matthew',exact:true});await expect(matthew).toBeInViewport();await expect(chapter).toBeInViewport();
- await page.getByRole('button',{name:/Genesis —/}).hover();await expect(page.getByRole('group',{name:'Chapters of Genesis',exact:true})).toBeVisible();await input.fill('Matthew26:63');await expect(page.getByRole('group',{name:'Chapters of Matthew',exact:true})).toBeVisible();await input.press('Enter');await expect(page.getByText('Matthew 26:63 — Text unavailable',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:/Genesis —/}).click();await expect(page.getByRole('group',{name:'Chapters of Genesis',exact:true})).toBeVisible();await input.fill('Matthew26:63');await expect(page.getByRole('group',{name:'Chapters of Matthew',exact:true})).toBeVisible();await input.press('Enter');await expect(page.getByText('Matthew 26:63 — Text unavailable',{exact:true})).toBeVisible();
 });
 
 test('passage review reference-only chapter boundaries follow catalogue without NT corpus requests',async({page})=>{
