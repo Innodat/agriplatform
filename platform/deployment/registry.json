@@ -15,12 +15,51 @@
         "access",
         "content",
         "pts"
+      ],
+      "compatibility_inputs": [
+        "services/content-service/database-tools/owned_migration.py",
+        "services/content-service/migrations/versions/0005_owned_content.py",
+        "platform/deployment/content_policy.py",
+        "apps/pts/tools/prepare_account_roles.sql",
+        "apps/pts/tools/bind_corpus.py",
+        "apps/pts/deployment/migrate.py"
+      ]
+    },
+    {
+      "id": "scribeswell-owned",
+      "dockerfile": "apps/scribeswell/deployment/Migrations.Dockerfile",
+      "env_file": "scribeswell-migrations.env",
+      "owners": [
+        "scribeswell"
+      ],
+      "compatibility_inputs": [
+        "apps/scribeswell/deployment/migrate.py",
+        "apps/scribeswell/deployment/migration-requirements.txt",
+        "apps/scribeswell/backend/database.py",
+        "platform/deployment/host-release.py",
+        "platform/deployment/target_contract.py",
+        "apps/scribeswell/deployment/studies_migrate.py",
+        "apps/scribeswell/deployment/studies_release_contract.py",
+        "apps/scribeswell/studies-alembic.ini",
+        "apps/scribeswell/studies-migrations/env.py",
+        "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py",
+        "apps/scribeswell/studies-migrations/versions/0002_study_rename.py",
+        "apps/scribeswell/studies-migrations/versions/0003_collected_passages.py",
+        "apps/scribeswell/studies-migrations/versions/0004_note_deletion.py",
+        "apps/scribeswell/studies-migrations/versions/0005_study_deletion.py",
+        "apps/scribeswell/studies-migrations/versions/0006_own_highlights.py",
+        "apps/scribeswell/studies-migrations/versions/0007_own_copies.py",
+        "apps/scribeswell/studies-migrations/versions/0008_study_details.py",
+        "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py",
+        "apps/scribeswell/studies-database-tools/owned_migration.py",
+        "apps/scribeswell/tools/sql/prepare_personal_notes_roles.sql"
       ]
     }
   ],
   "bootstrap_paths": [
     "platform/supabase",
     "apps/scribeswell/supabase",
-    "apps/scribeswell/deployment/bootstrap"
+    "apps/scribeswell/deployment/bootstrap",
+    "apps/pts/tools"
   ]
 }

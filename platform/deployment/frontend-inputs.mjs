@@ -5,8 +5,14 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 const publicFields=['DEPLOY_ENV','PUBLIC_SITE_ORIGIN','PUBLIC_API_ORIGIN','VITE_SUPABASE_URL','VITE_SUPABASE_ANON_KEY'];
 export function publicFingerprint(env){
+ if(env.PUBLICATION==='leave'){
+  const fields=['RELEASE_PROFILE','PUBLICATION','DEPLOY_ENV','PUBLIC_SITE_ORIGIN','PUBLIC_API_ORIGIN','VITE_LEAVE_AUTH_URL','VITE_LEAVE_AUTH_ANON_KEY','VITE_LEAVE_DIRECTORY_ORIGIN'];
+  if(fields.some(key=>typeof env[key]!=='string'||!env[key]))throw Error('missing_leave_public_inputs');
+  return createHash('sha256').update(JSON.stringify(fields.map(key=>[key,env[key]]))).digest('hex');
+ }
+
  if(publicFields.some(key=>typeof env[key]!=='string'||!env[key]))throw Error('missing_public_inputs');
- return createHash('sha256').update(JSON.stringify(publicFields.map(key=>[key,env[key]]))).digest('hex');
+ return createHash('sha256').update(JSON.stringify([...publicFields.map(key=>[key,env[key]]),['PUBLIC_PTS_FILE_ORIGIN',env.PUBLIC_PTS_FILE_ORIGIN||null]])).digest('hex');
 }
 function git(root,...args){return execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:32*1024*1024});}
 function inputs(root,revision){

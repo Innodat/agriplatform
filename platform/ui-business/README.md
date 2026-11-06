@@ -1,6 +1,16 @@
 # platform/ui-business
 
-**Status:** Placeholder — Phase 3
+**Status:** Shared launcher implemented; other patterns remain planned
+
+The native file client is now consumed by PtS after its first real same-site TLS,
+provider, native PDF and browser Download proof. `createNativeFileClient` supplies
+only credentialed file-session/context transport and strict owner-origin/context
+validation. Applications retain auth refresh/logout, current action authority and
+localized feedback; native viewers/downloads remain browser-owned. Its focused
+tests are `tests/native-files.test.mjs`. PtS's fresh isolated frozen-image proof
+also covers genuine-provider renewal, logout/switch/delayed-cookie/expiry and the
+native resource matrix; final delivery audit/reviews remain with PtS. This
+promotion does not claim hosted readiness.
 
 Reusable domain-level components shared across apps. Built on `platform/ui-core`.
 
@@ -42,3 +52,22 @@ lives in the PtS launcher suite and Scribeswell reader suite.
 Set `iconOnly` to render only the grid icon in the trigger (Scribeswell). The
 default is `false`, retaining the Apps text and chevron (PtS). The accessible
 label, hover title, keyboard interaction and touch target are preserved.
+
+## Current session binding
+
+Use `useCurrentApps(client, session, loading)` with a host-owned
+`{accountId,accessToken,generation?}` or null session. Keep the client stable. Pass its
+`apps`/`status` to `AppLauncher`, and `refresh` as both `onRetry` and `onRefresh`.
+An optional `onSignIn` invokes the existing host sign-in surface; omit it if unavailable.
+States distinguish checking, anonymous, expired authentication, current account denial,
+empty success and unavailable discovery. No old-session links survive a render after
+account/token/generation changes; aborted/superseded observations cannot reappear.
+Reopening and focus/visibility return recheck current discovery without polling.
+Without a host sign-in callback, anonymous/expired status itself receives keyboard focus;
+no inactive sign-in button is emitted.
+
+The menu retains44px controls, labelled/icon-only triggers, new-tab destination URLs,
+roving focus, Escape, Tab and outside dismissal; empty/loading status remains reachable.
+Run `npm test --workspace @platform/ui-business` for real loopback Chromium fixtures and
+`npm run type-check --workspace @platform/ui-business`. Client tests and both consumers'
+launcher suites provide additional deadline, host session and public-reader coverage.

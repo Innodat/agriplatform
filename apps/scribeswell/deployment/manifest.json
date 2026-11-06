@@ -23,6 +23,12 @@
     },
     "install": "workspace"
   },
+  "migration": {
+    "owner": "scribeswell",
+    "config": "apps/scribeswell/alembic.ini",
+    "url_env": "SCRIBESWELL_MIGRATION_DATABASE_URL",
+    "role": "scribeswell_migrator"
+  },
   "required_env": [
     "SUPABASE_URL",
     "APP_ENV",
@@ -37,7 +43,8 @@
   },
   "smoke_artifacts": [
     "/app/apps/scribeswell/data/hebrew-lexicon",
-    "/app/apps/scribeswell/scripts/hebrew.json"
+    "/app/apps/scribeswell/scripts/hebrew.json",
+    "/app/apps/scribeswell/data/reference-catalogue/catalogue.json"
   ],
   "database_roles": {
     "SCRIBESWELL_DATABASE_URL": "scribeswell_runtime"
@@ -45,5 +52,22 @@
   "forbidden_env": [
     "SUPABASE_SECRET_KEY",
     "SUPABASE_SERVICE_ROLE_KEY"
-  ]
+  ],
+  "personal_studies": {
+    "enabled_env": "SCRIBESWELL_STUDIES_ENABLED",
+    "production_enabled": false,
+    "required_env": [
+      "SCRIBESWELL_STUDIES_DATABASE_URL",
+      "SCRIBESWELL_STUDIES_ACCESS_URL",
+      "SCRIBESWELL_STUDIES_SERVICE_KEY"
+    ],
+    "database_roles": {
+      "SCRIBESWELL_STUDIES_DATABASE_URL": "scribeswell_studies_runtime"
+    },
+    "private_paths": [
+      "/api/studies",
+      "/api/studies/*",
+      "/api/operations/*"
+    ]
+  }
 }

@@ -4,6 +4,7 @@ WORKDIR /app
 COPY apps/scribeswell/backend/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt && useradd --uid 10001 --create-home api
 COPY apps/scribeswell/backend/ apps/scribeswell/backend/
+COPY apps/scribeswell/data/reference-catalogue/ apps/scribeswell/data/reference-catalogue/
 COPY apps/scribeswell/data/hebrew-lexicon/ apps/scribeswell/data/hebrew-lexicon/
 COPY apps/scribeswell/scripts/hebrew.json apps/scribeswell/scripts/hebrew.json
 COPY apps/scribeswell/scripts/seed.py apps/scribeswell/scripts/seed.py

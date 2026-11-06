@@ -1,0 +1,50 @@
+{
+  "id": "leave",
+  "depends_on": [],
+  "dockerfile": "apps/leave/deployment/Dockerfile",
+  "env_file": "leave.env",
+  "health_path": "/health",
+  "migration": {
+    "owner": "leave",
+    "config": "apps/leave/api/alembic.ini",
+    "url_env": "LEAVE_MIGRATION_DATABASE_URL",
+    "role": "leave_migrator"
+  },
+  "required_env": [
+    "LEAVE_DATABASE_URL",
+    "LEAVE_ACCESS_ORIGIN",
+    "LEAVE_SERVICE_KEY",
+    "LEAVE_CURRENT_SESSION_SERVICE_KEY",
+    "LEAVE_PREFERENCES_SERVICE_KEY"
+  ],
+  "database_roles": {
+    "LEAVE_DATABASE_URL": "leave_runtime"
+  },
+  "smoke_env": {
+    "LEAVE_DATABASE_URL": "postgresql+psycopg://leave_runtime:fixture@localhost/fixture"
+  },
+  "smoke_artifacts": [],
+  "frontend": {
+    "path": "apps/leave/web",
+    "base": "/",
+    "install": "workspace",
+    "publication": "leave",
+    "api_variables": {}
+  },
+  "public": {
+    "prefix": "/leave",
+    "paths": [
+      "/api/v1/me/organizations",
+      "/api/v1/me/preferences/language",
+      "/api/v1/organizations/*/context/selection",
+      "/api/v1/organizations/*/context/operations/*"
+    ],
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "OPTIONS"
+    ],
+    "native_mount": "/api"
+  }
+}

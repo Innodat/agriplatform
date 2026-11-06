@@ -9,6 +9,19 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[3]/'tools/py'))
 sys.path.insert(0,str(Path(__file__).resolve().parents[3]/'platform/deployment'))
 from target_contract import database_url
 from deploy_pts import OWNERS, deployment_lock, revisions
+sys.path.insert(0,str(Path(__file__).resolve().parents[3]))
+
+def corpus_ready(environ):
+ from sqlalchemy import text
+ from apps.pts.backend.db import engine
+ from apps.pts.tools.bind_corpus import bind
+ db=engine(environ['PTS_MIGRATION_DATABASE_URL'])
+ try:
+  if environ.get('PTS_CORPUS_ADOPTION_INPUT_JSON'):bind(db,json.loads(environ['PTS_CORPUS_ADOPTION_INPUT_JSON']))
+  with db.begin() as conn:
+   value=conn.execute(text('SELECT inventory_sha256,release_reference FROM pts.corpus_binding WHERE singleton AND verified_at IS NOT NULL')).mappings().one()
+   return dict(value)
+ finally:db.dispose()
 
 def main(target=Path('/evidence/migrations.json'),run=subprocess.run,acquire_lock=deployment_lock,inspect=revisions,environ=None):
  environ=os.environ if environ is None else environ
@@ -29,6 +42,7 @@ def main(target=Path('/evidence/migrations.json'),run=subprocess.run,acquire_loc
     try:
      entry['before']=inspect(owner);save()
      run([sys.executable,'-m','alembic','-c',folder+'/alembic.ini','upgrade','head'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=180,env=dict(environ))
+     if owner=='pts':entry['corpus_binding']=corpus_ready(environ)
      entry.update(status='succeeded',after=inspect(owner));save()
     except Exception:
      entry.update(status='failed',outcome_requires_reconciliation=True)

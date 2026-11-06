@@ -1,0 +1,21 @@
+{
+  "name": "@platform/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "26.11.1",
+    "npm": "12.2.0"
+  },
+  "bin": {
+    "platform-api-client": "src/cli.mjs"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "typescript": "6.0.3",
+    "@platform/builder-cli": "0.1.0"
+  }
+}

@@ -12,20 +12,84 @@
   },
   "required_env": [
     "ACCESS_DATABASE_URL",
+    "CAPABILITY_ACCESS_DATABASE_URL",
     "SUPABASE_URL",
     "SUPABASE_ANON_KEY",
     "PTS_SERVICE_KEY",
     "CONTENT_SERVICE_KEY"
   ],
   "database_roles": {
-    "ACCESS_DATABASE_URL": "access_runtime"
+    "ACCESS_DATABASE_URL": "access_runtime",
+    "CAPABILITY_ACCESS_DATABASE_URL": "access_runtime"
   },
   "smoke_env": {
     "ACCESS_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
     "SUPABASE_URL": "https://fixture.supabase.co",
     "SUPABASE_ANON_KEY": "fixture-public",
     "PTS_SERVICE_KEY": "fixture-pts",
-    "CONTENT_SERVICE_KEY": "fixture-content"
+    "CONTENT_SERVICE_KEY": "fixture-content",
+    "DIRECTORY_SERVICE_KEY": "fixture-directory-service-key",
+    "CAPABILITY_ACCESS_DATABASE_URL": "postgresql://access_runtime:fixture@127.0.0.1:9/fixture"
   },
-  "smoke_artifacts": []
+  "smoke_artifacts": [],
+  "studies_enrollment": {
+    "enabled_env": "SCRIBESWELL_SERVICE_KEY",
+    "required_env": [
+      "SCRIBESWELL_SERVICE_KEY",
+      "STUDIES_ACCESS_DATABASE_URL",
+      "STUDIES_IDENTITY_DATABASE_URL",
+      "STUDIES_IDENTITY_SETUP_DATABASE_URL",
+      "STUDIES_READINESS_JSON"
+    ],
+    "database_roles": {
+      "STUDIES_ACCESS_DATABASE_URL": "access_studies_runtime",
+      "STUDIES_IDENTITY_DATABASE_URL": "identity_studies_reader_runtime",
+      "STUDIES_IDENTITY_SETUP_DATABASE_URL": "identity_studies_setup_runtime"
+    }
+  },
+  "current_session": {
+    "enabled_env": "PTS_CURRENT_SESSION_SERVICE_KEY",
+    "required_env": [
+      "PTS_CURRENT_SESSION_SERVICE_KEY",
+      "IDENTITY_CURRENT_SESSION_DATABASE_URL",
+      "IDENTITY_CURRENT_SESSION_AUTH_URL",
+      "IDENTITY_CURRENT_SESSION_ISSUER",
+      "IDENTITY_CURRENT_SESSION_AUDIENCE",
+      "IDENTITY_CURRENT_SESSION_POLICY",
+      "SUPABASE_ANON_KEY"
+    ],
+    "optional_env": [
+      "PTS_CURRENT_SESSION_PREVIOUS_SERVICE_KEY"
+    ],
+    "database_roles": {
+      "IDENTITY_CURRENT_SESSION_DATABASE_URL": "identity_current_session_runtime"
+    }
+  },
+  "leave_current_session": {
+    "enabled_env": "LEAVE_CURRENT_SESSION_SERVICE_KEY",
+    "required_env": [
+      "LEAVE_CURRENT_SESSION_SERVICE_KEY",
+      "IDENTITY_CURRENT_SESSION_DATABASE_URL",
+      "IDENTITY_CURRENT_SESSION_AUTH_URL",
+      "IDENTITY_CURRENT_SESSION_ISSUER",
+      "IDENTITY_CURRENT_SESSION_AUDIENCE",
+      "IDENTITY_CURRENT_SESSION_POLICY",
+      "SUPABASE_ANON_KEY"
+    ],
+    "optional_env": [
+      "LEAVE_CURRENT_SESSION_PREVIOUS_SERVICE_KEY"
+    ],
+    "database_roles": {
+      "IDENTITY_CURRENT_SESSION_DATABASE_URL": "identity_current_session_runtime"
+    }
+  },
+  "preferences": {
+    "required_env": [
+      "IDENTITY_PREFERENCES_DATABASE_URL",
+      "IDENTITY_PREFERENCES_SERVICE_KEY"
+    ],
+    "database_roles": {
+      "IDENTITY_PREFERENCES_DATABASE_URL": "identity_preferences_runtime"
+    }
+  }
 }

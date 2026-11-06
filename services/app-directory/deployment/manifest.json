@@ -1,13 +1,15 @@
 {
   "id": "directory",
-  "depends_on": [],
+  "depends_on": [
+    "access"
+  ],
   "dockerfile": "services/app-directory/deployment/Dockerfile",
   "env_file": "directory.env",
   "health_path": "/health",
   "public": {
     "prefix": "/directory",
     "paths": [
-      "/api/apps",
+      "/api/v2/me/apps",
       "/api/me/apps",
       "/api/me/context"
     ],
@@ -22,7 +24,9 @@
     "APP_ENV",
     "CORS_ORIGINS",
     "APP_URL_PTS",
-    "APP_URL_SCRIBESWELL"
+    "APP_URL_SCRIBESWELL",
+    "ACCESS_URL",
+    "DIRECTORY_SERVICE_KEY"
   ],
   "smoke_env": {
     "SUPABASE_URL": "https://fixture.supabase.co",
@@ -30,7 +34,9 @@
     "APP_ENV": "production",
     "CORS_ORIGINS": "[\"https://fixture.test\"]",
     "APP_URL_PTS": "https://fixture.test",
-    "APP_URL_SCRIBESWELL": "https://fixture.test/scribeswell/"
+    "APP_URL_SCRIBESWELL": "https://fixture.test/scribeswell/",
+    "ACCESS_URL": "http://access:8000",
+    "DIRECTORY_SERVICE_KEY": "fixture-directory-service-key"
   },
   "smoke_artifacts": []
 }

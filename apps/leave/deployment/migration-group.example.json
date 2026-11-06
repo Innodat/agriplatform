@@ -1,0 +1,20 @@
+{
+  "id": "leave-owned",
+  "dockerfile": "apps/leave/deployment/Migrations.Dockerfile",
+  "env_file": "leave-migrations.env",
+  "owners": [
+    "leave"
+  ],
+  "compatibility_inputs": [
+    "apps/leave/api/migrate.py",
+    "apps/leave/api/owned_migration.py",
+    "apps/leave/api/alembic.ini",
+    "apps/leave/api/migrations/env.py",
+    "apps/leave/api/migrations/script.py.mako",
+    "apps/leave/api/migrations/versions/0001_baseline.py",
+    "apps/leave/api/pyproject.toml",
+    "apps/leave/api/uv.lock",
+    "apps/leave/api/migrations/versions/0002_selection.py"
+  ],
+  "evidence_uid": 65532
+}

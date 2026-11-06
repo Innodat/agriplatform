@@ -19,7 +19,7 @@ const appDirectoryClient = createAppDirectoryClient({
 });
 
 // In a React hook:
-const { apps, context } = await appDirectoryClient.getMyApps();
+const { apps, protected_access_status } = await appDirectoryClient.getCurrentApps({signal});
 ```
 
 ## Exports
@@ -35,3 +35,20 @@ const { apps, context } = await appDirectoryClient.getMyApps();
 ## Contract alignment
 
 Zod schemas here mirror the Pydantic schemas in `services/app-directory/schemas/app_schemas.py`. Keep them in sync.
+
+## Current observations
+
+`getCurrentApps({token,signal})` calls v2 with an explicitly captured host-session token,
+no-store and no redirects. A total8s deadline includes token acquisition, transport and
+body handling; caller cancellation also rejects transports ignoring abort.
+`AppDirectoryError.errorId` is `authentication_required`, `access_denied`,
+`discovery_unavailable` or `request_cancelled`. Error text/details from the server are
+never copied into client exceptions. Anonymous/unavailable observations cannot carry
+links; duplicate/unpublished or unsafe-URL entries are invalid.
+
+Existing DTOs, `getMyApps`, `getMyContext` and exports remain supported. `getAllApps`
+remains a source-compatible method but its public HTTP endpoint has been removed; do
+not use it as anonymous fallback. React hosts use `useCurrentApps` from ui-business.
+Run `npm test --workspace @platform/app-directory-client` and its `type-check` script
+with selected Node26.11.1. Named-case detail can be obtained by directly running
+`node --import tsx platform/app-directory-client/tests/current-apps.test.ts`.

@@ -87,6 +87,36 @@ class Database:
             finally:
                 self._connection.reset(token)
 
+    @contextmanager
+    def reader_snapshot(self):
+        """One bounded repeatable snapshot for text and optional publication."""
+        with self.connection() as connection:
+            token = self._connection.set(connection)
+            try:
+                with connection.transaction():
+                    connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+                    connection.execute("SET LOCAL statement_timeout='2000ms'")
+                    connection.execute("SET LOCAL idle_in_transaction_session_timeout='5000ms'")
+                    connection.execute("SET LOCAL transaction_timeout='5000ms'")
+                    yield
+            finally:
+                self._connection.reset(token)
+
+    def reader_publications(self, book, chapter, verses):
+        connection = self._connection.get()
+        if connection is None:
+            return {}
+        try:
+            # One round trip per chapter, isolated from optional SQL failures.
+            with connection.transaction():
+                rows = connection.execute('SELECT verse, scribeswell.reader_verse_evidence(%s,%s,verse) AS evidence FROM unnest(%s::integer[]) AS requested(verse)', (book,chapter,list(verses))).fetchall()
+                return {row['verse']:row['evidence'] for row in rows}
+        except psycopg.Error:
+            return {}
+
+    def reader_publication(self, book, chapter, verse):
+        return self.reader_publications(book,chapter,[verse]).get(verse)
+
     def read(self, table, *, columns='*', filters=None, in_filters=None, order=('id',)):
         if table.removesuffix('_read') not in TABLES:
             raise ValueError('Unknown Scribeswell table')

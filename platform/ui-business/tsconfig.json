@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
@@ -10,11 +14,16 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "skipLibCheck": true,
     "paths": {
-      "@platform/app-directory-client": ["../app-directory-client/src/index.ts"]
-    }
+      "@platform/app-directory-client": [
+        "../app-directory-client/src/index.ts"
+      ]
+    },
+    "noEmit": true,
+    "rootDir": ".."
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
