@@ -1,0 +1,84 @@
+{
+  "activation_authorized": false,
+  "complete": true,
+  "driver_sha256": {
+    "check.cjs": "b21ef5535e291da0a125a10876098df8be6e7776830222a9e278b55ecbc34913",
+    "run.py": "661807e1d58b0a98a2077d14af558910d28d8c2f7d8ea57f10c827d1dfa312f4"
+  },
+  "limitations": [
+    "Frontend browser behavior and actual assets only, using explicit API/Auth doubles; no genuine provider/database or production request.",
+    "No private save behavior claimed by this browser test; genuine provider/default API/Access save/recovery has its separate immutable-image evidence.",
+    "Canonical candidate5e148e99db51de7459688854fbe1fafc9767bca2 requires D2f successor; preserve this exact executed artifact identity."
+  ],
+  "production_changed": false,
+  "scope": "Real compiled canonical primary/recovery frontend browser checks, two viewport sizes, public root reader and nested current PtS; all external API/Auth requests intercepted",
+  "source_revision": "5e148e99db51de7459688854fbe1fafc9767bca2",
+  "variants": {
+    "primary": {
+      "artifact_identity_sha256": "3dab68131dd60143187b8490315febfef5f1ef613e89af6b09b9a3c340107264",
+      "browser_result": {
+        "browser": "156.0.8078.4",
+        "cases": [
+          {
+            "actual_nested_assets": true,
+            "actual_root_assets": true,
+            "anonymous_public_reading": true,
+            "current_pts_nested_mount": true,
+            "external_requests_intercepted": true,
+            "page_errors": 0,
+            "reader_root_deep_query_reload": true,
+            "width": 1280
+          },
+          {
+            "actual_nested_assets": true,
+            "actual_root_assets": true,
+            "anonymous_public_reading": true,
+            "current_pts_nested_mount": true,
+            "external_requests_intercepted": true,
+            "page_errors": 0,
+            "reader_root_deep_query_reload": true,
+            "width": 390
+          }
+        ],
+        "complete": true,
+        "production_changed": false,
+        "scope": "Real compiled canonical frontend in local browser; explicit API/Auth doubles and no external traffic",
+        "variant": "primary"
+      },
+      "exit_code": 0
+    },
+    "recovery": {
+      "artifact_identity_sha256": "1a9b605e7e0c45cdd98acc4d2ce400996360f5a77e6d660df090d8030ad4acbc",
+      "browser_result": {
+        "browser": "156.0.8078.4",
+        "cases": [
+          {
+            "actual_nested_assets": true,
+            "actual_root_assets": true,
+            "anonymous_public_reading": true,
+            "current_pts_nested_mount": true,
+            "external_requests_intercepted": true,
+            "page_errors": 0,
+            "reader_root_deep_query_reload": true,
+            "width": 1280
+          },
+          {
+            "actual_nested_assets": true,
+            "actual_root_assets": true,
+            "anonymous_public_reading": true,
+            "current_pts_nested_mount": true,
+            "external_requests_intercepted": true,
+            "page_errors": 0,
+            "reader_root_deep_query_reload": true,
+            "width": 390
+          }
+        ],
+        "complete": true,
+        "production_changed": false,
+        "scope": "Real compiled canonical frontend in local browser; explicit API/Auth doubles and no external traffic",
+        "variant": "recovery"
+      },
+      "exit_code": 0
+    }
+  }
+}

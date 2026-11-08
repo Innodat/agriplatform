@@ -37,7 +37,7 @@ export function LoginForm({flow,initialError,onPasswordSaved}:Props){
  const heading=flow==='invite'?'Set your password':flow==='recovery'?'Choose a new password':mode==='reset'?'Reset your password':'Sign in to read';
  return <section className="panel auth-panel" aria-labelledby="auth-heading">
   <h2 id="auth-heading">{heading}</h2>
-  <p>{flow?'Choose a password for your account.':mode==='reset'?'Enter your account email and we’ll send a reset link.':'Use your account email and password. Access is limited to authorized organization readers.'}</p>
+  <p>{flow?'Choose a password for your account.':mode==='reset'?'Enter your account email and we’ll send a reset link.':'Use your account email and password. Access is limited to authorized readers.'}</p>
   {!configured&&<p role="alert">Sign-in is not configured for this installation.</p>}
   {error&&<p role="alert" className="error">{error}</p>}
   <form onSubmit={submit} aria-busy={busy}>
@@ -49,6 +49,6 @@ export function LoginForm({flow,initialError,onPasswordSaved}:Props){
   <p role="status" aria-live="polite">{notice}</p>
   {!flow&&<div className="auth-actions"><button type="button" disabled={busy} onClick={()=>switchMode(mode==='login'?'reset':'login')}>{mode==='login'?'Forgot password?':'Back to sign in'}</button>
    {mode==='login'&&microsoftEnabled&&<button type="button" disabled={busy||!configured} onClick={microsoft}>Continue with Microsoft</button>}</div>}
-  {!flow&&mode==='login'&&<p className="quality-note">Need an account or collection access? Contact your organization administrator.</p>}
+  {!flow&&mode==='login'&&<p className="quality-note">Need an account or collection access? Contact the collection administrator.</p>}
  </section>;
 }

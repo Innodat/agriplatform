@@ -1,0 +1,123 @@
+{
+  "complete": true,
+  "inspection_receipt_sha256": "5c3f2981b465851de61b8b604ca238b42db8208188a546ecf5481c885ca46c89",
+  "limitations": [
+    "Local immutable image IDs only; no new registry publication.",
+    "Installed owner sources matched exactly; no new coupled live consumer/readiness claim."
+  ],
+  "owners": {
+    "content": {
+      "complete": true,
+      "extra_installed_files": [],
+      "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+      "installed_source_sha256": {
+        "client.py": "b83ecca25a6d9528246bae78810f081c7a9ed38e5f36a5ab794dcc5d34678457",
+        "contracts.py": "d3a8f05661f96136f2e58e814b90244ae4f80f2d14a9d89c05bd36fc3789df51",
+        "diagnostics.py": "288eabd92d5e2cb1bb3622d629cab06d1059538ebaa6f589454405256c2afa7a",
+        "main.py": "371fa5d93f58487493e5b426235faabe58efd1ffe2431f7d2753d2bd4506eb79",
+        "owned_api.py": "5e80bc8125aeb678927d135b98c947135d9dc5f63d334e5f1ef5e34c5291290e",
+        "provider.py": "00196f7b33e06e1f3e401e8c6d8e650feff69440f510a510dd083a2861c17be1",
+        "repository.py": "0615fe4e0648fc3c87688212f968d173019f8df8ef0d97a70b8cb45abd229ded",
+        "service_policy.py": "5223461246065957ac7dddb211cfff2779be7588883b4ebc326ae526b2d144c5",
+        "streaming.py": "1f65f285aaa5573cdb3f69950df3ac7494082c6aafcff85b3480079889378ddb"
+      },
+      "mismatches": [],
+      "observed_uid": 65532,
+      "python_version": "3.15.0",
+      "source_inputs": {
+        "services/content-service/client.py": "b83ecca25a6d9528246bae78810f081c7a9ed38e5f36a5ab794dcc5d34678457",
+        "services/content-service/contracts.py": "d3a8f05661f96136f2e58e814b90244ae4f80f2d14a9d89c05bd36fc3789df51",
+        "services/content-service/deployment/Dockerfile": "a543d9a29e6d6c9ef415c696d047f3d5df8d7babb14bc77959c4a555f92a9691",
+        "services/content-service/deployment/Dockerfile.dockerignore": "995cd82bc1d1c11e4e44f43b29a783f0e642cf74da94a574bc8b4a1d75e4a459",
+        "services/content-service/deployment/package_runtime.py": "2ef4459e3954b5f2b0b1fb508ae5790fa02c912e45829f168634105a6210ac4c",
+        "services/content-service/deployment/verify_runtime.py": "30858597cfb919f0b147c94f7f1f48156a4644195a08aef6d12333c1f9613ce6",
+        "services/content-service/diagnostics.py": "288eabd92d5e2cb1bb3622d629cab06d1059538ebaa6f589454405256c2afa7a",
+        "services/content-service/main.py": "371fa5d93f58487493e5b426235faabe58efd1ffe2431f7d2753d2bd4506eb79",
+        "services/content-service/owned_api.py": "5e80bc8125aeb678927d135b98c947135d9dc5f63d334e5f1ef5e34c5291290e",
+        "services/content-service/provider.py": "00196f7b33e06e1f3e401e8c6d8e650feff69440f510a510dd083a2861c17be1",
+        "services/content-service/pyproject.toml": "730bca528c6989880e8dad8dc0d19ad150e525ac31d77eba10be721dca0fa50a",
+        "services/content-service/repository.py": "0615fe4e0648fc3c87688212f968d173019f8df8ef0d97a70b8cb45abd229ded",
+        "services/content-service/service_policy.py": "5223461246065957ac7dddb211cfff2779be7588883b4ebc326ae526b2d144c5",
+        "services/content-service/streaming.py": "1f65f285aaa5573cdb3f69950df3ac7494082c6aafcff85b3480079889378ddb",
+        "services/content-service/uv.lock": "6e76d22975495f984d5b4a393c8495c47be7cdfa3b3f66c439178205dfe44b81"
+      }
+    },
+    "directory": {
+      "complete": true,
+      "extra_installed_files": [],
+      "image_id": "sha256:3d6e317c3cbd0e72a7d7784b795733d6376f22099856a7df3032c92268df8ad8",
+      "installed_source_sha256": {
+        "catalog.py": "da7da40dee759f41596bc6134b87477713fa5fadf590f974af0d85259a9d1fae",
+        "config.py": "90199eb604f877f9d97d6bd0484364ca56e5bd24924a30c7ceec93501bb1fdf4",
+        "discovery.py": "b5c4ed7c6e7c6ab0b5f9537ae3792c279f0c9c4ed99de658dd5ca7e0b2bcb98a",
+        "discovery_config.py": "1fbae92b61a7e624adef40e8c0b60dba3edf8b4134c1400ff0703305894330c3",
+        "main.py": "41ad86d5ce02113bdb2405293b7cc96bdb1b4fbddde402382f28c92d8075f9a4",
+        "routers/__init__.py": "9e69d80ee4b343a2a90df3a220a1dd981eabcfcc92c926b3cda1048609cb7d33",
+        "routers/apps.py": "d5c27405bdd69f25d65b5aba315b6c6781a92cb049093e7aae90cc2730817ed3",
+        "schemas/__init__.py": "952df5f5021442576c127b6393bdb0dee229ab55b4092f81395056fa4fd8dc78",
+        "schemas/app_schemas.py": "5879df842a6c8cdb8ec2859d0d1dc31cbc3c6081456e7442a4d67bd108626e0c"
+      },
+      "mismatches": [],
+      "observed_uid": 65532,
+      "python_version": "3.15.0",
+      "source_inputs": {
+        "services/app-directory/catalog.py": "da7da40dee759f41596bc6134b87477713fa5fadf590f974af0d85259a9d1fae",
+        "services/app-directory/config.py": "90199eb604f877f9d97d6bd0484364ca56e5bd24924a30c7ceec93501bb1fdf4",
+        "services/app-directory/deployment/Dockerfile": "2c9b1baf728c72cdbfcd48c4f4f44136f7f26e4ca4b33a8fa69650955fb18943",
+        "services/app-directory/deployment/Dockerfile.dockerignore": "0a05cae4f163db777e7df7fe5733295d24afdc55c2228a5e0ce3ac56ebbcd5f3",
+        "services/app-directory/deployment/package_runtime.py": "28457b3cad8e4564b929f14eb256642834b8b78ca948631fccffd628266faf65",
+        "services/app-directory/deployment/verify_runtime.py": "8096509dd3db594626966e0577d1ba7849eeca56618f5d0cdb93f508d3b4717c",
+        "services/app-directory/discovery.py": "b5c4ed7c6e7c6ab0b5f9537ae3792c279f0c9c4ed99de658dd5ca7e0b2bcb98a",
+        "services/app-directory/discovery_config.py": "1fbae92b61a7e624adef40e8c0b60dba3edf8b4134c1400ff0703305894330c3",
+        "services/app-directory/main.py": "41ad86d5ce02113bdb2405293b7cc96bdb1b4fbddde402382f28c92d8075f9a4",
+        "services/app-directory/pyproject.toml": "ac4f49922a37571e42dd128c82224eadba8471a945cfeea64efe9cea32a0e37f",
+        "services/app-directory/routers/__init__.py": "9e69d80ee4b343a2a90df3a220a1dd981eabcfcc92c926b3cda1048609cb7d33",
+        "services/app-directory/routers/apps.py": "d5c27405bdd69f25d65b5aba315b6c6781a92cb049093e7aae90cc2730817ed3",
+        "services/app-directory/schemas/__init__.py": "952df5f5021442576c127b6393bdb0dee229ab55b4092f81395056fa4fd8dc78",
+        "services/app-directory/schemas/app_schemas.py": "5879df842a6c8cdb8ec2859d0d1dc31cbc3c6081456e7442a4d67bd108626e0c",
+        "services/app-directory/uv.lock": "30cbb4d4979bb08e4c4926641882ec11f133a22e9138102331807f210062476f"
+      }
+    },
+    "pts": {
+      "complete": true,
+      "extra_installed_files": [],
+      "image_id": "sha256:bb3ae87d37fe47d03ee186c2d493f6c7fe0cb47096d318372d076b4bc6192ddb",
+      "installed_source_sha256": {
+        "backend/acquisition.py": "f37a994c2e7dbdf9ae2c4c03f0eadcec13af50128d699bb9867280132e7ba14b",
+        "backend/acquisition_catalogue.json": "7a59bb6166104aaa30cc80bf05b65483c4b124122d53b2bea95c6c1f4c6836dd",
+        "backend/clients.py": "05159a392915b503a85fd31d98d088ff44a7d13ea1b1445954a1bfc5e4d29508",
+        "backend/collection.py": "01a43752b6f886a08c777b0461d70d1f0cb90756f9c0b2a027231c1dc2c4411c",
+        "backend/contracts.py": "3d4097c5e88fb2ad25745bf0bf44d1277252ab4bd4dbfe310f373a223e249e22",
+        "backend/db.py": "0e34efe58b1429f5d2b9e4bbf6e37f3566900f4d4e70800cc93eddb1fa4823fd",
+        "backend/file_auth.py": "d3a43eb61677b811f7a84818420b7c82e95d97817e97710838fc05bcb10a41b5",
+        "backend/main.py": "f13d42f04278260d70c6d0707a022a2f8aa030173c4cebc6b6aec0bcb16aaf98",
+        "backend/private_stream.py": "68096d0121630135226de6e5124cabbc202db53ae9b6a0696359e891a7eeea8a",
+        "backend/research_use.py": "909642f0432b6bbabe69047aba28e8754cc1bb0f0a87ad3aeb7cc3598ffb384a"
+      },
+      "mismatches": [],
+      "observed_uid": 65532,
+      "python_version": "3.15.0",
+      "source_inputs": {
+        "apps/pts/backend/acquisition.py": "f37a994c2e7dbdf9ae2c4c03f0eadcec13af50128d699bb9867280132e7ba14b",
+        "apps/pts/backend/acquisition_catalogue.json": "7a59bb6166104aaa30cc80bf05b65483c4b124122d53b2bea95c6c1f4c6836dd",
+        "apps/pts/backend/clients.py": "05159a392915b503a85fd31d98d088ff44a7d13ea1b1445954a1bfc5e4d29508",
+        "apps/pts/backend/collection.py": "01a43752b6f886a08c777b0461d70d1f0cb90756f9c0b2a027231c1dc2c4411c",
+        "apps/pts/backend/contracts.py": "3d4097c5e88fb2ad25745bf0bf44d1277252ab4bd4dbfe310f373a223e249e22",
+        "apps/pts/backend/db.py": "0e34efe58b1429f5d2b9e4bbf6e37f3566900f4d4e70800cc93eddb1fa4823fd",
+        "apps/pts/backend/file_auth.py": "d3a43eb61677b811f7a84818420b7c82e95d97817e97710838fc05bcb10a41b5",
+        "apps/pts/backend/main.py": "f13d42f04278260d70c6d0707a022a2f8aa030173c4cebc6b6aec0bcb16aaf98",
+        "apps/pts/backend/private_stream.py": "68096d0121630135226de6e5124cabbc202db53ae9b6a0696359e891a7eeea8a",
+        "apps/pts/backend/research_use.py": "909642f0432b6bbabe69047aba28e8754cc1bb0f0a87ad3aeb7cc3598ffb384a",
+        "apps/pts/deployment/Dockerfile": "e9d1c77c4aaebcf7948e3349b853e5830c63736fa0602f5f9b88814a21d5fc86",
+        "apps/pts/deployment/Dockerfile.dockerignore": "deaede50849913cc54d6d68bf561abd1637b45860dd1d4b5ac4d6017f2990aa1",
+        "apps/pts/deployment/package_runtime.py": "839ec61d37d25c88797a061689a849c8fab8548d3f4ebcf1ef7d12bb7a097d16",
+        "apps/pts/deployment/verify_runtime.py": "a010332922017a25b4cedc5b0776670335c715f804f0e0f762bd08665acc2d9e",
+        "apps/pts/pyproject.toml": "5a25b754864f3d4fb895b7afb47105c5e19f0d7826e0b0e5a54ea68afc6e5156",
+        "apps/pts/uv.lock": "c641055c83c8c970987f3743f6522ddfe54059ea50c3e89f3bc51f138482fff5"
+      }
+    }
+  },
+  "production_changed": false,
+  "scope": "Actual installed source inspection of reused immutable owner images; no API/target operation",
+  "source_archive_sha256": "850dfea29f949cfae04889cb46cfec424dc0c78f3ba1632554131df03e543e3c"
+}

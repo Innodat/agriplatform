@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "fresh canonical owner source/native Studies qualification; not hosted adoption or image/production qualification",
+  "production_changed": false,
+  "activation_authorized": false,
+  "identity_revision": "identity_0030",
+  "access_revision": "access_0019",
+  "readiness_schema_version": 3,
+  "runtime_modules": 26,
+  "qualification_source_count": 230,
+  "qualification_sha256": "4965ed901fc13741475075070508c6f64aebf78a8b6c29c662736e268fa32e1b",
+  "proof_stage_count": 8,
+  "cases": {
+    "first_use_race": true,
+    "actor_only_recovery": true,
+    "adopted_collision_current_denial": true,
+    "native_deadline": true,
+    "lost_response_revoked_replay": true,
+    "restricted_roles": true,
+    "clean_upgrade": true,
+    "populated_upgrade_failure_repeat": true,
+    "provider_profile_hook": true,
+    "current_auth_after_lock": true
+  },
+  "source_and_stage_proofs_revalidated": true,
+  "runs": [
+    {
+      "phase": "clean",
+      "run_id": "5076d1d4-f322-478c-ae1b-c1515dbf8b31",
+      "passed": true,
+      "wrapper_stop_exit_code": 0,
+      "no_owned_containers_remaining": true,
+      "processes_stopped_unforced": true,
+      "result_sha256": "ec4d3177b97e5f8823afa9f34fec2b0ab3557b8530c84f6c80fe4253f0af32b1"
+    },
+    {
+      "phase": "current",
+      "run_id": "a4c2e968-898d-4a2f-b508-6425f50821f1",
+      "passed": true,
+      "wrapper_stop_exit_code": 0,
+      "no_owned_containers_remaining": true,
+      "processes_stopped_unforced": true,
+      "result_sha256": "089069707be8cee8e3718e6ebae76ab709873a3e2a21024eefdbde596c1786d7"
+    }
+  ]
+}

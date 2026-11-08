@@ -1,5 +1,13 @@
 # Studies production target readiness — 2026-10-28
 
+**Cross-release continuation — 2026-11-01:** use the
+[Leave E1 / Scribeswell-PtS ownership handoff](OWNER_READINESS_HANDOFF.md#leave-e1--scribeswell-pts-release-alignment--2026-11-01).
+The existing production-adoption delivery owns the shared transition and consumes
+completed E1-PTS-ADOPT work. Its recorded 2026-10-28 scope decision supersedes the
+scope-pending wording below. Reconcile the frozen Identity0026 Studies candidate with
+PtS/Leave's Identity0030 requirement before qualifying the exact release; no new
+readiness pass or production execution is implied. Full Leave E1 closure is not a gate.
+
 Private access to `machon` is restored. The latest read-only target checks are
 recorded in [safe target evidence](evidence/bounded-studies-rollout-20261028/target-readiness.json).
 This supersedes the earlier connectivity blocker, not the migration/readiness gates.
@@ -106,3 +114,51 @@ on the host. Private operational records remain under the ignored app `.local` t
 Scaffold/shared UI/agent context/ADR: no changes in this investigation. Documentation
 and delivery tracking record the actual target mismatch; unrelated staged and working
 changes, including Identity0027, remain untouched.
+
+
+## Shared release continuation — 2026-11-01
+
+The historical findings above remain the observed production predecessor. The
+owner subsequently authorized the targeted coordinated Identity/Access/PtS
+prerequisite within this Scribeswell release. This release owns shared adoption,
+cutover and recovery; Leave and KDG consume its result afterward. Their application
+activation, full Leave E1 and hosted Reference verification are outside this release.
+
+The selected managed-host equivalent is `hosted-e1-v1`, with true eventual heads
+`identity_0031_e1_hosted` / `access_0020_hosted` and independent operational reference
+`7420343a374758599dacf4b8d93dc690197bb8bc0bec2fbee4441b145b617b85`.
+It preserves the reviewed People27/actor28/session29/cleanup30 and Access19
+contracts. Canonical0030/0019 were not executed or stamped on this profile. Frozen
+Studies0026/0019 and KDG0028 proof retain their original identities; neither is
+evidence for this successor. See the current
+[owner handoff](OWNER_READINESS_HANDOFF.md) and existing production adoption spec.
+
+Operational predecessor and hosted E1, restricted owner command transport, managed
+Studies preparation, packaged private-only/PtS migrations, retained-data failure/
+forward retry, maintenance stop/backup coordination, public-only API recovery and
+both frontend variants have focused source/native/image evidence linked from the
+handoff. Content/PtS target schemas already have the correct owners; preserve
+existing provider role edges. These proofs do not establish target adoption or
+final coupled readiness. All actual-target work so far remains read-only.
+
+Remaining release gates are final successor readiness/activation integration and
+source-bound coupled qualification, concrete private owner/principal/grant/corpus/
+Content binding commands, dedicated file DNS/certificate preparation, final review
+and explicit production execution approval. Public reading and saved data must
+survive failure/recovery; no rollback of applied owner histories or restored dump
+over later acknowledged saves is authorized. No production activation or image/
+frontend publication has occurred.
+
+
+Current preparation update — 2026-11-02: selected hosted31/20 equivalent to reviewed
+canonical30/19 now has source-bound genuine owner/provider qualification, separate-
+target readiness, actual default API/Access save/recovery, and complete eight-image
+inspection. Real Scribeswell-root `/` + current PtS `/pts/` builds/browser checks
+passed at their recorded canonical boundary. The gateway metadata correction leaves
+q3's338 sources and API/migration/runtime owner closures exact. Private target owner/
+role/credential/grant/corpus/Content proposals and ordered recovery run card exist;
+all remain unapplied. See OWNER_READINESS_HANDOFF.md for exact proof boundaries.
+Canonical successor/review, actual provider/certificate/runtime staging/publication,
+callback allowlist compatibility and explicit execution approval remain. Automatic
+review rejected API token verification before execution; specific credential egress/
+custody authorization is still required. Production reading/data remain unchanged.

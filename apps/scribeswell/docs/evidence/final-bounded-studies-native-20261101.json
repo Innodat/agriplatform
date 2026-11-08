@@ -1,0 +1,132 @@
+{
+  "activation_allowed": false,
+  "artifact_sha256": "d619da604e7c16aa6c43225211f90342d28abbaf6d39d9ff73498764cd283bed",
+  "complete": true,
+  "denial_observations": [
+    {
+      "case": "email_confirmed_at",
+      "safe_code": "studies_access_denied",
+      "status": 403
+    },
+    {
+      "case": "banned_until",
+      "safe_code": "authentication_required",
+      "status": 401
+    },
+    {
+      "case": "deleted_at",
+      "safe_code": "studies_access_denied",
+      "status": 403
+    },
+    {
+      "case": "local_deleted",
+      "safe_code": "studies_access_denied",
+      "status": 403
+    },
+    {
+      "case": "application_disabled",
+      "safe_code": "studies_access_denied",
+      "status": 403
+    },
+    {
+      "case": "grant_revoked",
+      "safe_code": "studies_access_denied",
+      "status": 403
+    }
+  ],
+  "driver_sha256": "ded33b4cfb1570372353621725a986eb3a64d79856d26484110bd39e72c5a6ce",
+  "limitations": [
+    "This is owner/app native ASGI proof with genuine provider and restricted real SQL; actual default packaged consumer/gateway/host activation remains separate.",
+    "Resume preserves prior partial preparation and credentials. First attempt failed because retained Docker-only operator URL hostname was not host-resolvable; corrected host route only, before any operator command executed.",
+    "Qualified native account and separate within-fixture preparation target differ; executor in this fixture is shared, so a separate cohort12 target is used for distinct-executor carrier readiness.",
+    "No production target grant, role, Auth account, data or deployment mutation."
+  ],
+  "native_saved_hash": "36eb507114c5b3d53ec9fceaa17a07b75f803aad5cbbd92a29f10927bfd1f6c6",
+  "owner_heads": [
+    "identity_0031_e1_hosted",
+    "access_0020_hosted"
+  ],
+  "prior_partial_limitation": "Retained operator URLs were Docker-only synthetic hostnames. Two original roles now use same owned fixture published host route; credentials and principals are preserved.",
+  "prior_partial_preparation_sha256": "1cce7e008f66b52afae359e174ee61f0283a30b8d7f8b87cf32fcbbcdc6348e2",
+  "private_qualification_archive_sha256": "0539a30e42b75b3d16e8ec87b3d24939c884c91f2f6e0c38b300270fd8b8c085",
+  "production_changed": false,
+  "proof_sha256": {
+    "hosted-bounded-http.json": "2c2100e681ef3a79aae70f1fbae1114d2a167eefb6334e962e2ef1bf5bba1142",
+    "hosted-current-denials.json": "617b86ff22ec4b991965a02d145a7598e698f31cb18cd3b84d85dbf795d38289",
+    "hosted-owners.json": "b7036dd597424906c028cd26dee8e89e3fb33c38eb6183d91eafbb5e709b0eea",
+    "hosted-provider.json": "79531d8a008d3e34ca7878d440110156ee4b4fc62e8d8d0ae159dbaa0e5a8475",
+    "hosted-runtime-denials.json": "8f5dff37dba0c87e9c79429c44332f93610da580cbc48865e868e9afd58912fb"
+  },
+  "qualification_kind": "native-focused-owner-and-app-ASGI-genuine-provider",
+  "qualification_sha256": "8be880f4302a17c4371d46f1c8a6c687ab1c37689b3e3df68c6a214369c9e277",
+  "readonly_observations": [
+    [
+      "identity_migrator",
+      "on"
+    ],
+    [
+      "access_migrator",
+      "on"
+    ]
+  ],
+  "release_id": "scribeswell-pts-hosted-e1-20261101",
+  "schema_version": 1,
+  "scope": "Fresh settled-source schema5 bounded Studies native save/reload/denial/readonly preparation on retained TLS cohort11; historical qualifications remain unchanged",
+  "source_archive_sha256": "92e43c246118a6d3add1d6782ef351d858f3b923d98af8147aadead9450127f9",
+  "steps": [
+    {
+      "existing_actor_unchanged": 1,
+      "explicit_owner_actor_commands": 2,
+      "explicit_restricted_grants": 2,
+      "genuine_provider_profiles_reused": 2,
+      "label": "explicit-owner-actor-principal-and-application-preparation",
+      "new_auth_accounts": 0,
+      "new_explicit_actor": 1,
+      "no_employment_dependency": true,
+      "passed": true,
+      "zero_memberships": true
+    },
+    {
+      "label": "independent-owner-read-only-observations",
+      "owner_heads": [
+        "identity_0031_e1_hosted",
+        "access_0020_hosted"
+      ],
+      "passed": true
+    },
+    {
+      "actual_private_save_reload": true,
+      "label": "selected-check-write-and-boundaries",
+      "no_enrollment_effects": true,
+      "passed": true
+    },
+    {
+      "grant_revocation_retained": true,
+      "label": "current-provider-local-and-app-denials",
+      "local_denial": true,
+      "passed": true,
+      "protected_application_disable": true,
+      "provider_cases": 3,
+      "saved_data_preserved": true
+    },
+    {
+      "denials": 21,
+      "label": "restricted-runtime-denials",
+      "passed": true
+    },
+    {
+      "both_owner_transactions_read_only": true,
+      "distinct_native_and_target_account": true,
+      "label": "closed-qualification-and-real-read-only-target-preparation",
+      "no_saved_data_changed": true,
+      "passed": true
+    },
+    {
+      "final_artifact_private_save_reload": true,
+      "label": "final-artifact-backed-route-and-source-verification",
+      "old_native_account_remains_denied": true,
+      "owner_catalogues_and_sources_reverified": true,
+      "passed": true
+    }
+  ]
+}

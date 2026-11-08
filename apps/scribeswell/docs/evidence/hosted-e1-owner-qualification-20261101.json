@@ -1,0 +1,232 @@
+{
+  "access_revision": "access_0020_hosted",
+  "activation_allowed": false,
+  "canonical_contract_mapping": {
+    "access": "0019",
+    "identity": [
+      "people0027",
+      "actor-display0028",
+      "current-session0029",
+      "cleanup0030"
+    ]
+  },
+  "canonical_migrations_executed": false,
+  "identity_revision": "identity_0031_e1_hosted",
+  "limitations": [
+    "Predecessor constructor uses synthetic source ledgers; not proof of operational legacy migration execution.",
+    "Actual-target adoption, Studies managed roles and readiness, packaged consumers and release recovery remain gates.",
+    "No published image, production change or Leave/KDG application activation is claimed."
+  ],
+  "native_seconds": 10.957581034992472,
+  "native_stages": [
+    {
+      "label": "source-created-predecessor-not-migration-proof",
+      "preserved_sha256": "200446b6679f466301194d5508bdc57f381dedb9620c6a75e50c18349e32ebb5",
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_history_mismatch",
+      "label": "unknown-identity-ledger-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_history_mismatch",
+      "label": "unknown-access-ledger-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_roles_unsafe",
+      "label": "partial-role-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "label": "actual-managed-e1-preparation",
+      "status": "passed"
+    },
+    {
+      "label": "prepared-repeat",
+      "status": "passed"
+    },
+    {
+      "label": "unrelated-no-authority-schema-stability",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_catalogue_mismatch",
+      "label": "foreign-schema-usage-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "inaccessible_read_sqlstate": "42501",
+      "label": "foreign-schema-select-refused",
+      "preparation_refused": true,
+      "reachable_control_rows": 1,
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_catalogue_mismatch",
+      "label": "bridge-public-execute-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_memberships_unsafe",
+      "label": "unexpected-set-edge-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "expected_failure": "hosted_e1_raw_authority_unsafe",
+      "label": "auth-authority-refused",
+      "rollback_verified": true,
+      "status": "passed"
+    },
+    {
+      "event_trigger_fired": true,
+      "exit_code": 1,
+      "expected_failure": "hosted_e1_migration_failed_requires_reconciliation",
+      "label": "e1-injected-failure",
+      "log_sha256": "05bb0d2e5d73c096e8a14f2329c05ed4a538a4fbcc9efe2c218c158022e3d208",
+      "status": "passed"
+    },
+    {
+      "label": "failed-stage-reconciled-preservation",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "expected_failure": null,
+      "label": "e1-forward-retry",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "expected_failure": null,
+      "label": "e1-exact-repeat",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "expected_failure": null,
+      "label": "e1-access-exact-repeat",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed"
+    },
+    {
+      "label": "true-hosted-head-and-preservation",
+      "preserved_sha256": "200446b6679f466301194d5508bdc57f381dedb9620c6a75e50c18349e32ebb5",
+      "status": "passed"
+    },
+    {
+      "actual_provider_signin_proven": false,
+      "eligibility_and_presence_distinct": true,
+      "label": "unmodified-native-consumer-contracts",
+      "raw_denials": 18,
+      "receipt_actor_executor_verified": true,
+      "receipt_replay": true,
+      "status": "passed",
+      "synthetic_auth_input": true
+    },
+    {
+      "label": "source-custody-preserved",
+      "status": "passed"
+    }
+  ],
+  "parent_focused_tests": {
+    "passed": 109,
+    "seconds": 6.6,
+    "warnings": 2
+  },
+  "private_evidence_relative_to_isolated_checkout": ".local/hosted-e1/attempt-e1-20261101-03",
+  "production_changed": false,
+  "profile": "hosted-e1-v1",
+  "provider_and_people": {
+    "actual_app_stages": [
+      {
+        "label": "positive",
+        "no_store": true,
+        "passed": true,
+        "status": 200
+      },
+      {
+        "label": "missing-person",
+        "no_store": true,
+        "passed": true,
+        "status": 404
+      },
+      {
+        "label": "wrong-key",
+        "no_store": true,
+        "passed": true,
+        "status": 403
+      },
+      {
+        "label": "unselected-org",
+        "no_store": true,
+        "passed": true,
+        "status": 403
+      }
+    ],
+    "complete": true,
+    "completion_sha256": "fd690576138626ea792a21e80649f2ab84516eba0fdf48c03921929ea5e5aa0b",
+    "owner_heads_verified": true,
+    "prior_attempt_sha256": "c030ff95036701d658858a736fa36ee577a74212853fcd29f127ad5a52993771",
+    "prior_passed_stages": [
+      {
+        "accounts": 2,
+        "label": "provider-signup-and-password-signin",
+        "normal_password_sessions": 2,
+        "passed": true,
+        "profile_hook_rows": 2
+      },
+      {
+        "explicit_account_actors": 2,
+        "label": "explicit-fixture-owner-and-account-actor-preparation",
+        "no_application_grants": true,
+        "passed": true
+      },
+      {
+        "cleanup_presence_rechecked": true,
+        "label": "genuine-provider-session-and-cleanup-native",
+        "passed": true,
+        "real_logout_revoked_session": true,
+        "receipt_replay": true,
+        "wrong_account_denied": true
+      },
+      {
+        "label": "people-positive-owner-command",
+        "passed": true,
+        "restricted_operator_command": true
+      }
+    ],
+    "source_custody_preserved": true
+  },
+  "qualification_sha256": "9375b2319facd2190c183d0de54504471836f4660067c241c0efcdaf16a43d6a",
+  "reference_sha256": "5551c2128fb713a579a894d57e430fb42f3669c6345474398cdc45476d7cbe0f",
+  "retained_failures": [
+    {
+      "attempt": "native01",
+      "containers_stopped": true,
+      "reason": "unrelated inaccessible schema produced false-only fingerprint drift",
+      "source_archive_sha256": "f6316e64ac5ab5b7ed8dc8dc88a4bc0716f6845ecd22e9275c71b3bb8c6225f4"
+    },
+    {
+      "attempt": "native02",
+      "containers_stopped": true,
+      "reason": "restricted verifier name lookup required Auth schema USAGE; corrected to catalogue OIDs",
+      "source_archive_sha256": "cc6919d048f00217763a6195b8d2d45de0bcf200b6514f0fbb22e47051fc94f5"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "local managed hosted E1 owner qualification",
+  "source_archive_sha256": "53cd8379bd81a1ad83f5206a8c6d1d30afb721216eb1c739451e2fb12c638433",
+  "source_bindings": 314
+}

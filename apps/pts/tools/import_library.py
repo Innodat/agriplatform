@@ -7,7 +7,7 @@ from pathlib import Path
 from uuid import UUID
 from sqlalchemy import text
 from apps.pts.backend.collection import KINDS, validate
-from apps.pts.backend.db import engine, scoped
+from apps.pts.backend.db import engine, corpus
 
 
 def digest(value):
@@ -40,13 +40,12 @@ def import_library(conn, library):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=Path, required=True)
-    parser.add_argument('--org', type=UUID, required=True)
     args = parser.parse_args()
     library = json.loads(args.source.read_text(encoding='utf-8'))
     db = engine(os.environ['PTS_IMPORT_DATABASE_URL'])
-    with scoped(db, args.org, 'service:pts-import') as conn:
-        # Serialize imports for this organization, without external I/O in the transaction.
-        conn.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:org, 0))"), {'org': str(args.org)})
+    with corpus(db, str(UUID(os.environ['PTS_IMPORT_ACTOR_ID']))) as conn:
+        # Exactly the predecessor's lock identity; no external I/O under this lock.
+        conn.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(current_setting('app.org_id'), 0))"))
         result = import_library(conn, library)
     print(json.dumps(result))
     if result['conflicts']: raise SystemExit(2)

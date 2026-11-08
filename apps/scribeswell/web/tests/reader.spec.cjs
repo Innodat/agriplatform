@@ -90,16 +90,14 @@ test('late chapter responses cannot replace the chosen chapter',async({page})=>{
  await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toHaveCount(0);
 });
 
-test('shared launcher works in Scribeswell',async({page})=>{
+test('anonymous launcher offers sign-in while public reading remains available',async({page})=>{
  await setup(page);
  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}]}));
  await page.goto('/');
  const header=page.getByRole('banner');const launcherBounds=await header.getByRole('button',{name:'App launcher'}).boundingBox();const authBounds=await header.getByRole('button',{name:'Sign in',exact:true}).boundingBox();
  expect(launcherBounds.x).toBe(16);expect(authBounds.x+authBounds.width).toBe(await page.evaluate(()=>innerWidth-16));expect((await header.boundingBox()).height).toBe(57);
  const trigger=page.getByRole('button',{name:'App launcher'});await expect(trigger).toHaveText('');await expect(trigger).toHaveAttribute('title','App launcher');await trigger.click();
- const menu=page.getByRole('menu');await expect(menu.getByText('Current app')).toBeVisible();
- await expect(menu.getByRole('menuitem',{name:'Open Scribeswell'})).toHaveAttribute('aria-current','page');
- await page.keyboard.press('ArrowDown');await expect(menu.getByRole('menuitem',{name:'Open PtS'})).toBeFocused();
+ const menu=page.getByRole('menu');await expect(menu.getByRole('status')).toHaveText('Sign in to see your apps.');await expect(menu.getByRole('menuitem',{name:/Open /})).toHaveCount(0);
  const b=await menu.boundingBox();expect(b.x).toBeGreaterThanOrEqual(0);expect(b.x+b.width).toBeLessThanOrEqual(await page.evaluate(()=>innerWidth));
  await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
 });

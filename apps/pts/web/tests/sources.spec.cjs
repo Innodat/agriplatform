@@ -1,4 +1,6 @@
 const {test,expect}=require('@playwright/test');
+const {files,fileContext,context:documentContext}=require('./file-fixture.cjs');
+test.beforeEach(async({page})=>files(page));
 const org='11111111-1111-1111-1111-111111111111';
 const actor='33333333-3333-3333-3333-333333333333';
 async function setup(page){
@@ -9,7 +11,7 @@ async function setup(page){
  await page.route('http://127.0.0.1:8010/**',r=>{
   const path=new URL(r.request().url()).pathname;requests.push(path);
   if(denied)return r.fulfill({status:403,json:{detail:{code:'access_denied'}}});
-  if(path.startsWith('/api/documents/'))return r.fulfill({json:{status:'stored',url:'https://private.invalid/download',expires_in:300,document:{}}});
+  if(path.startsWith('/api/documents/'))return r.fulfill({json:{status:'stored',document:{}}});
   if(path==='/api/sources')return r.fulfill({json:{sources:[{id:'S1',title:'Collected volume',rights_id:'R1',historical_context:'Historical description',document_id:'D1'},{id:'S2',title:'Uncollected lead',rights_id:'R2',document_id:'D1',completeness:'Incomplete scan',repository_url:'javascript:alert(1)'}],rights:[{id:'R1',assessment:'Conflicting licence notices',research_use:'Review required',source_document_copying:{status:'stored',copying_basis:'Preserve notices'}},{id:'R2',assessment:'No clearance recorded',source_document_copying:'Link only'}],source_documents:[{id:'D1',source_id:'S1',title:'Shared PDF',local_path:'sources/test.pdf',url:'https://source.invalid/volume.pdf',copying_basis:'Recorded copying basis'},{id:'D2',source_id:'S1',title:'HTML scan',local_path:'sources/source.html'},{id:'D3',title:'Rights reference',url:'https://reference.invalid/',status:'online_reference'}]}});
   return r.fulfill({json:{schema_version:'1',exported_at:'today',note:'',poems:[],witnesses:[],sources:[],rights:[],source_documents:[],total:0,collection_total:0,filters:{},citations:{}}});
  });
@@ -29,7 +31,7 @@ test('sources include leads, rights and shared documents with protected download
  expect(state.requests.every(p=>p==='/api/sources')).toBe(true);
  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
  await page.getByRole('button',{name:'Download PDF',exact:true}).last().click();
- await expect.poll(()=>page.evaluate(()=>window.openedDocument)).toBe('https://private.invalid/download');
+ await expect.poll(()=>page.evaluate(()=>window.openedDocument)).toBe(documentContext);
  expect(state.requests).toContain('/api/documents/D1');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
  state.revoke();await page.getByRole('button',{name:'Download PDF',exact:true}).first().click();

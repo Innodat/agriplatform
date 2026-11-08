@@ -1,0 +1,19 @@
+{
+  "activation_authorized": false,
+  "actual_default_uid": 636,
+  "complete": true,
+  "configured_user": "apisix",
+  "entrypoint": "/usr/bin/id",
+  "exit_code": 0,
+  "forced_user_override": false,
+  "image_id": "sha256:b6fd21b8c341f3bf274ddabbad2e3c1bbb6a17566f0e41bf618166e63e4641e4",
+  "network": "none",
+  "observed_finished_at": "2026-11-01T22:34:24.653426858Z",
+  "production_changed": false,
+  "repo_digests": [
+    "apache/apisix@sha256:84e6b5e787e9f889ebff88161cb9a16599bafcffa236c6b54c7f779a0655940d"
+  ],
+  "retained_container_id": "b33b56b7dfd2299740f83b16cad324cbb72ceb23bc39dd4e8ba7402857121cc5",
+  "scope": "Exact immutable official gateway image default configured-user UID; no gateway server or production process started",
+  "stdout_sha256": "3b2a7fa702888f55292911b5fa50be514a811c9528a534b201dacf4f7470a681"
+}

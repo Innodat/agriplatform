@@ -1,0 +1,104 @@
+{
+  "activation_allowed": false,
+  "complete": true,
+  "completion_passed_stages": [
+    {
+      "label": "reconcile-exact-prepared-state-from-retained-attempt03",
+      "passed": true,
+      "source_and_receipt_exact": true
+    },
+    {
+      "entire_private_stage_rolled_back": true,
+      "label": "actual-private-migration-injected-failure",
+      "original_consumer_state_preserved": true,
+      "passed": true,
+      "selected_ddl_reached": true
+    },
+    {
+      "head": "scribeswell_studies_0009",
+      "label": "private-migration-forward-retry-and-repeat",
+      "passed": true,
+      "repeat": true
+    },
+    {
+      "denials": 4,
+      "label": "runtime-foreign-ledger-and-schema-denials",
+      "passed": true
+    },
+    {
+      "label": "test_native_create_write_reopen_noop_replay_and_isolation",
+      "passed": true
+    },
+    {
+      "label": "test_concurrent_default_titles_and_same_operation",
+      "passed": true
+    },
+    {
+      "label": "test_native_revision_race_and_deadline",
+      "passed": true
+    },
+    {
+      "label": "saved-data-and-public-reader-preserved-after-migration-repeat",
+      "passed": true,
+      "saved_notes": 2
+    },
+    {
+      "label": "hosted-owner-and-source-reverification",
+      "passed": true
+    }
+  ],
+  "completion_qualification_sha256": "c26ee2a22d9773eccb2547ae33efe7981a5302694c35f07119a522e53dcb6fcb",
+  "helper_sha256": "ef33bed123d602b062dd462a8947f40f20c72a4f6d21fb5a92684e75e2e7779e",
+  "limitations": [
+    "Native tests use a separately hashed parent psycopg_pool3.3.3 dependency; not packaged runtime proof.",
+    "Earlier driver dependency/percent-quoting failures remain retained and incomplete.",
+    "Final images, shared adoption bindings, readiness and activation/recovery coordinator remain gates.",
+    "Existing privilege preservation includes deliberately removing PUBLIC TEMP for future roles; prepare other selected consumer roles first."
+  ],
+  "preparation_passed_stages": [
+    {
+      "absent_create": true,
+      "direct_and_inherited_create": true,
+      "label": "prepare-synthetic-existing-consumers-and-public-reader",
+      "passed": true,
+      "public_books": 1,
+      "public_temp": true
+    },
+    {
+      "actual_ddl_completed_before_injection": true,
+      "exact_original_state_restored": true,
+      "label": "real-managed-preparation-failure-rolls-back",
+      "passed": true,
+      "public_reader_preserved": true
+    },
+    {
+      "exact_repeat": true,
+      "future_public_privileges_removed": [
+        "TEMPORARY"
+      ],
+      "label": "check-only-and-actual-managed-preparation",
+      "original_roles": 63,
+      "passed": true,
+      "receipt_sha256": "4a2cb10f3f35082b5ff6b6050417ee3f0465eaa14069db574a275ee148c9155e"
+    },
+    {
+      "label": "existing-consumers-retain-actual-temp-and-schema-use",
+      "passed": true,
+      "real_login_create_cases": 2,
+      "real_login_temp_cases": 4
+    },
+    {
+      "denials": 9,
+      "label": "private-role-denials",
+      "operator_is_nologin_context": true,
+      "passed": true
+    }
+  ],
+  "preparation_qualification_sha256": "1b67cd638809c00d3a406cf759048d095061835a92fc38f84fb49f3a392cbd55",
+  "prepared_receipt_sha256": "4a2cb10f3f35082b5ff6b6050417ee3f0465eaa14069db574a275ee148c9155e",
+  "production_changed": false,
+  "schema_version": 1,
+  "scope": "local managed Studies role and migration qualification on hosted E1 cohort03",
+  "source_archive_sha256": "31279bfc247fd5fd509715aa2a5bef11ba7595a333291bb15612eb2860c1ee96",
+  "source_files": 27
+}

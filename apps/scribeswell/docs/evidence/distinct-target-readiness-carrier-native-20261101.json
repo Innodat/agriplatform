@@ -1,0 +1,33 @@
+{
+  "CLI_exit_code": 0,
+  "CLI_private_output": true,
+  "activation_authorized": false,
+  "actual_configured_UID": 65532,
+  "actual_original_owner_TLS_connections": true,
+  "all_six_owner_public_private_rows_exact": true,
+  "before_state_sha256": "9b7b04961cf2844c86ee981b303163279f15edcfc03892a38f2e1de6d1a42099",
+  "complete": true,
+  "driver_sha256": "e252500101cf893040cc8057c832fdb2be856c71753b1b1a3e1048931068e6e0",
+  "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+  "limitations": [
+    "Actual unchanged owner readiness CLI, not whole hosted coordinator/root-host activation/publication.",
+    "Separate local target has distinct genuine account and service executor from qualification; no actual production grant/account authority inferred.",
+    "First attempt timed out in an anonymous Docker custody helper before CLI creation; it produced no readiness. Its unverified restored-custody flag was corrected by separate retained reconciliation record, named helper and independently verified original ownership.",
+    "Successful attempt uses named observed custody helpers; private custody returned to original user and every container remains retained.",
+    "No production target role, migration, grant, data, DNS/TLS or deployment change."
+  ],
+  "owner_heads": [
+    "identity_0031_e1_hosted",
+    "access_0020_hosted"
+  ],
+  "private_custody_restored": true,
+  "production_changed": false,
+  "qualification_receipt_sha256": "051a0cf8091dfc89859483a473c9a0ed054e01de65c8492e3b6893605916eb74",
+  "qualification_sha256": "8be880f4302a17c4371d46f1c8a6c687ab1c37689b3e3df68c6a214369c9e277",
+  "readiness_sha256": "5fd98aae8fd685d03dfd4f4c55c33c0878c394489f44d8249a4b6ede1d32dd00",
+  "real_distinct_target_bindings": true,
+  "retained_container_id": "86b07c9af657f7c2a800210f8647debab4477ceb405d347daee509a728c5556d",
+  "scope": "Unchanged owner CLI in immutable UID65532 carrier validates source-frozen bounded Studies qualification against separate original-owner TLS target with distinct account/executor bindings",
+  "source_archive_sha256": "4e588d4278c5dac2ea76bc028a225dc4213b0ac65d24c7b9a37c695b75a471f9",
+  "steps": []
+}

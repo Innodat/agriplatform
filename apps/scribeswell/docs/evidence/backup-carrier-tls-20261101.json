@@ -1,0 +1,30 @@
+{
+  "activation_allowed": false,
+  "archive_bytes": 669917,
+  "archive_list_sha256": "9f3a5f13dca9209c7ffc9fd42d8bbc437299b23232f4c7632d02c972f420d512",
+  "archive_sha256": "10fe1339faf1ad5465910d3262ae0d8ee018258b449dd055d132760af96ac6cd",
+  "complete": true,
+  "driver_sha256": "99aa2b4e9b300b66a173be383c5e92cd0271ee095bf66ce1c0b0be64c7781746",
+  "dump_exit_code": 0,
+  "dump_seconds": 0.537,
+  "image": "public.ecr.aws/supabase/postgres@sha256:28f0e16a019e648089fc1a6d333549a55548f6019c15ae4bd7cd58b989027518",
+  "image_id": "sha256:81c6dd7dfc77117c0932097c0c1aef887991035c963ee9b5cb4d08a51caf566a",
+  "limitations": [
+    "Synthetic owner schemas only; no production backup or restore.",
+    "Carrier commands are proven; actual maintenance coordinator/source binding is still pending.",
+    "Archive listing does not establish restoration or provider-wide/PITR recovery."
+  ],
+  "list_exit_code": 0,
+  "observed_schema_set": [
+    "access",
+    "content",
+    "identity",
+    "pts"
+  ],
+  "optional_studies_schema_absent": true,
+  "private_custody": true,
+  "production_changed": false,
+  "qualification_sha256": "b6a08398ea83c287e560a0832a5c1dedcf4f6ac391c53cffd4a62c51ba160f98",
+  "restoration_performed": false,
+  "scope": "Actual immutable pg_dump custom/archive-list transport on synthetic TLS cohort11; no production backup"
+}

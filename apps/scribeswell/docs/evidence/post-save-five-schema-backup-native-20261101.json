@@ -1,0 +1,30 @@
+{
+  "activation_authorized": false,
+  "all_saved_rows_retained": true,
+  "archive_bytes": 736282,
+  "archive_list_sha256": "cffc1db769f44c206d72bcac83392de000db3c8cefd4ab3c2924111bb6618143",
+  "archive_sha256": "7d43c3d35460bf022441a6d39752e0c2d70d3136737255401561497c798a06b9",
+  "complete": true,
+  "driver_sha256": "828ab46537560df81bcddb5d2b97607aceecabca328b62049ab969fb6d0fe2b5",
+  "dump_seconds": 1.462,
+  "image": "public.ecr.aws/supabase/postgres@sha256:28f0e16a019e648089fc1a6d333549a55548f6019c15ae4bd7cd58b989027518",
+  "image_id": "sha256:81c6dd7dfc77117c0932097c0c1aef887991035c963ee9b5cb4d08a51caf566a",
+  "limitations": [
+    "Synthetic separate-target TLS cohort12 only. Actual production dump/role privilege must still succeed before activation/recovery.",
+    "Archive listing and data extraction occurred with network disabled; no database restore or PITR capability is claimed.",
+    "Public/current-consumer recovery uses fresh maintenance/current pointer and a fresh five-schema backup, then forward gates with private writes off; never restore over acknowledged saves."
+  ],
+  "network_none_inspection": true,
+  "private_extraction_sha256": "136a74decc61878ed79183bc65e98abdbb1628580cdabaa70968e4edad217e64",
+  "private_rows_in_archive": {
+    "notes": 2,
+    "receipts": 14,
+    "studies": 9
+  },
+  "production_changed": false,
+  "qualification_sha256": "c81594c458230ea1eddbd1a22a54eb08145bc1fe87475cc3f0ef34a25e28cdc7",
+  "restoration_performed": false,
+  "retained_private_rows_sha256": "48ffb34a41375d3fcd920c8b810ded582697deff296d4487dafd428c9481c55c",
+  "scope": "Original managed-postgres TLS five-schema backup after saved Studies; network-none pg_restore list/extraction and independent private row counts; no database restore",
+  "source_archive_sha256": "214ae6d62fa374fea8fc762dba3a26f8fc3484b1efe64be0d42c4dc41d41c9de"
+}

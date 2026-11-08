@@ -1,0 +1,48 @@
+{
+  "activation_authorized": false,
+  "before_state_sha256": "9e615868d7585013400c1f8653bde04f22d0374ae5b18d909083fb3b5f8ec6c6",
+  "complete": true,
+  "driver_sha256": "f4363b23276899314c931ee1625b2ab8c61e2d71c03c851e1c67071a92fd4ddb",
+  "limitations": [
+    "Native TLS original-owner READ ONLY only: actual observer/refusal and7 INSERT statements PREPARE/EXPLAIN without execution.",
+    "Positive initial bootstrap, actual target principal/account/role preparation and explicit Studies pregrant are unexecuted and still require qualification/approval.",
+    "No Auth account, membership, grant, role, actor or saved data was created or changed."
+  ],
+  "owner_heads": [
+    "identity_0031_e1_hosted",
+    "access_0020_hosted"
+  ],
+  "private_sql_archive_sha256": "c918116cc6779f377378653b6a22f1a04435e54b15e2995eb28309bc3f6539d7",
+  "production_changed": false,
+  "qualification_sha256": "cd43b0afa929b6eaeefb595739097819a17816e10be5b86de3eb1e8d96f3a5f7",
+  "scope": "Actual PostgreSQL/TLS original-owner read-only observation, refusal, INSERT parse/plan only; bootstrap and pregrant NOT executed",
+  "source_sql_sha256": {
+    "access-initial.sql": "4c7ff25fcaae352ac69299773934aa9ea4c9f80739947ac6aa19f29888863a09",
+    "access-observe.sql": "1f9b7d8b33b0030c64bb1c929cc3b1796dc136537525fb7499800f4daa45cc90",
+    "identity-initial.sql": "67be68fb78793a1c24d70e1594347c8a9194278475e13a3fedfb2d604d288807",
+    "identity-observe.sql": "61470808f1fd87a886c06518cffcde9b0d5366fab54ca4ea167a8849b4395f41",
+    "studies-explicit-pregrant.sql": "5b3cf553c8be35a404c58a050283f21d40a763a9b22de74b9f74ff4d271774db"
+  },
+  "steps": [
+    {
+      "INSERT_statements_parsed_and_planned_without_execution": 4,
+      "TLS": true,
+      "actual_login": "identity_migrator",
+      "all_retained_rows_unchanged": true,
+      "existing_principal_refused_before_inserts": true,
+      "observer": "drift-refuse",
+      "owner": "identity",
+      "transaction_read_only": "on"
+    },
+    {
+      "INSERT_statements_parsed_and_planned_without_execution": 3,
+      "TLS": true,
+      "actual_login": "access_migrator",
+      "all_retained_rows_unchanged": true,
+      "existing_principal_refused_before_inserts": true,
+      "observer": "drift-refuse",
+      "owner": "access",
+      "transaction_read_only": "on"
+    }
+  ]
+}

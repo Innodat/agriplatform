@@ -1,9 +1,12 @@
 **
-!apps/pts/requirements.txt
+!apps/pts/pyproject.toml
+!apps/pts/uv.lock
 !apps/pts/backend/**
-**/.env*
+!apps/pts/deployment/verify_runtime.py
+!apps/pts/deployment/package_runtime.py
+!apps/pts/deployment/Dockerfile
+!apps/pts/deployment/Dockerfile.dockerignore
+!apps/pts/runtime-bundle/**
 **/__pycache__/**
-**/.pytest_cache/**
-**/tests/**
 **/*.pyc
-**/.local/**
+**/.env*

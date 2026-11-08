@@ -1,0 +1,121 @@
+{
+  "activation_authorized": false,
+  "bootstrap_intent_sha256": "932589befb44eb2db46d2255f1debae739cb5a3ac890f505e7db8eb192252468",
+  "bootstrap_is_executable_sql": false,
+  "command_count": 13,
+  "commands": [
+    {
+      "command": "account_actor.ensure",
+      "file": "01-identity-account_actor.ensure.json",
+      "operation_id": "9dfcebd7-1190-4b30-bcaa-e8475bf00891",
+      "owner": "identity",
+      "sha256": "c06eb4fe32347b5b61ff004d11f0fc84b9a00f3f01d8470067fba128c3495214"
+    },
+    {
+      "command": "application.register",
+      "file": "02-access-application.register.json",
+      "operation_id": "7cedcd08-c94a-4731-be76-f340e3466f6a",
+      "owner": "access",
+      "sha256": "0aa95643811e38f7f1e168872772a705f9a2532bdee0304a7dfb368fa77ca6da"
+    },
+    {
+      "command": "permission.register",
+      "file": "03-access-permission.register.json",
+      "operation_id": "0eb8500f-4261-4667-8224-7a90b47369c8",
+      "owner": "access",
+      "sha256": "69d0d5b57959ccd2ab9d52d153285de96d6f3e77020c6f030b77b0f3030e6326"
+    },
+    {
+      "command": "permission.register",
+      "file": "04-access-permission.register.json",
+      "operation_id": "446277b9-c535-4537-b20c-c7a7ba898e36",
+      "owner": "access",
+      "sha256": "2c52c00f450a257e5607a04f32a9b83f4244b6cc6404d3ae2de4126c8e87b9c8"
+    },
+    {
+      "command": "permission.register",
+      "file": "05-access-permission.register.json",
+      "operation_id": "31362a6c-8daf-4f66-aa39-f4cdb2619df8",
+      "owner": "access",
+      "sha256": "59e50dba43a618b871342df62a019861ef9c9b5ba33cc0ba51c8a9891c5dc633"
+    },
+    {
+      "command": "entry_permission.register",
+      "file": "06-access-entry_permission.register.json",
+      "operation_id": "58320b39-0311-4fdc-bf20-cae3c220784d",
+      "owner": "access",
+      "sha256": "ab1721e1b83cdc417b94da6e2a7caaa4e4969d65aea6a9a200a847b5e5c52316"
+    },
+    {
+      "command": "application.set_enabled",
+      "file": "07-access-application.set_enabled.json",
+      "operation_id": "7f3d4d2e-355e-4a78-9926-43f87dd09bfb",
+      "owner": "access",
+      "sha256": "5a68da5d899ea5b29b0afe0151c30beaa09997d11317fd784bb515d91dd473b0"
+    },
+    {
+      "command": "account_grant.assign",
+      "file": "08-access-account_grant.assign.json",
+      "operation_id": "7a8da553-8253-435c-a17d-fbb1ed74bd76",
+      "owner": "access",
+      "sha256": "992b32d5c3682630e565c846639d0be20d04f04e5f4e867d8a2e42b697c10534"
+    },
+    {
+      "command": "account_grant.assign",
+      "file": "09-access-account_grant.assign.json",
+      "operation_id": "f03ff266-2f85-4fd2-a3c1-c80a6fdbcaa1",
+      "owner": "access",
+      "sha256": "ecd918588b4380b27028a68b2b42b15036560f72c72eb9c5714e23a8c19206e0"
+    },
+    {
+      "command": "account_grant.assign",
+      "file": "10-access-account_grant.assign.json",
+      "operation_id": "f88df452-d442-43c9-9a44-13d0de05f321",
+      "owner": "access",
+      "sha256": "4994f48336f5858b5c20c190a6c3cbebfc6a449a2188c607e151f4c1a63eff66"
+    },
+    {
+      "command": "application.register",
+      "file": "11-access-application.register.json",
+      "operation_id": "ab1e6fbc-9f4c-4348-b8d0-20d7b4927125",
+      "owner": "access",
+      "sha256": "c371066fe8665f8fe906af1c475d6068288ef89454c82adf36bef3eb993a172d"
+    },
+    {
+      "command": "permission.register",
+      "file": "12-access-permission.register.json",
+      "operation_id": "3f9dad40-bfd2-467c-9e87-8e06342214dc",
+      "owner": "access",
+      "sha256": "917114e9970900f49ab4d2393393f1506aae727753835c969d82d894cdc81988"
+    },
+    {
+      "command": "application.set_enabled",
+      "file": "13-access-application.set_enabled.json",
+      "operation_id": "138224f1-31f2-45d7-b34d-c23114bbce8b",
+      "owner": "access",
+      "sha256": "92d86dc41154d82c13e78089c2a8f8a6416c9aab3d513e7277c3e80cb3eaa08e"
+    }
+  ],
+  "complete": true,
+  "limits": [
+    "No owner SQL/bootstrap, grant, credential or provider effect. Earlier proposal release_adoption reason is unsupported; these new operations explicitly use accepted identity_adoption, and no earlier operation executed on production.",
+    "Target application revisions are initial1 after exact fresh registration; unexpected state must be reconciled, not rewritten.",
+    "Actor/principal/role bootstrap execution SQL, current target eligibility, actual scoped commands/receipts and distinct Content caller policy still require qualification/approval."
+  ],
+  "parser_sources_sha256": {
+    "services/access/access_operator_input.py": "ac3a2024fc26a4983d45715744b5d121aead51fd937a19aba0e48738c3ea5dad",
+    "services/access/identity_operator_input.py": "92393a72b45ec584eec19bc566e8f369ce7dd4e4cd6c6005e1fd7503e664662b"
+  },
+  "preparation_receipt_sha256": "b442ff64eee5e926c242e1c309b6226816ec92bcef8ab55e0567aa0fc5c13b5c",
+  "prior_preparation_attempts": [
+    "01: unsupported earlier proposal reason rejected before any command file",
+    "02: extra entry-permission field rejected; partial command files retained",
+    "03: all13 commands validated by unchanged owner parsers"
+  ],
+  "production_changed": false,
+  "release_id": "scribeswell-pts-hosted-e1-20261101",
+  "schema_version": 1,
+  "scope": "Private proposed input preparation and actual existing owner parser validation only",
+  "source_proposal_role": "Historical input selection only; corrected new operation bodies explicitly supersede its unsupported reason, no earlier production execution",
+  "source_proposal_sha256": "38f34ab129e833db4f9fc7947bfd6825c07a972297c17536dd0a578abe332135"
+}

@@ -1,0 +1,27 @@
+{
+  "activation_authorized": false,
+  "complete": true,
+  "configured_UID": 65532,
+  "create_finalize_wrong_key_wrong_app_denied": true,
+  "driver_sha256": "842219c9791e7c53eae9988ebd5b1917bae6c98084cbc4fd1a4812362838e0f1",
+  "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+  "limitations": [
+    "Private proposed policy tested with network disabled in exact configured image UID; no database/provider request or production installation occurred.",
+    "Distinct PtS runtime actor is declared by separate bootstrap intent; actor creation/current owner access and full paired runtime gate still require exact target verification.",
+    "No create/finalize permissions or runtime corpus uploader activation.",
+    "Fixture mount copy custody restored, proposal bytes unchanged; production staged policy must independently be UID65532 mode0600."
+  ],
+  "network": "none",
+  "owned_input_custody_restored": true,
+  "policy_sha256": "95d8bbf1edb570e461e3c99f3956b9b6dda64be82a6573883924db7b591a0231",
+  "production_changed": false,
+  "proposal_unchanged": true,
+  "qualification_sha256": "eb259c7634ff1e23394df857e8fe9e418381f24359e8e716ef96f3b1466abc44",
+  "read_metadata_application_only": true,
+  "scope": "Actual configured Content UID65532 immutable-image loading and operation-scope checks of private proposed policy; no DB/provider operation",
+  "source_archive_sha256": "f7e47c22846f8d6fbc87bf111b1a641b006e9af776e4ba338ee029dbe9f7c379",
+  "source_sha256": {
+    "services/content-service/contracts.py": "d3a8f05661f96136f2e58e814b90244ae4f80f2d14a9d89c05bd36fc3789df51",
+    "services/content-service/service_policy.py": "5223461246065957ac7dddb211cfff2779be7588883b4ebc326ae526b2d144c5"
+  }
+}

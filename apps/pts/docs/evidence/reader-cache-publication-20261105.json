@@ -1,0 +1,137 @@
+{
+  "api": "https://api.scribeswell.com/pts/",
+  "api_image": {
+    "image_config_id": "sha256:9a1ceb0dba49245576da562b858df7833635580152768fab335a6a275a5c1bc7",
+    "published_reference": "ghcr.io/innodat/agriplatform/pts@sha256:0f7cc3a06eb54455b5fbc863e9821ef71dc258331577559d94b80094508206ab"
+  },
+  "changes": {
+    "corpus_import_run": false,
+    "database_migrations_run": false,
+    "gateway_image_changed": false,
+    "git_push_performed": false,
+    "grant_changes_run": false,
+    "other_api_container_ids_unchanged": true,
+    "restarted_services": [
+      "pts",
+      "gateway"
+    ]
+  },
+  "frontend": {
+    "deploy_id": "6aec2d0ce1915d44f8a21907",
+    "previous_deploy": "6aeb87011e4242277929c51e",
+    "release_attempt": "2026110501-1",
+    "site_id": "e739718f-de86-4ad4-ab84-cf6249134558"
+  },
+  "gateway_source_revision": "7d3781317d6bd18b4ff476cb5671c5b6333db343",
+  "limitations": {
+    "live_authorized_cache_reuse_or_download_timing_measured": false,
+    "live_authorized_user_session_used": false,
+    "private_file_transfer_retested": false
+  },
+  "local_custody": ".local/pts-reader-release-evidence-20261105",
+  "observed_at": "2026-11-05T07:52:01.734908+00:00",
+  "pending": {
+    "maintenance-forward-pending.json": false,
+    "maintenance-forward-reconciled.json": false,
+    "maintenance-pending.json": false,
+    "release-pending.json": false,
+    "tls-pending.json": false
+  },
+  "reader_source_revision": "7470628602584e3d912f624171c6889b3b79d91e",
+  "receipt_sha256": {
+    "api-activation.json": "30e0e6269b3146bb1cb8faf7b38e6bae869474d7c5d9cce0039a38afd1b63c61",
+    "api-staging.json": "a6e134bb993a76bbe0371cff79b5678ca985e4633fbe24fb0daf2fafd4d98b68",
+    "candidate-tests.json": "318e6d2c6dbf4895dca9791911dbb5c8dcb3415aadf4bd96f7acf6eda089aadc",
+    "compiled-frontend-probe.json": "41863ef3dfe1293b65ae66105e6651318dae7d3224d8188d040e9497b734f8dd",
+    "frontend-published.json": "a23cc3568794db7887484c764f3bd0cd71333e0e58e1e21d41836673a6a79bd3",
+    "gateway-activate.json": "e09a4a75b5e1a8a326a5f958036f43b0c34326e675f2055ed51f385f8ae625c7",
+    "gateway-cors-preparation.json": "bfe5dd71dfa2b8b93e7f7427bb1a8383b00df9e30bf80df60ec12adbe0280314",
+    "host-final-after-gateway.json": "aaa962d05c5435c79e158098fbb37fc1cd76736aaa5b479904129040a05283a4",
+    "image-publication.json": "4bdf305b5b57f0b165f425ca055e9a5432cb2cb4e726082581594cf6ef62c806",
+    "live-verification-before-gateway.json": "11011b6e78db82fc1638c2c8c8dd43dde1737d4f8bc3424064d37ad160063579",
+    "live-verification.json": "6b9fb3313ec7596d19c232d109cfb557ff14e9d038514a3f2e0e64d53b3b28a4",
+    "primary-inventory.json": "59e86ee1c5aacd67bfc47b0b89cca486fe9f32adaaea1b638cf8003728a05007"
+  },
+  "recovery": "apps/pts/docs/READER_RELEASE_CANDIDATE.md",
+  "services": {
+    "access": "healthy",
+    "content": "healthy",
+    "directory": "healthy",
+    "gateway": "running",
+    "pts": "healthy",
+    "scribeswell": "healthy"
+  },
+  "site": "https://scribeswell.com/pts/",
+  "status": "deployed-and-public-boundaries-verified",
+  "verification": {
+    "api_shutdown_warnings": [],
+    "clean_install_or_github_ci_claim": false,
+    "compiled_authorized_reader_probe": [
+      {
+        "authorized_bodyless_reuses": 2,
+        "full_responses": 1,
+        "overflow": false,
+        "page_errors": 0,
+        "viewport": {
+          "height": 900,
+          "width": 1280
+        }
+      },
+      {
+        "authorized_bodyless_reuses": 2,
+        "full_responses": 1,
+        "overflow": false,
+        "page_errors": 0,
+        "viewport": {
+          "height": 844,
+          "width": 390
+        }
+      }
+    ],
+    "conditional_cors_allowed": true,
+    "gateway_exposes_etag": true,
+    "gateway_shutdown_warnings": [],
+    "gateway_tests": 9,
+    "host_offline_api_probe": {
+      "checks": [
+        "health",
+        "lean",
+        "bodyless304",
+        "denied-before304"
+      ],
+      "packaged_cache_module": "/srv/backend/reader_cache.py",
+      "passed": true,
+      "python": "3.15.0"
+    },
+    "isolated_candidate_tests": {
+      "api_cache_and_runtime_inventory": 9,
+      "browser": 192,
+      "cache_helper": 6
+    },
+    "live_browser_viewports": [
+      {
+        "anonymous_sign_in": true,
+        "existing_studies_presentation": true,
+        "hebrew_font": true,
+        "no_horizontal_overflow": true,
+        "page_errors": 0,
+        "pts_deep_link_reload": true,
+        "public_reader": true,
+        "viewport": "desktop"
+      },
+      {
+        "anonymous_sign_in": true,
+        "existing_studies_presentation": true,
+        "hebrew_font": true,
+        "no_horizontal_overflow": true,
+        "page_errors": 0,
+        "pts_deep_link_reload": true,
+        "public_reader": true,
+        "viewport": "mobile"
+      }
+    ],
+    "matched_live_artifacts": 10,
+    "unauthorized_conditional_denied": true,
+    "unchanged_scribeswell_asset_bytes": true
+  }
+}

@@ -22,6 +22,9 @@
       ],
       "@platform/ui-business": [
         "./../../../platform/ui-business/src/index.ts"
+      ],
+      "@platform/browser-cache": [
+        "./../../../platform/browser-cache/src/index.ts"
       ]
     }
   },

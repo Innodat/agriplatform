@@ -1,0 +1,262 @@
+{
+  "account_count": 6,
+  "activation_allowed": false,
+  "actual_inventory_sha256": "2a8bbd0aed270979be08dfd65f52d225914335f4ae99453dfb91892b7299a980",
+  "capabilities": {
+    "auth_status_select": true,
+    "auth_usage": true,
+    "create_role": true,
+    "current": "postgres",
+    "database_create": true,
+    "login": "postgres",
+    "public_create": true,
+    "superuser": false,
+    "version": 170006
+  },
+  "content_byte_read": {
+    "bytes": 191609122,
+    "complete": true,
+    "conditional_mismatch_refused": true,
+    "objects": 10,
+    "receipt_sha256": "9beff0b1813b9b4469fa924afed6e20cdd8c78fb1c3403f8389ef8ab4ed31edf"
+  },
+  "corpus_counts": {
+    "attachments": 10,
+    "conflicts": 0,
+    "imports": 1,
+    "metadata": 8,
+    "poems": 312,
+    "rights": 19,
+    "source_documents": 30,
+    "sources": 19,
+    "witnesses": 275
+  },
+  "corpus_inventory_sha256": "18b42e15d8a83b171c10dac665266bb4a0686960401a6e85cf7c535f3ce1bc43",
+  "exact_catalogue_differences": {
+    "columns": {
+      "source_only": [
+        [
+          "access",
+          "alembic_version_pkey",
+          "version_num",
+          1,
+          "character varying(32)",
+          false,
+          "",
+          "",
+          null,
+          null
+        ]
+      ],
+      "target_only": [
+        [
+          "access",
+          "alembic_version_pkc",
+          "version_num",
+          1,
+          "character varying(32)",
+          false,
+          "",
+          "",
+          null,
+          null
+        ]
+      ]
+    },
+    "constraints": {
+      "source_only": [
+        [
+          "access",
+          "alembic_version",
+          "alembic_version_pkey",
+          "PRIMARY KEY (version_num)",
+          true,
+          false,
+          false
+        ]
+      ],
+      "target_only": [
+        [
+          "access",
+          "alembic_version",
+          "alembic_version_pkc",
+          "PRIMARY KEY (version_num)",
+          true,
+          false,
+          false
+        ]
+      ]
+    },
+    "effective_functions": {
+      "source_only": [
+        [
+          "access_migrator",
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          true
+        ],
+        [
+          "access_runtime",
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          true
+        ]
+      ],
+      "target_only": [
+        [
+          "access_migrator",
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          false
+        ],
+        [
+          "access_runtime",
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          false
+        ]
+      ]
+    },
+    "effective_schemas": {
+      "source_only": [],
+      "target_only": [
+        [
+          "access_runtime",
+          "access",
+          "USAGE"
+        ]
+      ]
+    },
+    "functions": {
+      "source_only": [
+        [
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          "postgres",
+          "CREATE OR REPLACE FUNCTION identity.custom_access_token_hook(event jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\ndeclare\n  claims jsonb;\n  current_org_id uuid;\n  current_member_id bigint;\n  user_roles_arr identity.app_role[];\n  role_ids_arr bigint[];\n  org_ids_arr uuid[];\n  is_owner boolean;\n  org_slug text;\nbegin\n  claims := coalesce(event->'claims', '{}'::jsonb);\n\n  -- Determine current org\n  current_org_id := coalesce(\n    (event->'user_metadata'->>'current_org_id')::uuid,\n    (\n      select om.org_id\n      from identity.org_member om\n      where om.user_id = (event->>'user_id')::uuid\n        and om.deleted_at IS NULL\n      order by om.is_owner desc, om.created_at asc\n      limit 1\n    )\n  );\n\n  if current_org_id is not null then\n    select o.slug\n      into org_slug\n    from identity.org o\n    where o.id = current_org_id\n      and o.deleted_at IS NULL;\n  end if;\n\n  -- Membership for current org\n  if current_org_id is not null then\n    select om.id, om.is_owner\n      into current_member_id, is_owner\n    from identity.org_member om\n    where om.user_id = (event->>'user_id')::uuid\n      and om.org_id = current_org_id\n      and om.deleted_at IS NULL;\n  end if;\n\n  -- Roles for membership\n  if current_member_id is not null then\n    select\n      array_agg(mr.role) filter (where mr.deleted_at IS NULL),\n      array_agg(mr.id) filter (where mr.deleted_at IS NULL)\n    into user_roles_arr, role_ids_arr\n    from identity.member_role mr\n    where mr.member_id = current_member_id\n      and mr.deleted_at IS NULL;\n  end if;\n\n  -- All org memberships\n  select array_agg(om.org_id)\n    into org_ids_arr\n  from identity.org_member om\n  where om.user_id = (event->>'user_id')::uuid\n    and om.deleted_at IS NULL;\n\n  claims := jsonb_set(claims, '{org_id}', coalesce(to_jsonb(current_org_id), 'null'::jsonb));\n  claims := jsonb_set(claims, '{org_slug}', coalesce(to_jsonb(org_slug), 'null'::jsonb));\n  claims := jsonb_set(claims, '{member_id}', coalesce(to_jsonb(current_member_id), 'null'::jsonb));\n  claims := jsonb_set(claims, '{user_roles}', coalesce(to_jsonb(user_roles_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{role_ids}', coalesce(to_jsonb(role_ids_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{org_ids}', coalesce(to_jsonb(org_ids_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{is_org_owner}', to_jsonb(coalesce(is_owner, false)));\n\n  -- Update event\n  event := jsonb_set(event, '{claims}', claims);\n  return event;\nend;\n$function$\n",
+          "{=X/postgres,postgres=X/postgres,supabase_auth_admin=X/postgres}"
+        ]
+      ],
+      "target_only": [
+        [
+          "identity",
+          "custom_access_token_hook",
+          "event jsonb",
+          "postgres",
+          "CREATE OR REPLACE FUNCTION identity.custom_access_token_hook(event jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\ndeclare\n  claims jsonb;\n  current_org_id uuid;\n  current_member_id bigint;\n  user_roles_arr identity.app_role[];\n  role_ids_arr bigint[];\n  org_ids_arr uuid[];\n  is_owner boolean;\n  org_slug text;\nbegin\n  claims := coalesce(event->'claims', '{}'::jsonb);\n\n  -- Determine current org\n  current_org_id := coalesce(\n    (event->'user_metadata'->>'current_org_id')::uuid,\n    (\n      select om.org_id\n      from identity.org_member om\n      where om.user_id = (event->>'user_id')::uuid\n        and om.deleted_at IS NULL\n      order by om.is_owner desc, om.created_at asc\n      limit 1\n    )\n  );\n\n  if current_org_id is not null then\n    select o.slug\n      into org_slug\n    from identity.org o\n    where o.id = current_org_id\n      and o.deleted_at IS NULL;\n  end if;\n\n  -- Membership for current org\n  if current_org_id is not null then\n    select om.id, om.is_owner\n      into current_member_id, is_owner\n    from identity.org_member om\n    where om.user_id = (event->>'user_id')::uuid\n      and om.org_id = current_org_id\n      and om.deleted_at IS NULL;\n  end if;\n\n  -- Roles for membership\n  if current_member_id is not null then\n    select\n      array_agg(mr.role) filter (where mr.deleted_at IS NULL),\n      array_agg(mr.id) filter (where mr.deleted_at IS NULL)\n    into user_roles_arr, role_ids_arr\n    from identity.member_role mr\n    where mr.member_id = current_member_id\n      and mr.deleted_at IS NULL;\n  end if;\n\n  -- All org memberships\n  select array_agg(om.org_id)\n    into org_ids_arr\n  from identity.org_member om\n  where om.user_id = (event->>'user_id')::uuid\n    and om.deleted_at IS NULL;\n\n  claims := jsonb_set(claims, '{org_id}', coalesce(to_jsonb(current_org_id), 'null'::jsonb));\n  claims := jsonb_set(claims, '{org_slug}', coalesce(to_jsonb(org_slug), 'null'::jsonb));\n  claims := jsonb_set(claims, '{member_id}', coalesce(to_jsonb(current_member_id), 'null'::jsonb));\n  claims := jsonb_set(claims, '{user_roles}', coalesce(to_jsonb(user_roles_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{role_ids}', coalesce(to_jsonb(role_ids_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{org_ids}', coalesce(to_jsonb(org_ids_arr), '[]'::jsonb));\n  claims := jsonb_set(claims, '{is_org_owner}', to_jsonb(coalesce(is_owner, false)));\n\n  -- Update event\n  event := jsonb_set(event, '{claims}', claims);\n  return event;\nend;\n$function$\n",
+          "{postgres=X/postgres,supabase_auth_admin=X/postgres}"
+        ]
+      ]
+    },
+    "indexes": {
+      "source_only": [
+        [
+          "access",
+          "alembic_version",
+          "CREATE UNIQUE INDEX alembic_version_pkey ON access.alembic_version USING btree (version_num)",
+          true,
+          true
+        ]
+      ],
+      "target_only": [
+        [
+          "access",
+          "alembic_version",
+          "CREATE UNIQUE INDEX alembic_version_pkc ON access.alembic_version USING btree (version_num)",
+          true,
+          true
+        ]
+      ]
+    },
+    "memberships": {
+      "source_only": [],
+      "target_only": [
+        [
+          "access_migrator",
+          "postgres",
+          "postgres",
+          false,
+          true,
+          true
+        ]
+      ]
+    },
+    "relations": {
+      "source_only": [
+        [
+          "access",
+          "alembic_version_pkey",
+          "i",
+          "access_migrator",
+          false,
+          false,
+          null,
+          null
+        ]
+      ],
+      "target_only": [
+        [
+          "access",
+          "alembic_version_pkc",
+          "i",
+          "access_migrator",
+          false,
+          false,
+          null,
+          null
+        ]
+      ]
+    },
+    "schemas": {
+      "source_only": [
+        [
+          "access",
+          "access_migrator",
+          null
+        ]
+      ],
+      "target_only": [
+        [
+          "access",
+          "access_migrator",
+          "{access_migrator=UC/access_migrator,access_runtime=U/access_migrator}"
+        ]
+      ]
+    }
+  },
+  "exact_legacy_profile_accepted": false,
+  "history": {
+    "access": [
+      "access_0001"
+    ],
+    "content": [
+      "content_0004"
+    ],
+    "identity": null,
+    "pts": [
+      "pts_0001"
+    ],
+    "scribeswell": null,
+    "scribeswell_studies": null
+  },
+  "independent_native_source_matches_old_reference": true,
+  "legacy_grant_count": 3,
+  "native_source_snapshot_sha256": "6df5bc8d98e2b3bb796a9583fa51097751f5d2ea2a5da1425143a197ba8721a3",
+  "observed_at": "2026-11-01T18:44:54.638136+00:00",
+  "production_changed": false,
+  "profile_refusal": "hosted_catalogue_mismatch",
+  "read_only_verified": true,
+  "remaining": [
+    "source-derived supported operational predecessor profile",
+    "actual explicit grant adoption inputs",
+    "corpus/Content binding commands and maintained authority",
+    "exact final source/images and coordinator/recovery",
+    "production execution approval"
+  ],
+  "schema_version": 1
+}

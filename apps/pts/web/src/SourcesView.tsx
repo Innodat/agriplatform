@@ -13,9 +13,9 @@ function Value({value}:{value:unknown}):React.ReactNode{
 }
 export function RecordFields({record,keys}:{record:RecordData;keys:string[]}){return <dl>{keys.filter(k=>record[k]!=null&&record[k]!=='').map(k=><React.Fragment key={k}><dt>{label(k)}</dt><dd><Value value={record[k]}/></dd></React.Fragment>)}</dl>;}
 function Online({url}:{url:unknown}){const href=link(url);return href?<a href={href} target="_blank" rel="noreferrer">{/\.pdf(?:[?#]|$)/i.test(href)?'Open online PDF':'Visit online source'}</a>:null;}
-function Document({document:d,onOpen}:{document:RecordData;onOpen:(id:string)=>void}){return <section className="source-document" aria-label={d.title}>
+function Document({document:d,onOpen}:{document:RecordData;onOpen:(id:string,presentation?:'open'|'download')=>void}){return <section className="source-document" aria-label={d.title}>
  <h4>{d.title}</h4><p className="metadata">{label(String(d.status||'Status not recorded'))}{d.pdf_pages?` · ${d.pdf_pages} pages`:''}</p>
- <div className="source-actions">{d.local_path&&<button onClick={()=>onOpen(d.id)}>{/\.pdf$/i.test(d.local_path)?'Download PDF':'Download document (HTML)'}</button>}<Online url={d.url}/></div>
+ <div className="source-actions">{d.local_path&&<><button onClick={()=>onOpen(d.id,'open')}>Open document</button><button onClick={()=>onOpen(d.id,'download')}>{/\.pdf$/i.test(d.local_path)?'Download PDF':'Download document (HTML)'}</button></>}<Online url={d.url}/></div>
  <details><summary>Document details and notices</summary><RecordFields record={d} keys={Object.keys(d)}/></details>
  </section>;}
 function Acquisition({plan:p}:{plan?:RecordData}){
@@ -26,7 +26,7 @@ function Acquisition({plan:p}:{plan?:RecordData}){
  {p.contact?<p className="source-contact"><b>Contact route:</b> {p.contact.name}{email&&<> · <a href={'mailto:'+email}>{email}</a></>}{link(p.contact.url)&&<> · <a href={link(p.contact.url)} target="_blank" rel="noreferrer">Contact / evidence page</a></>}<br/><small>Checked {p.contact.verified_on}. This contact may help route a request; their authority to grant rights must be confirmed.</small></p>:<p className="quality-note">Direct contact not yet found.</p>}
  <details><summary>Priority evidence</summary>{link(p.source_url)&&<a href={link(p.source_url)} target="_blank" rel="noreferrer">Original collection reference</a>}{p.extent&&<p>{p.extent}</p>}<p>Assessed {p.assessed_on||'2026-10-12'} · {p.assessment_by||'Assistant research assessment'}</p></details></div>;
 }
-export function SourcesView({data,onOpenDocument}:{data:SourcesResponse;onOpenDocument:(id:string)=>void}){
+export function SourcesView({data,onOpenDocument}:{data:SourcesResponse;onOpenDocument:(id:string,presentation?:'open'|'download')=>void}){
  const [priorityOnly,setPriorityOnly]=useState(false),[search,setSearch]=useState('');
  const rank=(p?:RecordData)=>p?.priority==='high'?0:p?.priority==='promising'?1:2;
  const matches=(s:RecordData,p?:RecordData)=>(!priorityOnly||rank(p)<2)&&[s.title,p?.origin,p?.reason].join(' ').toLowerCase().includes(search.trim().toLowerCase());

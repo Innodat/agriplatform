@@ -3,26 +3,29 @@ from apps.pts.backend.main import create_app
 
 class Access:
     status = 200
-    def verify(self, token, org, permission):
+    def verify(self, token, permission):
         from fastapi import HTTPException
         if not token: raise HTTPException(401, {'code':'authentication_required'})
         if self.status != 200: raise HTTPException(self.status, {'code':'access_denied' if self.status==403 else 'access_unavailable'})
-        return {'actor_id':'00000000-0000-0000-0000-000000000001', 'org_id':str(org)}
+        return {'actor_id':'00000000-0000-0000-0000-000000000001','account_id':'33333333-3333-4333-8333-333333333333','authorization_scope':{'kind':'account'},'permission':permission}
+
+class Sessions:
+    async def verify(self,authorization):return {'account_id':'33333333-3333-4333-8333-333333333333'}
 
 class Repo:
-    def read(self, org, actor):
+    def read(self, actor, legacy_actor=None):
         import json
         from pathlib import Path
         return json.loads((Path(__file__).parents[1]/'reference/poetry-library/library.json').read_text())
-    def sources(self, org, actor):
-        library=self.read(org,actor)
+    def sources(self, actor):
+        library=self.read(actor)
         return {key:library[key] for key in ('sources','rights','source_documents')}
-    def attachment(self, org, actor, document): return None
+    def attachment(self, actor, document): return None
 
 
 def test_all_protected_routes_check_current_authority():
     access = Access()
-    client = TestClient(create_app(access=access, repository=Repo()))
+    client = TestClient(create_app(access=access, repository=Repo(),sessions=Sessions()))
     routes=['/api/sources','/api/poetry','/api/poetry/SWA-001','/api/exports?format=json','/api/documents/DOC-VELTEN']
     for route in routes:
         assert client.get(route,headers={'X-Org-ID':'00000000-0000-0000-0000-000000000002'}).status_code == 401
@@ -40,7 +43,7 @@ def test_all_protected_routes_check_current_authority():
 
 def test_exports_and_link_only_document_contracts():
     import json
-    access=Access();client=TestClient(create_app(access=access,repository=Repo()))
+    access=Access();client=TestClient(create_app(access=access,repository=Repo(),sessions=Sessions()))
     headers={'Authorization':'Bearer authorized','X-Org-ID':'00000000-0000-0000-0000-000000000002'}
     library=Repo().read(None,None)
     doc=next(d for d in library['source_documents'] if not d.get('local_path') and d.get('url'))
@@ -61,7 +64,7 @@ def test_http_access_outage_fails_closed(monkeypatch):
     from apps.pts.backend.clients import AccessClient
     def unavailable(*args,**kwargs):raise httpx.ConnectError('test outage')
     monkeypatch.setattr(httpx,'post',unavailable)
-    client=TestClient(create_app(access=AccessClient('http://access.invalid','test'),repository=Repo()))
+    client=TestClient(create_app(access=AccessClient('http://access.invalid','test'),repository=Repo(),sessions=Sessions()))
     result=client.get('/api/poetry',headers={'Authorization':'Bearer admin','X-Org-ID':'00000000-0000-0000-0000-000000000002'})
     assert result.status_code==503
     assert result.json()['detail']['code']=='access_unavailable'
@@ -69,7 +72,7 @@ def test_http_access_outage_fails_closed(monkeypatch):
 
 def test_sources_include_uncollected_leads_and_exact_rights():
     access = Access()
-    client = TestClient(create_app(access=access, repository=Repo()))
+    client = TestClient(create_app(access=access, repository=Repo(),sessions=Sessions()))
     headers = {'Authorization':'Bearer authorized','X-Org-ID':'00000000-0000-0000-0000-000000000002'}
     response = client.get('/api/sources', headers=headers)
     assert response.status_code == 200
@@ -81,7 +84,7 @@ def test_sources_include_uncollected_leads_and_exact_rights():
     assert response.headers['cache-control'] == 'no-store'
 
 def test_private_research_selection_and_download_agree_and_remain_protected():
-    access=Access();client=TestClient(create_app(access=access,repository=Repo()))
+    access=Access();client=TestClient(create_app(access=access,repository=Repo(),sessions=Sessions()))
     headers={'Authorization':'Bearer authorized','X-Org-ID':'00000000-0000-0000-0000-000000000002'}
     response=client.get('/api/poetry?availability=research',headers=headers)
     assert response.status_code==200

@@ -1,0 +1,24 @@
+{
+  "scope": "Actual offline nonroot PtS hosted migration image packaging; no database/target operation",
+  "production_changed": false,
+  "complete": true,
+  "build_exit_code": 0,
+  "build_seconds": 6.488,
+  "image_id": "sha256:5746eb2c5877ebd7435d5174168c0a429e9874e9baf15be8124747732ae93810",
+  "configured_user": "10001:10001",
+  "repo_digests": [],
+  "inspection_exit_code": 0,
+  "observed_uid": 10001,
+  "verified_source_pins": 143,
+  "installed_source_count": 190,
+  "mismatches": [],
+  "unexpected_installed_files": [],
+  "source_archive_sha256": "92c0717bfb24c3f8843ba3a1ef58a982da881462302c3081d1190152590c565d",
+  "archive_source_files": 200,
+  "private_result_sha256": "27091efc9dd088bdd785e72846cc23bf3d7d27e671009c9ada10870561215088",
+  "limits": [
+    "Local image only; no registry digest/publication",
+    "No database migration, actual target or consumer qualification",
+    "Failed build attempt01 and immutable runtime provenance retained"
+  ]
+}

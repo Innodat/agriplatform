@@ -1,0 +1,65 @@
+{
+  "activation_allowed": false,
+  "complete": true,
+  "corpus_import_NOLOGIN": true,
+  "driver_sha256": "37f4b5863b285f3d11521332c9c30668440d4e554d539b1087af05e8c8ba6998",
+  "existing_role_OIDs_flags_unchanged": true,
+  "image_id": "sha256:5746eb2c5877ebd7435d5174168c0a429e9874e9baf15be8124747732ae93810",
+  "limitations": [
+    "Focused local TLS fixture only; production role SQL, credentials and migrations are unexecuted.",
+    "Synthetic corpus has three rows and does not establish actual provider Content copy/write permission.",
+    "Preexisting five consumer roles were synthetic bootstrap INHERIT roles. Only the two actual proposed successor-role statements ran as managed postgres; own schema usage ran as original pts_migrator.",
+    "No unused Content operator role was created. NOLOGIN importer was not activated."
+  ],
+  "minimal_consumer_role_SQL_sha256": {
+    "managed-initial-roles.sql": "ed429e4bea52e9a1584f84b0a8e443a19edfdb7d1b5ae336b0d0868b13304642",
+    "pts-owner-schema-usage.sql": "cdbef7fe667c7c56a2980c0d1bdeb06d1452c1f55940fbd35ebaa1383b82eedb"
+  },
+  "minimal_consumer_roles_actual_managed_login": true,
+  "production_changed": false,
+  "qualification_sha256": "c6e797ed5ddec7e65bbfef054e9506897ed019d10f5b2a0641f9fb9dbc11d59e",
+  "scope": "Actual PtS hosted migration image against independent TLS cohort12 with minimal real managed successor-role preparation; synthetic corpus only",
+  "source_archive_sha256": "c37742032404122b2d702c313b0c61343c8e8a6403a0b127a15dba4078a1d158",
+  "source_sha256": {
+    "apps/pts/deployment/migrate.py": "8584b56640e8cfe1cfdce2b8987f21794088b5ae8efd09b171c96ad276832374",
+    "apps/pts/deployment/migration_contract.py": "a7b420ada558144321a8387f3e926e44cb4d649eb85e6757e6aa3f408e2e71ff",
+    "apps/pts/tools/bind_corpus.py": "0e26b414eec32a11283e928579d5ca71f7537c22eef45dd940949ead6fb879a9",
+    "services/access/hosted/e1-operational-reference.json": "7420343a374758599dacf4b8d93dc690197bb8bc0bec2fbee4441b145b617b85"
+  },
+  "steps": [
+    {
+      "bootstrap": "Explicit synthetic fixture admin only; no production role preparation claim",
+      "label": "guard-native-custody-source-and-missing-consumer-schemas",
+      "passed": true,
+      "real_tls": true
+    },
+    {
+      "label": "real-owner-predecessor-migrations-and-retained-corpus",
+      "passed": true,
+      "predecessors": [
+        "content_0004",
+        "pts_0001"
+      ],
+      "retained_rows": 3
+    },
+    {
+      "activation_performed": false,
+      "changed_binding_refused": true,
+      "exact_corpus_binding": true,
+      "label": "actual-image-failure-no-activation-and-forward-recovery",
+      "partial_histories_retained": true,
+      "passed": true,
+      "repeat": true,
+      "wrong_profile_before_owner_effects": true
+    },
+    {
+      "corpus_exact": true,
+      "identity_accounts_actors_grants_exact": true,
+      "label": "independent-data-owner-and-source-preservation",
+      "legacy_archive_preserved": true,
+      "passed": true,
+      "sources_exact": true
+    }
+  ],
+  "unused_Content_operator_absent": true
+}

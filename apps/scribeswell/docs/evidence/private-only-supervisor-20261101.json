@@ -1,0 +1,62 @@
+{
+  "activation_allowed": false,
+  "complete": true,
+  "completion_receipt_sha256": "ddc170db9e969f21debcfd2c2340833f1b6e1253c0f9879e3e47229620caceb1",
+  "counts": {
+    "notes": 4,
+    "receipts": 18,
+    "studies": 11
+  },
+  "driver_sha256": "6ab05bb864784c0929638dc3017e8a4a1e2707f09fb2481472b17bd3aafc9615",
+  "local_route_adapter": true,
+  "parent_regression": {
+    "native_opt_in_skipped": 77,
+    "passed": 133,
+    "seconds": 3.4,
+    "subtests_passed": 99
+  },
+  "private_child_count": 4,
+  "production_changed": false,
+  "production_tls_not_established": true,
+  "public_child_count": 0,
+  "public_ledger_absent": true,
+  "public_owner": "supabase_admin",
+  "remaining_fresh_schema_and_packaged_integration": true,
+  "scope": "D2a actual private supervisor repeat/lock refusal/timeout/forward retry; fixture route adapter; no production TLS/image/fresh schema claim",
+  "source_archive_sha256": "edff2e30051e1f98ff2c9d391809368dbd67789ebf0045e2822281a8386459b5",
+  "source_bindings_reverified": true,
+  "source_sha256": {
+    "apps/scribeswell/deployment/migrate.py": "1f414d79569ad94a531b830272ffec980cc4d0ce5f22603db3b6c7a2a17b1452",
+    "apps/scribeswell/deployment/studies_migrate.py": "2bc58cf6e39ac30b0e322ad47667e603a5f1ba70b21a63fd2c17c97257a16af4",
+    "apps/scribeswell/deployment/studies_release_contract.py": "8ca8b226af1c15104f81a4c26460c7b95fa32d4774b72d1b143b39df2d8f9f7f",
+    "apps/scribeswell/studies-database-tools/owned_migration.py": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "platform/deployment/host-release.py": "5c43f6ade52ab33901924bf7f1c789bb8f6dee4e428e663954fb97bcb7d59b87"
+  },
+  "steps": [
+    {
+      "label": "repeat",
+      "passed": true,
+      "public_and_saved_private_unchanged": true,
+      "status": "succeeded"
+    },
+    {
+      "label": "real-migration-lock-refusal",
+      "passed": true,
+      "public_and_saved_private_unchanged": true,
+      "status": "failed"
+    },
+    {
+      "label": "real-child-timeout",
+      "passed": true,
+      "public_and_saved_private_unchanged": true,
+      "status": "unknown"
+    },
+    {
+      "label": "reconciled-forward-repeat",
+      "passed": true,
+      "public_and_saved_private_unchanged": true,
+      "status": "succeeded"
+    }
+  ]
+}

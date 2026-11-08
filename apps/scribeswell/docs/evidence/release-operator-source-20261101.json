@@ -1,0 +1,27 @@
+{
+  "scope": "Restricted release owner command transport source boundary; not native/TLS/carrier qualification",
+  "production_changed": false,
+  "parent_tests": {
+    "passed": 135,
+    "skipped": 0,
+    "elapsed_seconds": 0.45
+  },
+  "source_sha256": {
+    "services/access/release_operator.py": "b8285f0abeae67ff7f97cd2ecb2975d0843f85934742490eb00230c80a7b9906",
+    "services/access/tests/test_release_operator.py": "33fb29e1748631febd687b7438f84861c11ee5560588f5e2d2dd1ee4c34b430f",
+    "services/access/docs/architecture/hosted-e1-owner-adoption.md": "72f2c0ba693eedb31d98d0895035d10c259a05181bebd909c4e2c90e97d9c9e9",
+    "services/access/identity_operator.py": "16aeb3e5540a2a07ce7256787109a31c3a862d6eac601a371426f043faa58328",
+    "services/access/identity_operator_input.py": "92393a72b45ec584eec19bc566e8f369ce7dd4e4cd6c6005e1fd7503e664662b",
+    "services/access/access_operator.py": "4ad22a2c5b56660076add129937bc41540e366024968945e8b968ce1c58a62d7",
+    "services/access/access_operator_input.py": "ac3a2024fc26a4983d45715744b5d121aead51fd937a19aba0e48738c3ea5dad",
+    "services/access/operator_cli.py": "4e1541e78c253b70fe85c5d35e3e6db10ac6e01ee01c944f77c4f90a124826b1",
+    "services/access/identity_operator_target.py": "4477c50a3753410e9078722d7dbe432b613e9275c52a13a6f0524050f4753402",
+    "platform/deployment/target_contract.py": "1e4a1efabc48508082972ab54d6d9212172aae0ad4e9054e67e25b4e489942b1",
+    "platform/deployment/dev.py": "3896c0b50f6415bf2c6b2174b0679138ffe905ec9091175a0a181f902c09d131",
+    "platform/deployment/images.py": "a5a51f9a89b5868ade43f0d32324cb0796b0e528aeba8022652c4b0e3a050a79",
+    "platform/deployment/native_cli.py": "ec7661f623186f246d6f1a2f0527c62b188ccb7d6f9b6e5cd35ed2bd69890f38",
+    "platform/deployment/toolchain.py": "f517ec4f6bf5aebb80e7ea70cd11f83ce6b38c4c2d8fdf90b2caca9ea3c7306f"
+  },
+  "source_archive_sha256": "fef476503f39d1ae682256ee863bed14e159a491550d5fdcc455bc0365ee77c1",
+  "authority": "Existing original owner operator logins and owner execute/outcome adapters; no provisioned authority or production operation"
+}

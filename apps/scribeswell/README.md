@@ -6,6 +6,11 @@ the corpus operator uses the separate `scribeswell_import` role. No Data API sch
 exposure or service-role key is required by either path. App Directory reads its
 static catalogue and verified Auth claims; it does not query the identity schema.
 
+The planned personal/shared study feature has one canonical
+[specification](../../_bmad-output/specs/spec-scribeswell-studies/SPEC.md).
+Its UX is agreed; protected-access, invitation, persistence and device-verification
+gates remain open before implementation.
+
 For local setup, install `backend/requirements.txt` in a virtual environment. Apply
 the existing Scribeswell schema to a disposable/local database, then apply
 `deployment/bootstrap/001_direct_database_roles.sql` explicitly as its administrator.
@@ -38,3 +43,12 @@ See [deployment transition and recovery](deployment/README.md) for the release g
 and [DIRECT_DATABASE.md](DIRECT_DATABASE.md) for requirement/test evidence. No shared
 UI or builder scaffold changes are needed; the owner-local adapter is not promoted
 as a platform runtime library. Existing architecture decisions remain unchanged.
+
+### Current app navigation (E1-LAUNCHER)
+
+The shared launcher observes current Directory v2 discovery using this host's actual
+session. Sign-out, account replacement and token refresh clear old app links; reopening,
+focus return and explicit Retry recheck. Empty success, unavailable discovery and expired
+authentication remain distinct. No anonymous catalogue fallback is used. Scribeswell's
+public reading stays independent; PtS's separate account/resource API adoption remains
+its own delivery. See [launcher evidence](../leave/docs/testing/e1-launcher-evidence.md) for verification.

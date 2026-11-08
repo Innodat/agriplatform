@@ -1,4 +1,6 @@
 const {test,expect}=require('@playwright/test');
+const {files,fileContext,context:documentContext}=require('./file-fixture.cjs');
+test.beforeEach(async({page})=>files(page));
 const org='11111111-1111-1111-1111-111111111111';
 const actor='33333333-3333-3333-3333-333333333333';
 const user={id:actor,email:'reader@example.invalid',aud:'authenticated',app_metadata:{},user_metadata:{}};
@@ -66,8 +68,13 @@ test('tokenless callback cannot start password setup for an older session',async
 });
 test('failed logout is visible during password setup',async({page})=>{
  await setup(page);await page.route('**/auth/v1/logout*',r=>r.fulfill({status:400,json:{error_code:'unexpected_failure',msg:'PRIVATE'}}));
+ await page.route('https://files.localhost:5181/api/file-session/clear',r=>{
+  const headers={'access-control-allow-origin':'https://localhost:5181','access-control-allow-credentials':'true','access-control-allow-headers':'Authorization,Content-Type','access-control-allow-methods':'POST,OPTIONS'};
+  return r.request().method()==='OPTIONS'?r.fulfill({status:204,headers}):r.fulfill({headers,json:{status:'cleared',provider_session:'present',account_id:actor,session_id:'55555555-5555-4555-8555-555555555555'}});
+ });
  await page.goto(callback('invite'));await expect(page.getByRole('heading',{name:'Set your password'})).toBeVisible();
- await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('alert')).toContainText('could not sign you out');
+ await page.waitForFunction(()=>Boolean(JSON.parse(localStorage.getItem('pts-file-cleanup-v1')||'null')?.token));
+ await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('alert')).toContainText('could not finish signing you out');
 });
 test('password recovery restores same-user filters without including them in the email URL',async({page})=>{
  await setup(page);let redirect='';await page.addInitScript(actor=>sessionStorage.setItem('pts-last-user',actor),actor);
@@ -88,7 +95,7 @@ test('password recovery restores same-user Sources view without including them i
  expect(redirect).not.toContain('fixture');
  await page.goto(callback('recovery'));await expect(page.getByLabel('New password',{exact:true})).toBeVisible();
  await page.getByLabel('New password',{exact:true}).fill('new-password');await page.getByLabel('Confirm password',{exact:true}).fill('new-password');await page.getByRole('button',{name:'Save password'}).click();
- await expect(page.getByText('0 sources',{exact:true})).toBeVisible();await expect(page).toHaveURL(/view=sources/);await expect(page).toHaveURL(/availability=checked/);await expect(page).toHaveURL(/search=fixture/);
+ await expect(page.getByRole('region',{name:'Source catalogue',exact:true})).toBeVisible();await expect(page).toHaveURL(/view=sources/);await expect(page).toHaveURL(/availability=checked/);await expect(page).toHaveURL(/search=fixture/);
 });
 
 test('Microsoft sign-in is opt-in and preserves the local return URL',async({page})=>{
@@ -100,7 +107,7 @@ test('Microsoft sign-in is opt-in and preserves the local return URL',async({pag
  await page.getByRole('button',{name:'Continue with Microsoft'}).click();
  await expect(page).toHaveURL(/\/auth\/v1\/authorize/);
  const callback=new URL(new URL(page.url()).searchParams.get('redirect_to'));
- expect(callback.origin).toBe('http://127.0.0.1:5181');expect(callback.searchParams.get('org')).toBe(org);expect(callback.searchParams.get('availability')).toBe('checked');
+ expect(callback.origin).toBe('https://localhost:5181');expect(callback.searchParams.get('org')).toBeNull();expect(callback.searchParams.get('availability')).toBe('checked');
 });
 
 test('connection reset gives a useful message and permits retry',async({page})=>{

@@ -1,0 +1,93 @@
+{
+  "activation_authorized": false,
+  "actual_archive_consumer_verified": true,
+  "canonical_archive_bytes": 536965120,
+  "canonical_archive_sha256": "1cc4b9255dc90a5acf27663af6b0eae02f83d7d065ff18946ec60db5e7d5080f",
+  "canonical_archive_source_files": 5505,
+  "canonical_receipt_sha256": "603940b1d0fbd9c3888d1859256a63aa9f2e466b32de9b5b21830a07a32a154c",
+  "canonical_source_map_sha256": "9cfb3c905321186f1a509101d01ad177822f6b02b403a99600a0647edf90e6b1",
+  "complete": true,
+  "driver_sha256": "3e8ad0c7797b3430dff648d12f49145f8b4bbfc572a9dd2bd4d0f1ffa24544e2",
+  "limitations": [
+    "Local candidate5e148e99db51de7459688854fbe1fafc9767bca2 and actual compiler/archive proof only; no image/frontend publication or production mutation.",
+    "Actual canonical hosted image inspection stopped at gateway metadata validator mismatch; this candidate is not approved for activation. D2f correction requires a source successor and renewed canonical build identity.",
+    "Historical root-PtS shared artifacts retained; only explicit Scribeswell-root publication is suitable for this site."
+  ],
+  "node_version": "v26.11.1",
+  "production_changed": false,
+  "publication_executed": false,
+  "scope": "Actual selected-Node frontend builds, local only; canonical source plus exact frozen closure, no publication",
+  "source_files": 623,
+  "source_inventory_sha256": "c4b0a3fef6dc4dc95c545c55694e77c7262e4616ab5e4d9d0b33d3bf6c225e4d",
+  "source_revision": "5e148e99db51de7459688854fbe1fafc9767bca2",
+  "variants": {
+    "primary": {
+      "artifact_files": 11,
+      "artifact_inventory_sha256": "1b17c858f6a31da5b76b53b5f5738713cbaf507a147587ca6d4edd2fbe3572dd",
+      "authoritative_JS_artifact_verifier_passed": true,
+      "current_pts_present": true,
+      "entry_titles": {
+        "index.html": "Scribes' Well",
+        "pts/index.html": "PtS \u00b7 Swahili Poetry"
+      },
+      "exit_code": 0,
+      "frontend_bases": {
+        "pts": "/pts/",
+        "scribeswell": "/"
+      },
+      "inventory": {
+        "_redirects": "c4b3d0a66f84d159505b33d4b0a60031ca00ce36ba52af77a12fe9c961e3e74e",
+        "assets/index-CyZSwLjn.css": "8044cb7e9a605576d8aec17cc4e737ebe3f200d471f77fd4e64466b46c58c6f2",
+        "assets/index-Kx1DHIzG.js": "f22806df095b42c6a8f4be00162fceae6b80258dc995d567cf10992e39524d30",
+        "assets/noto-serif-hebrew-hebrew-400-normal-jyUp5Tfv.woff": "170a89e2a51b1cbf1cb05fc31252b4953e11314c0099f8b9edc556b3968de7ca",
+        "assets/noto-serif-hebrew-hebrew-400-normal-v_xU1ROG.woff2": "5fd3fc127fc1b627673a85979750526b70c2ac6feaecfadd3d2321d7dedc8585",
+        "fonts/OFL-Noto-Serif-Hebrew.txt": "38d5fbc95848cf88131f2611c9f3f3a44f0262141601abf3aee6df2f8c4c71f5",
+        "index.html": "3aff566f561a8c180b4fe853faaeb766c93fc1aa080be5e8ac4dcef2936682c6",
+        "pts/assets/index-BuV0KNUv.css": "ae7a18f85205edeaa16868197dc433a34aee7aca42f98165ec67c9b7d51e2396",
+        "pts/assets/index-DkyAvXfS.js": "c337950f039053bbbe0aa6d123908b06fb6903a73dd4a135fcd21d611743c091",
+        "pts/index.html": "eb013f857c210621580c185ef4960139c9b00b8ffeb1c8d9166fd915fec273fc",
+        "release-identity.json": "3dab68131dd60143187b8490315febfef5f1ef613e89af6b09b9a3c340107264"
+      },
+      "public_build_fingerprint": "9fcab777a06fffedf6becb7f419504543724e89247321c1be2d3199f878a78cf",
+      "publication": "scribeswell",
+      "redirects": "/pts /pts/ 301\n/pts/* /pts/index.html 200\n/* /index.html 200\n",
+      "release_attempt": "2026110201-1",
+      "release_sha": "5e148e99db51de7459688854fbe1fafc9767bca2",
+      "seconds": 6.305
+    },
+    "recovery": {
+      "artifact_files": 11,
+      "artifact_inventory_sha256": "10ff58da1a7b132e05dbdf78abf1df18324b3b72c7301a49a3c0e03022f99c3b",
+      "authoritative_JS_artifact_verifier_passed": true,
+      "current_pts_present": true,
+      "entry_titles": {
+        "index.html": "Scribes' Well",
+        "pts/index.html": "PtS \u00b7 Swahili Poetry"
+      },
+      "exit_code": 0,
+      "frontend_bases": {
+        "pts": "/pts/",
+        "scribeswell": "/"
+      },
+      "inventory": {
+        "_redirects": "c4b3d0a66f84d159505b33d4b0a60031ca00ce36ba52af77a12fe9c961e3e74e",
+        "assets/index-CrHm-gnW.js": "14a77588491f0ee5df30659d6f1ef6369f3e8366a2204bde8a55e4ffed52b74b",
+        "assets/index-CyZSwLjn.css": "8044cb7e9a605576d8aec17cc4e737ebe3f200d471f77fd4e64466b46c58c6f2",
+        "assets/noto-serif-hebrew-hebrew-400-normal-jyUp5Tfv.woff": "170a89e2a51b1cbf1cb05fc31252b4953e11314c0099f8b9edc556b3968de7ca",
+        "assets/noto-serif-hebrew-hebrew-400-normal-v_xU1ROG.woff2": "5fd3fc127fc1b627673a85979750526b70c2ac6feaecfadd3d2321d7dedc8585",
+        "fonts/OFL-Noto-Serif-Hebrew.txt": "38d5fbc95848cf88131f2611c9f3f3a44f0262141601abf3aee6df2f8c4c71f5",
+        "index.html": "7da9be60f10db434f038aea60df0df522a3393737eea9502edcb2a1eb6a9bddd",
+        "pts/assets/index-BuV0KNUv.css": "ae7a18f85205edeaa16868197dc433a34aee7aca42f98165ec67c9b7d51e2396",
+        "pts/assets/index-DkyAvXfS.js": "c337950f039053bbbe0aa6d123908b06fb6903a73dd4a135fcd21d611743c091",
+        "pts/index.html": "eb013f857c210621580c185ef4960139c9b00b8ffeb1c8d9166fd915fec273fc",
+        "release-identity.json": "1a9b605e7e0c45cdd98acc4d2ce400996360f5a77e6d660df090d8030ad4acbc"
+      },
+      "public_build_fingerprint": "be23bd23ca86caad2306dd6bc66d5f7fb028fe3a1e0218bab962b66774040bd5",
+      "publication": "scribeswell",
+      "redirects": "/pts /pts/ 301\n/pts/* /pts/index.html 200\n/* /index.html 200\n",
+      "release_attempt": "2026110201-2",
+      "release_sha": "5e148e99db51de7459688854fbe1fafc9767bca2",
+      "seconds": 9.686
+    }
+  }
+}

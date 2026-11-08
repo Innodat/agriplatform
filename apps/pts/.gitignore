@@ -7,3 +7,6 @@ web/node_modules/
 web/dist/
 web/test-results/
 /.local/
+
+/runtime-bundle*/
+/.production-pts-*/

@@ -28,7 +28,7 @@
       "VITE_PTS_API_URL": "/pts",
       "VITE_APP_DIRECTORY_URL": "/directory"
     },
-    "install": "prefix"
+    "install": "workspace"
   },
   "migration": {
     "owner": "pts",
@@ -41,17 +41,37 @@
     "ACCESS_URL",
     "CONTENT_URL",
     "PTS_SERVICE_KEY",
-    "PTS_CORS_ORIGINS"
+    "PTS_CORS_ORIGINS",
+    "IDENTITY_URL",
+    "PTS_CURRENT_SESSION_SERVICE_KEY",
+    "PTS_FILE_ORIGIN",
+    "PTS_FILE_FRONTEND_ORIGIN"
   ],
   "database_roles": {
-    "PTS_DATABASE_URL": "pts_runtime"
+    "PTS_DATABASE_URL": "pts_account_runtime"
   },
   "smoke_env": {
     "PTS_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
     "ACCESS_URL": "http://access:8000",
     "CONTENT_URL": "http://content:8000",
     "PTS_SERVICE_KEY": "fixture-pts",
-    "PTS_CORS_ORIGINS": "https://fixture.test"
+    "PTS_CORS_ORIGINS": "https://fixture.test",
+    "IDENTITY_URL": "http://access:8000",
+    "PTS_CURRENT_SESSION_SERVICE_KEY": "fixture-current-session-key-00000001",
+    "PTS_FILE_ORIGIN": "https://files.pts.fixture.test",
+    "PTS_FILE_FRONTEND_ORIGIN": "https://fixture.test"
   },
-  "smoke_artifacts": []
+  "smoke_artifacts": [],
+  "content_read_contract": "owned-private-stream-v2",
+  "private_files": {
+    "session_paths": [
+      "/api/file-session",
+      "/api/file-session/clear",
+      "/api/file-session/prepare",
+      "/api/file-contexts/*"
+    ],
+    "read_paths": [
+      "/api/files/*"
+    ]
+  }
 }

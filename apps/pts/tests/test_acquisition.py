@@ -4,7 +4,7 @@ def test_acquisition_priorities_are_separate_from_poem_rights_and_counts():
     sources=[{'id':'MAU-2023','rights_id':'UNCHANGED'}]
     result=acquisition_catalogue(sources)
     assert set(result['acquisition'])=={'MAU-2023'}
-    assert len(result['acquisition_leads'])==12
+    assert len(result['acquisition_leads'])==13
     ids=[p['id'] for p in result['acquisition_leads']]
     assert len(ids)==len(set(ids))
     assert sources==[{'id':'MAU-2023','rights_id':'UNCHANGED'}]

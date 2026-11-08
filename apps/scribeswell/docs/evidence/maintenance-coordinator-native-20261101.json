@@ -1,0 +1,98 @@
+{
+  "activation_allowed": false,
+  "complete": true,
+  "driver_sha256": "da33f112c35d0b05cce97bcb4ef714c3bf7f7fc8cb9d7cda38ec17b4b73a08da",
+  "explicit_subnet": "10.250.42.0/28",
+  "final_backup": {
+    "archive_sha256": "ffafed676af303ef024233364ed396d3547abd2ff9163361bb50c5236266afe4",
+    "image": "public.ecr.aws/supabase/postgres@sha256:28f0e16a019e648089fc1a6d333549a55548f6019c15ae4bd7cd58b989027518",
+    "listing_sha256": "9f13f483e7259150f87974635c8f73f146f4cff4ddb07df026539adf45cfdbd3",
+    "restore_verified": false,
+    "schemas": {
+      "access": true,
+      "content": true,
+      "identity": true,
+      "pts": true,
+      "scribeswell_studies": false
+    },
+    "status": "verified"
+  },
+  "limitations": [
+    "Six disposable process containers establish real Compose stop/inspection and process preservation; no application API/public HTTP proof.",
+    "Synthetic TLS database only; no production backup, adoption or activation.",
+    "One real pg_dump invalid snapshot fault; backup retry used exact stopped container identities and a fresh retained attempt.",
+    "Two allocation failures retained; no existing network deleted or reset.",
+    "Ordinary host exclusion covered by focused source tests; actual TLS exclusion was also executed."
+  ],
+  "owned_network": "agri-maintenance-native-20261101-03",
+  "parent_source_tests": {
+    "passed": 188,
+    "seconds": 24.88,
+    "subtests_passed": 125
+  },
+  "production_changed": false,
+  "qualification_sha256": "5f4b9afd410640c8ec33f1b8ab5e19f1b009727ca7716d2f23293bad6de1c922",
+  "qualification_transport": "Real default subprocess except Docker-only synthetic DNS alias and one deliberate real pg_dump invalid-snapshot fault; no SQL/validation doubles",
+  "scope": "Actual maintenance entry/stop/backup/retry on owned process containers plus synthetic TLS cohort11; no production",
+  "source_archive_sha256": "bbd0865cc6e03665b60f9a5bdbd488d276bd1c8c3a2dfa8b5fd8ad4cc13fc564",
+  "source_sha256": {
+    "apps/pts/deployment/manifest.json": "03c08e809d9d6d45e9b64def80d25a898227d0e47cc1f0b0874dddaa9ecd38a4",
+    "apps/pts/deployment/migration_contract.py": "a7b420ada558144321a8387f3e926e44cb4d649eb85e6757e6aa3f408e2e71ff",
+    "apps/scribeswell/deployment/manifest.json": "bd7ffa152d9513b4b0a440e76281cb1d97fa5c88fedfdfaaeb4b034ca6cc93bd",
+    "apps/scribeswell/deployment/studies_release_contract.py": "8ca8b226af1c15104f81a4c26460c7b95fa32d4774b72d1b143b39df2d8f9f7f",
+    "apps/scribeswell/deployment/studies_rollout.py": "9e25500ebad15d4c7d2a49dbd9e00706f79019825ab13cc45ed950ff3805acb6",
+    "apps/scribeswell/docs/BOUNDED_STUDIES_ROLLOUT.md": "47cc9130c0d51c1c10fc239ef61da7fd9f86c6219e637c9d15f616916f9b9a27",
+    "apps/scribeswell/migrations/release_profile.py": "a133f64dfea0af6e374dfee77e9b5919a316ee4ad0d1065a3782ca39cc0d263d",
+    "apps/scribeswell/tests/test_studies_maintenance.py": "8e8972e6b56bc57e7f6d9e7e802d599971348b3b8675f1574a40ef6b7488fcc7",
+    "platform/deployment/README.md": "01f2745e76b21578df82c355369feddc1111231e0073f069c0705ddb54ab2ec5",
+    "platform/deployment/host-release.py": "b8208e9401cfff466ebeefcd2f69e17ec942b7696f8a4ab74a9f42d62c3be337",
+    "platform/deployment/registry.json": "176d6d115601ce52d854ffb9d612781ae9c5684e68fac47b9ae565e8433fe338",
+    "platform/deployment/release.py": "d36313691e99c9ed4b482249d2671edc93ec40144810fba93f0d7ad2567438f9",
+    "platform/deployment/render_gateway.py": "d33d5499e73e6d08c8b27ad48621003113880ccff6f4e9e1e86d466042a5a167",
+    "platform/deployment/target_contract.py": "1e4a1efabc48508082972ab54d6d9212172aae0ad4e9054e67e25b4e489942b1",
+    "platform/deployment/tests/test_host.py": "d2af21c622fabcb19c2f89835bac4c9e188f74117cd2491e1f221821577a1028",
+    "platform/deployment/tls/renew.py": "e276b6d15739798b605319d34777349bf92b611ad757db2567a492327702e5f5",
+    "services/access/deployment/manifest.json": "73c581169b11837c486db94628fdb87554cd2a1e659f758348dd2c36b277c978",
+    "services/access/hosted/e1-operational-reference.json": "7420343a374758599dacf4b8d93dc690197bb8bc0bec2fbee4441b145b617b85",
+    "services/access/hosted/e1_profile.py": "fe5b9b6e67c27e2039776821ac7a023a34be072137daa69d796f061661a454fa",
+    "services/app-directory/deployment/manifest.json": "2a51eac57a140fac673e3e1a4338301ddda31208ab08777cca326bb78fb15602",
+    "services/content-service/deployment/manifest.json": "bf4858e06c97515c8dd3a17b361d50473ca379fd5154c32f58e2181a2284f651"
+  },
+  "steps": [
+    {
+      "application_API_startup": false,
+      "complete_inventory": 6,
+      "label": "guard-source-owned-local-project-and-private-plan",
+      "passed": true,
+      "public_processes": 2,
+      "real_TLS_fixture": true
+    },
+    {
+      "failed_dump_preserved": true,
+      "four_protected_services_stopped": true,
+      "label": "actual-coordinator-protected-stop-and-failed-backup",
+      "marker_before_every_command": true,
+      "passed": true,
+      "second_entry_before_effects": true
+    },
+    {
+      "label": "actual-backup-retry-reconciliation-and-readiness",
+      "marker_retained_after_success": true,
+      "new_create_only_attempt": true,
+      "no_second_stop": true,
+      "passed": true,
+      "prior_exited_containers_reconciled": true,
+      "real_dump_and_archive_list": true,
+      "restoration_claim": false
+    },
+    {
+      "TLS_refused_before_certificate_read": true,
+      "backup_private_custody": true,
+      "current_pointer_and_compose_unchanged": true,
+      "label": "actual-TLS-exclusion-public-process-and-input-preservation",
+      "passed": true,
+      "public_process_ids_preserved": true,
+      "sources_exact": true
+    }
+  ]
+}

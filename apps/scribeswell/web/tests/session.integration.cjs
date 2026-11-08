@@ -5,7 +5,7 @@ const session={access_token:'test-token',refresh_token:'test-refresh',expires_at
 const apps=[{id:'pts',name:'PtS',url:'http://localhost:5183',icon:'book-open',description:'Swahili Poetry',enabled:true},{id:'scribeswell',name:'Scribeswell',url:'http://localhost:5183/scribeswell/',icon:'book-open',description:'Hebrew Bible',enabled:true},{id:'disabled',name:'Disabled',url:'http://localhost:9999',icon:'book-open',description:'Not ready',enabled:false}];
 async function setup(context){
  await context.route('**/auth/v1/**',r=>r.request().url().includes('/token')?r.fulfill({json:session}):r.request().url().includes('/logout')?r.fulfill({status:204}):r.fulfill({json:user}));
- await context.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:r.request().url().endsWith('/api/apps')?apps:{apps:apps.filter(a=>a.enabled),context:{org_id:org,member_id:1,roles:[]}}}));
+ await context.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:r.request().url().endsWith('/api/me/context')?{org_id:org,member_id:1,roles:[]}:{apps:apps.filter(a=>a.enabled),protected_access_status:'complete'}}));
  await context.route('http://127.0.0.1:8010/**',r=>r.fulfill({json:{sources:[{id:'S1',title:'Protected source',rights_id:'R1'}],rights:[],source_documents:[]}}));
  await context.route('**/api/bible/**',r=>r.fulfill({json:r.request().url().endsWith('/books/Gen')?{id:1,osis_id:'Gen',name_en:'Genesis',name_he:'בראשית',testament:'OT',book_order:1,chapters:[{id:1,chapter_num:1}]}:r.request().url().includes('/words/')?{id:1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:null,morph_code:null,morphemes:[]}:r.request().url().endsWith('/books')?{data:[{id:1,osis_id:'Gen',name_en:'Genesis',name_he:'בראשית',testament:'OT',book_order:1}],total:1}:{data:[{id:1,verse_num:1,book_id:1,chapter_num:1,words:[{id:1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:null,morph_code:null}]}],total:1}}));
 }
@@ -17,16 +17,16 @@ test('existing PtS session and sign-out synchronize across both readers',async({
  await bible.getByRole('button',{name:'Sign out',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Protected source'})).toHaveCount(0);await expect(page.getByRole('heading',{name:'Sign in to read'})).toBeVisible();
  await expect(bible.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();await expect(bible.getByRole('list',{name:'Verses'})).toBeVisible();
- await bible.getByRole('button',{name:'App launcher'}).click();await expect(bible.getByRole('menuitem',{name:'Open PtS'})).toBeVisible();await expect(bible.getByRole('menuitem',{name:'Open Disabled'})).toHaveCount(0);
+ await bible.getByRole('button',{name:'App launcher'}).click();await expect(bible.getByRole('menuitem',{name:/Open /})).toHaveCount(0);await expect(bible.getByRole('menu').getByRole('status')).toHaveText('Sign in to see your apps.');
  await bible.keyboard.press('Escape');await bible.getByRole('button',{name:'Sign in',exact:true}).click();await bible.getByLabel('Email',{exact:true}).fill(user.email);await bible.getByLabel('Password',{exact:true}).fill('fixture-password');await bible.getByRole('dialog').getByRole('button',{name:'Sign in',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Protected source'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(bible.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();
  await expect(bible).toHaveURL(/\/scribeswell\/\?book=Gen&chapter=1$/);
  await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(bible.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();
 });
-test('anonymous reader has a launchpad and no authentication requirement',async({context,page})=>{
+test('anonymous reader has sign-in guidance without catalogue links or a reading authentication requirement',async({context,page})=>{
  await setup(context);await page.goto('/scribeswell/');await expect(page.getByRole('list',{name:'Verses'})).toBeVisible();
  await page.getByRole('button',{name:/Word:/}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
- await page.getByRole('button',{name:'App launcher'}).click();await expect(page.getByRole('menuitem',{name:'Open PtS'})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Open Scribeswell'})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Open Disabled'})).toHaveCount(0);
+ await page.getByRole('button',{name:'App launcher'}).click();await expect(page.getByRole('menuitem',{name:/Open /})).toHaveCount(0);await expect(page.getByRole('menu').getByRole('status')).toHaveText('Sign in to see your apps.');
 });
 
 test('failed Scribeswell sign-out reports an error without clearing either session',async({context,page})=>{

@@ -1,0 +1,37 @@
+{
+  "complete": true,
+  "configured_uid": 65532,
+  "driver_sha256": "978dbfd820f4e6d6527d23e4d128491917c60d224d3b4a48db13cafec7cb8b93",
+  "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+  "limitations": [
+    "Actual nonroot import/parser only; no database/adoption/write/provider-capability/recovery execution claim.",
+    "Existing owner adoption CLI remains the executor; provider copy and independent association inventory require concrete production execution approval."
+  ],
+  "production_changed": false,
+  "qualification_sha256": "21f18defdb324adc681e4c15255c12645a24575cebff5eb31b7d125d911575ff",
+  "scope": "Actual immutable nonroot carrier import/parser and owner source custody for existing Content adoption CLI; no database/provider operation",
+  "seconds": 2.878,
+  "source_archive_sha256": "8ad01ed2b9f922496f2d57a268a8843dff6f5427e9a19c6d8e7c0b04f84685d8",
+  "source_sha256": {
+    "services/content-service/adoption.py": "dedd29793f301ad21afd01da55cdcb2acf64074bf6494b5c50b1ac90275e017b",
+    "services/content-service/client.py": "b83ecca25a6d9528246bae78810f081c7a9ed38e5f36a5ab794dcc5d34678457",
+    "services/content-service/contracts.py": "d3a8f05661f96136f2e58e814b90244ae4f80f2d14a9d89c05bd36fc3789df51",
+    "services/content-service/diagnostics.py": "288eabd92d5e2cb1bb3622d629cab06d1059538ebaa6f589454405256c2afa7a",
+    "services/content-service/main.py": "371fa5d93f58487493e5b426235faabe58efd1ffe2431f7d2753d2bd4506eb79",
+    "services/content-service/owned_api.py": "5e80bc8125aeb678927d135b98c947135d9dc5f63d334e5f1ef5e34c5291290e",
+    "services/content-service/provider.py": "00196f7b33e06e1f3e401e8c6d8e650feff69440f510a510dd083a2861c17be1",
+    "services/content-service/repository.py": "0615fe4e0648fc3c87688212f968d173019f8df8ef0d97a70b8cb45abd229ded",
+    "services/content-service/service_policy.py": "5223461246065957ac7dddb211cfff2779be7588883b4ebc326ae526b2d144c5",
+    "services/content-service/streaming.py": "1f65f285aaa5573cdb3f69950df3ac7494082c6aafcff85b3480079889378ddb"
+  },
+  "steps": [
+    {
+      "label": "actual configured UID65532 import and exact runtime/adoption bytes",
+      "passed": true
+    },
+    {
+      "label": "actual existing CLI parser and explicit maintenance confirmation option",
+      "passed": true
+    }
+  ]
+}

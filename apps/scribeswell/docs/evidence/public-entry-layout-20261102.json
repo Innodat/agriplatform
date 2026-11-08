@@ -1,0 +1,38 @@
+{
+  "activation_authorized": false,
+  "actual_HTML_title_ascii": "Scribes' Well",
+  "live": [
+    {
+      "module_scripts": [
+        "/assets/index-B3yTCCNz.js"
+      ],
+      "status": 200,
+      "title": "Scribes' Well",
+      "url": "https://scribeswell.com/"
+    },
+    {
+      "module_scripts": [
+        "/assets/index-B3yTCCNz.js"
+      ],
+      "status": 200,
+      "title": "Scribes' Well",
+      "url": "https://scribeswell.com/scribeswell/"
+    }
+  ],
+  "native_runtime_images_still_qualified": [
+    "sha256:618ba7e655ff2202161de3ac7bccf9557eeb98ac04ab63c132631f40422e9cb3",
+    "sha256:a5f191ae82526f2b59341c2af20ecd4a5e6c85cf817a909eb6d15b91f2f75a9a"
+  ],
+  "next": "Source-only existing BMAD continuation must qualify publication/build/fingerprint/source/artifact/runtime-link gates, then fresh candidate source-bound proof; no owner/API/migration/recipe/reference edits or production activation.",
+  "observed_on": "2026-11-02",
+  "prepared_shared_artifact_titles": {
+    "primary/index.html": "PtS \u00b7 Swahili Poetry",
+    "primary/scribeswell/index.html": "Scribes' Well",
+    "recovery/index.html": "PtS \u00b7 Swahili Poetry",
+    "recovery/scribeswell/index.html": "Scribes' Well"
+  },
+  "production_changed": false,
+  "requirement": "Preserve Scribeswell public reading at existing root / and deep links. Explicit bounded Scribeswell-owned publication puts current PtS at /pts/; keep public Scribeswell independent of protected availability.",
+  "schema_version": 1,
+  "scope": "Read-only public entry observation and proposed shared-layout incompatibility; no publication"
+}

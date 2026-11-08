@@ -37,9 +37,26 @@ class PoemResponse(BaseModel):
 
 class DocumentResponse(BaseModel):
     status: Literal['stored','link_only']
-    url: str
-    expires_in: int | None = None
+    url: str | None = None
     document: dict[str, Any]
+
+class FileSessionResponse(BaseModel):
+    status: Literal['ready','prepared']
+
+class FilePreparationResponse(BaseModel):
+    status: Literal['prepared']
+    account_id: str
+    session_id: str
+
+class FileCleanupResponse(BaseModel):
+    status: Literal['cleared']
+    account_id: str
+    session_id: str
+    provider_session: Literal['present','absent']
+
+class FileContextResponse(BaseModel):
+    url: str
+    expires_at: str
 
 class FilterQuery(BaseModel):
     search: str = Field(default='',max_length=300)

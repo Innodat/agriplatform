@@ -1,0 +1,67 @@
+{
+  "activation_authorized": false,
+  "agent_manifest_sha256": "d9c094af86b16e473889a0c801926dfefc6cb1e87e10335866a6a7f7bb735193",
+  "agent_runs": [
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q apps/scribeswell/tests/test_studies_forward.py --tb=short",
+      "result": "57 passed",
+      "seconds": 251.19
+    },
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q platform/deployment/tests/test_host.py platform/deployment/tests/test_host_profiles.py platform/deployment/tests/test_tls_renewal.py platform/deployment/tests/test_gateway.py platform/deployment/tests/test_release.py platform/deployment/tests/test_studies_runtime_release.py platform/deployment/tests/test_pts_hosted_migration.py platform/deployment/tests/test_pts_migration_package.py apps/scribeswell/tests/test_studies_maintenance.py apps/scribeswell/tests/test_studies_hosted_rollout.py --tb=short",
+      "result": "343 passed,178 subtests passed,2 failed (loopback socket EPERM only)",
+      "seconds": 239.78
+    },
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q platform/deployment/tests/test_source_identity.py --tb=short",
+      "result": "13 passed",
+      "seconds": 50.44
+    },
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q apps/scribeswell/tests/test_studies_rollout.py --tb=short",
+      "result": "4 passed,60 setup errors: missing /tmp/studies-current-deb424b/services/access/studies_readiness.py",
+      "seconds": 4.98
+    },
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q platform/deployment/tests/test_tls_renewal.py --tb=short",
+      "log": "tls-sandbox.log",
+      "result": "40 passed,31 subtests passed,2 failed(loopback socket EPERM only)",
+      "seconds": 16.38
+    },
+    {
+      "command": "PYTHONPATH=.local/release-candidate-20261101/parent-deps-01 /home/ck/repos/innodat/agriplatform/.local/leave-content-read-20261027/owner-env/bin/python -B -m pytest -q apps/scribeswell/tests/test_studies_forward.py -k completed_primary_requires --tb=short",
+      "log": "post-completion.log",
+      "result": ".                                                                        [100%]\n1 passed, 57 deselected in 9.03s"
+    }
+  ],
+  "hosted_source_binding_digest": "ca72a61e700607f449a066c3db459e62b73f97284fab9834632cf981b8f392b2",
+  "limitations": [
+    "Focused control-plane tests and real local Git/archive transport, not complete actual-host activation or provider publication.",
+    "Both sandbox loopback EPERM failures resolved by independent parent real TLS test rerun; historical missing /tmp suite remains4passed/60 setup errors.",
+    "Canonical selected Git commit/archive identity and immutable registry publication mappings remain unprepared/unpublished at this evidence boundary.",
+    "No production roles, grants, data, DNS/TLS, frontend/backend activation changed."
+  ],
+  "parent_runs": [
+    {
+      "command": "python -B -m pytest -q apps/scribeswell/tests/test_studies_forward.py --tb=short",
+      "result": "58 passed",
+      "seconds": 252.06
+    },
+    {
+      "command": "python -B -m pytest -q platform/deployment/tests/test_source_identity.py --tb=short",
+      "result": "13 passed",
+      "seconds": 67.42
+    },
+    {
+      "command": "python -B -m pytest -q platform/deployment/tests/test_tls_renewal.py --tb=short",
+      "local_loopback_permission": true,
+      "result": "42 passed,38 subtests passed",
+      "seconds": 13.36
+    }
+  ],
+  "production_changed": false,
+  "schema_version": 1,
+  "scope": "D2d settled source implementation and independent parent focused verification; no production execution",
+  "source_archive_sha256": "1d1e79374535453275d8228a006bda424d1d2dd44d99f413bf6e076eab09b1fc",
+  "source_files": 626
+}

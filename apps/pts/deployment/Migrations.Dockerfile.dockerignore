@@ -1,5 +1,13 @@
 **
-!apps/pts/requirements.txt
+!apps/pts/pyproject.toml
+!apps/pts/uv.lock
+!apps/pts/backend/**
+!apps/pts/tools/bind_corpus.py
+!apps/pts/deployment/verify_runtime.py
+!apps/pts/deployment/package_runtime.py
+!apps/pts/deployment/Dockerfile
+!apps/pts/deployment/Dockerfile.dockerignore
+!apps/pts/runtime-bundle/**
 !tools/py/deploy_pts.py
 !apps/pts/alembic.ini
 !apps/pts/migrations/**
@@ -11,3 +19,5 @@
 **/__pycache__/**
 **/.env*
 !platform/deployment/target_contract.py
+
+!services/content-service/database-tools/**

@@ -1,0 +1,76 @@
+{
+  "activation_allowed": false,
+  "actual_file_origins": {},
+  "actual_provider": {
+    "activation_allowed": false,
+    "driver_sha256": "1aafa819dc2054c5833aee7fe435516b538054be7421806b900abc562a7c5f55",
+    "health": {
+      "name": "GoTrue",
+      "status": 200,
+      "version": "v2.197.0"
+    },
+    "observed_at": "2026-11-01T18:54:32.082697+00:00",
+    "production_changed": false,
+    "settings": {
+      "disable_signup": true,
+      "mailer_autoconfirm": false,
+      "phone_autoconfirm": false,
+      "status": 200
+    }
+  },
+  "content_proposal": {
+    "association_count": 10,
+    "bytes_to_preserve": 191609122,
+    "conditional_byte_receipt_sha256": "9beff0b1813b9b4469fa924afed6e20cdd8c78fb1c3403f8389ef8ab4ed31edf",
+    "corpus_binding_file_sha256": "639a37c84ae487dedc52efa60083c2ef37124b6e4b2f18a231ba59b434aeec7f",
+    "corpus_source_inventory_sha256": "9bf3b96595f0a3bcd1ee7aa925ff0aec4bb8dc33d0d0ddb5e9a02ed89f34aea0",
+    "independent_pts_inventory_file_sha256": "7765ecd0473c1b91dd40a169f25f3c5dcb0156ec129bcb8f0abc8c1ba074a8ea",
+    "manifest_file_sha256": "7485d2f7d75f8ca3c8931586c55b1ecb1ea57493430daad30f8ae5ae915c9d48",
+    "manifest_normalized_fingerprint": "55ae234304fa30c04133e30dce77f2a9ea8d8b6dfce4e0bf03542445600cd079",
+    "object_count": 10,
+    "provider_effect_after_approval": "Content seal_candidate copies each verified legacy sealed object into an owned/adopted attempt locator; originals remain retained"
+  },
+  "content_proposal_receipt_sha256": "a246a699393b4e31bb47905385faa4b834c1e674ee440fcd6e479bfe8be4fb7f",
+  "current_certificate_covers_only": "api.scribeswell.com",
+  "distinct_existing_account_targets": 1,
+  "existing_account_count_to_preserve": 6,
+  "explicit_pts_account_grants_proposed": 3,
+  "file_certificate_required": true,
+  "grant_proposal_sha256": "38f34ab129e833db4f9fc7947bfd6825c07a972297c17536dd0a578abe332135",
+  "production_changed": false,
+  "proposed_certificate_paths": {
+    "cert": "/etc/letsencrypt/live/files.scribeswell.com/fullchain.pem",
+    "key": "/etc/letsencrypt/live/files.scribeswell.com/privkey.pem"
+  },
+  "proposed_dns": {
+    "actual_record_present": false,
+    "name": "files",
+    "provider_from_repository_runbook": "Dynadot",
+    "ttl": 300,
+    "type": "A",
+    "value": "138.199.217.158",
+    "zone": "scribeswell.com"
+  },
+  "proposed_file_origin": "https://files.scribeswell.com",
+  "release_id": "scribeswell-pts-hosted-e1-20261101",
+  "remaining": [
+    "actual operational predecessor preparation/reference/native proof",
+    "full-inventory hosted migration and runtime/cutover gates",
+    "exact final source/images/build provenance",
+    "file DNS/certificate preparation approval and actual verification",
+    "maintenance migration/adoption/readiness/activation/recovery proposal",
+    "production execution approval"
+  ],
+  "schema_version": 1,
+  "service_inventory": [
+    "access",
+    "content",
+    "directory",
+    "gateway",
+    "pts",
+    "scribeswell"
+  ],
+  "status": "reviewable-inputs-in-preparation-not-production-approved",
+  "studies_pregrant_is_separate": true,
+  "transport_inventory_sha256": "cee572261d48e9185f7e0b2626d61cb8df935d17833597e2ed450ecb692ae743"
+}

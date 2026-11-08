@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from sqlalchemy import create_engine, text
+from fastapi import HTTPException
 
 
 def engine(url):
@@ -14,6 +15,25 @@ def scoped(db, org_id, actor_id, consistent=False):
             conn.execute(text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"))
         conn.execute(text("SELECT set_config('app.org_id', :org, true), set_config('app.actor_id', :actor, true), set_config('statement_timeout', '10000', true)"),
                      {'org': str(org_id), 'actor': str(actor_id)})
+        yield conn
+
+
+@contextmanager
+def corpus(db, actor_id, consistent=False):
+    """Resolve reviewed storage provenance; caller input cannot select a corpus."""
+    with db.begin() as conn:
+        if consistent:conn.execute(text('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY'))
+        conn.execute(text("SELECT set_config('statement_timeout','10000',true)"))
+        binding=conn.execute(text('SELECT legacy_partition_id FROM pts.corpus_binding WHERE singleton AND verified_at IS NOT NULL')).scalar_one_or_none()
+        if binding is None:raise HTTPException(503,{'code':'collection_unavailable'})
+        conn.execute(text("SELECT set_config('app.org_id',:org,true),set_config('app.actor_id',:actor,true),set_config('statement_timeout','10000',true)"),{'org':str(binding),'actor':str(actor_id)})
+        yield conn
+
+
+@contextmanager
+def file_scope(db,account,session,actor):
+    with db.begin() as conn:
+        conn.execute(text("SELECT set_config('app.account_id',:account,true),set_config('app.session_id',:session,true),set_config('app.actor_id',:actor,true),set_config('statement_timeout','10000',true)"),{'account':str(account),'session':str(session),'actor':str(actor)})
         yield conn
 
 

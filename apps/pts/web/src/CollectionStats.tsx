@@ -23,10 +23,10 @@ export function CollectionStats({poems,usage}:{poems:Poem[];usage?:Record<string
  }
  const counts:Record<string,number>={short:0,medium:0,substantial:0,missing:0,ready:0};let words=0;
  for(const p of unique.values()){const m=textLength(p);counts[m.band]++;words+=m.words;if(ready(p))counts.ready++;}
- return <section className="collection-summary panel" aria-label="Results summary">
- <h2>{unique.size} distinct {unique.size===1?'work':'works'} in these results</h2>
+ return <details className="collection-summary panel" role="region" aria-label="Results summary">
+ <summary>{unique.size} distinct {unique.size===1?'work':'works'} · Results summary</summary>
  <div className="summary-counts">{[['ready','Ready for team research'],['short','Short texts'],['medium','Medium texts'],['substantial','Substantial texts'],['missing','Text not collected']].map(([key,label])=><div key={key}><strong data-stat={key}>{counts[key]}</strong><span>{label}</span></div>)}</div>
  <p className="quality-note">{words.toLocaleString()} words of collected text · {poems.length} record {poems.length===1?'version':'versions'}. Alternate versions count once.</p>
  <details><summary>How these counts work</summary><p>Short: up to 12 lines. Medium: 13–39 lines. Substantial: 40 or more lines. These describe the collected text’s length; an excerpt is not a complete short poem. Stored line breaks, including half-lines, can affect the category.</p><p>“Ready” requires a complete text checked against its published source and recorded rights supporting this private Psalm project. Assistant source checks are separate from expert Swahili review. For each work, counts favour a ready version, then a checked version, then the longest collected text.</p></details>
- </section>;
+ </details>;
 }

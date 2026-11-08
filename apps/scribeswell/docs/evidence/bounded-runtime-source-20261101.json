@@ -1,0 +1,40 @@
+{
+  "scope": "D2b.1 source integration; not final native/image/target qualification",
+  "production_changed": false,
+  "sources": {
+    "apps/scribeswell/deployment/manifest.json": "bd7ffa152d9513b4b0a440e76281cb1d97fa5c88fedfdfaaeb4b034ca6cc93bd",
+    "apps/scribeswell/tests/test_personal_notes_release.py": "67c2f3d8ae555ebbe00844f2ede0f45e33cdc1cd6fcdde02aa34661f7e4ebb19",
+    "platform/deployment/release.py": "d36313691e99c9ed4b482249d2671edc93ec40144810fba93f0d7ad2567438f9",
+    "platform/deployment/host-release.py": "c6ac68fb746aa902a312df914361200e022504e37d34fd1cd72b577a28500a0a",
+    "platform/deployment/render_gateway.py": "d33d5499e73e6d08c8b27ad48621003113880ccff6f4e9e1e86d466042a5a167",
+    "platform/deployment/build-release.mjs": "dab59a27f29ead3b9e0ec99840b0d27cf57a7c03a8541a10f68613d678622c0d",
+    "platform/deployment/frontend-inputs.mjs": "6f76c233294f07ba7ed12110b614c75028ed643392f75dadaaafaf85fcecea6e",
+    "platform/deployment/record-production.py": "cd98e9da694319c7c08a2c3a6ad1bb25f90a4fa532aea33cf82dacaaf7d3a418",
+    "platform/deployment/tests/test_studies_runtime_release.py": "21acff0613c19805eb35a3490be60a07910eaf929fb4ee4625560757fd118f73",
+    "platform/deployment/tests/test_gateway.py": "705470acf5fa5d8c4a75e483aabf104267fe4db0134046f423147d92294a169c",
+    "platform/deployment/tests/release.test.mjs": "738ff66d2e5bdb19857353d119dd0135a7b173c1c8cfa54125385bbc67fb1e41",
+    "platform/deployment/tests/frontend-inputs.test.mjs": "9c6b635f4c58ab30156dcbc2ce4ec0bf2bdbfa74b94fc8937aac81719579e5cd",
+    "platform/deployment/tests/test_frontend_selection.py": "690fea5576b28af02b235ae04acd7d186bd39ac7600eb835c1d4f0c2d5e97c97",
+    "platform/deployment/tests/test_frontend_publication.py": "7875050e567383fd0820d42c59ecfc5756097b195bb0427770077fd240bf75a3",
+    "platform/deployment/tests/test_host_profiles.py": "6a8f206f16123be0b699506d8e35cdc2d484de599135de31da14fae5c909d493",
+    "platform/deployment/README.md": "6cda9f4cb6d37eda817b262ef45f9125ea7f6724cad0223e10316c893f5017e0",
+    "apps/scribeswell/docs/BOUNDED_STUDIES_ROLLOUT.md": "20de1f2e8101b46930ecc61dad454215c7cd1457dd30b5792beac21a0f520462",
+    "apps/scribeswell/docs/STUDIES_TARGET_READINESS.md": "8d879dd5047bcc68049c0deca76db71cc7f0bb53a271e2bd32e4fe17583c520c"
+  },
+  "source_archive_sha256": "6fdaa85b82a2d6afaf367f188eb912849099abbdb7e30a8abb28118718256ca0",
+  "parent_verification": {
+    "python": {
+      "passed": 251,
+      "subtests_passed": 139,
+      "skips": 0,
+      "elapsed_seconds": 11.24
+    },
+    "node": {
+      "passed": 18,
+      "skips": 0,
+      "elapsed_seconds": 1.302185048,
+      "node_version": "24.11.1",
+      "compiler": "temporary fake compilers; not production frontend builds"
+    }
+  }
+}

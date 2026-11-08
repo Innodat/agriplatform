@@ -1,0 +1,24 @@
+{
+  "scope": "Actual existing immutable Content image executing real hosted E1 Alembic head repeat on retained owned cohort08; not new PtS migration image or application qualification",
+  "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+  "source_inventory_sha256": "e8d3cb27c9cfafb1e0cc24c9226fe5f1f47967b69cbb191f5d991a11d8f8f56d",
+  "production_changed": false,
+  "steps": [
+    {
+      "owner": "identity",
+      "exit_code": 0,
+      "elapsed_seconds": 2.931,
+      "source_config": "services/access/hosted_e1_identity-alembic.ini"
+    },
+    {
+      "owner": "access",
+      "exit_code": 0,
+      "elapsed_seconds": 2.676,
+      "source_config": "services/access/hosted_e1_access-alembic.ini"
+    }
+  ],
+  "complete": true,
+  "parent_driver_sha256": "5b7ed3dcb7bb4fd96fd8fc5cc9af6000ff8d5c8448e813ccb2e9be34beb72b48",
+  "private_result_sha256": "96e35a5ab2414deab97a60a08ae55417dbb8f121489c3a0849d9c38d9c62a7fa",
+  "fixtures_preserved": true
+}

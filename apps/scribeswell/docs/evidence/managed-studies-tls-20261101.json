@@ -1,0 +1,123 @@
+{
+  "activation_allowed": false,
+  "complete": true,
+  "driver_sha256": "4ac9dc254dc05dca7ceed610c43d7340e56b36f49696abe2014d83021a8f2dc0",
+  "limitations": [
+    "Synthetic retained TLS cohort11; no production role/privilege or schema change.",
+    "Selected native host interpreter, not the still-pending release migration image.",
+    "Prepared consumer credentials and data retained privately; current source-coupled readiness still pending."
+  ],
+  "preparation_receipt_sha256": "11bc81ccde003facdc05d273f8f7aa7c9276199945ae787204fd778388cbb12c",
+  "production_changed": false,
+  "qualification_sha256": "f0a93ec838a8ada0f8ae80fa9b439be98233743ff14c76b4d28fd656aac83181",
+  "schema_version": 1,
+  "scope": "Real managed Studies preparation and native storage on retained TLS cohort11 after selected PtS/Content role bootstrap",
+  "source_archive_sha256": "50c43e2c7b3231023a5bdd3290aad6fd5454153377b5c22755d01b627fb6a426",
+  "source_sha256": {
+    "apps/scribeswell/backend/database.py": "57da87d4ae91c979edec74de20a55a1396ad35db79f75bd6050e81d999b24add",
+    "apps/scribeswell/backend/personal_notes_access.py": "7ee51788c1d3ad2ec72ef3559c9bae9a5d4af51f71b647a78f0d5368338ff2b0",
+    "apps/scribeswell/backend/personal_notes_context.py": "9d3707345df18fae931d26040eec12f40a7f539be499b4a8f32059407951aa10",
+    "apps/scribeswell/backend/personal_notes_contract.py": "0d36dc254334c30c3cabe1e4dbc9c4f2e77d79cde3d6feb5a30c1eed902c694b",
+    "apps/scribeswell/backend/personal_notes_cursor.py": "8ee3dc32708283244f67c28cba9dc557e9a0d15f63d9b53992b597450c910c1f",
+    "apps/scribeswell/backend/personal_notes_router.py": "b021bb0d30e2c9f6e2b065dd66aee08144e4374cab716c0754906a0fee6dbf5f",
+    "apps/scribeswell/backend/personal_notes_search.py": "ea5c267eaaec1c68c5c0a9f4197256523794a77e311949fed2422de2f8e77872",
+    "apps/scribeswell/backend/personal_notes_storage.py": "f4ed7fe219aa94faf84f8e1346ff499adde87c1d16a9b7f6d5017defb81424c5",
+    "apps/scribeswell/backend/services/bible_service.py": "17e0c2a498c00cde8459e9b1815a7134c02d2d698d994e79a153d9f5ab0729ef",
+    "apps/scribeswell/deployment/studies_migrate.py": "2bc58cf6e39ac30b0e322ad47667e603a5f1ba70b21a63fd2c17c97257a16af4",
+    "apps/scribeswell/deployment/studies_release_contract.py": "8ca8b226af1c15104f81a4c26460c7b95fa32d4774b72d1b143b39df2d8f9f7f",
+    "apps/scribeswell/studies-alembic.ini": "391e58205e9b3e23b68e2409c7f597b643f1cb8b6c227673cbcf031781da1f99",
+    "apps/scribeswell/studies-database-tools/owned_migration.py": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0",
+    "apps/scribeswell/studies-migrations/env.py": "1b66e227df86af1bc569599710598ff47fa4276b4ecb9709136c58b1a12f62eb",
+    "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py": "b4fedf15d6de8a2966d310d18ab89f15af5a737852dd9c4f3e7f94f3f33a36e9",
+    "apps/scribeswell/studies-migrations/versions/0002_study_rename.py": "15e604cfd8aa126fc0f0aefe7d7ea280205fb337d7b7558fc326d9393fd5c4f3",
+    "apps/scribeswell/studies-migrations/versions/0003_collected_passages.py": "c1ce1350f89c1fa111614f7502dc94a68ef87601b387f2e11fd5ebd80a988cfc",
+    "apps/scribeswell/studies-migrations/versions/0004_note_deletion.py": "d32b5032b4b09a0316b3c95f3def6d0d94a906815adec7d6ec6787f49ba0e61d",
+    "apps/scribeswell/studies-migrations/versions/0005_study_deletion.py": "8ea74f5531c4dbdbeee79c0a9185b809bd1afb84299dd978b65f201a204ad251",
+    "apps/scribeswell/studies-migrations/versions/0006_own_highlights.py": "057585ab54287e16d852b50e90a4194c54e94405cb9b625748df10b797a3e5c4",
+    "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": "5f75af08071ec17b1ad5e7c406ae4bed92f570328fe40cb477af6378c1592ea3",
+    "apps/scribeswell/studies-migrations/versions/0008_study_details.py": "dc0e5d326ab0a28e1a39501c6c1f06c2a9bd86b06b43a99815c660a08e4866cf",
+    "apps/scribeswell/studies-migrations/versions/0009_note_metadata_predicates.py": "e9b63b7d88448018fd04b127c8d1717891fe51818345fdf18b1dae70be7217c6",
+    "apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql": "b5140822e9655b933a98f17df8b7a7cb8424246991e168238ba736a319b511f0",
+    "apps/scribeswell/tests/test_managed_personal_notes_preparation.py": "6ca47d96901935cfd9c39688e2a4bc9dc05676cecdbc8d4a025dd2ec1b820e79",
+    "apps/scribeswell/tests/test_personal_notes_storage.py": "9fda8d6d3361c5fd4839b67f8f5868170b50ee92d84a3c8f2d1d319b94098e60",
+    "apps/scribeswell/tools/py/prepare_managed_personal_notes.py": "ef33bed123d602b062dd462a8947f40f20c72a4f6d21fb5a92684e75e2e7779e"
+  },
+  "steps": [
+    {
+      "absent_create": true,
+      "direct_and_inherited_create": true,
+      "label": "prepare-synthetic-existing-consumers-and-public-reader",
+      "passed": true,
+      "public_books": 1,
+      "public_temp": true
+    },
+    {
+      "actual_ddl_completed_before_injection": true,
+      "exact_original_state_restored": true,
+      "label": "real-managed-preparation-failure-rolls-back",
+      "passed": true,
+      "public_reader_preserved": true
+    },
+    {
+      "exact_repeat": true,
+      "future_public_privileges_removed": [
+        "TEMPORARY"
+      ],
+      "label": "check-only-and-actual-managed-preparation",
+      "original_roles": 71,
+      "passed": true,
+      "receipt_sha256": "f1dbb3cce0a8a750033fc4e38bd34591a50e09deedea5bf943a2d75c8671344c"
+    },
+    {
+      "label": "existing-consumers-retain-actual-temp-and-schema-use",
+      "passed": true,
+      "real_login_create_cases": 2,
+      "real_login_temp_cases": 4
+    },
+    {
+      "denials": 9,
+      "label": "private-role-denials",
+      "operator_is_nologin_context": true,
+      "passed": true
+    },
+    {
+      "entire_private_stage_rolled_back": true,
+      "label": "actual-private-migration-injected-failure",
+      "original_consumer_state_preserved": true,
+      "passed": true,
+      "selected_ddl_reached": true
+    },
+    {
+      "head": "scribeswell_studies_0009",
+      "label": "private-migration-forward-retry-and-repeat",
+      "passed": true,
+      "repeat": true
+    },
+    {
+      "denials": 4,
+      "label": "runtime-foreign-ledger-and-schema-denials",
+      "passed": true
+    },
+    {
+      "label": "test_native_create_write_reopen_noop_replay_and_isolation",
+      "passed": true
+    },
+    {
+      "label": "test_concurrent_default_titles_and_same_operation",
+      "passed": true
+    },
+    {
+      "label": "test_native_revision_race_and_deadline",
+      "passed": true
+    },
+    {
+      "label": "saved-data-and-public-reader-preserved-after-migration-repeat",
+      "passed": true,
+      "saved_notes": 2
+    },
+    {
+      "label": "hosted-owner-and-source-reverification",
+      "passed": true
+    }
+  ]
+}

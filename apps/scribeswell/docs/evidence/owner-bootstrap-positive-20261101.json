@@ -1,0 +1,89 @@
+{
+  "activation_authorized": false,
+  "complete": true,
+  "driver_sha256": "30c9fb8f734ea31eff6ac3c3d3bb9cd0fce9c1deb24c2c7023c31c9090da5896",
+  "image_id": "sha256:e915a8d50b6bc3f8bf6461761b860c2527287118d8cf58f0aee4e17a82ef3837",
+  "limitations": [
+    "Actual production bootstrap, owner commands and pregrant remain unexecuted and require approval.",
+    "Positive SQL uses three explicit synthetic UUID substitutions; original proposed SQL is preserved separately. It does not establish production account authority.",
+    "Two incomplete attempts retained: absent operator credential input stopped before CLI; later successful command/pregrant execution reached an incorrect parent table-count assertion. Independent completion checked the actual owner tables and exact replay.",
+    "No production Auth account or membership was created; the new disposable fixture has one genuine provider account and two explicit accountless service actors."
+  ],
+  "native_qualification": {
+    "TLS": true,
+    "e1_steps": 20,
+    "genuine_provider": "GoTrue v2.197.0",
+    "operational_steps": 27,
+    "seconds": 20.004790633989614
+  },
+  "owner_heads": [
+    "identity_0031_e1_hosted",
+    "access_0020_hosted"
+  ],
+  "private_sql_commands_archive_sha256": "49293707a7f42be4b5ebf65caf5e54129936e225e8699af2e1dae4ee4e82fba8",
+  "production_changed": false,
+  "qualification_sha256": "f7a581b4bc5174450f0ef44f62b7cb2df513f5b9290fc58d7010aef9a7799ef1",
+  "scope": "Focused positive initial owner SQL, all13 owner commands and explicit Studies pregrant on independent genuine-provider TLS fixture; production SQL counterpart parameters only",
+  "source_archive_sha256": "9213658c29c8c114810d5103f55c35aebaccbec948f43efd2dd38604ae5e9dc4",
+  "source_sql_sha256": {
+    "access-initial.sql": "4c7ff25fcaae352ac69299773934aa9ea4c9f80739947ac6aa19f29888863a09",
+    "access-observe.sql": "1f9b7d8b33b0030c64bb1c929cc3b1796dc136537525fb7499800f4daa45cc90",
+    "identity-initial.sql": "67be68fb78793a1c24d70e1594347c8a9194278475e13a3fedfb2d604d288807",
+    "identity-observe.sql": "61470808f1fd87a886c06518cffcde9b0d5366fab54ca4ea167a8849b4395f41",
+    "studies-explicit-pregrant.sql": "5b3cf553c8be35a404c58a050283f21d40a763a9b22de74b9f74ff4d271774db"
+  },
+  "steps": [
+    {
+      "label": "genuine-provider-account",
+      "passed": true,
+      "real_provider_profile_hook": true,
+      "three_distinct_fixture_bindings": true
+    },
+    {
+      "actual_original_restricted_owners": true,
+      "both_owners_absent_then_exact": true,
+      "drift_observed_with_rollback": true,
+      "label": "initial-bootstrap-and-exact-observation",
+      "passed": true,
+      "repeat_refused_before_inserts": true
+    },
+    {
+      "label": "resume-exact-prepared-initial-bootstrap",
+      "no_bootstrap_reexecution": true,
+      "passed": true,
+      "prior_report_sha256": "876f85420dbbe9a3f534a164c58784ee11e6d68d283533bbbb55c47d97d3cc12"
+    },
+    {
+      "existing_fixture_credentials_preserved": true,
+      "label": "explicit-new-fixture-login-credentials",
+      "only_three_null_password_new_fixture_roles": true,
+      "passed": true
+    },
+    {
+      "commands": 13,
+      "exact_replay_and_outcome": true,
+      "immutable_carrier_uid": 65532,
+      "label": "all13-actual-restricted-carrier-commands",
+      "original_restricted_operator_TLS": true,
+      "passed": true
+    },
+    {
+      "label": "independent-resume-exact-bootstrap-and13-carrier-receipts",
+      "passed": true,
+      "prior_assertion_limitation": "Three PtS grants live in access.account_grants; Studies has its separate access.studies_account_grant owner table. Earlier assertion incorrectly expected four rows in the former table.",
+      "prior_report_sha256": "3960fc4219c292f821cb139dae89107c6f2ba7f030186ec15b66003600625f0e"
+    },
+    {
+      "actual_original_restricted_Studies_login_TLS": true,
+      "archive_unchanged": true,
+      "correct_initiator_and_executor": true,
+      "label": "independent-own-table-explicit-pregrant-and-repeat",
+      "no_new_membership": true,
+      "one_separate_Studies_grant": true,
+      "passed": true,
+      "repeat_all_retained_rows_exact": true,
+      "source_custody": true,
+      "three_PtS_account_grants": true
+    }
+  ]
+}

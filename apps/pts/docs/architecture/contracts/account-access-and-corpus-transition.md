@@ -152,3 +152,49 @@ rules apply. No new story, UI, actor model or accepted ADR change is required. S
 impact is reusable migration/evidence validation only where proven domain-neutral;
 PtS corpus selection remains application-specific. Documentation links this mapping from
 existing adoption criteria; agent-context guidance already covers ownership/release safety.
+
+## Private HEAD error transport — implementation contract, 2026-10-30
+
+Private native-file routes expose the safe `X-PtS-Error-Code` response header so
+bodyless HEAD failures distinguish authentication, permission, unavailable owners,
+not-ready content and capacity without returning file metadata. Typed errors retain
+their existing status, JSON `detail.code`, `Retry-After` and authorized range-error
+headers. The header equals `detail.code`; structural request validation uses
+`validation_failed` and preserves the existing validation-detail response format.
+Private database failures use `collection_unavailable`. No binary response is
+buffered or inspected to extract an error identifier.
+
+The native GET/HEAD OpenAPI responses declare the header, including422; the owning
+DTO generator remains the source of frontend types. Existing exact-origin CORS
+exposes only this additional safe response identifier. Qualification must include
+a frontend-origin browser fetch through the generated TLS ingress, genuine provider
+pause with typed HEAD503 within the current-session deadline and recovery. Focused
+adapter tests alone do not establish that deployed gateway/browser behavior.
+
+## Provider-session replacement and expired context reclamation — 2026-10-31
+
+A provider session replacement within one account follows the same original-session
+cleanup boundary as an account change. The existing auth owner verifies the new
+credential's account/session pair before classifying it; account equality and auth
+event names do not establish same-session refresh. The browser retains the verified
+replacement separately while the original receipt/session cleanup is pending. A
+provider refresh of that replacement updates only its recovery credentials under
+the current auth-observation guard. It never replaces the original receipt/pair or
+creates a native cookie/context before confirmed original absence and invalidation.
+
+Failure remains visible and survives reload. Retry Sign out retries original cleanup
+and resumes the preserved replacement after success. The same-account recovery and
+password return context remains intact. Old preparation is superseded when cleanup
+begins and cannot downgrade newer custody; delayed old cookies still rely on server
+current-session checks. There is one existing auth client, subscription and refresh
+owner. Current provider/capability/domain/Content checks remain mandatory per action.
+
+Expired PtS transport contexts have a narrow owner-local reclamation path in0003.
+Each authorized new-context operation invokes one no-argument batch of at most128
+expired rows, including departed sessions, in a separate one-second transaction.
+The restricted owner routine has a100ms lock deadline and uses SKIP LOCKED. Its
+FORCE RLS policy exposes only expired rows; PUBLIC execution is revoked and runtime
+receives EXECUTE without broader direct table rights. Live foreign contexts and
+Identity cleanup receipts remain untouched. Ordinary account/session read and local
+mutation isolation remain unchanged. No new worker, cross-owner table access or
+idle/background cleanup guarantee is introduced.

@@ -1,0 +1,254 @@
+{
+  "activation_allowed": false,
+  "exact_legacy_profile_accepted": true,
+  "object_owners": [
+    {
+      "count": 3,
+      "owner": "access_migrator",
+      "relkind": "i",
+      "schema": "access"
+    },
+    {
+      "count": 2,
+      "owner": "access_migrator",
+      "relkind": "r",
+      "schema": "access"
+    },
+    {
+      "count": 4,
+      "owner": "content_migrator",
+      "relkind": "i",
+      "schema": "content"
+    },
+    {
+      "count": 3,
+      "owner": "content_migrator",
+      "relkind": "r",
+      "schema": "content"
+    },
+    {
+      "count": 3,
+      "owner": "postgres",
+      "relkind": "S",
+      "schema": "identity"
+    },
+    {
+      "count": 12,
+      "owner": "postgres",
+      "relkind": "i",
+      "schema": "identity"
+    },
+    {
+      "count": 6,
+      "owner": "postgres",
+      "relkind": "r",
+      "schema": "identity"
+    },
+    {
+      "count": 11,
+      "owner": "pts_migrator",
+      "relkind": "i",
+      "schema": "pts"
+    },
+    {
+      "count": 10,
+      "owner": "pts_migrator",
+      "relkind": "r",
+      "schema": "pts"
+    },
+    {
+      "count": 4,
+      "owner": "postgres",
+      "relkind": "S",
+      "schema": "scribeswell"
+    },
+    {
+      "count": 13,
+      "owner": "postgres",
+      "relkind": "i",
+      "schema": "scribeswell"
+    },
+    {
+      "count": 5,
+      "owner": "postgres",
+      "relkind": "r",
+      "schema": "scribeswell"
+    },
+    {
+      "count": 5,
+      "owner": "postgres",
+      "relkind": "v",
+      "schema": "scribeswell"
+    }
+  ],
+  "observed_at": "2026-11-01T20:02:41.998597+00:00",
+  "private_receipt_sha256": "9a4647618c357dfeb9ad91eb1af9bd55e3f1f926b7e787676aba7ed0a8e18500",
+  "production_changed": false,
+  "read_only_verified": true,
+  "role_edges": [
+    {
+      "admin_option": false,
+      "inherit_option": true,
+      "member": "postgres",
+      "parent": "content_migrator",
+      "set_option": true
+    },
+    {
+      "admin_option": true,
+      "inherit_option": false,
+      "member": "postgres",
+      "parent": "content_migrator",
+      "set_option": false
+    },
+    {
+      "admin_option": true,
+      "inherit_option": false,
+      "member": "postgres",
+      "parent": "content_runtime",
+      "set_option": false
+    },
+    {
+      "admin_option": true,
+      "inherit_option": false,
+      "member": "postgres",
+      "parent": "pts_import",
+      "set_option": false
+    },
+    {
+      "admin_option": false,
+      "inherit_option": true,
+      "member": "postgres",
+      "parent": "pts_migrator",
+      "set_option": true
+    },
+    {
+      "admin_option": true,
+      "inherit_option": false,
+      "member": "postgres",
+      "parent": "pts_migrator",
+      "set_option": false
+    },
+    {
+      "admin_option": true,
+      "inherit_option": false,
+      "member": "postgres",
+      "parent": "pts_runtime",
+      "set_option": false
+    }
+  ],
+  "roles": [
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "access_migrator",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "access_runtime",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "content_migrator",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "content_runtime",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "pts_import",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "pts_migrator",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": true,
+      "login": true,
+      "name": "pts_runtime",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": false,
+      "login": true,
+      "name": "scribeswell_import",
+      "replication": false,
+      "superuser": false
+    },
+    {
+      "bypassrls": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": false,
+      "login": true,
+      "name": "scribeswell_runtime",
+      "replication": false,
+      "superuser": false
+    }
+  ],
+  "schemas": [
+    {
+      "owner": "access_migrator",
+      "schema": "access"
+    },
+    {
+      "owner": "content_migrator",
+      "schema": "content"
+    },
+    {
+      "owner": "postgres",
+      "schema": "identity"
+    },
+    {
+      "owner": "pts_migrator",
+      "schema": "pts"
+    },
+    {
+      "owner": "postgres",
+      "schema": "scribeswell"
+    }
+  ],
+  "scope": "Enforced read-only actual target owner/schema custody; no credentials or account payload"
+}

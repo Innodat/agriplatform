@@ -1,0 +1,93 @@
+{
+  "activation_authorized": false,
+  "complete": true,
+  "driver_sha256": "6736f87b79d05f3eacf04b06d42359bf55d59542bf2ea553789829c4d55b473f",
+  "image_id": "sha256:a5f191ae82526f2b59341c2af20ecd4a5e6c85cf817a909eb6d15b91f2f75a9a",
+  "limitations": [
+    "Local exact default Access image only, not full six-service/gateway/Studies/native hosted coordinator activation.",
+    "Genuine GoTrue2.197 provider uses explicitly supported localhost HTTP. A transport-only prefix adapter shares its network namespace and makes no auth decisions; database connections use actual TLS.",
+    "Only a fresh qualification-owned session was signed out locally; prior fixture accounts, sessions, grants and fixtures remain retained. New helper/API containers stopped normally with exit0 and remain retained.",
+    "Local immutable image ID only, no registry publication/production change.",
+    "Earlier native parent assertion expected403/404 for legacy v1; documented owner behavior is503 authorization_unavailable. Existing source was unchanged, valid legacy request shape now proves503 refusal."
+  ],
+  "owned_new_containers_retained": [
+    "0f8d12b21e0899fb4c0cb03b75450a70a6892684d3a656797b4386ffb503b5b6",
+    "5d0abb7a04f356d0dcd54113ecce3a83dc02319f611004b16716158405a8257f"
+  ],
+  "owner_heads": [
+    "identity_0031_e1_hosted",
+    "access_0020_hosted"
+  ],
+  "prior_limitation": "Parent expected403/404 for legacy v1; actual selected owner deliberately returns503 authorization_unavailable for valid old request. No owner source changed.",
+  "production_changed": false,
+  "qualification_sha256": "1b754db5890a2ebf44cbd32dfb42931e7e0223f44d3a391a447bc46f255ce275",
+  "retained_prior_attempt_sha256": "5c4f95e1a44cc93016cc9e774568ad5332b5f53106041394b87913284e76404c",
+  "scope": "Selected default Access image genuine-provider capability/current-session/cleanup proof with TLS database on isolated cohort12",
+  "source_archive_sha256": "b440c4012b2a963d4c6375b8406d80f69a33fb752ce2c183e968a3ff8f657c97",
+  "source_sha256": {
+    "services/access/actor_display_contract.py": "bc51b6135f14e46fd307e6fbeb1454000637662451083ce753be61644d2456ed",
+    "services/access/actor_display_http.py": "e6b622095d818dc7a4e89307918e118573640ad1cc60e8cab659c67bbf3cd1da",
+    "services/access/actor_display_native.py": "50ed46947c7f89f7a81c4a87ec422ee84891ecc63e85e34cdf3825623e522614",
+    "services/access/actor_display_runtime.py": "326be714d408f5b83909693d6581217ce2ad2840c383432e27695f9b3cc01036",
+    "services/access/caller_policy.py": "7a7bf60f811577e1e2d9514d7e805eed96289fd6c5f23827d5e8d8614da683d5",
+    "services/access/capability_check.py": "9c49ab5a55136c4b034e00a0babb50086bd92859b6ac749cbf320f0e0902c7c1",
+    "services/access/capability_contract.py": "1d1781f2652b8edf7a527e1b8c87f53773f4898ab7691120446acec2febff153",
+    "services/access/current_session_contract.py": "22b3dd54db925514a21eca712a9a22a6e48a472032ec4ae9a287e09a5ab08c9e",
+    "services/access/current_session_http.py": "8e69dd557a3df6ee08c6bbaebe3b0f02c84f736667652e7f467ac3ef17f5f5ae",
+    "services/access/current_session_native.py": "d435f375025d18584776f04d8d60ec61d8bb7edbe032453d5f08c80e5dc35ac0",
+    "services/access/current_session_runtime.py": "5aaa272779778638b85dd806cc51586655f198c92319a69d66e5f4906a0a1529",
+    "services/access/deployment/Dockerfile": "81eefcd81e0ca85192d2480dca3be1167435d1950157c10c94f70df14e427474",
+    "services/access/deployment/Dockerfile.dockerignore": "c1b6797d5b5d9578a5e270f98fa2d590a85832fba3a88fa3acf9b65fb68c3690",
+    "services/access/deployment/package_runtime.py": "af16d61c6cac622391882f1655d3fc987ceb4fffc5577a7f58b776069a600ab9",
+    "services/access/deployment/verify_runtime.py": "ae1b1069c7c9a322a1fb51f7fc4109c1f37e0232b874c144e71b88b708664792",
+    "services/access/discovery.py": "9ce2eaf0174ab4099b18548cef9d2a0cbfa866bd53ee14a8a311fdd67ba04015",
+    "services/access/discovery_contract.py": "7f830513d75316b579ec0f8afc2d526082de58d4cf60d41b81583fbfb59bd824",
+    "services/access/discovery_query.py": "9657bce6f879530736cffad703d11912a6ee74411e4c7e66d4c665068b03df97",
+    "services/access/file_cleanup_native.py": "86c2617dd2613897af0457ee18afc51c47f6bb905627125a4e1df6d7c4c247d2",
+    "services/access/file_cleanup_preflight.py": "a2bbf6df506977f671e05f3b384896c6395c7cd366fa81b82f7e664ff499aa2a",
+    "services/access/identity_context.py": "cae3eb65751341794f4940810c1c33d4bcc8084cf741c7bcc34cc6b2597ead13",
+    "services/access/identity_preferences.py": "4a524a77d12aff9fbb44346128c5dab3c69fe6c305d984dce6bdbd0b56b27958",
+    "services/access/main.py": "ad9fd4e0117aa6685cb8d1407a74d3cb8b05ade66f1c458ef401bd7414a1ef73",
+    "services/access/organization_check.py": "293be2c0c25ec67e48092cb1d30db84762e1fe336701a3c4756ed961a1cdfe13",
+    "services/access/organization_entry.py": "5100f25e195cbca594a38b7aa6472fd8fcd1a827c4d55bdfca39fa419578b78f",
+    "services/access/people_setup.py": "3091edbcf71cde8ea03f78fa984c599da8ca4df59669bebbe619eeca01698110",
+    "services/access/pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+    "services/access/runtime-bundle/provenance.json": "7d3f4aec19f1e0263e6749d8ba6b693dbad73586325915944cab52730a2b3592",
+    "services/access/studies_access.py": "8bc584d78569279c7424f2b65cf63d711ed0cb62a8c625abf0413d8b9ce24a21",
+    "services/access/studies_contract.py": "9712442d1ecbf650221c88a07bc3476846032d4b57cc4b635265c50a8ed048c5",
+    "services/access/studies_identity.py": "76efdd1a1e11b95a6ec5dbbb87c3e1854334f23362766c2efa99f937dc6d83f5",
+    "services/access/studies_readiness.py": "d5e0abef5cfe401827702433b26380a3ca47318231b4ba62667716e847f74c03",
+    "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+  },
+  "steps": [
+    {
+      "Studies_settings_absent": true,
+      "database_TLS": true,
+      "default_image_CMD": true,
+      "label": "actual-default-startup",
+      "passed": true,
+      "provider": "genuine GoTrue2.197.0 via loopback; canonical auth prefix uses transport-only adapter",
+      "uid": 65532
+    },
+    {
+      "actual_current_session": true,
+      "anonymous_wrong_key_wrong_scope_denied": true,
+      "canonical_account_decision": true,
+      "cleanup_prepare_repeat_check": true,
+      "dedicated_session_key_enforced": true,
+      "label": "genuine-provider-current-session-and-current-grants",
+      "legacy_v1_closed": true,
+      "passed": true
+    },
+    {
+      "accounts_actors_grants_archive_exact": true,
+      "cleanup_historical_receipt_retained": true,
+      "current_session_denied": true,
+      "label": "new-qualification-session-local-logout-and-recovery-proof",
+      "only_fresh_owned_session_local_logout": true,
+      "passed": true,
+      "provider_session_absent": true,
+      "source_custody": true
+    }
+  ]
+}

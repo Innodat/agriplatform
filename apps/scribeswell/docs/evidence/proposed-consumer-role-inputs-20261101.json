@@ -1,0 +1,48 @@
+{
+  "activation_authorized": false,
+  "actual_readonly_custody_sha256": "9a4647618c357dfeb9ad91eb1af9bd55e3f1f926b7e787676aba7ed0a8e18500",
+  "credential_proposal_sha256": "cf701f6844a05857940038c954e66b1c4e94f906bcc320e7320db12b0e96c6a4",
+  "credential_roles": [
+    "identity_migrator",
+    "identity_operator",
+    "identity_studies_reader_runtime",
+    "identity_studies_setup_runtime",
+    "access_operator",
+    "access_studies_runtime",
+    "identity_current_session_runtime",
+    "pts_account_runtime",
+    "scribeswell_studies_migrator",
+    "scribeswell_studies_runtime"
+  ],
+  "existing_roles_passwords_flags_edges_preserved": true,
+  "files": {
+    "managed-initial-roles.sql": "ed429e4bea52e9a1584f84b0a8e443a19edfdb7d1b5ae336b0d0868b13304642",
+    "pts-owner-schema-usage.sql": "cdbef7fe667c7c56a2980c0d1bdeb06d1452c1f55940fbd35ebaa1383b82eedb"
+  },
+  "limits": [
+    "Fresh actual role observation is required before execution; refuse unexpected existing role state.",
+    "Existing Content/PtS ownership and existing password/role edges remain; no ownership transfer/rewrite.",
+    "New credentials must be applied explicitly and privately after each new role exists; no password value in command argv/output.",
+    "Roles and own PtS schema usage must exist before exact managed Studies preparation.",
+    "SQL/native positive role preparation and active target connections remain unexecuted; no corpus importer activation."
+  ],
+  "new_consumer_roles": {
+    "pts_account_runtime": {
+      "login": true
+    },
+    "pts_corpus_import": {
+      "login": false
+    }
+  },
+  "observed_at": "2026-11-01T20:02:41.998597+00:00",
+  "preparation_receipt_sha256": "cf804c9333de08d981561c4550f7a1e61ab07e6b58f08ace2f99b676e6f6af9f",
+  "production_changed": false,
+  "schema_version": 1,
+  "scope": "Minimal missing consumer role/schema-grant and new credential input proposals; no execution",
+  "source_contracts": {
+    "apps/pts/migrations/versions/0002_account_corpus.py": "7b6e63b287c2a9dd0cf582980fda881b82dc3aa170a54af32f688afe4629bc27",
+    "apps/pts/tools/prepare_account_roles.sql": "7036bce1544d1662a67b2f504d0c9353bdd00cc323b6c5162a243caad5379e41",
+    "services/content-service/database-tools/owned_migration.py": "19bb1c50e27e338edb3dd70beab46c88bc52522eab81b04626bbe6d73f046508"
+  },
+  "unneeded_content_operator_not_created": "Selected migration checker uses its name only as a prohibited database owner; no current runtime/migration statement references it as a grantee. Native synthetic fixture presence was not a target requirement."
+}
