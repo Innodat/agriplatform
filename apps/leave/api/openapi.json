@@ -1,0 +1,3040 @@
+{
+  "components": {
+    "schemas": {
+      "Active": {
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "editability": {
+            "discriminator": {
+              "mapping": {
+                "editable": "#/components/schemas/Editable",
+                "read_only": "#/components/schemas/ReadOnly"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Editable"
+              },
+              {
+                "$ref": "#/components/schemas/ReadOnly"
+              }
+            ],
+            "title": "Editability"
+          },
+          "input": {
+            "$ref": "#/components/schemas/Input"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "setup_notices": {
+            "items": {
+              "$ref": "#/components/schemas/Notice"
+            },
+            "title": "Setup Notices",
+            "type": "array"
+          },
+          "state": {
+            "const": "active",
+            "title": "State",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision",
+          "org_id",
+          "state",
+          "input",
+          "editability",
+          "setup_notices",
+          "updated_at"
+        ],
+        "title": "Active",
+        "type": "object"
+      },
+      "Available": {
+        "additionalProperties": false,
+        "properties": {
+          "choice": {
+            "$ref": "#/components/schemas/Choice"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "choice"
+        ],
+        "title": "Available",
+        "type": "object"
+      },
+      "Choice": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "permitted_modes": {
+            "items": {
+              "enum": [
+                "full_days",
+                "half_day",
+                "hours"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Permitted Modes",
+            "type": "array"
+          },
+          "revision": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Revision",
+            "type": "string"
+          },
+          "type_id": {
+            "title": "Type Id",
+            "type": "string"
+          },
+          "version_id": {
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type_id",
+          "version_id",
+          "name",
+          "revision",
+          "permitted_modes"
+        ],
+        "title": "Choice",
+        "type": "object"
+      },
+      "Choices": {
+        "additionalProperties": false,
+        "properties": {
+          "choices": {
+            "items": {
+              "$ref": "#/components/schemas/Choice"
+            },
+            "maxItems": 100,
+            "title": "Choices",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "selected": {
+            "discriminator": {
+              "mapping": {
+                "available": "#/components/schemas/Available",
+                "not_requested": "#/components/schemas/NotRequested",
+                "obsolete": "#/components/schemas/Obsolete"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/NotRequested"
+              },
+              {
+                "$ref": "#/components/schemas/Obsolete"
+              },
+              {
+                "$ref": "#/components/schemas/Available"
+              }
+            ],
+            "title": "Selected"
+          }
+        },
+        "required": [
+          "choices",
+          "next_cursor",
+          "selected"
+        ],
+        "title": "Choices",
+        "type": "object"
+      },
+      "Committed": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "discriminator": {
+              "mapping": {
+                "discard": "#/components/schemas/DiscardResult",
+                "save": "#/components/schemas/SaveResult",
+                "start": "#/components/schemas/StartResult"
+              },
+              "propertyName": "command"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StartResult"
+              },
+              {
+                "$ref": "#/components/schemas/SaveResult"
+              },
+              {
+                "$ref": "#/components/schemas/DiscardResult"
+              }
+            ],
+            "title": "Result"
+          },
+          "status": {
+            "const": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "Committed",
+        "type": "object"
+      },
+      "DateEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "format": {
+            "const": "dmy_numeric_v1",
+            "title": "Format",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 64,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "format"
+        ],
+        "title": "DateEntry",
+        "type": "object"
+      },
+      "DiscardCommitted": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/DiscardResult"
+          },
+          "status": {
+            "const": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "DiscardCommitted",
+        "type": "object"
+      },
+      "DiscardResult": {
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "discard",
+            "title": "Command",
+            "type": "string"
+          },
+          "disposition": {
+            "const": "discarded",
+            "title": "Disposition",
+            "type": "string"
+          },
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "scope_generation": {
+            "title": "Scope Generation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision",
+          "command",
+          "scope_generation",
+          "disposition"
+        ],
+        "title": "DiscardResult",
+        "type": "object"
+      },
+      "Discarded": {
+        "additionalProperties": false,
+        "properties": {
+          "discarded_at": {
+            "title": "Discarded At",
+            "type": "string"
+          },
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "state": {
+            "const": "discarded",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision",
+          "org_id",
+          "state",
+          "discarded_at"
+        ],
+        "title": "Discarded",
+        "type": "object"
+      },
+      "DraftErrorEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GenerationDetails"
+              },
+              {
+                "$ref": "#/components/schemas/RevisionDetails"
+              },
+              {
+                "$ref": "#/components/schemas/TargetDetails"
+              },
+              {
+                "$ref": "#/components/schemas/ReasonDetails"
+              },
+              {
+                "$ref": "#/components/schemas/SizeDetails"
+              },
+              {
+                "$ref": "#/components/schemas/FieldDetails"
+              },
+              {
+                "$ref": "#/components/schemas/EmptyDetails"
+              }
+            ],
+            "title": "Details"
+          },
+          "error": {
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error_id",
+          "error",
+          "details"
+        ],
+        "title": "DraftErrorEnvelope",
+        "type": "object"
+      },
+      "DraftReady": {
+        "additionalProperties": false,
+        "properties": {
+          "active_draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Summary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "editability": {
+            "discriminator": {
+              "mapping": {
+                "editable": "#/components/schemas/Editable",
+                "read_only": "#/components/schemas/ReadOnly"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Editable"
+              },
+              {
+                "$ref": "#/components/schemas/ReadOnly"
+              }
+            ],
+            "title": "Editability"
+          },
+          "employment_id": {
+            "title": "Employment Id",
+            "type": "string"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          },
+          "scope_generation": {
+            "title": "Scope Generation",
+            "type": "string"
+          },
+          "setup_notices": {
+            "items": {
+              "$ref": "#/components/schemas/Notice"
+            },
+            "title": "Setup Notices",
+            "type": "array"
+          },
+          "status": {
+            "const": "ready",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "status",
+          "employment_id",
+          "editability",
+          "setup_notices",
+          "scope_generation",
+          "active_draft"
+        ],
+        "title": "DraftReady",
+        "type": "object"
+      },
+      "DraftUnresolved": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "unresolved",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status"
+        ],
+        "title": "DraftUnresolved",
+        "type": "object"
+      },
+      "DurationEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "format": {
+            "const": "decimal_hours_dot_v1",
+            "title": "Format",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 32,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "format"
+        ],
+        "title": "DurationEntry",
+        "type": "object"
+      },
+      "Editable": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "editable",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "Editable",
+        "type": "object"
+      },
+      "EditorActive": {
+        "additionalProperties": false,
+        "properties": {
+          "choices": {
+            "$ref": "#/components/schemas/Choices"
+          },
+          "context": {
+            "$ref": "#/components/schemas/DraftReady"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/Active"
+          }
+        },
+        "required": [
+          "context",
+          "draft",
+          "choices"
+        ],
+        "title": "EditorActive",
+        "type": "object"
+      },
+      "EditorClosed": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/DraftReady"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/Discarded"
+          }
+        },
+        "required": [
+          "context",
+          "draft"
+        ],
+        "title": "EditorClosed",
+        "type": "object"
+      },
+      "EmptyDetails": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "EmptyDetails",
+        "type": "object"
+      },
+      "ErrorEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "additionalProperties": true,
+            "maxProperties": 0,
+            "title": "Details",
+            "type": "object"
+          },
+          "error": {
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "error_id"
+        ],
+        "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "FieldDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FieldIssue"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "fields"
+        ],
+        "title": "FieldDetails",
+        "type": "object"
+      },
+      "FieldIssue": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "enum": [
+              "$",
+              "operation_id",
+              "expected_revision",
+              "expected_scope_generation",
+              "input",
+              "input.input_version",
+              "input.leave_type_id",
+              "input.duration_mode",
+              "input.note",
+              "input.full_days",
+              "input.half_day",
+              "input.hours",
+              "input.full_days.start",
+              "input.full_days.start.text",
+              "input.full_days.start.format",
+              "input.full_days.end",
+              "input.full_days.end.text",
+              "input.full_days.end.format",
+              "input.half_day.date",
+              "input.half_day.date.text",
+              "input.half_day.date.format",
+              "input.hours.date",
+              "input.hours.date.text",
+              "input.hours.date.format",
+              "input.hours.duration",
+              "input.hours.duration.text",
+              "input.hours.duration.format"
+            ],
+            "title": "Path",
+            "type": "string"
+          },
+          "rule": {
+            "enum": [
+              "required",
+              "unknown_field",
+              "invalid_type",
+              "invalid_value",
+              "too_long",
+              "unsafe_text",
+              "invalid_json"
+            ],
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "rule"
+        ],
+        "title": "FieldIssue",
+        "type": "object"
+      },
+      "FullDays": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "$ref": "#/components/schemas/DateEntry"
+          },
+          "start": {
+            "$ref": "#/components/schemas/DateEntry"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "FullDays",
+        "type": "object"
+      },
+      "GenerationDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "current_scope_generation": {
+            "title": "Current Scope Generation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_scope_generation"
+        ],
+        "title": "GenerationDetails",
+        "type": "object"
+      },
+      "HalfDay": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/DateEntry"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "HalfDay",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "Hours": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/DateEntry"
+          },
+          "duration": {
+            "$ref": "#/components/schemas/DurationEntry"
+          }
+        },
+        "required": [
+          "date",
+          "duration"
+        ],
+        "title": "Hours",
+        "type": "object"
+      },
+      "Input": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "full_days",
+                  "half_day",
+                  "hours"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Mode"
+          },
+          "full_days": {
+            "$ref": "#/components/schemas/FullDays"
+          },
+          "half_day": {
+            "$ref": "#/components/schemas/HalfDay"
+          },
+          "hours": {
+            "$ref": "#/components/schemas/Hours"
+          },
+          "input_version": {
+            "const": 1,
+            "title": "Input Version",
+            "type": "integer"
+          },
+          "leave_type_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leave Type Id"
+          },
+          "note": {
+            "maxLength": 4000,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_version",
+          "leave_type_id",
+          "duration_mode",
+          "full_days",
+          "half_day",
+          "hours",
+          "note"
+        ],
+        "title": "Input",
+        "type": "object"
+      },
+      "Language": {
+        "additionalProperties": false,
+        "properties": {
+          "preferred_locale": {
+            "enum": [
+              "en",
+              "pt"
+            ],
+            "title": "Preferred Locale",
+            "type": "string"
+          },
+          "revision": {
+            "pattern": "^(0|[1-9][0-9]{0,18})$",
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preferred_locale",
+          "revision"
+        ],
+        "title": "Language",
+        "type": "object"
+      },
+      "NotRequested": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "not_requested",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "NotRequested",
+        "type": "object"
+      },
+      "Notice": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "work_timezone_missing",
+              "work_timezone_invalid"
+            ],
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "Notice",
+        "type": "object"
+      },
+      "Obsolete": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "obsolete",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "Obsolete",
+        "type": "object"
+      },
+      "Organization": {
+        "additionalProperties": false,
+        "properties": {
+          "membership_id": {
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "title": "Membership Id",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 4096,
+            "title": "Name",
+            "type": "string"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "name",
+          "membership_id"
+        ],
+        "title": "Organization",
+        "type": "object"
+      },
+      "Organizations": {
+        "additionalProperties": false,
+        "properties": {
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            },
+            "maxItems": 100,
+            "title": "Organizations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "organizations",
+          "next_cursor"
+        ],
+        "title": "Organizations",
+        "type": "object"
+      },
+      "ReadOnly": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "enum": [
+              "permission_missing",
+              "employment_ended",
+              "employment_periods_missing"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "const": "read_only",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason"
+        ],
+        "title": "ReadOnly",
+        "type": "object"
+      },
+      "Ready": {
+        "additionalProperties": false,
+        "properties": {
+          "editability": {
+            "discriminator": {
+              "mapping": {
+                "editable": "#/components/schemas/Editable",
+                "read_only": "#/components/schemas/ReadOnly"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Editable"
+              },
+              {
+                "$ref": "#/components/schemas/ReadOnly"
+              }
+            ],
+            "title": "Editability"
+          },
+          "employment_id": {
+            "title": "Employment Id",
+            "type": "string"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          },
+          "setup_notices": {
+            "items": {
+              "$ref": "#/components/schemas/Notice"
+            },
+            "title": "Setup Notices",
+            "type": "array"
+          },
+          "status": {
+            "const": "ready",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "status",
+          "employment_id",
+          "editability",
+          "setup_notices"
+        ],
+        "title": "Ready",
+        "type": "object"
+      },
+      "ReasonDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "enum": [
+              "employment_ended",
+              "employment_missing",
+              "employment_periods_missing",
+              "identity_person_link_required",
+              "identity_actor_setup_required"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ReasonDetails",
+        "type": "object"
+      },
+      "Receipt": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/SelectionResult"
+          },
+          "status": {
+            "const": "committed",
+            "default": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "result"
+        ],
+        "title": "Receipt",
+        "type": "object"
+      },
+      "RevisionDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "current_revision": {
+            "title": "Current Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_revision"
+        ],
+        "title": "RevisionDetails",
+        "type": "object"
+      },
+      "SaveCommitted": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/SaveResult"
+          },
+          "status": {
+            "const": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "SaveCommitted",
+        "type": "object"
+      },
+      "SaveResult": {
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "save",
+            "title": "Command",
+            "type": "string"
+          },
+          "disposition": {
+            "const": "saved",
+            "title": "Disposition",
+            "type": "string"
+          },
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "scope_generation": {
+            "title": "Scope Generation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision",
+          "command",
+          "scope_generation",
+          "disposition"
+        ],
+        "title": "SaveResult",
+        "type": "object"
+      },
+      "SelectionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "select_organization",
+            "default": "select_organization",
+            "title": "Command",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "event_id"
+        ],
+        "title": "SelectionResult",
+        "type": "object"
+      },
+      "Setup": {
+        "additionalProperties": false,
+        "properties": {
+          "org_id": {
+            "title": "Org Id",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "employment_missing",
+              "identity_person_link_required",
+              "identity_actor_setup_required"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "const": "setup_required",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "org_id",
+          "status",
+          "reason"
+        ],
+        "title": "Setup",
+        "type": "object"
+      },
+      "SizeDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "max_bytes": {
+            "const": 32768,
+            "title": "Max Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_bytes"
+        ],
+        "title": "SizeDetails",
+        "type": "object"
+      },
+      "StartCommitted": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/StartResult"
+          },
+          "status": {
+            "const": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "StartCommitted",
+        "type": "object"
+      },
+      "StartResult": {
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "const": "start",
+            "title": "Command",
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "created",
+              "resumed"
+            ],
+            "title": "Disposition",
+            "type": "string"
+          },
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "scope_generation": {
+            "title": "Scope Generation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision",
+          "command",
+          "scope_generation",
+          "disposition"
+        ],
+        "title": "StartResult",
+        "type": "object"
+      },
+      "Summary": {
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id",
+          "revision"
+        ],
+        "title": "Summary",
+        "type": "object"
+      },
+      "TargetDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft_id"
+        ],
+        "title": "TargetDetails",
+        "type": "object"
+      },
+      "Unresolved": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "unresolved",
+            "default": "unresolved",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "title": "Unresolved",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "LeaveBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "Leave authorized entry",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/v1/me/organizations": {
+      "get": {
+        "operationId": "organizations_v1_me_organizations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Organizations"
+      }
+    },
+    "/v1/me/preferences/language": {
+      "get": {
+        "operationId": "language_v1_me_preferences_language_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Language"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Language"
+      },
+      "put": {
+        "operationId": "set_language_v1_me_preferences_language_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected_revision": {
+                    "pattern": "^(0|[1-9][0-9]{0,18})$",
+                    "title": "Expected Revision",
+                    "type": "string"
+                  },
+                  "operation_id": {
+                    "title": "Operation Id",
+                    "type": "string"
+                  },
+                  "preferred_locale": {
+                    "enum": [
+                      "en",
+                      "pt"
+                    ],
+                    "title": "Preferred Locale",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "expected_revision",
+                  "preferred_locale"
+                ],
+                "title": "SetLanguage",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Language"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Set Language"
+      }
+    },
+    "/v1/organizations/{org_id}/context/operations/{operation_id}": {
+      "get": {
+        "operationId": "lookup_v1_organizations__org_id__context_operations__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unresolved"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Lookup"
+      }
+    },
+    "/v1/organizations/{org_id}/context/selection": {
+      "post": {
+        "operationId": "select_v1_organizations__org_id__context_selection_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "title": "Operation Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id"
+                ],
+                "title": "Selection",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Select"
+      }
+    },
+    "/v1/organizations/{org_id}/draft-choices": {
+      "get": {
+        "operationId": "draft_choices_v1_organizations__org_id__draft_choices_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Choices"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Draft Choices"
+      }
+    },
+    "/v1/organizations/{org_id}/drafts/{draft_id}": {
+      "get": {
+        "operationId": "read_draft_v1_organizations__org_id__drafts__draft_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "active": "#/components/schemas/Active",
+                      "discarded": "#/components/schemas/Discarded"
+                    },
+                    "propertyName": "state"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Active"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Discarded"
+                    }
+                  ],
+                  "title": "Response Read Draft V1 Organizations  Org Id  Drafts  Draft Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Read Draft"
+      }
+    },
+    "/v1/organizations/{org_id}/drafts/{draft_id}/discard": {
+      "post": {
+        "operationId": "discard_draft_v1_organizations__org_id__drafts__draft_id__discard_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected_revision": {
+                    "title": "Expected Revision",
+                    "type": "string"
+                  },
+                  "operation_id": {
+                    "title": "Operation Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "expected_revision"
+                ],
+                "title": "Discard",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "committed": "#/components/schemas/DiscardCommitted",
+                      "unresolved": "#/components/schemas/DraftUnresolved"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DiscardCommitted"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DraftUnresolved"
+                    }
+                  ],
+                  "title": "Response Discard Draft V1 Organizations  Org Id  Drafts  Draft Id  Discard Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Discard Draft"
+      }
+    },
+    "/v1/organizations/{org_id}/drafts/{draft_id}/editor": {
+      "get": {
+        "operationId": "open_editor_v1_organizations__org_id__drafts__draft_id__editor_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/EditorActive"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EditorClosed"
+                    }
+                  ],
+                  "title": "Response Open Editor V1 Organizations  Org Id  Drafts  Draft Id  Editor Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Open Editor"
+      }
+    },
+    "/v1/organizations/{org_id}/drafts/{draft_id}/input": {
+      "put": {
+        "operationId": "save_draft_v1_organizations__org_id__drafts__draft_id__input_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$defs": {
+                  "DateEntry": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "format": {
+                        "const": "dmy_numeric_v1",
+                        "title": "Format",
+                        "type": "string"
+                      },
+                      "text": {
+                        "maxLength": 64,
+                        "title": "Text",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "format"
+                    ],
+                    "title": "DateEntry",
+                    "type": "object"
+                  },
+                  "DurationEntry": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "format": {
+                        "const": "decimal_hours_dot_v1",
+                        "title": "Format",
+                        "type": "string"
+                      },
+                      "text": {
+                        "maxLength": 32,
+                        "title": "Text",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "format"
+                    ],
+                    "title": "DurationEntry",
+                    "type": "object"
+                  },
+                  "FullDays": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "end": {
+                        "$ref": "#/components/schemas/DateEntry"
+                      },
+                      "start": {
+                        "$ref": "#/components/schemas/DateEntry"
+                      }
+                    },
+                    "required": [
+                      "start",
+                      "end"
+                    ],
+                    "title": "FullDays",
+                    "type": "object"
+                  },
+                  "HalfDay": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "date": {
+                        "$ref": "#/components/schemas/DateEntry"
+                      }
+                    },
+                    "required": [
+                      "date"
+                    ],
+                    "title": "HalfDay",
+                    "type": "object"
+                  },
+                  "Hours": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "date": {
+                        "$ref": "#/components/schemas/DateEntry"
+                      },
+                      "duration": {
+                        "$ref": "#/components/schemas/DurationEntry"
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "duration"
+                    ],
+                    "title": "Hours",
+                    "type": "object"
+                  },
+                  "Input": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "duration_mode": {
+                        "anyOf": [
+                          {
+                            "enum": [
+                              "full_days",
+                              "half_day",
+                              "hours"
+                            ],
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Duration Mode"
+                      },
+                      "full_days": {
+                        "$ref": "#/components/schemas/FullDays"
+                      },
+                      "half_day": {
+                        "$ref": "#/components/schemas/HalfDay"
+                      },
+                      "hours": {
+                        "$ref": "#/components/schemas/Hours"
+                      },
+                      "input_version": {
+                        "const": 1,
+                        "title": "Input Version",
+                        "type": "integer"
+                      },
+                      "leave_type_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Leave Type Id"
+                      },
+                      "note": {
+                        "maxLength": 4000,
+                        "title": "Note",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "input_version",
+                      "leave_type_id",
+                      "duration_mode",
+                      "full_days",
+                      "half_day",
+                      "hours",
+                      "note"
+                    ],
+                    "title": "Input",
+                    "type": "object"
+                  }
+                },
+                "additionalProperties": false,
+                "properties": {
+                  "expected_revision": {
+                    "title": "Expected Revision",
+                    "type": "string"
+                  },
+                  "input": {
+                    "$ref": "#/components/schemas/Input"
+                  },
+                  "operation_id": {
+                    "title": "Operation Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "expected_revision",
+                  "input"
+                ],
+                "title": "Save",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "committed": "#/components/schemas/SaveCommitted",
+                      "unresolved": "#/components/schemas/DraftUnresolved"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/SaveCommitted"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DraftUnresolved"
+                    }
+                  ],
+                  "title": "Response Save Draft V1 Organizations  Org Id  Drafts  Draft Id  Input Put"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Save Draft"
+      }
+    },
+    "/v1/organizations/{org_id}/me/draft-context": {
+      "get": {
+        "operationId": "draft_context_v1_organizations__org_id__me_draft_context_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Omit for the legacy strict preparation response; version1 adds the current draft summary.",
+            "in": "query",
+            "name": "draft_context_version",
+            "required": false,
+            "schema": {
+              "enum": [
+                "1"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "discriminator": {
+                        "mapping": {
+                          "ready": "#/components/schemas/Ready",
+                          "setup_required": "#/components/schemas/Setup"
+                        },
+                        "propertyName": "status"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/Ready"
+                        },
+                        {
+                          "$ref": "#/components/schemas/Setup"
+                        }
+                      ]
+                    },
+                    {
+                      "discriminator": {
+                        "mapping": {
+                          "ready": "#/components/schemas/DraftReady",
+                          "setup_required": "#/components/schemas/Setup"
+                        },
+                        "propertyName": "status"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/DraftReady"
+                        },
+                        {
+                          "$ref": "#/components/schemas/Setup"
+                        }
+                      ]
+                    }
+                  ],
+                  "title": "Response Draft Context V1 Organizations  Org Id  Me Draft Context Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Draft Context"
+      }
+    },
+    "/v1/organizations/{org_id}/me/draft/start": {
+      "post": {
+        "operationId": "start_draft_v1_organizations__org_id__me_draft_start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "expected_scope_generation": {
+                    "title": "Expected Scope Generation",
+                    "type": "string"
+                  },
+                  "operation_id": {
+                    "title": "Operation Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id",
+                  "expected_scope_generation"
+                ],
+                "title": "Start",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "committed": "#/components/schemas/StartCommitted",
+                      "unresolved": "#/components/schemas/DraftUnresolved"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/StartCommitted"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DraftUnresolved"
+                    }
+                  ],
+                  "title": "Response Start Draft V1 Organizations  Org Id  Me Draft Start Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Start Draft"
+      }
+    },
+    "/v1/organizations/{org_id}/operations/{operation_id}": {
+      "get": {
+        "operationId": "draft_outcome_v1_organizations__org_id__operations__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "title": "Operation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "committed": "#/components/schemas/Committed",
+                      "unresolved": "#/components/schemas/DraftUnresolved"
+                    },
+                    "propertyName": "status"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Committed"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DraftUnresolved"
+                    }
+                  ],
+                  "title": "Response Draft Outcome V1 Organizations  Org Id  Operations  Operation Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LeaveBearer": []
+          }
+        ],
+        "summary": "Draft Outcome"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ]
+}

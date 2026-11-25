@@ -1,6 +1,6 @@
 .platform-app-launcher{position:relative;flex-shrink:0;font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#292929;text-align:left}
 .platform-app-launcher *{box-sizing:border-box}
-.platform-app-launcher .platform-app-trigger{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 12px;border:1px solid #d6dedb;border-radius:10px;background:#fff;color:#345b51;font:inherit;font-weight:600;cursor:pointer}
+.platform-app-launcher .platform-app-trigger{display:flex;align-items:center;justify-content:center;gap:8px;min-width:44px;min-height:44px;padding:8px 12px;border:1px solid #d6dedb;border-radius:10px;background:#fff;color:#345b51;font:inherit;font-weight:600;cursor:pointer}
 .platform-app-launcher .platform-app-trigger:hover,.platform-app-launcher .platform-app-trigger[aria-expanded=true]{background:#edf4f1;border-color:#92ada3}
 .platform-app-launcher svg{width:20px;height:20px;flex-shrink:0}
 .platform-app-launcher .platform-app-chevron{width:14px;height:14px}
@@ -19,3 +19,5 @@
 .platform-app-loading{padding:12px}
 .platform-app-launcher :focus-visible{outline:2px solid #397d68;outline-offset:2px}
 @media(max-width:420px){.platform-app-launcher .platform-app-trigger{padding:8px;gap:5px}.platform-app-launcher .platform-app-chevron{display:none}}
+
+.platform-app-launcher .platform-app-action{min-width:44px;min-height:44px;margin:4px 12px 12px;padding:8px 16px;border:1px solid #92ada3;border-radius:8px;background:#edf4f1;color:#345b51;font:inherit;cursor:pointer}

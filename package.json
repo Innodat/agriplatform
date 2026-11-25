@@ -5,7 +5,10 @@
   "workspaces": [
     "platform/*",
     "apps/scribeswell/web",
-    "tools"
+    "apps/pts/web",
+    "tools",
+    "apps/reference/web",
+    "apps/leave/web"
   ],
   "scripts": {
     "tools": "python tools/tools.py",

@@ -1,0 +1,427 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "builder-v1",
+    "template": "leave-entry-v1",
+    "recipe": "bc9ea2d179bab91f4e675108ddfda1ee8c55e2825fa742b69357f56fb5508935",
+    "source": "7013cde000b003b213d1e9ac585e422546008ca0661e44483fc01a12e4f6666d"
+  },
+  "files": {
+    ".gitignore": {
+      "classification": "seed",
+      "sha256": "256346d4036ac63459326b2becab18852d93ad8a0d8cf8b06566a0e5197056cb"
+    },
+    "AGENTS.md": {
+      "classification": "generated",
+      "sha256": "3523b7fd2ad5cf538dc4a9af8c9f2c8d0ba0268166bc7669ab4a7a7eba7d952b"
+    },
+    "SCAFFOLD.md": {
+      "classification": "seed",
+      "sha256": "494c59abdc22a8c92f70f0067be1f43df256cac9add21514d18e1e2a6d3eee3a"
+    },
+    "api/.dockerignore": {
+      "classification": "generated",
+      "sha256": "c33b3ec6f0a879444339beac97523c58e12e9a3e3fd4c05e4cb6c679f99335f0"
+    },
+    "api/AGENTS.md": {
+      "classification": "generated",
+      "sha256": "dcc93781b12ff10375226257bb6df3fcf6cf1ddabf1b837ae5cb5779204a65cd"
+    },
+    "api/README.md": {
+      "classification": "seed",
+      "sha256": "494c59abdc22a8c92f70f0067be1f43df256cac9add21514d18e1e2a6d3eee3a"
+    },
+    "api/access_client.py": {
+      "classification": "seed",
+      "sha256": "9c9a4ca1bbe24a48ca485edc8860a0a7030cb30d7f2ee4a944ff49538894a63d"
+    },
+    "api/alembic.ini": {
+      "classification": "generated",
+      "sha256": "cc3adf4c2870b38afa204e0c54bc1edd5aaf137bcbc32a062a921948cd0e9319"
+    },
+    "api/async_transaction_context.py": {
+      "classification": "generated",
+      "sha256": "41d029bef326eeaf52f4dc5f8b3b7ce8f059e2f0bee043455cf1c88e0f743c01"
+    },
+    "api/caller_context.py": {
+      "classification": "generated",
+      "sha256": "d7ef2c878f9a435ad49637db427cb61d458603acee2ae9f037388a243b76c692"
+    },
+    "api/command_fingerprint.py": {
+      "classification": "generated",
+      "sha256": "a59216e02fa263fcdcfa996a3c620a23c8800965e7db91830d266588e44fa965"
+    },
+    "api/contracts.py": {
+      "classification": "seed",
+      "sha256": "1731f604f960a27cacd4c84bd22086c8f052638350355c3dbda3b07d9a379fde"
+    },
+    "api/draft_choices.py": {
+      "classification": "seed",
+      "sha256": "4c94efd8941d065d34c0c0cf08a8581317d29a4d778c9b5671dfecc1144b5938"
+    },
+    "api/draft_context.py": {
+      "classification": "seed",
+      "sha256": "5efd56348d599c36b72c85f450e4edea4dad75fabbf02583b2f065d856a23173"
+    },
+    "api/drafts.py": {
+      "classification": "seed",
+      "sha256": "03bba1d1ee99bf15f6df30af8f42e0d4abc9720d02d24033d81e0926bb8899f4"
+    },
+    "api/export_openapi.py": {
+      "classification": "seed",
+      "sha256": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69"
+    },
+    "api/leave_entry.py": {
+      "classification": "seed",
+      "sha256": "3d0a98b390f7b105955168c2b538cf6d4a157aacb63ca599454a587f43ecf1c3"
+    },
+    "api/leave_operator.py": {
+      "classification": "seed",
+      "sha256": "0c9aa02ac64ba19bd9e85f4d783ab623e8339179e33f7d59253d1fe4a8718f44"
+    },
+    "api/main.py": {
+      "classification": "seed",
+      "sha256": "325140310b9db91912ea443d393fed58d928b74f0b843162db4d5ae9ac8739e4"
+    },
+    "api/migrate.py": {
+      "classification": "generated",
+      "sha256": "0ea93e5fc45317a1320ccb5893f015fcca5f5723662f2580aea7a12a568cb1ab"
+    },
+    "api/migration.env.example": {
+      "classification": "generated",
+      "sha256": "2fb40bbaebe617ae48aac33757e6ca0dbbf468e9ebda59ab8b2b04652fba5540"
+    },
+    "api/migrations/env.py": {
+      "classification": "seed",
+      "sha256": "c9c87b73e779b5c226e09346bcab01cebdf4ebdac9bb4a77317fd4df2abe47f5"
+    },
+    "api/migrations/script.py.mako": {
+      "classification": "seed",
+      "sha256": "279902f4984e843cac28e91694c671bc8cb084f245d9a5b9ca940de9df2de063"
+    },
+    "api/migrations/versions/0001_baseline.py": {
+      "classification": "seed",
+      "sha256": "d44c056d9d0cf2e8156c1b3c5e10f9499585c9339b29e0169ee814749bd81c3f"
+    },
+    "api/migrations/versions/0002_selection.py": {
+      "classification": "seed",
+      "sha256": "7786d38de78d2792623e4b1ae6e388eae287d7dc864fa31296723646d953b48d"
+    },
+    "api/migrations/versions/0003_draft_context.py": {
+      "classification": "seed",
+      "sha256": "e326856e6a6abb27b8f1abe31c566ba4f4196dda54dad317dac3246a4a40e8e8"
+    },
+    "api/migrations/versions/0004_draft_choices.py": {
+      "classification": "seed",
+      "sha256": "adc01a7157fe93fff3d58bb0adb3c32eb363b21d670794fa20503691f2fa24c9"
+    },
+    "api/migrations/versions/0005_drafts.py": {
+      "classification": "seed",
+      "sha256": "ab75e5bddf18dbdc3a2397c034faf828a983247d3beebae6b1770ecf5bbb43b1"
+    },
+    "api/migrations/versions/0006_draft_input_version.py": {
+      "classification": "seed",
+      "sha256": "d155f96ff231ca16414d93bb624e58fcb83fcd8b3a67e749ab7cc1e5d3e3c301"
+    },
+    "api/native_migration_checks.py": {
+      "classification": "generated",
+      "sha256": "cbfbdacf7b54d1bcb13bd4a5644ca5a6fcb7c978514d1722514960540fc1bc21"
+    },
+    "api/operator_cli.py": {
+      "classification": "seed",
+      "sha256": "9c537f4399dcecd6dbdcbbdecda0adce22c1cb6918eef878b408427538596648"
+    },
+    "api/outbound_http.py": {
+      "classification": "generated",
+      "sha256": "66ecb714abb7130df4383c1189c2c0bce74a442c9ef754a396d34e411c0db2d2"
+    },
+    "api/owned_migration.py": {
+      "classification": "generated",
+      "sha256": "c248afb92411a2dacd93ab0a6c636067a9bf7e157bbc07640d7fa17467f3916c"
+    },
+    "api/package_production.py": {
+      "classification": "generated",
+      "sha256": "d1fcde3f0948ca1ffa77e0873576b97f71ca2c305645b4dd65da01c1bf693cfb"
+    },
+    "api/people_client.py": {
+      "classification": "seed",
+      "sha256": "f4eb70942ad17bdd098b668eea6703331ecb9ab37fbdfc6e9bcc90d197cde59e"
+    },
+    "api/pyproject.toml": {
+      "classification": "seed",
+      "sha256": "52936af273de26e1795c9f1078f7f6bc71bc575e06138a3ce327d1bd041f0241"
+    },
+    "api/repository.py": {
+      "classification": "seed",
+      "sha256": "a33abd156d02b34979abdab7e92756a96920d852290c13ae4f6cac1af7e8103a"
+    },
+    "api/runtime.env.example": {
+      "classification": "generated",
+      "sha256": "c962d1c54ed207b129ab0f48b3c7a21fa0b84f3b504cb766619f560797f3a5a1"
+    },
+    "api/runtime_database.py": {
+      "classification": "generated",
+      "sha256": "3cc8d0441de55ab1cad7bc5e8763ac9ed3312fa92feecdf521b043c4e8d033b0"
+    },
+    "api/safe_errors.py": {
+      "classification": "generated",
+      "sha256": "6cc7acda0fb39def0a87c15fc0a46149c64f4af3e982d7cfb619260d617ff11c"
+    },
+    "api/start.py": {
+      "classification": "generated",
+      "sha256": "d9b36d9268e75334d46df4864d235f8578da834d6ebfa59378b4a707c1184ee4"
+    },
+    "api/tests/test_draft_choices.py": {
+      "classification": "seed",
+      "sha256": "2876c8ca274963dba0d69ea52aa6b1b103660b6b0bdef80e78a2c92c41a48dd8"
+    },
+    "api/tests/test_draft_context.py": {
+      "classification": "seed",
+      "sha256": "6491d95a0ce3bbb320c354daa93aa3264353ee76ec442085fddb575081c2abea"
+    },
+    "api/tests/test_draft_discard.py": {
+      "classification": "seed",
+      "sha256": "9648a8f4959ed95df73329ddbfd098d8d8a474b07d202807b64db6220985ec5e"
+    },
+    "api/tests/test_draft_input.py": {
+      "classification": "seed",
+      "sha256": "cd6a2c5aebab0e5e68deee5dba63baf03b6dbd7267cf6a351d15842c2a78fa17"
+    },
+    "api/tests/test_drafts.py": {
+      "classification": "seed",
+      "sha256": "feb76c6b8472686a2818301ee784eba0e699fa9f9795dd8740b6554e8a68180b"
+    },
+    "api/tests/test_editor_opening.py": {
+      "classification": "seed",
+      "sha256": "abc702080605e2c91a1589769055e1a06f67a5b06d7d5793462dec432e4bed4a"
+    },
+    "api/tests/test_leave_entry.py": {
+      "classification": "seed",
+      "sha256": "a0f8a4523ca38d433d91fb85d393d09f3bb47d0c4c3116b230813043e638c1d8"
+    },
+    "api/tests/test_leave_operator.py": {
+      "classification": "seed",
+      "sha256": "b74a89b6212b275d7d8df8b43eed506baf2b9acb1bf8fe300ad741226ff4975b"
+    },
+    "api/tests/test_native_migration_checks.py": {
+      "classification": "generated",
+      "sha256": "a56d7fcdbcedebea491d3967ff927b36c37b47a45920f63e358367533a36c80b"
+    },
+    "api/tests/test_owned_migration.py": {
+      "classification": "generated",
+      "sha256": "8ecddde356cd4a97316ffd67551eb2944440e51334c02827174759b2f12dc25c"
+    },
+    "api/tests/test_packaging.py": {
+      "classification": "generated",
+      "sha256": "044ef40f20f17c740e0a1698414c55b44cee502b879496e56bc2fcb4f3a9b8fb"
+    },
+    "api/tests/test_runtime.py": {
+      "classification": "generated",
+      "sha256": "559e761384b4016e2c14317eccfde821f0c49118293fbc414d69b75c958ecdb2"
+    },
+    "api/tools/prepare_roles.sql": {
+      "classification": "seed",
+      "sha256": "4d5cbf4c262bdeb7721c4057d154ecd9f259db59a5920ae629d7540efc8f33ed"
+    },
+    "api/transaction_context.py": {
+      "classification": "generated",
+      "sha256": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+    },
+    "api/verify_bundle.py": {
+      "classification": "generated",
+      "sha256": "e6789a4af787cbed18b46672609c82f6214dc40c76e96c363788574229e403e5"
+    },
+    "api/work_timezone.py": {
+      "classification": "seed",
+      "sha256": "5f3e23c07554dbcaf11fda6d8f7a23aeba50f744fae5209f2b14d3d41ef9928a"
+    },
+    "deployment/Dockerfile": {
+      "classification": "generated",
+      "sha256": "621233b8c0fe7fa7dc7b89fa5e0c037440dd14eedf418d702e46aeff8291c589"
+    },
+    "deployment/Dockerfile.dockerignore": {
+      "classification": "seed",
+      "sha256": "673c82bb7e691b12a418020d507df55e6946b798d2abfc3cd050c197d02d2626"
+    },
+    "deployment/Migrations.Dockerfile": {
+      "classification": "generated",
+      "sha256": "ee8092b31176bdadc0a519e321cc041466932b3d202bdf035694d4cc644802bb"
+    },
+    "deployment/Migrations.Dockerfile.dockerignore": {
+      "classification": "seed",
+      "sha256": "673c82bb7e691b12a418020d507df55e6946b798d2abfc3cd050c197d02d2626"
+    },
+    "deployment/manifest.json": {
+      "classification": "generated",
+      "sha256": "49946f87b2d67248dd9c848732ac2f500ade37175273125d3cca15e9cfe0db38"
+    },
+    "deployment/migration-group.example.json": {
+      "classification": "generated",
+      "sha256": "0b27c1e35fd47a4a54ad8fd43b170f4582b6f178ab6b86db9347866055e48258"
+    },
+    "generation-inputs.json": {
+      "classification": "generated",
+      "sha256": "f77c696cefceb84fec34d0fd6a2d5d00e5338d68eddf97f23088b15a969378df"
+    },
+    "local.example.json": {
+      "classification": "generated",
+      "sha256": "070224e08fe085fcdf6cff19a530637a3941840997a995501f40c4d19d69ea4b"
+    },
+    "local.json": {
+      "classification": "seed",
+      "sha256": "070224e08fe085fcdf6cff19a530637a3941840997a995501f40c4d19d69ea4b"
+    },
+    "web/README.md": {
+      "classification": "seed",
+      "sha256": "494c59abdc22a8c92f70f0067be1f43df256cac9add21514d18e1e2a6d3eee3a"
+    },
+    "web/index.html": {
+      "classification": "generated",
+      "sha256": "746fbba5c8a2286c435c180d3f969b83eec80e4244a68a6bddb8a37fa4f3133e"
+    },
+    "web/package.json": {
+      "classification": "generated",
+      "sha256": "e1b6a0a8c5831fc83037d17317dcc34303a08d48f8417cd707bd29e7f380dfd3"
+    },
+    "web/scripts/browser-smoke.mjs": {
+      "classification": "generated",
+      "sha256": "61bee39e3e40196e080cede2e69959c0889253881ef8422f8dfa6137f29870b4"
+    },
+    "web/scripts/proof-support.mjs": {
+      "classification": "generated",
+      "sha256": "a75bec24bdf2219822750c9b67e08265b9ced2126407e327ce4261398c2b6a21"
+    },
+    "web/scripts/test-auth-lifecycle.mjs": {
+      "classification": "generated",
+      "sha256": "134de9ac3f48e627239d9033492a1fa6916660e84b8504110afe94d600438165"
+    },
+    "web/scripts/test-choices.mjs": {
+      "classification": "generated",
+      "sha256": "650ee608a236c097e0b5a2bfe96c07ca1a22904155654f315aefa38fc04b1db9"
+    },
+    "web/scripts/test-context.mjs": {
+      "classification": "generated",
+      "sha256": "7e0574d3e8eb5e897d19efd36c2a1b27c5c83b17bf8d9a6fdddfba2b717797ce"
+    },
+    "web/scripts/test-draft-editor.mjs": {
+      "classification": "generated",
+      "sha256": "21b9d5e4586764c77bbdadd0fdd86a1acaac16783c2f9ac96ae06defd2fb1b0b"
+    },
+    "web/scripts/test-draft-input.mjs": {
+      "classification": "generated",
+      "sha256": "0b6d596f160cf1fae0cb2c7c5595e123fbdde0e44c5d8ce1e4a66559cb989f37"
+    },
+    "web/scripts/test-drafts.mjs": {
+      "classification": "generated",
+      "sha256": "5d6b4a1ca0e393933748981a2c514f8ada9ebcf1f77f64704d4c18acc51789c1"
+    },
+    "web/scripts/test-editor-opening.mjs": {
+      "classification": "generated",
+      "sha256": "26493220d7f2e5be515cfe4f1e3be305e2f30dce8a378976a9c80872bd34fc8a"
+    },
+    "web/scripts/test-entry.mjs": {
+      "classification": "generated",
+      "sha256": "dac1102dc772d580976d9f9f9022e179fa8ef04b87955490f80fdde8288a8c0e"
+    },
+    "web/scripts/test-health.mjs": {
+      "classification": "generated",
+      "sha256": "6377de6aa5ce4bfec63e722c56175902e6bad19139ff58673adda2caa56a54bd"
+    },
+    "web/src/App.tsx": {
+      "classification": "seed",
+      "sha256": "594b47911162c60069091f49307b6f263a8b8a42cf1739511103bd1da5601282"
+    },
+    "web/src/DraftChoices.tsx": {
+      "classification": "seed",
+      "sha256": "63005a8a853df9d901b4dcbf132fbea9257ac6dffadc025a228efbfe858ba1a1"
+    },
+    "web/src/DraftContext.tsx": {
+      "classification": "seed",
+      "sha256": "22c216348978cda34aefb2dbea75932f81ae9c169e778e1ed1cbf493b0fe453d"
+    },
+    "web/src/DraftEditor.tsx": {
+      "classification": "seed",
+      "sha256": "1f04ebdebd5910f1c0f68d63e2efec696f7b0fe9cab660d965432df31cb1ecc7"
+    },
+    "web/src/Launcher.tsx": {
+      "classification": "generated",
+      "sha256": "11d85f34b5c2a8e9e0802a3a2a1239d52220dc1295659b07408ee4d2625a326c"
+    },
+    "web/src/MyLeave.tsx": {
+      "classification": "seed",
+      "sha256": "18824fdda136b6201fb4c43fd03a50ded6eda0d4029313d304190f1b15648195"
+    },
+    "web/src/api/health.ts": {
+      "classification": "seed",
+      "sha256": "0cb5fe9bd813b5cc8b1ac88ab040eba0c97bc59c43d323e10ebd19bf6b5e0ef9"
+    },
+    "web/src/api/leave.ts": {
+      "classification": "seed",
+      "sha256": "cf7173940f14de50693defbbf038ebe4e185d073a2d54a590ecc7388da7bb3b5"
+    },
+    "web/src/auth-provider-transport.ts": {
+      "classification": "seed",
+      "sha256": "be95e707f8a33ca4181ac4e0286ffe606f2a79bf93e71f71a1a512eb1e3658ad"
+    },
+    "web/src/auth/lifecycle.ts": {
+      "classification": "generated",
+      "sha256": "f275a40ce583b79a4b7b559d9ad5dd3aab275b37096e43a7ab8677c56f9136ac"
+    },
+    "web/src/auth/use-lifecycle.ts": {
+      "classification": "generated",
+      "sha256": "702566828afec077516ab4f45209342e68f7028bdc31be77159875bc737374b1"
+    },
+    "web/src/choice-selection.ts": {
+      "classification": "seed",
+      "sha256": "4876b1a3c4c893fe6130a870906c3cf1bc91aebf873d2e9ace13f21f0888e880"
+    },
+    "web/src/choices-controller.ts": {
+      "classification": "seed",
+      "sha256": "6df168223c60c4d52443d2689896905288cf2e36c4fe984945c1b172e274856a"
+    },
+    "web/src/context-controller.ts": {
+      "classification": "seed",
+      "sha256": "c35a77b8b441943f00b25d8a398bc9c4d6622864dfe175a7bd203eae9d6b1261"
+    },
+    "web/src/draft-controller.ts": {
+      "classification": "seed",
+      "sha256": "953639679baf7c494c631b70ca868d71a37595846043f865e19ab0693b857b27"
+    },
+    "web/src/draft-editor-controller.ts": {
+      "classification": "seed",
+      "sha256": "1609e880db15f78d6c471cd59861e824ae1314e5032e8a48006dfa4228638e9c"
+    },
+    "web/src/draft-input.ts": {
+      "classification": "seed",
+      "sha256": "0f8ab72a400c59a999746f399f23310552d45f394a9a23bad557c1442e80a117"
+    },
+    "web/src/launcher-session.ts": {
+      "classification": "seed",
+      "sha256": "c224311418799e5f26b9733ffe08fa17e336a41a69f4f3fee8e087984d7ab93d"
+    },
+    "web/src/leave-controller.ts": {
+      "classification": "seed",
+      "sha256": "8a3f7218b7e8f9e5fac329af61bb27cbc61eb90b4ab3165fcd4677ad60da0c09"
+    },
+    "web/src/leave-session.ts": {
+      "classification": "seed",
+      "sha256": "5982cd5a805817fa0c3e5947b65526981fd9dbbaef5a473e46c3e7f6d1c741bd"
+    },
+    "web/src/main.tsx": {
+      "classification": "seed",
+      "sha256": "ddbb92ad191bd554c28268220d9fdcbaa5906f30786530b55823f7049aa17e6a"
+    },
+    "web/src/styles.css": {
+      "classification": "seed",
+      "sha256": "1ca9beecfd763f460f634064a199a4c88322f344da0f17d8379010d7831388d1"
+    },
+    "web/tsconfig.json": {
+      "classification": "generated",
+      "sha256": "a1252fcdbc8d45a976804c7072f734414b07a2c20315a9751f6ab4a9b0deb990"
+    },
+    "web/vite.config.ts": {
+      "classification": "generated",
+      "sha256": "c6d83952deb7505c8dde5393f3258ca9810f3b3a954d8db21dc8d36a2af59d63"
+    }
+  }
+}

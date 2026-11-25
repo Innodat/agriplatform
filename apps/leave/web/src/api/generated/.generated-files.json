@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "platform-api-client",
+    "template": "hey-api-0.99.0-types-v1",
+    "recipe": "d3e06e4788695ffaa9ce45bcc8d62724af3870669d43ea340ea9d6342d976d3d",
+    "source": "69a8a452dab6a8f7fbed2519a1f3ac2192a507a9b08daaa8e8ff16d2dd0b8731"
+  },
+  "files": {
+    "index.ts": {
+      "classification": "generated",
+      "sha256": "9ffbc1ed6c6bc477a5b659bfdfd7801cd583e5f2c59fe5c374678b126dbf107c"
+    },
+    "types.gen.ts": {
+      "classification": "generated",
+      "sha256": "6c5cd0c50a437330af4dc08d8414d680b713adb4e8f81b849bc75d6d6a1a41e1"
+    }
+  }
+}

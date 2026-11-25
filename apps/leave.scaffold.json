@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "owner_id": "leave",
+  "owner_kind": "application",
+  "sources": [
+    "_bmad-output/planning-artifacts/epics.md"
+  ],
+  "contracts": [
+    "platform/docs/architecture/contracts/e1-security-audit-ownership.md",
+    "platform/docs/architecture/contracts/application-admission-and-discovery.md",
+    "apps/leave/docs/architecture/contracts/e1-work-timezone-configuration.md",
+    "apps/leave/docs/architecture/contracts/e1-draft-persistence-and-recovery.md",
+    "platform/docs/architecture/contracts/identity-access-employment-e1.md",
+    "apps/leave/docs/architecture/contracts/e1-draft-choice-resolution.md",
+    "platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md",
+    "apps/leave/docs/architecture/contracts/e1-editor-opening.md",
+    "platform/docs/architecture/decisions/0066-composed-form-opening-data.md"
+  ],
+  "patterns": [
+    "api.owner-http.v1",
+    "web.react-shell.v1",
+    "errors.safe-envelope.v1",
+    "saving.none.v1",
+    "db.owner-migrations.v1",
+    "auth.organization-account.fixed.v1",
+    "web.leave-entry.v1",
+    "web.app-launcher.v1",
+    "api.leave-context.v1",
+    "api.leave-choices.v1",
+    "api.leave-drafts.v1",
+    "api.leave-draft-input.v1",
+    "web.leave-draft-editor.v1",
+    "web.leave-editor-opening.v1",
+    "web.leave-organization-switch.v1",
+    "web.leave-draft-discard.v1",
+    "web.leave-draft-return.v1"
+  ],
+  "extensions": [],
+  "deployment_manifest": "apps/leave/deployment/manifest.json",
+  "backend": {
+    "database": "postgresql17"
+  },
+  "display_name": "Leave",
+  "local": {
+    "api_origin": "http://localhost:8190",
+    "web_port": 5190
+  },
+  "launcher": {
+    "directory_origin": "http://localhost:8199"
+  }
+}

@@ -1,94 +1,60 @@
-/**
- * App Directory — typed fetch client.
- *
- * Usage in any app:
- *   import { createAppDirectoryClient } from "@platform/app-directory-client";
- *
- *   const client = createAppDirectoryClient({
- *     baseUrl: import.meta.env.VITE_APP_DIRECTORY_URL,
- *     getToken: () => supabase.auth.getSession().then(s => s.data.session?.access_token),
- *   });
- *
- *   const { apps, context } = await client.getMyApps();
- */
-import { MeAppsResponseSchema, MeContextSchema, AppEntrySchema } from "./schemas";
-import type { MeAppsResponse, MeContext, AppEntry } from "./schemas";
+/** Typed, bounded Directory observations. No observation is an authorization cache. */
+import { MeAppsResponseSchema, MeContextSchema, AppEntrySchema, CurrentAppsResponseSchema } from './schemas';
+import type { CurrentAppsResponse, MeAppsResponse, MeContext, AppEntry } from './schemas';
 
+export type DirectoryErrorId = 'authentication_required' | 'access_denied' | 'discovery_unavailable' | 'request_cancelled';
+export class AppDirectoryError extends Error {
+  constructor(public readonly errorId:DirectoryErrorId, public readonly status?:number) {
+    super(({authentication_required:'Please sign in again.',access_denied:'Your current account cannot access apps.',discovery_unavailable:'Apps could not be checked. Please retry.',request_cancelled:'Request cancelled.'})[errorId]);
+    this.name='AppDirectoryError';
+  }
+}
+export interface DirectoryRequestOptions { signal?:AbortSignal; token?:string|null; }
 export interface AppDirectoryClientOptions {
-  /** Base URL of the app-directory service, e.g. "http://localhost:8001" */
-  baseUrl: string;
-  /**
-   * Optional async function that returns the current user's Bearer token.
-   * If omitted or returns undefined, requests are sent without Authorization header.
-   */
-  getToken?: () => Promise<string | undefined | null>;
+  baseUrl:string;
+  getToken?:()=>Promise<string|undefined|null>;
+  /** Injection supports host fixtures without inventing authentication. */
+  fetch?:typeof fetch;
+  timeoutMs?:number;
 }
-
-async function fetchJson<T>(
-  url: string,
-  schema: { parse: (data: unknown) => T },
-  token?: string | null
-): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+export function createAppDirectoryClient(options:AppDirectoryClientOptions) {
+  const base=options.baseUrl.replace(/\/$/,'');
+  const transport=options.fetch??globalThis.fetch;
+  const budget=Math.min(Math.max(options.timeoutMs??8000,1),8000);
+  async function request<T>(path:string,schema:{parse:(data:unknown)=>T},input:DirectoryRequestOptions={}):Promise<T>{
+    const controller=new AbortController();
+    let timer:ReturnType<typeof setTimeout>|undefined;
+    let cancel:()=>void=()=>{};
+    const cancelled=new Promise<never>((_,reject)=>{
+      cancel=()=>{controller.abort();reject(new AppDirectoryError('request_cancelled'));};
+      input.signal?.addEventListener('abort',cancel,{once:true});
+      if(input.signal?.aborted)cancel();
+      timer=setTimeout(()=>{controller.abort();reject(new AppDirectoryError('discovery_unavailable'));},budget);
+    });
+    const execution=(async()=>{
+      const token=Object.prototype.hasOwnProperty.call(input,'token')?input.token:await options.getToken?.();
+      if(controller.signal.aborted)throw new AppDirectoryError(input.signal?.aborted?'request_cancelled':'discovery_unavailable');
+      const headers:Record<string,string>={Accept:'application/json'};
+      if(token)headers.Authorization=`Bearer ${token}`;
+      const response=await transport(base+path,{headers,signal:controller.signal,cache:'no-store',redirect:'error'});
+      if(!response.ok){
+        // The English error/details are never exposed to callers or logged.
+        const body:unknown=await response.json().catch(()=>null);
+        const identifier=body&&typeof body==='object'&&'error_id' in body?body.error_id:null;
+        throw new AppDirectoryError(response.status===401&&identifier==='authentication_required'?'authentication_required':response.status===403&&identifier==='access_denied'?'access_denied':'discovery_unavailable',response.status);
+      }
+      return schema.parse(await response.json());
+    })();
+    try{return await Promise.race([execution,cancelled]);}
+    catch(error){if(error instanceof AppDirectoryError)throw error;throw new AppDirectoryError(input.signal?.aborted?'request_cancelled':'discovery_unavailable');}
+    finally{clearTimeout(timer);input.signal?.removeEventListener('abort',cancel);}
   }
-
-  const res = await fetch(url, { headers });
-
-  if (!res.ok) {
-    let errorMessage = `App Directory request failed: ${res.status} ${res.statusText}`;
-    try {
-      const body = await res.json();
-      if (body?.error) errorMessage = body.error;
-    } catch {
-      // ignore parse error
-    }
-    throw new Error(errorMessage);
-  }
-
-  const data = await res.json();
-  return schema.parse(data);
-}
-
-export function createAppDirectoryClient(options: AppDirectoryClientOptions) {
-  const { baseUrl, getToken } = options;
-  const base = baseUrl.replace(/\/$/, "");
-
-  async function token(): Promise<string | undefined | null> {
-    return getToken ? getToken() : undefined;
-  }
-
   return {
-    /**
-     * GET /api/me/apps
-     * Returns apps available to the current user + identity context.
-     */
-    async getMyApps(): Promise<MeAppsResponse> {
-      const t = await token();
-      return fetchJson(`${base}/api/me/apps`, MeAppsResponseSchema, t);
-    },
-
-    /**
-     * GET /api/me/context
-     * Returns the current user's org_id, member_id, and roles.
-     */
-    async getMyContext(): Promise<MeContext> {
-      const t = await token();
-      return fetchJson(`${base}/api/me/context`, MeContextSchema, t);
-    },
-
-    /**
-     * GET /api/apps
-     * Returns the full catalog including disabled apps.
-     */
-    async getAllApps(): Promise<AppEntry[]> {
-      const t = await token();
-      return fetchJson(`${base}/api/apps`, AppEntrySchema.array(), t);
-    },
+    getCurrentApps:(input?:DirectoryRequestOptions):Promise<CurrentAppsResponse>=>request('/api/v2/me/apps',CurrentAppsResponseSchema,input),
+    getMyApps:(input?:DirectoryRequestOptions):Promise<MeAppsResponse>=>request('/api/me/apps',MeAppsResponseSchema,input),
+    getMyContext:(input?:DirectoryRequestOptions):Promise<MeContext>=>request('/api/me/context',MeContextSchema,input),
+    /** Retained source API; full-catalogue HTTP access was removed from public Directory. */
+    getAllApps:(input?:DirectoryRequestOptions):Promise<AppEntry[]>=>request('/api/apps',AppEntrySchema.array(),input),
   };
 }
-
-export type AppDirectoryClient = ReturnType<typeof createAppDirectoryClient>;
+export type AppDirectoryClient=ReturnType<typeof createAppDirectoryClient>;

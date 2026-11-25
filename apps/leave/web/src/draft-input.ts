@@ -1,0 +1,10 @@
+// The canonical input-v1 aggregate. Catalogue observations and first-choice eligibility
+// are deliberately outside this value so D1/D2 can replace the in-memory host.
+export type DurationMode='full_days'|'half_day'|'hours';
+export type DateInput={text:string;format:'dmy_numeric_v1'};
+export type DraftInput={input_version:1;leave_type_id:string|null;duration_mode:DurationMode|null;full_days:{start:DateInput;end:DateInput};half_day:{date:DateInput};hours:{date:DateInput;duration:{text:string;format:'decimal_hours_dot_v1'}};note:string};
+export function emptyInput():DraftInput{const date=():DateInput=>({text:'',format:'dmy_numeric_v1'});return{input_version:1,leave_type_id:null,duration_mode:null,full_days:{start:date(),end:date()},half_day:{date:date()},hours:{date:date(),duration:{text:'',format:'decimal_hours_dot_v1'}},note:''};}
+const object=(v:unknown,keys:string[]):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).sort().join()===keys.sort().join();
+const text=(v:unknown,max:number):v is string=>typeof v==='string'&&Array.from(v).length<=max&&!/[\u0000\uD800-\uDFFF]/u.test(v);
+const date=(v:unknown):v is DateInput=>object(v,['text','format'])&&v.format==='dmy_numeric_v1'&&text(v.text,64);
+export function isDraftInput(v:unknown):v is DraftInput{return object(v,['input_version','leave_type_id','duration_mode','full_days','half_day','hours','note'])&&v.input_version===1&&(v.leave_type_id===null||typeof v.leave_type_id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.leave_type_id)&&v.leave_type_id!=='00000000-0000-0000-0000-000000000000')&&(v.duration_mode===null||typeof v.duration_mode==='string'&&['full_days','half_day','hours'].includes(v.duration_mode))&&object(v.full_days,['start','end'])&&date(v.full_days.start)&&date(v.full_days.end)&&object(v.half_day,['date'])&&date(v.half_day.date)&&object(v.hours,['date','duration'])&&date(v.hours.date)&&object(v.hours.duration,['text','format'])&&v.hours.duration.format==='decimal_hours_dot_v1'&&text(v.hours.duration.text,32)&&text(v.note,4000);}
